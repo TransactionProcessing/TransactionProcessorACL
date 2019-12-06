@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace TransactionProcessor.IntegrationTests.LogonTransaction
+namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
 {
     using TechTalk.SpecFlow;
     using System;
