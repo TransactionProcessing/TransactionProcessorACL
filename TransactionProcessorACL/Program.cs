@@ -9,9 +9,11 @@ using Microsoft.Extensions.Logging;
 
 namespace TransactionProcessorACL
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using Autofac.Extensions.DependencyInjection;
 
+    [ExcludeFromCodeCoverage]
     public class Program
     {
         public static void Main(string[] args)
