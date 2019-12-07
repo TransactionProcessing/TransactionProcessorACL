@@ -2,6 +2,9 @@
 
 namespace TransactionProcessorACL.Models
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class ProcessLogonTransactionResponse
     {
         /// <summary>

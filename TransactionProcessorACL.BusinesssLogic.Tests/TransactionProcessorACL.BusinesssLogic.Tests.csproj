@@ -2,12 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <DebugType>None</DebugType>
+
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="Shouldly" Version="3.0.2" />
@@ -23,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TransactionProcessorACL.BusinessLogic\TransactionProcessorACL.BusinessLogic.csproj" />
     <ProjectReference Include="..\TransactionProcessorACL.Testing\TransactionProcessorACL.Testing.csproj" />
-    <ProjectReference Include="..\TransactionProcessorACL\TransactionProcessorACL.csproj" />
   </ItemGroup>
 
 </Project>
