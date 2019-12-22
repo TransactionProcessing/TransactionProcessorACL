@@ -20,6 +20,7 @@ namespace TransactionProcessorACL
     using BusinessLogic.Requests;
     using Common;
     using MediatR;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;
     using Microsoft.AspNetCore.Mvc.Versioning;
     using Microsoft.Extensions.Options;
@@ -29,8 +30,10 @@ namespace TransactionProcessorACL
     using NLog.Extensions.Logging;
     using Shared.Extensions;
     using Shared.General;
+    using Shared.Logger;
     using Swashbuckle.AspNetCore.Filters;
     using Swashbuckle.AspNetCore.SwaggerGen;
+    using ILogger = Microsoft.Extensions.Logging.ILogger;
 
     [ExcludeFromCodeCoverage]
     public class Startup
@@ -94,10 +97,32 @@ namespace TransactionProcessorACL
 
             services.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
 
+            services.AddAuthentication(options =>
+                                       {
+                                           options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                                           options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                                           options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                                       })
+                    .AddJwtBearer(options =>
+                    {
+                       //options.SaveToken = true;
+                       options.Authority = ConfigurationReader.GetValue("SecurityConfiguration", "Authority");
+                        options.Audience = ConfigurationReader.GetValue("SecurityConfiguration", "ApiName");
+                        options.RequireHttpsMetadata = false;
+                        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                        {
+                            ValidateIssuer = true,
+                            ValidateAudience = true,
+                            ValidAudience = ConfigurationReader.GetValue("SecurityConfiguration", "ApiName"),
+                            ValidIssuer = ConfigurationReader.GetValue("SecurityConfiguration", "Authority"),
+                        };
+                        options.IncludeErrorDetails = true;
+                    });
+
             services.AddControllers().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+                options.SerializerSettings.TypeNameHandling = TypeNameHandling.All;
                 options.SerializerSettings.Formatting = Formatting.Indented;
                 options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -147,6 +172,7 @@ namespace TransactionProcessorACL
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
