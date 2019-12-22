@@ -13,7 +13,8 @@ Background:
 	| Test Merchant 2 | Address Line 1 | TestTown | Test Region | United Kingdom | Test Contact 2 | testcontact2@merchant2.co.uk | Test Estate 1 |
 	| Test Merchant 3 | Address Line 1 | TestTown | Test Region | United Kingdom | Test Contact 3 | testcontact3@merchant2.co.uk | Test Estate 2 |
 
-@PRTest
+@PRTest @ignore
+# ignoring this PR test until the full logon flow implemented
 Scenario: Logon Transaction
 	When I perform the following transactions
 	| DateTime | TransactionNumber | TransactionType | MerchantName    | IMEINumber |
