@@ -1,199 +1,234 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TransactionProcessor.IntegrationTests.Common
+﻿namespace TransactionProcessor.IntegrationTests.Common
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Net.Http;
     using System.Threading.Tasks;
     using Client;
-    using Ductus.FluentDocker.Builders;
-    using Ductus.FluentDocker.Model.Builders;
+    using Ductus.FluentDocker.Common;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
     using EstateManagement.Client;
+    using global::Shared.Logger;
+    using SecurityService.Client;
 
-    public class DockerHelper
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="Shared.IntegrationTesting.DockerHelper" />
+    public class DockerHelper : global::Shared.IntegrationTesting.DockerHelper
     {
-        protected INetworkService TestNetwork;
+        #region Fields
 
-        protected Int32 EstateManagementPort;
-        protected Int32 TransactionProcessorPort;
-        protected Int32 TransactionProcessorACLPort;
-        protected Int32 EventStorePort;
-
-        protected IContainerService EstateManagementContainer;
-        protected IContainerService TransactionProcessorContainer;
-        protected IContainerService TransactionProcessorACLContainer;
-        protected IContainerService EventStoreContainer;
-
+        /// <summary>
+        /// The estate client
+        /// </summary>
         public IEstateClient EstateClient;
+
+        /// <summary>
+        /// The HTTP client
+        /// </summary>
         public HttpClient HttpClient;
 
-        protected String EventStoreConnectionString;
+        /// <summary>
+        /// The security service client
+        /// </summary>
+        public ISecurityServiceClient SecurityServiceClient;
 
-        protected String EstateManagementContainerName;
-        protected String TransactionProcessorContainerName;
-        protected String TransactionProcessorACLContainerName;
-        protected String EventStoreContainerName;
-
-        private void SetupTestNetwork()
-        {
-            // Build a network
-            this.TestNetwork = new Ductus.FluentDocker.Builders.Builder().UseNetwork($"testnetwork{Guid.NewGuid()}").Build();
-        }
+        /// <summary>
+        /// The test identifier
+        /// </summary>
         public Guid TestId;
-        private void SetupEventStoreContainer(String traceFolder)
+
+        /// <summary>
+        /// The transaction processor client
+        /// </summary>
+        public ITransactionProcessorClient TransactionProcessorClient;
+
+        /// <summary>
+        /// The containers
+        /// </summary>
+        protected List<IContainerService> Containers;
+
+        /// <summary>
+        /// The estate management API port
+        /// </summary>
+        protected Int32 EstateManagementApiPort;
+
+        /// <summary>
+        /// The event store HTTP port
+        /// </summary>
+        protected Int32 EventStoreHttpPort;
+
+        /// <summary>
+        /// The security service port
+        /// </summary>
+        protected Int32 SecurityServicePort;
+
+        /// <summary>
+        /// The test networks
+        /// </summary>
+        protected List<INetworkService> TestNetworks;
+
+        /// <summary>
+        /// The transaction processor acl port
+        /// </summary>
+        protected Int32 TransactionProcessorACLPort;
+
+        /// <summary>
+        /// The transaction processor port
+        /// </summary>
+        protected Int32 TransactionProcessorPort;
+
+        /// <summary>
+        /// The logger
+        /// </summary>
+        private readonly NlogLogger Logger;
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DockerHelper"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        public DockerHelper(NlogLogger logger)
         {
-            // Event Store Container
-            this.EventStoreContainer = new Ductus.FluentDocker.Builders.Builder()
-                                       .UseContainer()
-                                       .UseImage("eventstore/eventstore:release-5.0.2")
-                                       .ExposePort(2113)
-                                       .ExposePort(1113)
-                                       .WithName(this.EventStoreContainerName)
-                                       .WithEnvironment("EVENTSTORE_RUN_PROJECTIONS=all", "EVENTSTORE_START_STANDARD_PROJECTIONS=true")
-                                       .UseNetwork(this.TestNetwork)
-                                       .Mount(traceFolder, "/var/log/eventstore", MountType.ReadWrite)
-                                       .Build()
-                                       .Start().WaitForPort("2113/tcp", 30000);
+            this.Logger = logger;
+            this.Containers = new List<IContainerService>();
+            this.TestNetworks = new List<INetworkService>();
         }
 
-        public async Task StartContainersForScenarioRun(String scenarioName)
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Starts the containers for scenario run.
+        /// </summary>
+        /// <param name="scenarioName">Name of the scenario.</param>
+        public override async Task StartContainersForScenarioRun(String scenarioName)
         {
-            String traceFolder = $"/home/ubuntu/estatemanagement/trace/{scenarioName}/";
+            String traceFolder = FdOs.IsWindows() ? $"D:\\home\\txnproc\\trace\\{scenarioName}" : $"//home//txnproc//trace//{scenarioName}";
 
             Logging.Enabled();
 
             Guid testGuid = Guid.NewGuid();
             this.TestId = testGuid;
 
+            this.Logger.LogInformation($"Test Id is {testGuid}");
+
             // Setup the container names
-            this.EstateManagementContainerName = $"estate{testGuid:N}";
-            this.TransactionProcessorContainerName = $"txnprocessor{testGuid:N}";
-            this.TransactionProcessorACLContainerName = $"txnprocessoracl{testGuid:N}";
-            this.EventStoreContainerName = $"eventstore{testGuid:N}";
+            String securityServiceContainerName = $"securityservice{testGuid:N}";
+            String estateManagementApiContainerName = $"estate{testGuid:N}";
+            String transactionProcessorContainerName = $"txnprocessor{testGuid:N}";
+            String transactionProcessorACLContainerName = $"txnprocessoracl{testGuid:N}";
+            String eventStoreContainerName = $"eventstore{testGuid:N}";
 
-            this.EventStoreConnectionString =
-                $"EventStoreSettings:ConnectionString=ConnectTo=tcp://admin:changeit@{this.EventStoreContainerName}:1113;VerboseLogging=true;";
+            (String, String, String) dockerCredentials = ("https://www.docker.com", "stuartferguson", "Sc0tland");
 
-            this.SetupTestNetwork();
-            this.SetupEventStoreContainer(traceFolder);
-            this.SetupEstateManagementContainer(traceFolder);
-            this.SetupTransactionProcessorContainer(traceFolder);
-            this.SetupTransactionProcessorACLContainer(traceFolder);
+            INetworkService testNetwork = DockerHelper.SetupTestNetwork();
+            this.TestNetworks.Add(testNetwork);
+            IContainerService eventStoreContainer =
+                DockerHelper.SetupEventStoreContainer(eventStoreContainerName, this.Logger, "eventstore/eventstore:release-5.0.2", testNetwork, traceFolder);
+
+            IContainerService estateManagementContainer = DockerHelper.SetupEstateManagementContainer(estateManagementApiContainerName,
+                                                                                                      this.Logger,
+                                                                                                      "stuartferguson/estatemanagement",
+                                                                                                      new List<INetworkService>
+                                                                                                      {
+                                                                                                          testNetwork
+                                                                                                      },
+                                                                                                      traceFolder,
+                                                                                                      dockerCredentials,
+                                                                                                      securityServiceContainerName,
+                                                                                                      eventStoreContainerName);
+
+            IContainerService securityServiceContainer = DockerHelper.SetupSecurityServiceContainer(securityServiceContainerName,
+                                                                                                    this.Logger,
+                                                                                                    "stuartferguson/securityservice",
+                                                                                                    testNetwork,
+                                                                                                    traceFolder,
+                                                                                                    dockerCredentials);
+
+            IContainerService transactionProcessorContainer = DockerHelper.SetupTransactionProcessorContainer(transactionProcessorContainerName,
+                                                                                                              this.Logger,
+                                                                                                              "stuartferguson/transactionprocessor",
+                                                                                                              new List<INetworkService>
+                                                                                                              {
+                                                                                                                  testNetwork
+                                                                                                              },
+                                                                                                              traceFolder,
+                                                                                                              dockerCredentials,
+                                                                                                              securityServiceContainerName,
+                                                                                                              eventStoreContainerName);
+
+            IContainerService transactionProcessorACLContainer = DockerHelper.SetupTransactionProcessorACLContainer(transactionProcessorACLContainerName,
+                                                                                                                    this.Logger,
+                                                                                                                    "transactionprocessoracl",
+                                                                                                                    testNetwork,
+                                                                                                                    traceFolder,
+                                                                                                                    dockerCredentials,
+                                                                                                                    securityServiceContainerName);
+
+            this.Containers.AddRange(new List<IContainerService>
+                                     {
+                                         eventStoreContainer,
+                                         estateManagementContainer,
+                                         securityServiceContainer,
+                                         transactionProcessorContainer,
+                                         transactionProcessorACLContainer
+                                     });
 
             // Cache the ports
-            this.EstateManagementPort = this.EstateManagementContainer.ToHostExposedEndpoint("5000/tcp").Port;
-            this.TransactionProcessorPort = this.TransactionProcessorContainer.ToHostExposedEndpoint("5002/tcp").Port;
-            this.TransactionProcessorACLPort = this.TransactionProcessorACLContainer.ToHostExposedEndpoint("5003/tcp").Port;
-            this.EventStorePort = this.EventStoreContainer.ToHostExposedEndpoint("2113/tcp").Port;
+            this.EstateManagementApiPort = estateManagementContainer.ToHostExposedEndpoint("5000/tcp").Port;
+            this.SecurityServicePort = securityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
+            this.EventStoreHttpPort = eventStoreContainer.ToHostExposedEndpoint("2113/tcp").Port;
+            this.TransactionProcessorPort = transactionProcessorContainer.ToHostExposedEndpoint("5002/tcp").Port;
+            this.TransactionProcessorACLPort = transactionProcessorACLContainer.ToHostExposedEndpoint("5003/tcp").Port;
 
-            // Setup the base address resolver
-            Func<String, String> estateManagementBaseAddressResolver = api => $"http://127.0.0.1:{this.EstateManagementPort}";
-            Func<String, String> transactionProcessorACLBaseAddressResolver = api => $"http://127.0.0.1:{this.TransactionProcessorACLPort}";
+            // Setup the base address resolvers
+            String EstateManagementBaseAddressResolver(String api) => $"http://127.0.0.1:{this.EstateManagementApiPort}";
+            String SecurityServiceBaseAddressResolver(String api) => $"http://127.0.0.1:{this.SecurityServicePort}";
+            String TransactionProcessorBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorPort}";
+            String TransactionProcessorAclBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorACLPort}";
 
             HttpClient httpClient = new HttpClient();
-            this.EstateClient = new EstateClient(estateManagementBaseAddressResolver, httpClient);
+            this.EstateClient = new EstateClient(EstateManagementBaseAddressResolver, httpClient);
+            this.SecurityServiceClient = new SecurityServiceClient(SecurityServiceBaseAddressResolver, httpClient);
+            this.TransactionProcessorClient = new TransactionProcessorClient(TransactionProcessorBaseAddressResolver, httpClient);
 
-            // TODO: Use this to talk to txn processor scl until we have a client
             this.HttpClient = new HttpClient();
-            this.HttpClient.BaseAddress = new Uri(transactionProcessorACLBaseAddressResolver(String.Empty));
+            this.HttpClient.BaseAddress = new Uri(TransactionProcessorAclBaseAddressResolver(string.Empty));
         }
 
-        public async Task StopContainersForScenarioRun()
+        /// <summary>
+        /// Stops the containers for scenario run.
+        /// </summary>
+        public override async Task StopContainersForScenarioRun()
         {
-            try
+            if (this.Containers.Any())
             {
-                if (this.TransactionProcessorACLContainer != null)
+                foreach (IContainerService containerService in this.Containers)
                 {
-                    this.TransactionProcessorACLContainer.StopOnDispose = true;
-                    this.TransactionProcessorACLContainer.RemoveOnDispose = true;
-                    this.TransactionProcessorACLContainer.Dispose();
-                }
-
-                if (this.TransactionProcessorContainer != null)
-                {
-                    this.TransactionProcessorContainer.StopOnDispose = true;
-                    this.TransactionProcessorContainer.RemoveOnDispose = true;
-                    this.TransactionProcessorContainer.Dispose();
-                }
-
-                if (this.EstateManagementContainer != null)
-                {
-                    this.EstateManagementContainer.StopOnDispose = true;
-                    this.EstateManagementContainer.RemoveOnDispose = true;
-                    this.EstateManagementContainer.Dispose();
-                }
-
-                if (this.EventStoreContainer != null)
-                {
-                    this.EventStoreContainer.StopOnDispose = true;
-                    this.EventStoreContainer.RemoveOnDispose = true;
-                    this.EventStoreContainer.Dispose();
-                }
-
-                if (this.TestNetwork != null)
-                {
-                    this.TestNetwork.Stop();
-                    this.TestNetwork.Remove(true);
+                    containerService.StopOnDispose = true;
+                    containerService.RemoveOnDispose = true;
+                    containerService.Dispose();
                 }
             }
-            catch (Exception e)
+
+            if (this.TestNetworks.Any())
             {
-                Console.WriteLine(e);
+                foreach (INetworkService networkService in this.TestNetworks)
+                {
+                    networkService.Stop();
+                    networkService.Remove(true);
+                }
             }
         }
 
-        private void SetupEstateManagementContainer(String traceFolder)
-        {
-            // Management API Container
-            this.EstateManagementContainer = new Builder()
-                                                .UseContainer()
-                                                .WithName(this.EstateManagementContainerName)
-                                                .WithEnvironment(this.EventStoreConnectionString) //,
-                                                                                                  //"AppSettings:MigrateDatabase=true",
-                                                                                                  //"EventStoreSettings:START_PROJECTIONS=true",
-                                                                                                  //"EventStoreSettings:ContinuousProjectionsFolder=/app/projections/continuous")
-                                                .WithCredential("https://www.docker.com", "stuartferguson", "Sc0tland")
-                                                .UseImage("stuartferguson/estatemanagement")
-                                                .ExposePort(5000)
-                                                .UseNetwork(new List<INetworkService> { this.TestNetwork, Setup.DatabaseServerNetwork }.ToArray())
-                                                .Mount(traceFolder, "/home", MountType.ReadWrite)
-                                                .Build()
-                                                .Start().WaitForPort("5000/tcp", 30000);
-        }
-
-        private void SetupTransactionProcessorContainer(String traceFolder)
-        {
-            // Management API Container
-            this.TransactionProcessorContainer = new Builder()
-                                                .UseContainer()
-                                                .WithName(this.TransactionProcessorContainerName)
-                                                .WithEnvironment(this.EventStoreConnectionString) //,
-                                                                                                  //"AppSettings:MigrateDatabase=true",
-                                                                                                  //"EventStoreSettings:START_PROJECTIONS=true",
-                                                                                                  //"EventStoreSettings:ContinuousProjectionsFolder=/app/projections/continuous")
-                                                .UseImage("stuartferguson/transactionprocessor")
-                                                .ExposePort(5002)
-                                                .UseNetwork(new List<INetworkService> { this.TestNetwork, Setup.DatabaseServerNetwork }.ToArray())
-                                                .Mount(traceFolder, "/home", MountType.ReadWrite)
-                                                .Build()
-                                                .Start().WaitForPort("5002/tcp", 30000);
-        }
-
-        private void SetupTransactionProcessorACLContainer(String traceFolder)
-        {
-            // Management API Container
-            this.TransactionProcessorACLContainer = new Builder()
-                                                 .UseContainer()
-                                                 .WithName(this.TransactionProcessorACLContainerName)
-                                                 .UseImage("transactionprocessoracl")
-                                                 .ExposePort(5003)
-                                                 .UseNetwork(new List<INetworkService> { this.TestNetwork }.ToArray())
-                                                 .Mount(traceFolder, "/home", MountType.ReadWrite)
-                                                 .Build()
-                                                 .Start().WaitForPort("5003/tcp", 30000);
-        }
+        #endregion
     }
 }
