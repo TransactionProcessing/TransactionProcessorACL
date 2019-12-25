@@ -296,10 +296,7 @@ namespace TransactionProcessor.IntegrationTests.Shared
                 EstateDetails estateDetails = this.TestingContext.GetEstateDetails(tableRow);
 
                 String merchantToken = estateDetails.GetMerchantUserToken(tableRow["MerchantName"]);
-
-                Console.WriteLine("In Perform Txn");
-                Console.WriteLine(merchantToken);
-
+                
                 String dateString = SpecflowTableHelper.GetStringRowValue(tableRow, "DateTime");
                 DateTime transactionDateTime = SpecflowTableHelper.GetDateForDateString(dateString, DateTime.Today);
                 String transactionNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionNumber");
@@ -329,7 +326,7 @@ namespace TransactionProcessor.IntegrationTests.Shared
             ClientDetails clientDetails = this.TestingContext.GetClientDetails(clientId);
 
             TokenResponse tokenResponse = await this.TestingContext.DockerHelper.SecurityServiceClient.GetToken(username, password, clientId, clientDetails.ClientSecret, CancellationToken.None).ConfigureAwait(false);
-            Console.WriteLine(tokenResponse.AccessToken);
+            
             estateDetails.AddMerchantUserToken(merchantName, username,tokenResponse.AccessToken);
         }
         
@@ -443,10 +440,9 @@ namespace TransactionProcessor.IntegrationTests.Shared
                                                                                                                   }), Encoding.UTF8, "application/json");
            
             this.TestingContext.DockerHelper.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",merchantToken);
-            HttpResponseMessage response = await this.TestingContext.DockerHelper.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
 
-            String responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            Console.WriteLine(responseContent);
+            HttpResponseMessage response = await this.TestingContext.DockerHelper.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+            
             response.IsSuccessStatusCode.ShouldBeTrue();
         }
 

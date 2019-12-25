@@ -170,7 +170,7 @@
                                                                                                                     "transactionprocessoracl",
                                                                                                                     testNetwork,
                                                                                                                     traceFolder,
-                                                                                                                    dockerCredentials,
+                                                                                                                    null,
                                                                                                                     securityServiceContainerName);
 
             this.Containers.AddRange(new List<IContainerService>
