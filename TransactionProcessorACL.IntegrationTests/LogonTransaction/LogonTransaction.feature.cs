@@ -109,7 +109,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorAcl",
-                        ""});
+                        "MerchantId, EstateId, role"});
 #line 10
  testRunner.Given("the following api resources exist", ((string)(null)), table2, "Given ");
 #line hidden

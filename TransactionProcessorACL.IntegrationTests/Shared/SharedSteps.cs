@@ -443,8 +443,10 @@ namespace TransactionProcessor.IntegrationTests.Shared
                                                                                                                   }), Encoding.UTF8, "application/json");
            
             this.TestingContext.DockerHelper.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",merchantToken);
-            HttpResponseMessage response = await this.TestingContext.DockerHelper.HttpClient.PostAsync(uri, content, cancellationToken);
+            HttpResponseMessage response = await this.TestingContext.DockerHelper.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
 
+            String responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            Console.WriteLine(responseContent);
             response.IsSuccessStatusCode.ShouldBeTrue();
         }
 
