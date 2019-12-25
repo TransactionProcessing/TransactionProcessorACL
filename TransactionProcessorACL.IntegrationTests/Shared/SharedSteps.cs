@@ -326,7 +326,7 @@ namespace TransactionProcessor.IntegrationTests.Shared
             ClientDetails clientDetails = this.TestingContext.GetClientDetails(clientId);
 
             TokenResponse tokenResponse = await this.TestingContext.DockerHelper.SecurityServiceClient.GetToken(username, password, clientId, clientDetails.ClientSecret, CancellationToken.None).ConfigureAwait(false);
-
+            Console.WriteLine(tokenResponse.AccessToken);
             estateDetails.AddMerchantUserToken(merchantName, username,tokenResponse.AccessToken);
         }
         
