@@ -8,9 +8,9 @@ Background:
 	| Merchant   |
 
 	Given the following api resources exist
-	| ResourceName     | DisplayName            | Secret  | Scopes           | UserClaims                 |
-	| estateManagement | Estate Managememt REST | Secret1 | estateManagement | MerchantId, EstateId, role |
-	| transactionProcessorAcl | Transaction Processor ACL REST | Secret1 | transactionProcessorAcl |  |
+	| ResourceName            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
+	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | MerchantId, EstateId, role |
+	| transactionProcessorAcl | Transaction Processor ACL REST | Secret1 | transactionProcessorAcl | MerchantId, EstateId, role |
 
 	Given the following clients exist
 	| ClientId       | ClientName      | Secret  | AllowedScopes                            | AllowedGrantTypes  |
