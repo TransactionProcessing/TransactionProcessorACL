@@ -8,8 +8,10 @@ namespace TransactionProcessorACL.Controllers
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using BusinessLogic.Requests;
+    using Common;
     using DataTransferObjects;
     using MediatR;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
 
@@ -17,6 +19,7 @@ namespace TransactionProcessorACL.Controllers
     [Route(TransactionController.ControllerRoute)]
     [ApiController]
     [ApiVersion("1.0")]
+    [Authorize]
     public class TransactionController : ControllerBase
     {
         private readonly IMediator Mediator;
@@ -31,6 +34,11 @@ namespace TransactionProcessorACL.Controllers
         public async Task<IActionResult> PerformTransaction([FromBody] TransactionRequestMessage transactionRequest,
                                                             CancellationToken cancellationToken)
         {
+            if (ClaimsHelper.IsPasswordToken(this.User) == false)
+            {
+                return this.Forbid();
+            }
+
             var request = this.CreateCommandFromRequest((dynamic)transactionRequest);
             var response = await this.Mediator.Send(request, cancellationToken);
             
@@ -41,8 +49,9 @@ namespace TransactionProcessorACL.Controllers
 
         private ProcessLogonTransactionRequest CreateCommandFromRequest(LogonTransactionRequestMessage logonTransactionRequestMessage)
         {
-            Guid estateId = Guid.Empty;
-            Guid merchantId = Guid.Empty;
+            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "EstateId").Value);
+            Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "MerchantId").Value);
+
             ProcessLogonTransactionRequest request = ProcessLogonTransactionRequest.Create(estateId,
                                                                                            merchantId,
                                                                                            logonTransactionRequestMessage.TransactionDateTime,

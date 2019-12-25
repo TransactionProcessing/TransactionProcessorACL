@@ -32,9 +32,10 @@ namespace TransactionProcessorACL.Tests.Common
                     services.AddSingleton<IMediator>(mediatorMock.Object);
                 }
 
-                services.AddMvc(options =>
+                services.AddMvcCore(options =>
                 {
                     options.Filters.Add(new AllowAnonymousFilter());
+
                 })
                         .AddApplicationPart(typeof(Startup).Assembly);
             });
