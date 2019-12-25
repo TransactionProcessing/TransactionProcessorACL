@@ -297,6 +297,9 @@ namespace TransactionProcessor.IntegrationTests.Shared
 
                 String merchantToken = estateDetails.GetMerchantUserToken(tableRow["MerchantName"]);
 
+                Console.WriteLine("In Perform Txn");
+                Console.WriteLine(merchantToken);
+
                 String dateString = SpecflowTableHelper.GetStringRowValue(tableRow, "DateTime");
                 DateTime transactionDateTime = SpecflowTableHelper.GetDateForDateString(dateString, DateTime.Today);
                 String transactionNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionNumber");
