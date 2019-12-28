@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransactionProcessorACL.Int
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionProcessorACL.Testing", "TransactionProcessorACL.Testing\TransactionProcessorACL.Testing.csproj", "{0A0C37A7-E80B-4037-9B35-0CA9245EEB02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionProcessorACL.BusinesssLogic.Tests", "TransactionProcessorACL.BusinesssLogic.Tests\TransactionProcessorACL.BusinesssLogic.Tests.csproj", "{942EAEA0-E723-4363-BE7C-6A05C9443C8C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionProcessorACL.BusinessLogic.Tests", "TransactionProcessorACL.BusinessLogic.Tests\TransactionProcessorACL.BusinessLogic.Tests.csproj", "{942EAEA0-E723-4363-BE7C-6A05C9443C8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
