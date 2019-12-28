@@ -10,12 +10,13 @@ Background:
 	Given the following api resources exist
 	| ResourceName            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
 	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | MerchantId, EstateId, role |
+	| transactionProcessor    | Transaction Processor REST     | Secret1 | transactionProcessor    |                            |
 	| transactionProcessorAcl | Transaction Processor ACL REST | Secret1 | transactionProcessorAcl | MerchantId, EstateId, role |
 
 	Given the following clients exist
-	| ClientId       | ClientName      | Secret  | AllowedScopes                            | AllowedGrantTypes  |
-	| serviceClient  | Service Client  | Secret1 | estateManagement,transactionProcessorAcl | client_credentials |
-	| merchantClient | Merchant Client | Secret1 | transactionProcessorAcl                  | password           |
+	| ClientId       | ClientName      | Secret  | AllowedScopes                                                 | AllowedGrantTypes  |
+	| serviceClient  | Service Client  | Secret1 | estateManagement,transactionProcessor,transactionProcessorAcl | client_credentials |
+	| merchantClient | Merchant Client | Secret1 | transactionProcessorAcl                                       | password           |
 
 	Given I have a token to access the estate management and transaction processor acl resources
 	| ClientId      | 
@@ -67,8 +68,8 @@ Scenario: Logon Transaction
 	| Today    | 3                 | Logon           | Test Merchant 3 | 123456789  | Test Estate 2 |
 	
 	# TODO: Add in once the logon flow is implemented
-	#Then transaction response should contain the following information
-	#| TransactionNumber | ResponseCode | ResponseMessage |
-	#| 1                 | 0000         | SUCCESS         |
-	#| 2                 | 0000         | SUCCESS         |
-	#| 3                 | 0000         | SUCCESS         |
+	Then transaction response should contain the following information
+	| EstateName    | MerchantName    | TransactionNumber | TransactionType | ResponseCode | ResponseMessage |
+	| Test Estate 1 | Test Merchant 1 | 1                 | Logon           | 0000         | SUCCESS         |
+	| Test Estate 1 | Test Merchant 2 | 2                 | Logon           | 0000         | SUCCESS         |
+	| Test Estate 2 | Test Merchant 3 | 3                 | Logon           | 0000         | SUCCESS         |

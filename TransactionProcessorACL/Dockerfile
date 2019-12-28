@@ -4,8 +4,8 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0-buster AS build
 WORKDIR /src
+COPY ["TransactionProcessorACL/NuGet.Config", "."]
 COPY ["TransactionProcessorACL/TransactionProcessorACL.csproj", "TransactionProcessorACL/"]
-COPY ["TransactionProcessorACL/NuGet.Config", "TransactionProcessorACL/"]
 COPY ["TransactionProcessorACL.DataTransferObjects/TransactionProcessorACL.DataTransferObjects.csproj", "TransactionProcessorACL.DataTransferObjects/"]
 COPY ["TransactionProcessorACL.BusinessLogic/TransactionProcessorACL.BusinessLogic.csproj", "TransactionProcessorACL.BusinessLogic/"]
 COPY ["TransactionProcessorACL.Models/TransactionProcessorACL.Models.csproj", "TransactionProcessorACL.Models/"]

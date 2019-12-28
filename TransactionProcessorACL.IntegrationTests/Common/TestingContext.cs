@@ -89,26 +89,28 @@ namespace TransactionProcessor.IntegrationTests.Common
             this.Operators = new Dictionary<String, Guid>();
             this.MerchantUsers = new Dictionary<String, Dictionary<String, String>>();
             this.MerchantUsersTokens = new Dictionary<String, Dictionary<String, String>>();
-            this.TransactionResponses = new Dictionary<(Guid merchantId, String transactionNumber), SerialisedMessage>();
+            this.TransactionResponses = new Dictionary<(Guid merchantId, String transactionNumber, String transactionType), String>();
         }
 
         public void AddTransactionResponse(Guid merchantId,
                                            String transactionNumber,
-                                           SerialisedMessage transactionResponse)
+                                           String transactionType,
+                                           String transactionResponse)
         {
-            this.TransactionResponses.Add((merchantId, transactionNumber), transactionResponse);
+            this.TransactionResponses.Add((merchantId, transactionNumber,transactionType), transactionResponse);
         }
 
-        public SerialisedMessage GetTransactionResponse(Guid merchantId,
-                                                        String transactionNumber)
+        public String GetTransactionResponse(Guid merchantId,
+                                                        String transactionNumber,
+                                                        String transactionType)
         {
-            KeyValuePair<(Guid merchantId, String transactionNumber), SerialisedMessage> transactionResponse =
-                this.TransactionResponses.Where(t => t.Key.merchantId == merchantId && t.Key.transactionNumber == transactionNumber).SingleOrDefault();
+            KeyValuePair<(Guid merchantId, String transactionNumber, String transactionType), String> transactionResponse =
+                this.TransactionResponses.Where(t => t.Key.merchantId == merchantId && t.Key.transactionNumber == transactionNumber && t.Key.transactionType == transactionType).SingleOrDefault();
 
             return transactionResponse.Value;
         }
 
-        private Dictionary<(Guid merchantId, String transactionNumber), SerialisedMessage> TransactionResponses { get; set; }
+        private Dictionary<(Guid merchantId, String transactionNumber, String transactionType), String> TransactionResponses { get; set; }
 
         public String EstateUser { get; private set; }
         public String EstatePassword { get; private set; }

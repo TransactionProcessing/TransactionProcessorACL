@@ -10,8 +10,10 @@ namespace TransactionProcessorACL.Tests.General
     using Autofac.Core;
     using Autofac.Extensions.DependencyInjection;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Moq;
+    using Shared.General;
     using Xunit;
 
     public class BootstrapperTests
@@ -33,7 +35,9 @@ namespace TransactionProcessorACL.Tests.General
             Startup s = new Startup(hostingEnvironment.Object);
             s.ConfigureServices(services);
 
-            //Startup.Configuration = this.SetupMemoryConfiguration();
+            Startup.Configuration = this.SetupMemoryConfiguration();
+            ConfigurationReader.Initialise(Startup.Configuration);
+
             this.AddTestRegistrations(services, hostingEnvironment.Object);
 
             ContainerBuilder builder = new ContainerBuilder();
@@ -49,21 +53,19 @@ namespace TransactionProcessorACL.Tests.General
             }
         }
 
-        //private IConfigurationRoot SetupMemoryConfiguration()
-        //{
-        //    Dictionary<String, String> configuration = new Dictionary<String, String>();
+        private IConfigurationRoot SetupMemoryConfiguration()
+        {
+            Dictionary<String, String> configuration = new Dictionary<String, String>();
 
-        //    IConfigurationBuilder builder = new ConfigurationBuilder();
+            IConfigurationBuilder builder = new ConfigurationBuilder();
 
-        //    configuration.Add("EventStoreSettings:ConnectionString", "ConnectTo=tcp://admin:changeit@127.0.0.1:1112;VerboseLogging=true;");
-        //    configuration.Add("EventStoreSettings:ConnectionName", "UnitTestConnection");
-        //    configuration.Add("EventStoreSettings:HttpPort", "2113");
-        //    configuration.Add("AppSettings:UseConnectionStringConfig", "false");
+            configuration.Add("AppSettings:SecurityService", "http://192.168.1.133:5001");
+            configuration.Add("AppSettings:TransactionProcessorApi", "http://192.168.1.133:5002");
 
-        //    builder.AddInMemoryCollection(configuration);
+            builder.AddInMemoryCollection(configuration);
 
-        //    return builder.Build();
-        //}
+            return builder.Build();
+        }
 
         /// <summary>
         /// Adds the test registrations.

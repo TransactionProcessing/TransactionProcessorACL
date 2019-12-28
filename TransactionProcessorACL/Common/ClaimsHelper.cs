@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 
 namespace TransactionProcessorACL.Common
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.Security.Claims;
     using Shared.Exceptions;
 
+    [ExcludeFromCodeCoverage]
     public class ClaimsHelper
     {
         #region Methods
