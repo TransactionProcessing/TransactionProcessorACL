@@ -20,6 +20,7 @@ namespace TransactionProcessor.IntegrationTests.Shared
     using Shouldly;
     using TechTalk.SpecFlow;
     using TransactionProcessorACL.DataTransferObjects;
+    using TransactionProcessorACL.DataTransferObjects.Responses;
     using ClientDetails = Common.ClientDetails;
 
     [Binding]
@@ -294,8 +295,9 @@ namespace TransactionProcessor.IntegrationTests.Shared
             foreach (TableRow tableRow in table.Rows)
             {
                 EstateDetails estateDetails = this.TestingContext.GetEstateDetails(tableRow);
-
-                String merchantToken = estateDetails.GetMerchantUserToken(tableRow["MerchantName"]);
+                String merchantName = SpecflowTableHelper.GetStringRowValue(tableRow, "MerchantName");
+                Guid merchantId = estateDetails.GetMerchantId(merchantName);
+                String merchantToken = estateDetails.GetMerchantUserToken(merchantName);
                 
                 String dateString = SpecflowTableHelper.GetStringRowValue(tableRow, "DateTime");
                 DateTime transactionDateTime = SpecflowTableHelper.GetDateForDateString(dateString, DateTime.Today);
@@ -306,12 +308,15 @@ namespace TransactionProcessor.IntegrationTests.Shared
                 switch (transactionType)
                 {
                     case "Logon":
-                        await this.PerformLogonTransaction(merchantToken,
+                        String responseMessage = await this.PerformLogonTransaction(merchantToken,
                                                            transactionDateTime,
                                                            transactionType,
                                                            transactionNumber,
                                                            imeiNumber,
                                                            CancellationToken.None);
+
+                        estateDetails.AddTransactionResponse(merchantId, transactionNumber, transactionType, responseMessage);
+
                         break;
 
                 }
@@ -422,7 +427,7 @@ namespace TransactionProcessor.IntegrationTests.Shared
             }
         }
 
-        private async Task PerformLogonTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String imeiNumber, CancellationToken cancellationToken)
+        private async Task<String> PerformLogonTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String imeiNumber, CancellationToken cancellationToken)
         {
             LogonTransactionRequestMessage logonTransactionRequestMessage = new LogonTransactionRequestMessage
                                                                             {
@@ -444,6 +449,10 @@ namespace TransactionProcessor.IntegrationTests.Shared
             HttpResponseMessage response = await this.TestingContext.DockerHelper.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
             
             response.IsSuccessStatusCode.ShouldBeTrue();
+
+            String responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            return responseContent;
         }
 
         [Then(@"transaction response should contain the following information")]
@@ -458,8 +467,10 @@ namespace TransactionProcessor.IntegrationTests.Shared
                 Guid merchantId = estateDetails.GetMerchantId(merchantName);
 
                 String transactionNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionNumber");
-                SerialisedMessage serialisedMessage = estateDetails.GetTransactionResponse(merchantId, transactionNumber);
-                Object transactionResponse = JsonConvert.DeserializeObject(serialisedMessage.SerialisedData,
+                String transactionType = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionType");
+                String responseMessage = estateDetails.GetTransactionResponse(merchantId, transactionNumber, transactionType);
+                
+                Object transactionResponse = JsonConvert.DeserializeObject(responseMessage,
                                                                            new JsonSerializerSettings
                                                                            {
                                                                                TypeNameHandling = TypeNameHandling.All
@@ -468,14 +479,14 @@ namespace TransactionProcessor.IntegrationTests.Shared
             }
         }
 
-        private void ValidateTransactionResponse(LogonTransactionResponse logonTransactionResponse,
+        private void ValidateTransactionResponse(LogonTransactionResponseMessage logonTransactionResponseMessage,
                                            TableRow tableRow)
         {
             String expectedResponseCode = SpecflowTableHelper.GetStringRowValue(tableRow, "ResponseCode");
             String expectedResponseMessage = SpecflowTableHelper.GetStringRowValue(tableRow, "ResponseMessage");
 
-            logonTransactionResponse.ResponseCode.ShouldBe(expectedResponseCode);
-            logonTransactionResponse.ResponseMessage.ShouldBe(expectedResponseMessage);
+            logonTransactionResponseMessage.ResponseCode.ShouldBe(expectedResponseCode);
+            logonTransactionResponseMessage.ResponseMessage.ShouldBe(expectedResponseMessage);
         }
 
         [Given(@"I have a token to access the estate management and transaction processor acl resources")]

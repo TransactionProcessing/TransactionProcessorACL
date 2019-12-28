@@ -5,13 +5,21 @@
     using MediatR;
     using Models;
     using Requests;
+    using Services;
 
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="MediatR.IRequestHandler{TransactionProcessorACL.BusinessLogic.Requests.ProcessLogonTransactionRequest, TransactionProcessorACL.Models.ProcessLogonTransactionResponse}" />
+    /// <seealso cref="ProcessLogonTransactionResponse" />
     public class ProcessLogonTransactionRequestHandler : IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>
     {
+        private readonly ITransactionProcessorACLApplicationService ApplicationService;
+
+        public ProcessLogonTransactionRequestHandler(ITransactionProcessorACLApplicationService applicationService)
+        {
+            this.ApplicationService = applicationService;
+        }
+
         #region Methods
 
         /// <summary>
@@ -23,11 +31,12 @@
         public async Task<ProcessLogonTransactionResponse> Handle(ProcessLogonTransactionRequest request,
                                                                   CancellationToken cancellationToken)
         {
-            return new ProcessLogonTransactionResponse
-                   {
-                       ResponseCode = "0000",
-                       ResponseMessage = "SUCCESS"
-                   };
+            return await this.ApplicationService.ProcessLogonTransaction(request.EstateId,
+                                                                         request.MerchantId,
+                                                                         request.TransactionDateTime,
+                                                                         request.TransactionNumber,
+                                                                         request.ImeiNumber,
+                                                                         cancellationToken);
         }
 
         #endregion

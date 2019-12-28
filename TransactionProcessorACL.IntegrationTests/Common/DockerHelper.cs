@@ -144,7 +144,8 @@
                                                                                                       traceFolder,
                                                                                                       dockerCredentials,
                                                                                                       securityServiceContainerName,
-                                                                                                      eventStoreContainerName);
+                                                                                                      eventStoreContainerName,
+                                                                                                      (null,null));
 
             IContainerService securityServiceContainer = DockerHelper.SetupSecurityServiceContainer(securityServiceContainerName,
                                                                                                     this.Logger,
@@ -163,7 +164,8 @@
                                                                                                               traceFolder,
                                                                                                               dockerCredentials,
                                                                                                               securityServiceContainerName,
-                                                                                                              eventStoreContainerName);
+                                                                                                              eventStoreContainerName,
+                                                                                                              (null, null));
 
             IContainerService transactionProcessorACLContainer = DockerHelper.SetupTransactionProcessorACLContainer(transactionProcessorACLContainerName,
                                                                                                                     this.Logger,
@@ -171,7 +173,9 @@
                                                                                                                     testNetwork,
                                                                                                                     traceFolder,
                                                                                                                     null,
-                                                                                                                    securityServiceContainerName);
+                                                                                                                    securityServiceContainerName, 
+                                                                                                                    transactionProcessorContainerName,
+                                                                                                                    ("serviceClient", "Secret1"));
 
             this.Containers.AddRange(new List<IContainerService>
                                      {

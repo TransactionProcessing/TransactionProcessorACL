@@ -10,6 +10,7 @@ namespace TransactionProcessorACL.Controllers
     using BusinessLogic.Requests;
     using Common;
     using DataTransferObjects;
+    using Factories;
     using MediatR;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -24,9 +25,12 @@ namespace TransactionProcessorACL.Controllers
     {
         private readonly IMediator Mediator;
 
-        public TransactionController(IMediator mediator)
+        private readonly IModelFactory ModelFactory;
+
+        public TransactionController(IMediator mediator, IModelFactory modelFactory)
         {
             this.Mediator = mediator;
+            this.ModelFactory = modelFactory;
         }
 
         [HttpPost]
@@ -39,10 +43,10 @@ namespace TransactionProcessorACL.Controllers
                 return this.Forbid();
             }
 
-            var request = this.CreateCommandFromRequest((dynamic)transactionRequest);
-            var response = await this.Mediator.Send(request, cancellationToken);
+            dynamic request = this.CreateCommandFromRequest((dynamic)transactionRequest);
+            dynamic response = await this.Mediator.Send(request, cancellationToken);
             
-            return this.Ok();
+            return this.Ok(this.ModelFactory.ConvertFrom(response));
             // TODO: Populate the GET route
             //return this.Created("", transactionResponse);
         }
