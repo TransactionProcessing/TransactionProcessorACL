@@ -119,7 +119,7 @@ jobs:
 
     - name: Build and Publish Nuget Packages
       run: |
-        dotnet pack "TransactionProcessorACL.DataTranferObjects\TransactionProcessorACL.DataTranferObjects.csproj" /p:PackageVersion=${{ steps.get_version.outputs.VERSION }} --output Nugets
-        dotnet nuget push Nugets/TransactionProcessorACL.DataTranferObjects.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.MYGET_APIKEY }} --source https://www.myget.org/F/transactionprocessing/api/v2/package
+        dotnet pack "TransactionProcessorACL.DataTransferObjects\TransactionProcessorACL.DataTransferObjects.csproj" /p:PackageVersion=${{ steps.get_version.outputs.VERSION }} --output Nugets
+        dotnet nuget push Nugets/TransactionProcessorACL.DataTransferObjects.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.MYGET_APIKEY }} --source https://www.myget.org/F/transactionprocessing/api/v2/package
 
 
