@@ -427,11 +427,11 @@ namespace TransactionProcessor.IntegrationTests.Shared
             }
         }
 
-        private async Task<String> PerformLogonTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String imeiNumber, CancellationToken cancellationToken)
+        private async Task<String> PerformLogonTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String deviceIdentifier, CancellationToken cancellationToken)
         {
             LogonTransactionRequestMessage logonTransactionRequestMessage = new LogonTransactionRequestMessage
                                                                             {
-                                                                                IMEINumber = imeiNumber,
+                                                                                DeviceIdentifier = deviceIdentifier,
                                                                                 TransactionDateTime = transactionDateTime,
                                                                                 TransactionNumber = transactionNumber,
                                                                                 RequireConfigurationInResponse = true
