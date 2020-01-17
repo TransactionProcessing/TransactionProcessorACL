@@ -22,14 +22,14 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                            TestData.MerchantId,
                                                                                            TestData.TransactionDateTime,
                                                                                            TestData.TransactionNumber,
-                                                                                           TestData.IMEINumber,
+                                                                                           TestData.DeviceIdentifier,
                                                                                            TestData.RequireConfigurationInResponseTrue);
 
             request.EstateId.ShouldBe(TestData.EstateId);
             request.MerchantId.ShouldBe(TestData.MerchantId);
             request.TransactionDateTime.ShouldBe(TestData.TransactionDateTime);
             request.TransactionNumber.ShouldBe(TestData.TransactionNumber);
-            request.ImeiNumber.ShouldBe(TestData.IMEINumber);
+            request.DeviceIdentifier.ShouldBe(TestData.DeviceIdentifier);
             request.RequireConfigurationInResponse.ShouldBe(TestData.RequireConfigurationInResponseTrue);
         }
 
