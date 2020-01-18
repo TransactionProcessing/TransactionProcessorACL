@@ -74,7 +74,7 @@
 
             LogonTransactionRequest logonTransactionRequest = new LogonTransactionRequest();
             logonTransactionRequest.TransactionNumber = transactionNumber;
-            logonTransactionRequest.IMEINumber = deviceIdentifier;
+            logonTransactionRequest.DeviceIdentifier = deviceIdentifier;
             logonTransactionRequest.TransactionDateTime = transactionDateTime;
             logonTransactionRequest.TransactionType = "LOGON";
 
