@@ -13,24 +13,24 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProcessLogonTransactionRequest"/> class.
+        /// Initializes a new instance of the <see cref="ProcessLogonTransactionRequest" /> class.
         /// </summary>
         /// <param name="estateId">The estate identifier.</param>
         /// <param name="merchantId">The merchant identifier.</param>
         /// <param name="transactionDateTime">The transaction date time.</param>
         /// <param name="transactionNumber">The transaction number.</param>
-        /// <param name="imeiNumber">The imei number.</param>
+        /// <param name="deviceIdentifier">The device identifier.</param>
         /// <param name="requireConfigurationInResponse">if set to <c>true</c> [require configuration in response].</param>
         private ProcessLogonTransactionRequest(Guid estateId,
                                                Guid merchantId,
                                                DateTime transactionDateTime,
                                                String transactionNumber,
-                                               String imeiNumber,
+                                               String deviceIdentifier,
                                                Boolean requireConfigurationInResponse)
         {
             this.EstateId = estateId;
             this.MerchantId = merchantId;
-            this.ImeiNumber = imeiNumber;
+            this.DeviceIdentifier = deviceIdentifier;
             this.RequireConfigurationInResponse = requireConfigurationInResponse;
             this.TransactionDateTime = transactionDateTime;
             this.TransactionNumber = transactionNumber;
@@ -54,12 +54,12 @@
         public Guid EstateId { get; }
 
         /// <summary>
-        /// Gets the imei number.
+        /// Gets the device identifier.
         /// </summary>
         /// <value>
-        /// The imei number.
+        /// The device identifier.
         /// </value>
-        public String ImeiNumber { get; }
+        public String DeviceIdentifier { get; }
 
         /// <summary>
         /// Gets the merchant identifier.
@@ -104,17 +104,17 @@
         /// <param name="merchantId">The merchant identifier.</param>
         /// <param name="transactionDateTime">The transaction date time.</param>
         /// <param name="transactionNumber">The transaction number.</param>
-        /// <param name="imeiNumber">The imei number.</param>
+        /// <param name="deviceIdentifier">The device identifier.</param>
         /// <param name="requireConfigurationInResponse">if set to <c>true</c> [require configuration in response].</param>
         /// <returns></returns>
         public static ProcessLogonTransactionRequest Create(Guid estateId,
                                                             Guid merchantId,
                                                             DateTime transactionDateTime,
                                                             String transactionNumber,
-                                                            String imeiNumber,
+                                                            String deviceIdentifier,
                                                             Boolean requireConfigurationInResponse)
         {
-            return new ProcessLogonTransactionRequest(estateId, merchantId, transactionDateTime, transactionNumber, imeiNumber, requireConfigurationInResponse);
+            return new ProcessLogonTransactionRequest(estateId, merchantId, transactionDateTime, transactionNumber, deviceIdentifier, requireConfigurationInResponse);
         }
 
         #endregion

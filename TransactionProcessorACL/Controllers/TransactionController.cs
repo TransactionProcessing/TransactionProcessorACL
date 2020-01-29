@@ -60,7 +60,7 @@ namespace TransactionProcessorACL.Controllers
                                                                                            merchantId,
                                                                                            logonTransactionRequestMessage.TransactionDateTime,
                                                                                            logonTransactionRequestMessage.TransactionNumber,
-                                                                                           logonTransactionRequestMessage.IMEINumber,
+                                                                                           logonTransactionRequestMessage.DeviceIdentifier,
                                                                                            logonTransactionRequestMessage.RequireConfigurationInResponse);
 
             return request;

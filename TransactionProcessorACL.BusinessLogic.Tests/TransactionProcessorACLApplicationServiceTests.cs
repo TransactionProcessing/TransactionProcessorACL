@@ -55,7 +55,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                              TestData.MerchantId,
                                                                                                              TestData.TransactionDateTime,
                                                                                                              TestData.TransactionNumber,
-                                                                                                             TestData.IMEINumber,
+                                                                                                             TestData.DeviceIdentifier,
                                                                                                              CancellationToken.None);
 
             logonResponse.ShouldNotBeNull();

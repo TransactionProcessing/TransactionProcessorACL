@@ -54,20 +54,19 @@ Background:
 Scenario: Logon Transaction
 	Given I am logged in as "merchantuser@testmerchant1.co.uk" with password "123456" for Merchant "Test Merchant 1" for Estate "Test Estate 1" with client "merchantClient"
 	When I perform the following transactions
-	| DateTime | TransactionNumber | TransactionType | MerchantName    | IMEINumber | EstateName    |
+	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    |
 	| Today    | 1                 | Logon           | Test Merchant 1 | 123456789  | Test Estate 1 |
 	
 	Given I am logged in as "merchantuser@testmerchant2.co.uk" with password "123456" for Merchant "Test Merchant 2" for Estate "Test Estate 1" with client "merchantClient"
 	When I perform the following transactions
-	| DateTime | TransactionNumber | TransactionType | MerchantName    | IMEINumber | EstateName    |
+	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    |
 	| Today    | 2                 | Logon           | Test Merchant 2 | 123456789  | Test Estate 1 |
 	
 	Given I am logged in as "merchantuser@testmerchant3.co.uk" with password "123456" for Merchant "Test Merchant 3" for Estate "Test Estate 2" with client "merchantClient"
 	When I perform the following transactions
-	| DateTime | TransactionNumber | TransactionType | MerchantName    | IMEINumber | EstateName    |
-	| Today    | 3                 | Logon           | Test Merchant 3 | 123456789  | Test Estate 2 |
+	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    |
+	| Today    | 3                 | Logon           | Test Merchant 3 | 123456789        | Test Estate 2 |
 	
-	# TODO: Add in once the logon flow is implemented
 	Then transaction response should contain the following information
 	| EstateName    | MerchantName    | TransactionNumber | TransactionType | ResponseCode | ResponseMessage |
 	| Test Estate 1 | Test Merchant 1 | 1                 | Logon           | 0000         | SUCCESS         |

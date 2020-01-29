@@ -35,7 +35,7 @@
                                                                          request.MerchantId,
                                                                          request.TransactionDateTime,
                                                                          request.TransactionNumber,
-                                                                         request.ImeiNumber,
+                                                                         request.DeviceIdentifier,
                                                                          cancellationToken);
         }
 

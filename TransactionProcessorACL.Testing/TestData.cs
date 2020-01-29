@@ -24,7 +24,7 @@
         /// <summary>
         /// The imei number
         /// </summary>
-        public static String IMEINumber = "12345678";
+        public static String DeviceIdentifier = "12345678";
 
         /// <summary>
         /// The require configuration in response true
@@ -47,7 +47,7 @@
         public static LogonTransactionRequestMessage LogonTransactionRequestMessage = new LogonTransactionRequestMessage
                                                                                       {
                                                                                           RequireConfigurationInResponse = TestData.RequireConfigurationInResponseTrue,
-                                                                                          IMEINumber = TestData.IMEINumber,
+                                                                                          DeviceIdentifier = TestData.DeviceIdentifier,
                                                                                           TransactionDateTime = TestData.TransactionDateTime,
                                                                                           TransactionNumber = TestData.TransactionNumber
                                                                                       };
@@ -65,7 +65,7 @@
                                                   TestData.MerchantId,
                                                   TestData.TransactionDateTime,
                                                   TestData.TransactionNumber,
-                                                  TestData.IMEINumber,
+                                                  TestData.DeviceIdentifier,
                                                   TestData.RequireConfigurationInResponseTrue);
 
         public static String ResponseCode = "0000";

@@ -303,7 +303,7 @@ namespace TransactionProcessor.IntegrationTests.Shared
                 DateTime transactionDateTime = SpecflowTableHelper.GetDateForDateString(dateString, DateTime.Today);
                 String transactionNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionNumber");
                 String transactionType = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionType");
-                String imeiNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "IMEINumber");
+                String deviceIdentifier = SpecflowTableHelper.GetStringRowValue(tableRow, "DeviceIdentifier");
 
                 switch (transactionType)
                 {
@@ -312,7 +312,7 @@ namespace TransactionProcessor.IntegrationTests.Shared
                                                            transactionDateTime,
                                                            transactionType,
                                                            transactionNumber,
-                                                           imeiNumber,
+                                                           deviceIdentifier,
                                                            CancellationToken.None);
 
                         estateDetails.AddTransactionResponse(merchantId, transactionNumber, transactionType, responseMessage);
@@ -427,11 +427,11 @@ namespace TransactionProcessor.IntegrationTests.Shared
             }
         }
 
-        private async Task<String> PerformLogonTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String imeiNumber, CancellationToken cancellationToken)
+        private async Task<String> PerformLogonTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String deviceIdentifier, CancellationToken cancellationToken)
         {
             LogonTransactionRequestMessage logonTransactionRequestMessage = new LogonTransactionRequestMessage
                                                                             {
-                                                                                IMEINumber = imeiNumber,
+                                                                                DeviceIdentifier = deviceIdentifier,
                                                                                 TransactionDateTime = transactionDateTime,
                                                                                 TransactionNumber = transactionNumber,
                                                                                 RequireConfigurationInResponse = true

@@ -322,7 +322,7 @@ this.FeatureBackground();
                             "TransactionNumber",
                             "TransactionType",
                             "MerchantName",
-                            "IMEINumber",
+                            "DeviceIdentifier",
                             "EstateName"});
                 table10.AddRow(new string[] {
                             "Today",
@@ -344,7 +344,7 @@ this.FeatureBackground();
                             "TransactionNumber",
                             "TransactionType",
                             "MerchantName",
-                            "IMEINumber",
+                            "DeviceIdentifier",
                             "EstateName"});
                 table11.AddRow(new string[] {
                             "Today",
@@ -366,7 +366,7 @@ this.FeatureBackground();
                             "TransactionNumber",
                             "TransactionType",
                             "MerchantName",
-                            "IMEINumber",
+                            "DeviceIdentifier",
                             "EstateName"});
                 table12.AddRow(new string[] {
                             "Today",
@@ -406,7 +406,7 @@ this.FeatureBackground();
                             "Logon",
                             "0000",
                             "SUCCESS"});
-#line 71
+#line 70
  testRunner.Then("transaction response should contain the following information", ((string)(null)), table13, "Then ");
 #line hidden
             }

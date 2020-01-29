@@ -8,27 +8,62 @@
     using SecurityService.Client;
     using SecurityService.DataTransferObjects.Responses;
     using Shared.General;
-    using Shared.Logger;
     using TransactionProcessor.Client;
     using TransactionProcessor.DataTransferObjects;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="TransactionProcessorACL.BusinessLogic.Services.ITransactionProcessorACLApplicationService" />
     public class TransactionProcessorACLApplicationService : ITransactionProcessorACLApplicationService
     {
-        private readonly ITransactionProcessorClient TransactionProcessorClient;
+        #region Fields
 
+        /// <summary>
+        /// The security service client
+        /// </summary>
         private readonly ISecurityServiceClient SecurityServiceClient;
 
-        public TransactionProcessorACLApplicationService(ITransactionProcessorClient transactionProcessorClient, ISecurityServiceClient securityServiceClient)
+        /// <summary>
+        /// The transaction processor client
+        /// </summary>
+        private readonly ITransactionProcessorClient TransactionProcessorClient;
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransactionProcessorACLApplicationService"/> class.
+        /// </summary>
+        /// <param name="transactionProcessorClient">The transaction processor client.</param>
+        /// <param name="securityServiceClient">The security service client.</param>
+        public TransactionProcessorACLApplicationService(ITransactionProcessorClient transactionProcessorClient,
+                                                         ISecurityServiceClient securityServiceClient)
         {
             this.TransactionProcessorClient = transactionProcessorClient;
             this.SecurityServiceClient = securityServiceClient;
         }
 
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Processes the logon transaction.
+        /// </summary>
+        /// <param name="estateId">The estate identifier.</param>
+        /// <param name="merchantId">The merchant identifier.</param>
+        /// <param name="transactionDateTime">The transaction date time.</param>
+        /// <param name="transactionNumber">The transaction number.</param>
+        /// <param name="deviceIdentifier">The device identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         public async Task<ProcessLogonTransactionResponse> ProcessLogonTransaction(Guid estateId,
                                                                                    Guid merchantId,
                                                                                    DateTime transactionDateTime,
                                                                                    String transactionNumber,
-                                                                                   String imeiNumber,
+                                                                                   String deviceIdentifier,
                                                                                    CancellationToken cancellationToken)
         {
             // Get a client token to call the Transaction Processor
@@ -39,19 +74,21 @@
 
             LogonTransactionRequest logonTransactionRequest = new LogonTransactionRequest();
             logonTransactionRequest.TransactionNumber = transactionNumber;
-            logonTransactionRequest.IMEINumber = imeiNumber;
+            logonTransactionRequest.DeviceIdentifier = deviceIdentifier;
             logonTransactionRequest.TransactionDateTime = transactionDateTime;
             logonTransactionRequest.TransactionType = "LOGON";
 
             SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
             requestSerialisedMessage.Metadata.Add("EstateId", estateId.ToString());
             requestSerialisedMessage.Metadata.Add("MerchantId", merchantId.ToString());
-            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(logonTransactionRequest, new JsonSerializerSettings
-                                                                                                           {
-                                                                                                               TypeNameHandling = TypeNameHandling.All
-                                                                                                           });
+            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(logonTransactionRequest,
+                                                                                  new JsonSerializerSettings
+                                                                                  {
+                                                                                      TypeNameHandling = TypeNameHandling.All
+                                                                                  });
 
-            SerialisedMessage responseSerialisedMessage = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
+            SerialisedMessage responseSerialisedMessage =
+                await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
 
             LogonTransactionResponse logonTransactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponse>(responseSerialisedMessage.SerialisedData);
 
@@ -63,5 +100,7 @@
 
             return response;
         }
+
+        #endregion
     }
 }
