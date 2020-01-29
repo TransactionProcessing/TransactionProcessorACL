@@ -21,6 +21,11 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         /// <param name="deviceIdentifier">The device identifier.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task<ProcessLogonTransactionResponse> ProcessLogonTransaction(Guid estateId, Guid merchantId, DateTime transactionDateTime, String transactionNumber, String deviceIdentifier, CancellationToken cancellationToken);
+        Task<ProcessLogonTransactionResponse> ProcessLogonTransaction(Guid estateId,
+                                                                      Guid merchantId,
+                                                                      DateTime transactionDateTime,
+                                                                      String transactionNumber,
+                                                                      String deviceIdentifier,
+                                                                      CancellationToken cancellationToken);
     }
 }

@@ -86,7 +86,8 @@
                                                                                   {
                                                                                       TypeNameHandling = TypeNameHandling.All
                                                                                   });
-            ProcessLogonTransactionResponse response = new ProcessLogonTransactionResponse();
+
+            ProcessLogonTransactionResponse response = null;
 
             try
             {
@@ -106,8 +107,11 @@
                 if (ex.InnerException is InvalidOperationException)
                 {
                     // This means there is an error in the request
-                    response.ResponseCode = "0001"; // Request Message error
-                    response.ResponseMessage = ex.InnerException.Message;
+                    response = new ProcessLogonTransactionResponse
+                               {
+                                   ResponseCode = "0001", // Request Message error
+                                   ResponseMessage = ex.InnerException.Message
+                               };
                 }
             }
 

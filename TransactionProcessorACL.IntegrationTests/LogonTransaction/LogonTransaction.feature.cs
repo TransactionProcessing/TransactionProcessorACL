@@ -322,7 +322,7 @@ this.FeatureBackground();
                             "TransactionNumber",
                             "TransactionType",
                             "MerchantName",
-                            "IMEINumber",
+                            "DeviceIdentifier",
                             "EstateName"});
                 table10.AddRow(new string[] {
                             "Today",
@@ -344,7 +344,7 @@ this.FeatureBackground();
                             "TransactionNumber",
                             "TransactionType",
                             "MerchantName",
-                            "IMEINumber",
+                            "DeviceIdentifier",
                             "EstateName"});
                 table11.AddRow(new string[] {
                             "Today",
@@ -366,7 +366,7 @@ this.FeatureBackground();
                             "TransactionNumber",
                             "TransactionType",
                             "MerchantName",
-                            "IMEINumber",
+                            "DeviceIdentifier",
                             "EstateName"});
                 table12.AddRow(new string[] {
                             "Today",

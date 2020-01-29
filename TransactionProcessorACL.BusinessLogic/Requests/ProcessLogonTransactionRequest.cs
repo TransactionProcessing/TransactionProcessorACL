@@ -54,10 +54,10 @@
         public Guid EstateId { get; }
 
         /// <summary>
-        /// Gets the imei number.
+        /// Gets the device identifier.
         /// </summary>
         /// <value>
-        /// The imei number.
+        /// The device identifier.
         /// </value>
         public String DeviceIdentifier { get; }
 

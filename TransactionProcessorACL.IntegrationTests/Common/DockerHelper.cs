@@ -145,7 +145,7 @@
                                                                                                       dockerCredentials,
                                                                                                       securityServiceContainerName,
                                                                                                       eventStoreContainerName,
-                                                                                                      (null,null));
+                                                                                                      ("serviceClient", "Secret1"));
 
             IContainerService securityServiceContainer = DockerHelper.SetupSecurityServiceContainer(securityServiceContainerName,
                                                                                                     this.Logger,
@@ -164,8 +164,9 @@
                                                                                                               traceFolder,
                                                                                                               dockerCredentials,
                                                                                                               securityServiceContainerName,
+                                                                                                              estateManagementApiContainerName,
                                                                                                               eventStoreContainerName,
-                                                                                                              (null, null));
+                                                                                                              ("serviceClient", "Secret1"));
 
             IContainerService transactionProcessorACLContainer = DockerHelper.SetupTransactionProcessorACLContainer(transactionProcessorACLContainerName,
                                                                                                                     this.Logger,
