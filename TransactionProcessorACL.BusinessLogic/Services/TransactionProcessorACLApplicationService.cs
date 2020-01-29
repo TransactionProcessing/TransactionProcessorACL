@@ -90,13 +90,23 @@
             SerialisedMessage responseSerialisedMessage =
                 await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
 
-            LogonTransactionResponse logonTransactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponse>(responseSerialisedMessage.SerialisedData);
+                LogonTransactionResponse logonTransactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponse>(responseSerialisedMessage.SerialisedData);
 
-            ProcessLogonTransactionResponse response = new ProcessLogonTransactionResponse
-                                                       {
-                                                           ResponseCode = logonTransactionResponse.ResponseCode,
-                                                           ResponseMessage = logonTransactionResponse.ResponseMessage
-                                                       };
+                response = new ProcessLogonTransactionResponse
+                           {
+                               ResponseCode = logonTransactionResponse.ResponseCode,
+                               ResponseMessage = logonTransactionResponse.ResponseMessage
+                           };
+            }
+            catch(Exception ex)
+            {
+                if (ex.InnerException is InvalidOperationException)
+                {
+                    // This means there is an error in the request
+                    response.ResponseCode = "0001"; // Request Message error
+                    response.ResponseMessage = ex.InnerException.Message;
+                }
+            }
 
             return response;
         }

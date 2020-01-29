@@ -22,7 +22,7 @@
         public static Guid EstateId = Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3");
 
         /// <summary>
-        /// The imei number
+        /// The device identifier
         /// </summary>
         public static String DeviceIdentifier = "12345678";
 
