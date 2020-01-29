@@ -2,12 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using BusinessLogic.Requests;
-    using DataTransferObjects;
     using Models;
     using Newtonsoft.Json;
     using SecurityService.DataTransferObjects.Responses;
     using TransactionProcessor.DataTransferObjects;
+    using TransactionProcessorACL.BusinessLogic.Requests;
+    using TransactionProcessorACL.DataTransferObjects;
 
     /// <summary>
     /// 

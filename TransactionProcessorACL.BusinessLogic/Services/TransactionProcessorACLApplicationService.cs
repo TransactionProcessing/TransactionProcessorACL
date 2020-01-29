@@ -87,8 +87,12 @@
                                                                                       TypeNameHandling = TypeNameHandling.All
                                                                                   });
 
-            SerialisedMessage responseSerialisedMessage =
-                await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
+            ProcessLogonTransactionResponse response = null;
+
+            try
+            {
+                SerialisedMessage responseSerialisedMessage =
+                    await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
 
                 LogonTransactionResponse logonTransactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponse>(responseSerialisedMessage.SerialisedData);
 
@@ -103,8 +107,11 @@
                 if (ex.InnerException is InvalidOperationException)
                 {
                     // This means there is an error in the request
-                    response.ResponseCode = "0001"; // Request Message error
-                    response.ResponseMessage = ex.InnerException.Message;
+                    response = new ProcessLogonTransactionResponse
+                               {
+                                   ResponseCode = "0001", // Request Message error
+                                   ResponseMessage = ex.InnerException.Message
+                               };
                 }
             }
 
