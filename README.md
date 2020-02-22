@@ -5,9 +5,11 @@
 [![Last Nightly Build Status Badge](https://github.com/StuartFerguson/TransactionProcessorACL/workflows/Nightly%20Build/badge.svg)](https://github.com/StuartFerguson/TransactionProcessorACL/workflows/Nightly%20Build/badge.svg)
 [![Last Release Build Status Badge](https://github.com/StuartFerguson/TransactionProcessorACL/workflows/Release/badge.svg)](https://github.com/StuartFerguson/TransactionProcessorACL/workflows/Release/badge.svg)
 
+
 ## Nuget Versions
-
-
+|||
+| --- | --- |
+| **TransactionProcessorACL.DataTransferObjects** | [![TransactionProcessorACL DataTransferObjects MyGet Badge](https://buildstats.info/myget/transactionprocessing/TransactionProcessorACL.DataTransferObjects)](https://buildstats.info/myget/transactionprocessing/TransactionProcessorACL.DataTransferObjects) |
 
 ## Code Coverage Results
 
