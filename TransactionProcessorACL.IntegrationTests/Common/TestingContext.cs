@@ -77,6 +77,11 @@ namespace TransactionProcessor.IntegrationTests.Common
 
             return clientDetails;
         }
+
+        public List<Guid> GetAllEstateIds()
+        {
+            return this.Estates.Select(e => e.EstateId).ToList();
+        }
     }
 
     public class EstateDetails
