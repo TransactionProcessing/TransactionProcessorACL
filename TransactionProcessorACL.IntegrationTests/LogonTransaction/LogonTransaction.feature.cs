@@ -21,7 +21,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
     [Xunit.TraitAttribute("Category", "shared")]
-    public partial class LogonTransactionFeature : object, Xunit.IClassFixture<LogonTransactionFeature.FixtureData>, System.IDisposable
+    public partial class LogonTransactionFeature : Xunit.IClassFixture<LogonTransactionFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
