@@ -16,7 +16,6 @@ namespace TransactionProcessorACL
     using System.IO;
     using System.Net.Http;
     using System.Reflection;
-    using Autofac;
     using BusinessLogic.RequestHandlers;
     using BusinessLogic.Requests;
     using BusinessLogic.Services;
@@ -63,6 +62,22 @@ namespace TransactionProcessorACL
             this.ConfigureMiddlewareServices(services);
 
             services.AddTransient<IMediator, Mediator>();
+
+            services.AddTransient<ServiceFactory>(context =>
+                                                  {
+                                                      return t => context.GetService(t);
+                                                  });
+            services.AddSingleton<IModelFactory, ModelFactory>();
+            services.AddSingleton<IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>, ProcessLogonTransactionRequestHandler>();
+            services.AddSingleton<IRequest<ProcessLogonTransactionResponse>, ProcessLogonTransactionRequest>();
+            services.AddSingleton<ITransactionProcessorACLApplicationService, TransactionProcessorACLApplicationService>();
+            services.AddSingleton<ITransactionProcessorClient, TransactionProcessorClient>();
+            services.AddSingleton<ISecurityServiceClient, SecurityServiceClient>();
+            services.AddSingleton<Func<String, String>>(container => (serviceName) =>
+                                                                     {
+                                                                         return ConfigurationReader.GetBaseServerUri(serviceName).OriginalString;
+                                                                     });
+            services.AddSingleton<HttpClient>();
         }
 
         private void ConfigureMiddlewareServices(IServiceCollection services)
@@ -136,29 +151,29 @@ namespace TransactionProcessorACL
             services.AddMvcCore().AddApplicationPart(assembly).AddControllersAsServices();
         }
 
-        public void ConfigureContainer(ContainerBuilder builder)
-        {
-            // request & notification handlers
-            builder.Register<ServiceFactory>(context =>
-                                             {
-                                                 IComponentContext c = context.Resolve<IComponentContext>();
-                                                 return t => c.Resolve(t);
-                                             });
+        //public void ConfigureServices(IServiceCollection services)
+        //{
+        //    // request & notification handlers
+        //    builder.Register<ServiceFactory>(context =>
+        //                                     {
+        //                                         IComponentContext c = context.Resolve<IComponentContext>();
+        //                                         return t => c.Resolve(t);
+        //                                     });
 
-            builder.RegisterType<ModelFactory>().As<IModelFactory>().SingleInstance();
-            builder.RegisterType<ProcessLogonTransactionRequestHandler>().As<IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>>().SingleInstance();
-            builder.RegisterType<ProcessLogonTransactionRequest>().As<IRequest<ProcessLogonTransactionResponse>>().SingleInstance();
-            builder.RegisterType<TransactionProcessorACLApplicationService>().As<ITransactionProcessorACLApplicationService>().SingleInstance();
-            builder.RegisterType<TransactionProcessorClient>().As<ITransactionProcessorClient>().SingleInstance();
-            builder.RegisterType<SecurityServiceClient>().As<ISecurityServiceClient>().SingleInstance();
-            builder.RegisterType(typeof(HttpClient)).SingleInstance();
-            builder.Register<Func<String, String>>(c => (api) =>
-                                                        {
-                                                            Uri uri = ConfigurationReader.GetBaseServerUri(api);
-                                                            return uri.AbsoluteUri.Substring(0, uri.AbsoluteUri.Length - 1);
-                                                        });
+        //    builder.RegisterType<ModelFactory>().As<IModelFactory>().SingleInstance();
+        //    builder.RegisterType<ProcessLogonTransactionRequestHandler>().As<IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>>().SingleInstance();
+        //    builder.RegisterType<ProcessLogonTransactionRequest>().As<IRequest<ProcessLogonTransactionResponse>>().SingleInstance();
+        //    builder.RegisterType<TransactionProcessorACLApplicationService>().As<ITransactionProcessorACLApplicationService>().SingleInstance();
+        //    builder.RegisterType<TransactionProcessorClient>().As<ITransactionProcessorClient>().SingleInstance();
+        //    builder.RegisterType<SecurityServiceClient>().As<ISecurityServiceClient>().SingleInstance();
+        //    builder.RegisterType(typeof(HttpClient)).SingleInstance();
+        //    builder.Register<Func<String, String>>(c => (api) =>
+        //                                                {
+        //                                                    Uri uri = ConfigurationReader.GetBaseServerUri(api);
+        //                                                    return uri.AbsoluteUri.Substring(0, uri.AbsoluteUri.Length - 1);
+        //                                                });
 
-        }
+        //}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory,

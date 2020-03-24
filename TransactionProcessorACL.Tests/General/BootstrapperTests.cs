@@ -6,9 +6,7 @@ namespace TransactionProcessorACL.Tests.General
 {
     using System.Diagnostics;
     using System.Linq;
-    using Autofac;
-    using Autofac.Core;
-    using Autofac.Extensions.DependencyInjection;
+    using Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -33,24 +31,13 @@ namespace TransactionProcessorACL.Tests.General
 
             IServiceCollection services = new ServiceCollection();
             Startup s = new Startup(hostingEnvironment.Object);
-            s.ConfigureServices(services);
-
             Startup.Configuration = this.SetupMemoryConfiguration();
-            ConfigurationReader.Initialise(Startup.Configuration);
+
+            s.ConfigureServices(services);
 
             this.AddTestRegistrations(services, hostingEnvironment.Object);
 
-            ContainerBuilder builder = new ContainerBuilder();
-            builder.Populate(services);
-
-            s.ConfigureContainer(builder);
-
-            IContainer container = builder.Build();
-
-            using(ILifetimeScope scope = container.BeginLifetimeScope())
-            {
-                scope.ResolveAll(new List<String>());
-            }
+            services.AssertConfigurationIsValid();
         }
 
         private IConfigurationRoot SetupMemoryConfiguration()
@@ -80,52 +67,6 @@ namespace TransactionProcessorACL.Tests.General
             services.AddSingleton<DiagnosticSource>(diagnosticSource);
             services.AddSingleton(diagnosticSource);
             services.AddSingleton(hostingEnvironment);
-        }
-
-        #endregion
-    }
-
-    public static class ScopeExtensions
-    {
-        #region Methods
-
-        /// <summary>
-        /// Filters the specified ignored assemblies.
-        /// </summary>
-        /// <param name="services">The services.</param>
-        /// <param name="ignoredAssemblies">The ignored assemblies.</param>
-        /// <returns></returns>
-        public static IList<IServiceWithType> Filter(this IEnumerable<IServiceWithType> services,
-                                                     IEnumerable<String> ignoredAssemblies)
-        {
-            return services.Where(serviceWithType => ignoredAssemblies.All(ignored => ignored != serviceWithType.ServiceType.FullName)).ToList();
-        }
-
-        /// <summary>
-        /// Resolves all.
-        /// </summary>
-        /// <param name="scope">The scope.</param>
-        /// <param name="ignoredAssemblies">The ignored assemblies.</param>
-        /// <returns></returns>
-        public static IList<Object> ResolveAll(this ILifetimeScope scope,
-                                               IEnumerable<String> ignoredAssemblies)
-        {
-            var services = scope.ComponentRegistry.Registrations.SelectMany(x => x.Services).OfType<IServiceWithType>().Filter(ignoredAssemblies).ToList();
-
-            foreach (var serviceWithType in services)
-            {
-                try
-                {
-                    scope.Resolve(serviceWithType.ServiceType);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
-            }
-
-            return services.Select(x => x.ServiceType).Select(scope.Resolve).ToList();
         }
 
         #endregion
