@@ -311,21 +311,40 @@ namespace TransactionProcessor.IntegrationTests.Shared
                 String transactionType = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionType");
                 String deviceIdentifier = SpecflowTableHelper.GetStringRowValue(tableRow, "DeviceIdentifier");
 
+                String responseMessage = null;
                 switch (transactionType)
                 {
                     case "Logon":
-                        String responseMessage = await this.PerformLogonTransaction(merchantToken,
+                        responseMessage = await this.PerformLogonTransaction(merchantToken,
                                                            transactionDateTime,
                                                            transactionType,
                                                            transactionNumber,
                                                            deviceIdentifier,
                                                            CancellationToken.None);
 
-                        estateDetails.AddTransactionResponse(merchantId, transactionNumber, transactionType, responseMessage);
+                        
+                        break;
+                    case "Sale":
+                        String operatorIdentifier = SpecflowTableHelper.GetStringRowValue(tableRow, "OperatorName");
+                        Decimal transactionAmount = SpecflowTableHelper.GetDecimalValue(tableRow, "TransactionAmount");
+                        String customerAccountNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "CustomerAccountNumber");
 
+                        responseMessage = await this.PerformSaleTransaction(merchantToken,
+                                                                            transactionDateTime,
+                                                                            transactionType,
+                                                                            transactionNumber,
+                                                                            deviceIdentifier,
+                                                                            operatorIdentifier,
+                                                                            transactionAmount,
+                                                                            customerAccountNumber,
+                                                                            CancellationToken.None);
                         break;
 
                 }
+
+                responseMessage.ShouldNotBeNullOrEmpty("No response message received");
+
+                estateDetails.AddTransactionResponse(merchantId, transactionNumber, transactionType, responseMessage);
             }
         }
 
@@ -461,6 +480,36 @@ namespace TransactionProcessor.IntegrationTests.Shared
             return responseContent;
         }
 
+        private async Task<String> PerformSaleTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String deviceIdentifier, String operatorIdentifier, Decimal transactionAmount, String customerAccountNumber, CancellationToken cancellationToken)
+        {
+            SaleTransactionRequestMessage saleTransactionRequestMessage = new SaleTransactionRequestMessage
+            {
+                DeviceIdentifier = deviceIdentifier,
+                TransactionDateTime = transactionDateTime,
+                TransactionNumber = transactionNumber,
+                OperatorIdentifier = operatorIdentifier,
+                Amount = transactionAmount,
+                CustomerAccountNumber = customerAccountNumber
+            };
+
+            String uri = "api/transactions";
+
+            StringContent content = new StringContent(JsonConvert.SerializeObject(saleTransactionRequestMessage, new JsonSerializerSettings
+                                                                                                                 {
+                                                                                                                     TypeNameHandling = TypeNameHandling.All
+                                                                                                                 }), Encoding.UTF8, "application/json");
+
+            this.TestingContext.DockerHelper.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", merchantToken);
+
+            HttpResponseMessage response = await this.TestingContext.DockerHelper.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+
+            response.IsSuccessStatusCode.ShouldBeTrue();
+
+            String responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            return responseContent;
+        }
+
         [Then(@"transaction response should contain the following information")]
         public void ThenTransactionResponseShouldContainTheFollowingInformation(Table table)
         {
@@ -485,6 +534,41 @@ namespace TransactionProcessor.IntegrationTests.Shared
             }
         }
 
+        [Given(@"I have assigned the following devices to the merchants")]
+        public async Task GivenIHaveAssignedTheFollowingDevicesToTheMerchants(Table table)
+        {
+            foreach (TableRow tableRow in table.Rows)
+            {
+                EstateDetails estateDetails = this.TestingContext.GetEstateDetails(tableRow);
+
+                String token = this.TestingContext.AccessToken;
+                if (String.IsNullOrEmpty(estateDetails.AccessToken) == false)
+                {
+                    token = estateDetails.AccessToken;
+                }
+
+                // Lookup the merchant id
+                String merchantName = SpecflowTableHelper.GetStringRowValue(tableRow, "MerchantName");
+                Guid merchantId = estateDetails.GetMerchantId(merchantName);
+
+                // Lookup the operator id
+                String deviceIdentifier = SpecflowTableHelper.GetStringRowValue(tableRow, "DeviceIdentifier");
+
+                AddMerchantDeviceRequest addMerchantDeviceRequest = new AddMerchantDeviceRequest
+                                                                    {
+                                                                        DeviceIdentifier = deviceIdentifier
+                                                                    };
+
+                AddMerchantDeviceResponse addMerchantDeviceResponse = await this.TestingContext.DockerHelper.EstateClient.AddDeviceToMerchant(token, estateDetails.EstateId, merchantId, addMerchantDeviceRequest, CancellationToken.None).ConfigureAwait(false);
+
+                addMerchantDeviceResponse.EstateId.ShouldBe(estateDetails.EstateId);
+                addMerchantDeviceResponse.MerchantId.ShouldBe(merchantId);
+                addMerchantDeviceResponse.DeviceId.ShouldNotBe(Guid.Empty);
+
+                this.TestingContext.Logger.LogInformation($"Device {deviceIdentifier} assigned to Merchant {merchantName} Estate {estateDetails.EstateName}");
+            }
+        }
+
         private void ValidateTransactionResponse(LogonTransactionResponseMessage logonTransactionResponseMessage,
                                            TableRow tableRow)
         {
@@ -493,6 +577,16 @@ namespace TransactionProcessor.IntegrationTests.Shared
 
             logonTransactionResponseMessage.ResponseCode.ShouldBe(expectedResponseCode);
             logonTransactionResponseMessage.ResponseMessage.ShouldBe(expectedResponseMessage);
+        }
+
+        private void ValidateTransactionResponse(SaleTransactionResponseMessage saleTransactionResponseMessage,
+                                                 TableRow tableRow)
+        {
+            String expectedResponseCode = SpecflowTableHelper.GetStringRowValue(tableRow, "ResponseCode");
+            String expectedResponseMessage = SpecflowTableHelper.GetStringRowValue(tableRow, "ResponseMessage");
+
+            saleTransactionResponseMessage.ResponseCode.ShouldBe(expectedResponseCode);
+            saleTransactionResponseMessage.ResponseMessage.ShouldBe(expectedResponseMessage);
         }
 
         [Given(@"I have a token to access the estate management and transaction processor acl resources")]
