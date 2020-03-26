@@ -17,6 +17,13 @@
         /// <returns></returns>
         LogonTransactionResponseMessage ConvertFrom(ProcessLogonTransactionResponse processLogonTransactionResponse);
 
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="processSaleTransactionResponse">The process sale transaction response.</param>
+        /// <returns></returns>
+        SaleTransactionResponseMessage ConvertFrom(ProcessSaleTransactionResponse processSaleTransactionResponse);
+
         #endregion
     }
 }

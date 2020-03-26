@@ -20,6 +20,22 @@
         /// </value>
         public Decimal Amount { get; set; }
 
+        /// <summary>
+        /// Gets or sets the customer account number.
+        /// </summary>
+        /// <value>
+        /// The customer account number.
+        /// </value>
+        public String CustomerAccountNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the operator identifier.
+        /// </summary>
+        /// <value>
+        /// The operator identifier.
+        /// </value>
+        public String OperatorIdentifier { get; set; }
+
         #endregion
     }
 }

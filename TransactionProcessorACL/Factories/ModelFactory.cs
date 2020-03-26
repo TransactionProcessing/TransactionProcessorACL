@@ -31,6 +31,26 @@
             return logonTransactionResponseMessage;
         }
 
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="processSaleTransactionResponse">The process sale transaction response.</param>
+        /// <returns></returns>
+        public SaleTransactionResponseMessage ConvertFrom(ProcessSaleTransactionResponse processSaleTransactionResponse)
+        {
+            if (processSaleTransactionResponse == null)
+            {
+                return null;
+            }
+
+            SaleTransactionResponseMessage saleTransactionResponseMessage = new SaleTransactionResponseMessage();
+
+            saleTransactionResponseMessage.ResponseMessage = processSaleTransactionResponse.ResponseMessage;
+            saleTransactionResponseMessage.ResponseCode = processSaleTransactionResponse.ResponseCode;
+
+            return saleTransactionResponseMessage;
+        }
+
         #endregion
     }
 }

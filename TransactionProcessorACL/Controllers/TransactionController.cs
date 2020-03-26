@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace TransactionProcessorACL.Controllers
+﻿namespace TransactionProcessorACL.Controllers
 {
+    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
+    using System.Threading.Tasks;
     using BusinessLogic.Requests;
     using Common;
     using DataTransferObjects;
@@ -14,8 +11,11 @@ namespace TransactionProcessorACL.Controllers
     using MediatR;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Newtonsoft.Json;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase" />
     [ExcludeFromCodeCoverage]
     [Route(TransactionController.ControllerRoute)]
     [ApiController]
@@ -23,16 +23,44 @@ namespace TransactionProcessorACL.Controllers
     [Authorize]
     public class TransactionController : ControllerBase
     {
+        #region Fields
+
+        /// <summary>
+        /// The mediator
+        /// </summary>
         private readonly IMediator Mediator;
 
+        /// <summary>
+        /// The model factory
+        /// </summary>
         private readonly IModelFactory ModelFactory;
 
-        public TransactionController(IMediator mediator, IModelFactory modelFactory)
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransactionController"/> class.
+        /// </summary>
+        /// <param name="mediator">The mediator.</param>
+        /// <param name="modelFactory">The model factory.</param>
+        public TransactionController(IMediator mediator,
+                                     IModelFactory modelFactory)
         {
             this.Mediator = mediator;
             this.ModelFactory = modelFactory;
         }
 
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Performs the transaction.
+        /// </summary>
+        /// <param name="transactionRequest">The transaction request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("")]
         public async Task<IActionResult> PerformTransaction([FromBody] TransactionRequestMessage transactionRequest,
@@ -45,12 +73,17 @@ namespace TransactionProcessorACL.Controllers
 
             dynamic request = this.CreateCommandFromRequest((dynamic)transactionRequest);
             dynamic response = await this.Mediator.Send(request, cancellationToken);
-            
+
             return this.Ok(this.ModelFactory.ConvertFrom(response));
             // TODO: Populate the GET route
             //return this.Created("", transactionResponse);
         }
 
+        /// <summary>
+        /// Creates the command from request.
+        /// </summary>
+        /// <param name="logonTransactionRequestMessage">The logon transaction request message.</param>
+        /// <returns></returns>
         private ProcessLogonTransactionRequest CreateCommandFromRequest(LogonTransactionRequestMessage logonTransactionRequestMessage)
         {
             Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "EstateId").Value);
@@ -66,6 +99,29 @@ namespace TransactionProcessorACL.Controllers
             return request;
         }
 
+        /// <summary>
+        /// Creates the command from request.
+        /// </summary>
+        /// <param name="saleTransactionRequestMessage">The sale transaction request message.</param>
+        /// <returns></returns>
+        private ProcessSaleTransactionRequest CreateCommandFromRequest(SaleTransactionRequestMessage saleTransactionRequestMessage)
+        {
+            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "EstateId").Value);
+            Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "MerchantId").Value);
+
+            ProcessSaleTransactionRequest request = ProcessSaleTransactionRequest.Create(estateId,
+                                                                                         merchantId,
+                                                                                         saleTransactionRequestMessage.TransactionDateTime,
+                                                                                         saleTransactionRequestMessage.TransactionNumber,
+                                                                                         saleTransactionRequestMessage.DeviceIdentifier,
+                                                                                         saleTransactionRequestMessage.OperatorIdentifier,
+                                                                                         saleTransactionRequestMessage.Amount,
+                                                                                         saleTransactionRequestMessage.CustomerAccountNumber);
+
+            return request;
+        }
+
+        #endregion
 
         #region Others
 

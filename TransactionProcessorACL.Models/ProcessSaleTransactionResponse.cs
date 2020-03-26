@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TransactionProcessorACL.DataTransferObjects.Responses
+﻿namespace TransactionProcessorACL.Models
 {
+    using System;
     using System.Diagnostics.CodeAnalysis;
 
     [ExcludeFromCodeCoverage]
-    public class TransactionResponseMessage
+    public class ProcessSaleTransactionResponse
     {
         /// <summary>
         /// Gets or sets the response code.
@@ -24,17 +21,5 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// The response message.
         /// </value>
         public String ResponseMessage { get; set; }
-    }
-
-    [ExcludeFromCodeCoverage]
-    public class LogonTransactionResponseMessage : TransactionResponseMessage
-    {
-
-    }
-
-    [ExcludeFromCodeCoverage]
-    public class SaleTransactionResponseMessage : TransactionResponseMessage
-    {
-
     }
 }

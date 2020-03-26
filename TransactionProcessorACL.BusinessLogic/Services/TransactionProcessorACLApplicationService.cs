@@ -1,6 +1,7 @@
 ﻿namespace TransactionProcessorACL.BusinessLogic.Services
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Models;
@@ -112,6 +113,87 @@
                                    ResponseCode = "0001", // Request Message error
                                    ResponseMessage = ex.InnerException.Message
                                };
+                }
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Processes the sale transaction.
+        /// </summary>
+        /// <param name="estateId">The estate identifier.</param>
+        /// <param name="merchantId">The merchant identifier.</param>
+        /// <param name="transactionDateTime">The transaction date time.</param>
+        /// <param name="transactionNumber">The transaction number.</param>
+        /// <param name="deviceIdentifier">The device identifier.</param>
+        /// <param name="operatorIdentifier">The operator identifier.</param>
+        /// <param name="amount">The amount.</param>
+        /// <param name="customerAccountNumber">The customer account number.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<ProcessSaleTransactionResponse> ProcessSaleTransaction(Guid estateId,
+                                                                                   Guid merchantId,
+                                                                                   DateTime transactionDateTime,
+                                                                                   String transactionNumber,
+                                                                                   String deviceIdentifier,
+                                                                                   String operatorIdentifier,
+                                                                                   Decimal amount,
+                                                                                   String customerAccountNumber,
+                                                                                   CancellationToken cancellationToken)
+        {
+            // Get a client token to call the Transaction Processor
+            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
+            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
+
+            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+
+            SaleTransactionRequest saleTransactionRequest = new SaleTransactionRequest();
+            saleTransactionRequest.TransactionNumber = transactionNumber;
+            saleTransactionRequest.DeviceIdentifier = deviceIdentifier;
+            saleTransactionRequest.TransactionDateTime = transactionDateTime;
+            saleTransactionRequest.TransactionType = "SALE";
+            saleTransactionRequest.OperatorIdentifier = operatorIdentifier;
+
+            // Build up the metadata
+            saleTransactionRequest.AdditionalTransactionMetadata = new Dictionary<String, String>();
+            saleTransactionRequest.AdditionalTransactionMetadata.Add("Amount", amount.ToString());
+            saleTransactionRequest.AdditionalTransactionMetadata.Add("CustomerAccountNumber", customerAccountNumber);
+            
+            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
+            requestSerialisedMessage.Metadata.Add("EstateId", estateId.ToString());
+            requestSerialisedMessage.Metadata.Add("MerchantId", merchantId.ToString());
+            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(saleTransactionRequest,
+                                                                                  new JsonSerializerSettings
+                                                                                  {
+                                                                                      TypeNameHandling = TypeNameHandling.All
+                                                                                  });
+
+            ProcessSaleTransactionResponse response = null;
+
+            try
+            {
+                SerialisedMessage responseSerialisedMessage =
+                    await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
+
+                SaleTransactionResponse saleTransactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponse>(responseSerialisedMessage.SerialisedData);
+
+                response = new ProcessSaleTransactionResponse
+                {
+                    ResponseCode = saleTransactionResponse.ResponseCode,
+                    ResponseMessage = saleTransactionResponse.ResponseMessage
+                };
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException is InvalidOperationException)
+                {
+                    // This means there is an error in the request
+                    response = new ProcessSaleTransactionResponse
+                    {
+                        ResponseCode = "0001", // Request Message error
+                        ResponseMessage = ex.InnerException.Message
+                    };
                 }
             }
 
