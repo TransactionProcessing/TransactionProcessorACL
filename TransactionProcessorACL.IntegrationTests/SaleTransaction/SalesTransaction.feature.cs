@@ -354,7 +354,7 @@ this.FeatureBackground();
                             "123456780",
                             "Test Estate 1",
                             "Safaricom",
-                            "100.00",
+                            "1000.00",
                             "123456789"});
 #line 62
  testRunner.When("I perform the following transactions", ((string)(null)), table24, "When ");
@@ -382,7 +382,7 @@ this.FeatureBackground();
                             "123456781",
                             "Test Estate 1",
                             "Safaricom",
-                            "100.00",
+                            "1000.00",
                             "123456789"});
 #line 67
  testRunner.When("I perform the following transactions", ((string)(null)), table25, "When ");
@@ -410,7 +410,7 @@ this.FeatureBackground();
                             "123456782",
                             "Test Estate 2",
                             "Safaricom",
-                            "100.00",
+                            "1000.00",
                             "123456789"});
 #line 72
  testRunner.When("I perform the following transactions", ((string)(null)), table26, "When ");
