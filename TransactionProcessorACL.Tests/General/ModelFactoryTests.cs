@@ -38,5 +38,31 @@ namespace TransactionProcessorACL.Tests.General
 
             response.ShouldBeNull();
         }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ProcessSaleTransactionResponse_IsConverted()
+        {
+            ModelFactory modelFactory = new ModelFactory();
+
+            ProcessSaleTransactionResponse processSaleTransactionResponse = TestData.ProcessSaleTransactionResponse;
+
+            SaleTransactionResponseMessage response = modelFactory.ConvertFrom(processSaleTransactionResponse);
+
+            response.ShouldNotBeNull();
+            response.ResponseMessage.ShouldBe(processSaleTransactionResponse.ResponseMessage);
+            response.ResponseCode.ShouldBe(processSaleTransactionResponse.ResponseCode);
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ProcessSaleTransactionResponse_NullValue_IsConverted()
+        {
+            ModelFactory modelFactory = new ModelFactory();
+
+            ProcessSaleTransactionResponse processSaleTransactionResponse = null;
+
+            SaleTransactionResponseMessage response = modelFactory.ConvertFrom(processSaleTransactionResponse);
+
+            response.ShouldBeNull();
+        }
     }
 }

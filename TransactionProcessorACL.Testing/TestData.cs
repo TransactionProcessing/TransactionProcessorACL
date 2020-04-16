@@ -69,8 +69,10 @@
                                                   TestData.RequireConfigurationInResponseTrue);
 
         public static String ResponseCode = "0000";
+        public static String ErrorResponseCode = "0001";
 
         public static String ResponseMessage = "SUCCESS";
+        public static String ErrorResponseMessage = "ERROR";
 
         public static ProcessLogonTransactionResponse ProcessLogonTransactionResponse = new ProcessLogonTransactionResponse
                                                                                         {
@@ -96,7 +98,26 @@
         public static String Token = "{\"access_token\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6IjA4NGZlNTIwZmIzZmVhM2M0MmNmMjBiZWM2OGY1NDg2IiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE1Nzc1NTIyMTQsImV4cCI6MTU3NzU1NTgxNCwiaXNzIjoiaHR0cDovLzE5Mi4xNjguMS4xMzM6NTAwMSIsImF1ZCI6WyJlc3RhdGVNYW5hZ2VtZW50IiwidHJhbnNhY3Rpb25Qcm9jZXNzb3IiLCJ0cmFuc2FjdGlvblByb2Nlc3NvckFDTCJdLCJjbGllbnRfaWQiOiJzZXJ2aWNlQ2xpZW50Iiwic2NvcGUiOlsiZXN0YXRlTWFuYWdlbWVudCIsInRyYW5zYWN0aW9uUHJvY2Vzc29yIiwidHJhbnNhY3Rpb25Qcm9jZXNzb3JBQ0wiXX0.JxK6kEvmvuMnL7ktgvv6N52fjqnFG-NSjPcQORIcFb4ravZAk5oNgsnEtjPcOHTXiktcr8i361GlYO1yiSGdfLKtCTaH3lihcbOb1wfQh3bYM_xmlqJUdirerR8ql9lxqBqm2_Q__PDFuFhMd9lAz-iFr3svuOXeQJB5HQ2rtA3xBDDked5SaEs1dMfbBJA6svRq831WCQSJgap2Db7XN7ais7AQhPYUcFOTGs9Qk33rF_k-2dnAzkEITjvgPwim-8YsEQfsbRYgZmIXfjOXcD81Y0G2_grugvc0SOj_hKXd4d62T-zU-mC4opuYauWKYFqV4UB4sf4V4rtLWeDWrA\",\"expires_in\": 3600,\"token_type\": \"Bearer\",\"scope\": \"estateManagement transactionProcessor transactionProcessorACL\"}";
 
         public static TokenResponse TokenResponse = TokenResponse.Create(TestData.Token);
-        
-        
+
+        public static ProcessSaleTransactionResponse ProcessSaleTransactionResponse = new ProcessSaleTransactionResponse
+                                                                                      {
+                                                                                          ResponseMessage = TestData.ResponseMessage,
+                                                                                          ResponseCode = TestData.ResponseCode
+                                                                                      };
+
+        public static String OperatorIdentifier = "Operator1";
+
+        public static Decimal SaleAmount = 1000.00m;
+
+        public static String CustomerAccountNumber = "123456789";
+
+        public static ProcessSaleTransactionRequest ProcessSaleTransactionRequest = ProcessSaleTransactionRequest.Create(TestData.EstateId,
+                                                                                                                         TestData.MerchantId,
+                                                                                                                         TestData.TransactionDateTime,
+                                                                                                                         TestData.TransactionNumber,
+                                                                                                                         TestData.DeviceIdentifier,
+                                                                                                                         TestData.OperatorIdentifier,
+                                                                                                                         TestData.SaleAmount,
+                                                                                                                         TestData.CustomerAccountNumber);
     }
 }

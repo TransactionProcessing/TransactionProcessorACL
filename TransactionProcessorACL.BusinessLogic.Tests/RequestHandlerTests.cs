@@ -43,6 +43,31 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             response.ResponseMessage.ShouldBe(TestData.ResponseMessage);
         }
 
+        [Fact]
+        public async Task ProcessSaleTransactionRequestHandler_Handle_RequestIsHandled()
+        {
+            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            applicationService
+                .Setup(a => a.ProcessSaleTransaction(It.IsAny<Guid>(),
+                                                      It.IsAny<Guid>(),
+                                                      It.IsAny<DateTime>(),
+                                                      It.IsAny<String>(),
+                                                      It.IsAny<String>(),
+                                                      It.IsAny<String>(),
+                                                      It.IsAny<Decimal>(),
+                                                      It.IsAny<String>(),
+                                                      It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessSaleTransactionResponse);
+
+            ProcessSaleTransactionRequestHandler requestHandler = new ProcessSaleTransactionRequestHandler(applicationService.Object);
+
+            ProcessSaleTransactionRequest request = TestData.ProcessSaleTransactionRequest;
+            ProcessSaleTransactionResponse response = await requestHandler.Handle(request, CancellationToken.None);
+
+            response.ShouldNotBeNull();
+            response.ResponseCode.ShouldBe(TestData.ResponseCode);
+            response.ResponseMessage.ShouldBe(TestData.ResponseMessage);
+        }
+
         #endregion
     }
 }

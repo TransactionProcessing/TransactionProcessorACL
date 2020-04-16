@@ -35,11 +35,6 @@
             this.TransactionDateTime = transactionDateTime;
             this.TransactionNumber = transactionNumber;
         }
-        
-        public ProcessLogonTransactionRequest()
-        {
-            // This constructor is only required for IoC tests :|
-        }
 
         #endregion
 
