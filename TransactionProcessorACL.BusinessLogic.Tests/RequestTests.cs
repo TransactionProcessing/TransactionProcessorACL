@@ -33,6 +33,28 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             request.RequireConfigurationInResponse.ShouldBe(TestData.RequireConfigurationInResponseTrue);
         }
 
+        [Fact]
+        public void ProcessSaleTransactionRequest_CanBeCreated_IsCreated()
+        {
+            ProcessSaleTransactionRequest request = ProcessSaleTransactionRequest.Create(TestData.EstateId,
+                                                                                         TestData.MerchantId,
+                                                                                         TestData.TransactionDateTime,
+                                                                                         TestData.TransactionNumber,
+                                                                                         TestData.DeviceIdentifier,
+                                                                                         TestData.OperatorIdentifier,
+                                                                                         TestData.SaleAmount,
+                                                                                         TestData.CustomerAccountNumber);
+
+            request.EstateId.ShouldBe(TestData.EstateId);
+            request.MerchantId.ShouldBe(TestData.MerchantId);
+            request.TransactionDateTime.ShouldBe(TestData.TransactionDateTime);
+            request.TransactionNumber.ShouldBe(TestData.TransactionNumber);
+            request.DeviceIdentifier.ShouldBe(TestData.DeviceIdentifier);
+            request.OperatorIdentifier.ShouldBe(TestData.OperatorIdentifier);
+            request.Amount.ShouldBe(TestData.SaleAmount);
+            request.CustomerAccountNumber.ShouldBe(TestData.CustomerAccountNumber);
+        }
+
         #endregion
     }
 }
