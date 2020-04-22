@@ -116,7 +116,8 @@
                                                                                          saleTransactionRequestMessage.DeviceIdentifier,
                                                                                          saleTransactionRequestMessage.OperatorIdentifier,
                                                                                          saleTransactionRequestMessage.Amount,
-                                                                                         saleTransactionRequestMessage.CustomerAccountNumber);
+                                                                                         saleTransactionRequestMessage.CustomerAccountNumber,
+                                                                                         saleTransactionRequestMessage.CustomerEmailAddress);
 
             return request;
         }

@@ -328,6 +328,7 @@ namespace TransactionProcessor.IntegrationTests.Shared
                         String operatorIdentifier = SpecflowTableHelper.GetStringRowValue(tableRow, "OperatorName");
                         Decimal transactionAmount = SpecflowTableHelper.GetDecimalValue(tableRow, "TransactionAmount");
                         String customerAccountNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "CustomerAccountNumber");
+                        String customerEmailAddress = SpecflowTableHelper.GetStringRowValue(tableRow, "CustomerEmailAddress");
 
                         responseMessage = await this.PerformSaleTransaction(merchantToken,
                                                                             transactionDateTime,
@@ -337,6 +338,7 @@ namespace TransactionProcessor.IntegrationTests.Shared
                                                                             operatorIdentifier,
                                                                             transactionAmount,
                                                                             customerAccountNumber,
+                                                                            customerEmailAddress,
                                                                             CancellationToken.None);
                         break;
 
@@ -480,7 +482,7 @@ namespace TransactionProcessor.IntegrationTests.Shared
             return responseContent;
         }
 
-        private async Task<String> PerformSaleTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String deviceIdentifier, String operatorIdentifier, Decimal transactionAmount, String customerAccountNumber, CancellationToken cancellationToken)
+        private async Task<String> PerformSaleTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String deviceIdentifier, String operatorIdentifier, Decimal transactionAmount, String customerAccountNumber, String customerEmailAddress, CancellationToken cancellationToken)
         {
             SaleTransactionRequestMessage saleTransactionRequestMessage = new SaleTransactionRequestMessage
             {
@@ -489,7 +491,8 @@ namespace TransactionProcessor.IntegrationTests.Shared
                 TransactionNumber = transactionNumber,
                 OperatorIdentifier = operatorIdentifier,
                 Amount = transactionAmount,
-                CustomerAccountNumber = customerAccountNumber
+                CustomerAccountNumber = customerAccountNumber,
+                CustomerEmailAddress = customerEmailAddress
             };
 
             String uri = "api/transactions";

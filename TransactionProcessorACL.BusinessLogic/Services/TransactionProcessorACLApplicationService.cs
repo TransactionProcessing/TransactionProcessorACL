@@ -130,6 +130,7 @@
         /// <param name="operatorIdentifier">The operator identifier.</param>
         /// <param name="amount">The amount.</param>
         /// <param name="customerAccountNumber">The customer account number.</param>
+        /// <param name="customerEmailAddress">The customer email address.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         public async Task<ProcessSaleTransactionResponse> ProcessSaleTransaction(Guid estateId,
@@ -140,6 +141,7 @@
                                                                                    String operatorIdentifier,
                                                                                    Decimal amount,
                                                                                    String customerAccountNumber,
+                                                                                   String customerEmailAddress,
                                                                                    CancellationToken cancellationToken)
         {
             // Get a client token to call the Transaction Processor
@@ -154,6 +156,7 @@
             saleTransactionRequest.TransactionDateTime = transactionDateTime;
             saleTransactionRequest.TransactionType = "SALE";
             saleTransactionRequest.OperatorIdentifier = operatorIdentifier;
+            saleTransactionRequest.CustomerEmailAddress = customerEmailAddress;
 
             // Build up the metadata
             saleTransactionRequest.AdditionalTransactionMetadata = new Dictionary<String, String>();

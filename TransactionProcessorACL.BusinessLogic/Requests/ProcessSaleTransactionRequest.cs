@@ -19,6 +19,7 @@
         /// <param name="operatorIdentifier">The operator identifier.</param>
         /// <param name="amount">The amount.</param>
         /// <param name="customerAccountNumber">The customer account number.</param>
+        /// <param name="customerEmailAddress">The customer email address.</param>
         private ProcessSaleTransactionRequest(Guid estateId,
                                               Guid merchantId,
                                               DateTime transactionDateTime,
@@ -26,7 +27,8 @@
                                               String deviceIdentifier,
                                               String operatorIdentifier,
                                               Decimal amount,
-                                              String customerAccountNumber)
+                                              String customerAccountNumber,
+                                              String customerEmailAddress)
         {
             this.EstateId = estateId;
             this.MerchantId = merchantId;
@@ -34,6 +36,7 @@
             this.OperatorIdentifier = operatorIdentifier;
             this.Amount = amount;
             this.CustomerAccountNumber = customerAccountNumber;
+            this.CustomerEmailAddress = customerEmailAddress;
             this.TransactionDateTime = transactionDateTime;
             this.TransactionNumber = transactionNumber;
         }
@@ -57,6 +60,14 @@
         /// The customer account number.
         /// </value>
         public String CustomerAccountNumber { get; }
+
+        /// <summary>
+        /// Gets the customer email address.
+        /// </summary>
+        /// <value>
+        /// The customer email address.
+        /// </value>
+        public String CustomerEmailAddress { get; private set; }
 
         /// <summary>
         /// Gets the device identifier.
@@ -121,6 +132,7 @@
         /// <param name="operatorIdentifier">The operator identifier.</param>
         /// <param name="amount">The amount.</param>
         /// <param name="customerAccountNumber">The customer account number.</param>
+        /// <param name="customerEmailAddress">The customer email address.</param>
         /// <returns></returns>
         public static ProcessSaleTransactionRequest Create(Guid estateId,
                                                            Guid merchantId,
@@ -129,7 +141,8 @@
                                                            String deviceIdentifier,
                                                            String operatorIdentifier,
                                                            Decimal amount,
-                                                           String customerAccountNumber)
+                                                           String customerAccountNumber,
+                                                           String customerEmailAddress)
         {
             return new ProcessSaleTransactionRequest(estateId,
                                                      merchantId,
@@ -138,7 +151,8 @@
                                                      deviceIdentifier,
                                                      operatorIdentifier,
                                                      amount,
-                                                     customerAccountNumber);
+                                                     customerAccountNumber,
+                                                     customerEmailAddress);
         }
 
         #endregion

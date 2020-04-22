@@ -39,6 +39,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         /// <param name="operatorIdentifier">The operator identifier.</param>
         /// <param name="amount">The amount.</param>
         /// <param name="customerAccountNumber">The customer account number.</param>
+        /// <param name="customerEmailAddress">The customer email address.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task<ProcessSaleTransactionResponse> ProcessSaleTransaction(Guid estateId,
@@ -49,6 +50,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                       String operatorIdentifier,
                                                                       Decimal amount,
                                                                       String customerAccountNumber,
+                                                                      String customerEmailAddress,
                                                                       CancellationToken cancellationToken);
     }
 }
