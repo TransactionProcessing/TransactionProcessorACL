@@ -111,6 +111,8 @@
 
         public static String CustomerAccountNumber = "123456789";
 
+        public static String CustomerEmailAddress = "testcustomer@customer.co.uk";
+
         public static ProcessSaleTransactionRequest ProcessSaleTransactionRequest = ProcessSaleTransactionRequest.Create(TestData.EstateId,
                                                                                                                          TestData.MerchantId,
                                                                                                                          TestData.TransactionDateTime,
@@ -118,6 +120,7 @@
                                                                                                                          TestData.DeviceIdentifier,
                                                                                                                          TestData.OperatorIdentifier,
                                                                                                                          TestData.SaleAmount,
-                                                                                                                         TestData.CustomerAccountNumber);
+                                                                                                                         TestData.CustomerAccountNumber,
+                                                                                                                         TestData.CustomerEmailAddress);
     }
 }

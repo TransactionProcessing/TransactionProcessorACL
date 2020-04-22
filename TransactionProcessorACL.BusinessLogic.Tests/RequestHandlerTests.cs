@@ -56,6 +56,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                       It.IsAny<String>(),
                                                       It.IsAny<Decimal>(),
                                                       It.IsAny<String>(),
+                                                      It.IsAny<String>(),
                                                       It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessSaleTransactionResponse);
 
             ProcessSaleTransactionRequestHandler requestHandler = new ProcessSaleTransactionRequestHandler(applicationService.Object);
