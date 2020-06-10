@@ -11,12 +11,12 @@ Background:
 	| ResourceName            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
 	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | MerchantId, EstateId, role |
 	| transactionProcessor    | Transaction Processor REST     | Secret1 | transactionProcessor    |                            |
-	| transactionProcessorAcl | Transaction Processor ACL REST | Secret1 | transactionProcessorAcl | MerchantId, EstateId, role |
+	| transactionProcessorACL | Transaction Processor ACL REST | Secret1 | transactionProcessorACL | MerchantId, EstateId, role |
 
 	Given the following clients exist
 	| ClientId       | ClientName      | Secret  | AllowedScopes                                                 | AllowedGrantTypes  |
-	| serviceClient  | Service Client  | Secret1 | estateManagement,transactionProcessor,transactionProcessorAcl | client_credentials |
-	| merchantClient | Merchant Client | Secret1 | transactionProcessorAcl                                       | password           |
+	| serviceClient  | Service Client  | Secret1 | estateManagement,transactionProcessor,transactionProcessorACL | client_credentials |
+	| merchantClient | Merchant Client | Secret1 | transactionProcessorACL                                       | password           |
 
 	Given I have a token to access the estate management and transaction processor acl resources
 	| ClientId      | 
@@ -55,6 +55,12 @@ Background:
 	| 123456780        | Test Merchant 1 | Test Estate 1 |
 	| 123456781        | Test Merchant 2 | Test Estate 1 |
 	| 123456782        | Test Merchant 3 | Test Estate 2 |
+
+	Given I make the following manual merchant deposits 
+	| Reference | Amount  | DateTime | MerchantName    | EstateName    |
+	| Deposit1  | 2000.00 | Today    | Test Merchant 1 | Test Estate 1 |
+	| Deposit1  | 1000.00 | Today    | Test Merchant 2 | Test Estate 1 |
+	| Deposit1  | 1000.00 | Today    | Test Merchant 3 | Test Estate 2 |
 
 @PRTest
 Scenario: Sale Transaction
