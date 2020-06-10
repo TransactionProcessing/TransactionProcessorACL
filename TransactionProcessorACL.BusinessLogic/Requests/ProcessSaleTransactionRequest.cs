@@ -6,6 +6,11 @@
 
     public class ProcessSaleTransactionRequest : IRequest<ProcessSaleTransactionResponse>
     {
+        public ProcessSaleTransactionRequest()
+        {
+            
+        }
+
         #region Constructors
 
         /// <summary>

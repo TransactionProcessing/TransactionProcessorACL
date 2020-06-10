@@ -12,6 +12,11 @@
     {
         #region Constructors
 
+        public ProcessLogonTransactionRequest()
+        {
+            
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessLogonTransactionRequest" /> class.
         /// </summary>
