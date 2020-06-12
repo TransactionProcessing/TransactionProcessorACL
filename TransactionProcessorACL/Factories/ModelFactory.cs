@@ -27,6 +27,8 @@
 
             logonTransactionResponseMessage.ResponseMessage = processLogonTransactionResponse.ResponseMessage;
             logonTransactionResponseMessage.ResponseCode = processLogonTransactionResponse.ResponseCode;
+            logonTransactionResponseMessage.MerchantId = processLogonTransactionResponse.MerchantId;
+            logonTransactionResponseMessage.EstateId = processLogonTransactionResponse.EstateId;
 
             return logonTransactionResponseMessage;
         }

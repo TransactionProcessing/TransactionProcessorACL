@@ -1,6 +1,7 @@
 ﻿namespace TransactionProcessorACL.BusinessLogic.Requests
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using MediatR;
     using Models;
 
@@ -12,6 +13,7 @@
     {
         #region Constructors
 
+        [ExcludeFromCodeCoverage]
         public ProcessLogonTransactionRequest()
         {
             

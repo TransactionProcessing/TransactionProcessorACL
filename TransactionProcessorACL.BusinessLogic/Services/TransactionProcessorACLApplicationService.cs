@@ -100,7 +100,9 @@
                 response = new ProcessLogonTransactionResponse
                            {
                                ResponseCode = logonTransactionResponse.ResponseCode,
-                               ResponseMessage = logonTransactionResponse.ResponseMessage
+                               ResponseMessage = logonTransactionResponse.ResponseMessage,
+                               EstateId = estateId,
+                               MerchantId = merchantId
                            };
             }
             catch(Exception ex)
@@ -111,8 +113,10 @@
                     response = new ProcessLogonTransactionResponse
                                {
                                    ResponseCode = "0001", // Request Message error
-                                   ResponseMessage = ex.InnerException.Message
-                               };
+                                   ResponseMessage = ex.InnerException.Message,
+                                   EstateId = estateId,
+                                   MerchantId = merchantId
+                    };
                 }
             }
 

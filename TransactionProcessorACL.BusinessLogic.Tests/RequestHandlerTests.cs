@@ -41,6 +41,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             response.ShouldNotBeNull();
             response.ResponseCode.ShouldBe(TestData.ResponseCode);
             response.ResponseMessage.ShouldBe(TestData.ResponseMessage);
+            response.EstateId.ShouldBe(TestData.EstateId);
+            response.MerchantId.ShouldBe(TestData.MerchantId);
         }
 
         [Fact]
