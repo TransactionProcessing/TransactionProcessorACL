@@ -1,11 +1,16 @@
 ﻿namespace TransactionProcessorACL.BusinessLogic.Requests
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using MediatR;
     using Models;
 
     public class ProcessSaleTransactionRequest : IRequest<ProcessSaleTransactionResponse>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProcessSaleTransactionRequest"/> class.
+        /// </summary>
+        [ExcludeFromCodeCoverage]
         public ProcessSaleTransactionRequest()
         {
             

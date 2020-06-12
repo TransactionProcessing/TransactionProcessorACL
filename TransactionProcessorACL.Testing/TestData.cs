@@ -77,7 +77,9 @@
         public static ProcessLogonTransactionResponse ProcessLogonTransactionResponse = new ProcessLogonTransactionResponse
                                                                                         {
                                                                                             ResponseMessage = TestData.ResponseMessage,
-                                                                                            ResponseCode = TestData.ResponseCode
+                                                                                            ResponseCode = TestData.ResponseCode,
+                                                                                            EstateId = TestData.EstateId,
+                                                                                            MerchantId = TestData.MerchantId
                                                                                         };
 
         public static SerialisedMessage SerialisedMessageResponse = new SerialisedMessage

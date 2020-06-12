@@ -25,16 +25,4 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// </value>
         public String ResponseMessage { get; set; }
     }
-
-    [ExcludeFromCodeCoverage]
-    public class LogonTransactionResponseMessage : TransactionResponseMessage
-    {
-
-    }
-
-    [ExcludeFromCodeCoverage]
-    public class SaleTransactionResponseMessage : TransactionResponseMessage
-    {
-
-    }
 }

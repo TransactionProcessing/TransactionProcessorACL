@@ -25,6 +25,8 @@ namespace TransactionProcessorACL.Tests.General
             response.ShouldNotBeNull();
             response.ResponseMessage.ShouldBe(processLogonTransactionResponse.ResponseMessage);
             response.ResponseCode.ShouldBe(processLogonTransactionResponse.ResponseCode);
+            response.EstateId.ShouldBe(processLogonTransactionResponse.EstateId);
+            response.MerchantId.ShouldBe(processLogonTransactionResponse.MerchantId);
         }
 
         [Fact]
