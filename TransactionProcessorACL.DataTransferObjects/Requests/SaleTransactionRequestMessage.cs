@@ -21,12 +21,28 @@
         public Decimal Amount { get; set; }
 
         /// <summary>
+        /// Gets or sets the contract identifier.
+        /// </summary>
+        /// <value>
+        /// The contract identifier.
+        /// </value>
+        public Guid ContractId { get; set; }
+
+        /// <summary>
         /// Gets or sets the customer account number.
         /// </summary>
         /// <value>
         /// The customer account number.
         /// </value>
         public String CustomerAccountNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the customer email address.
+        /// </summary>
+        /// <value>
+        /// The customer email address.
+        /// </value>
+        public String CustomerEmailAddress { get; set; }
 
         /// <summary>
         /// Gets or sets the operator identifier.
@@ -37,12 +53,12 @@
         public String OperatorIdentifier { get; set; }
 
         /// <summary>
-        /// Gets or sets the customer email address.
+        /// Gets or sets the product identifier.
         /// </summary>
         /// <value>
-        /// The customer email address.
+        /// The product identifier.
         /// </value>
-        public String CustomerEmailAddress { get; set; }
+        public Guid ProductId { get; set; }
 
         #endregion
     }

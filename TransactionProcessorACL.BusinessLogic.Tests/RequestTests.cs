@@ -44,7 +44,9 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                          TestData.OperatorIdentifier,
                                                                                          TestData.SaleAmount,
                                                                                          TestData.CustomerAccountNumber,
-                                                                                         TestData.CustomerEmailAddress);
+                                                                                         TestData.CustomerEmailAddress,
+                                                                                         TestData.ContractId,
+                                                                                         TestData.ProductId);
 
             request.EstateId.ShouldBe(TestData.EstateId);
             request.MerchantId.ShouldBe(TestData.MerchantId);
@@ -55,6 +57,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             request.Amount.ShouldBe(TestData.SaleAmount);
             request.CustomerAccountNumber.ShouldBe(TestData.CustomerAccountNumber);
             request.CustomerEmailAddress.ShouldBe(TestData.CustomerEmailAddress);
+            request.ContractId.ShouldBe(TestData.ContractId);
+            request.ProductId.ShouldBe(TestData.ProductId);
         }
 
         #endregion

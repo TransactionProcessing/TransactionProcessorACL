@@ -114,6 +114,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                              TestData.SaleAmount,
                                                                                                              TestData.CustomerAccountNumber,
                                                                                                              TestData.CustomerEmailAddress,
+                                                                                                             TestData.ContractId,
+                                                                                                             TestData.ProductId,
                                                                                                              CancellationToken.None);
 
             saleResponse.ShouldNotBeNull();
@@ -145,6 +147,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                           TestData.SaleAmount,
                                                                                                           TestData.CustomerAccountNumber,
                                                                                                           TestData.CustomerEmailAddress,
+                                                                                                          TestData.ContractId,
+                                                                                                          TestData.ProductId,
                                                                                                           CancellationToken.None);
 
             saleResponse.ShouldNotBeNull();
