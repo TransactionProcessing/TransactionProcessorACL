@@ -53,6 +53,8 @@
                                                                         request.Amount,
                                                                         request.CustomerAccountNumber,
                                                                         request.CustomerEmailAddress,
+                                                                        request.ContractId,
+                                                                        request.ProductId,
                                                                         cancellationToken);
         }
 

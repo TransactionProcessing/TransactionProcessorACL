@@ -40,6 +40,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         /// <param name="amount">The amount.</param>
         /// <param name="customerAccountNumber">The customer account number.</param>
         /// <param name="customerEmailAddress">The customer email address.</param>
+        /// <param name="contractId">The contract identifier.</param>
+        /// <param name="productId">The product identifier.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task<ProcessSaleTransactionResponse> ProcessSaleTransaction(Guid estateId,
@@ -51,6 +53,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                       Decimal amount,
                                                                       String customerAccountNumber,
                                                                       String customerEmailAddress,
+                                                                      Guid contractId,
+                                                                      Guid productId,
                                                                       CancellationToken cancellationToken);
     }
 }

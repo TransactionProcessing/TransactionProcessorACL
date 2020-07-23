@@ -30,6 +30,9 @@
         /// <param name="amount">The amount.</param>
         /// <param name="customerAccountNumber">The customer account number.</param>
         /// <param name="customerEmailAddress">The customer email address.</param>
+        /// <param name="contractId">The contract identifier.</param>
+        /// <param name="productId">The product identifier.</param>
+        /// <param name="">The .</param>
         private ProcessSaleTransactionRequest(Guid estateId,
                                               Guid merchantId,
                                               DateTime transactionDateTime,
@@ -38,7 +41,9 @@
                                               String operatorIdentifier,
                                               Decimal amount,
                                               String customerAccountNumber,
-                                              String customerEmailAddress)
+                                              String customerEmailAddress,
+                                              Guid contractId,
+                                              Guid productId)
         {
             this.EstateId = estateId;
             this.MerchantId = merchantId;
@@ -47,10 +52,12 @@
             this.Amount = amount;
             this.CustomerAccountNumber = customerAccountNumber;
             this.CustomerEmailAddress = customerEmailAddress;
+            this.ContractId = contractId;
+            this.ProductId = productId;
             this.TransactionDateTime = transactionDateTime;
             this.TransactionNumber = transactionNumber;
         }
-        
+
         #endregion
 
         #region Properties
@@ -78,6 +85,22 @@
         /// The customer email address.
         /// </value>
         public String CustomerEmailAddress { get; private set; }
+
+        /// <summary>
+        /// Gets the contract identifier.
+        /// </summary>
+        /// <value>
+        /// The contract identifier.
+        /// </value>
+        public Guid ContractId { get; }
+
+        /// <summary>
+        /// Gets the product identifier.
+        /// </summary>
+        /// <value>
+        /// The product identifier.
+        /// </value>
+        public Guid ProductId { get; }
 
         /// <summary>
         /// Gets the device identifier.
@@ -143,6 +166,8 @@
         /// <param name="amount">The amount.</param>
         /// <param name="customerAccountNumber">The customer account number.</param>
         /// <param name="customerEmailAddress">The customer email address.</param>
+        /// <param name="contractId">The contract identifier.</param>
+        /// <param name="productId">The product identifier.</param>
         /// <returns></returns>
         public static ProcessSaleTransactionRequest Create(Guid estateId,
                                                            Guid merchantId,
@@ -152,7 +177,9 @@
                                                            String operatorIdentifier,
                                                            Decimal amount,
                                                            String customerAccountNumber,
-                                                           String customerEmailAddress)
+                                                           String customerEmailAddress,
+                                                           Guid contractId,
+                                                           Guid productId)
         {
             return new ProcessSaleTransactionRequest(estateId,
                                                      merchantId,
@@ -162,7 +189,9 @@
                                                      operatorIdentifier,
                                                      amount,
                                                      customerAccountNumber,
-                                                     customerEmailAddress);
+                                                     customerEmailAddress,
+                                                     contractId,
+                                                     productId);
         }
 
         #endregion

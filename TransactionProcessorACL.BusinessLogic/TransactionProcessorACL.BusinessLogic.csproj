@@ -8,7 +8,7 @@
     <PackageReference Include="MediatR" Version="8.0.2" />
     <PackageReference Include="SecurityService.Client" Version="1.0.0" />
     <PackageReference Include="Shared" Version="0.0.15.7" />
-    <PackageReference Include="TransactionProcessor.Client" Version="1.0.1.1" />
+    <PackageReference Include="TransactionProcessor.Client" Version="1.0.2-build16" />
   </ItemGroup>
 
   <ItemGroup>

@@ -115,6 +115,10 @@
 
         public static String CustomerEmailAddress = "testcustomer@customer.co.uk";
 
+        public static Guid ContractId = Guid.Parse("362CCDFD-C227-4D6E-884C-D6323E278175");
+
+        public static Guid ProductId = Guid.Parse("B74D71CA-CC5E-4F49-8412-79D36035D68E");
+
         public static ProcessSaleTransactionRequest ProcessSaleTransactionRequest = ProcessSaleTransactionRequest.Create(TestData.EstateId,
                                                                                                                          TestData.MerchantId,
                                                                                                                          TestData.TransactionDateTime,
@@ -123,6 +127,8 @@
                                                                                                                          TestData.OperatorIdentifier,
                                                                                                                          TestData.SaleAmount,
                                                                                                                          TestData.CustomerAccountNumber,
-                                                                                                                         TestData.CustomerEmailAddress);
+                                                                                                                         TestData.CustomerEmailAddress,
+                                                                                                                         TestData.ContractId,
+                                                                                                                         TestData.ProductId);
     }
 }

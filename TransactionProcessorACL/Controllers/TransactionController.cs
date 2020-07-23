@@ -117,7 +117,9 @@
                                                                                          saleTransactionRequestMessage.OperatorIdentifier,
                                                                                          saleTransactionRequestMessage.Amount,
                                                                                          saleTransactionRequestMessage.CustomerAccountNumber,
-                                                                                         saleTransactionRequestMessage.CustomerEmailAddress);
+                                                                                         saleTransactionRequestMessage.CustomerEmailAddress,
+                                                                                         saleTransactionRequestMessage.ContractId,
+                                                                                         saleTransactionRequestMessage.ProductId);
 
             return request;
         }
