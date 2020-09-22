@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Models;
@@ -118,6 +119,27 @@
                                    MerchantId = merchantId
                     };
                 }
+                else if (ex.InnerException is HttpRequestException)
+                {
+                    // Request Send Exception
+                    response = new ProcessLogonTransactionResponse
+                    {
+                                   ResponseCode = "0002", // Request Message error
+                                   ResponseMessage = "Error Sending Request Message",
+                                   EstateId = estateId,
+                                   MerchantId = merchantId
+                    };
+                }
+                else
+                {
+                    response = new ProcessLogonTransactionResponse
+                    {
+                                   ResponseCode = "0003", // General error
+                                   ResponseMessage = "General Error",
+                                   EstateId = estateId,
+                                   MerchantId = merchantId
+                    };
+                }
             }
 
             return response;
@@ -209,6 +231,23 @@
                         ResponseCode = "0001", // Request Message error
                         ResponseMessage = ex.InnerException.Message
                     };
+                }
+                else if (ex.InnerException is HttpRequestException) 
+                {
+                    // Request Send Exception
+                    response = new ProcessSaleTransactionResponse
+                               {
+                                   ResponseCode = "0002", // Request Message error
+                                   ResponseMessage = "Error Sending Request Message"
+                               };
+                }
+                else
+                {
+                    response = new ProcessSaleTransactionResponse
+                               {
+                                   ResponseCode = "0003", // General error
+                                   ResponseMessage = "General Error"
+                               };
                 }
             }
 

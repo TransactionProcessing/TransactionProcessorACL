@@ -69,10 +69,14 @@
                                                   TestData.RequireConfigurationInResponseTrue);
 
         public static String ResponseCode = "0000";
-        public static String ErrorResponseCode = "0001";
+        public static String InvalidOperationErrorResponseCode = "0001";
+        public static String HttpRequestErrorResponseCode = "0002";
+        public static String GeneralErrorResponseCode = "0003";
 
         public static String ResponseMessage = "SUCCESS";
-        public static String ErrorResponseMessage = "ERROR";
+        public static String InvalidOperationErrorResponseMessage = "ERROR";
+        public static String HttpRequestErrorResponseMessage = "Error Sending Request Message";
+        public static String GeneralErrorResponseMessage = "General Error";
 
         public static ProcessLogonTransactionResponse ProcessLogonTransactionResponse = new ProcessLogonTransactionResponse
                                                                                         {
