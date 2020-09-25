@@ -48,6 +48,7 @@ namespace TransactionProcessorACL.Tests.General
 
             configuration.Add("AppSettings:SecurityService", "http://192.168.1.133:5001");
             configuration.Add("AppSettings:TransactionProcessorApi", "http://192.168.1.133:5002");
+            configuration.Add("SecurityConfiguration:Authority", "http://192.168.1.133:5001");
 
             builder.AddInMemoryCollection(configuration);
 
