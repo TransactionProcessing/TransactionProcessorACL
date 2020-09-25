@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="3.1.2" />
+    <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="3.1.2" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />

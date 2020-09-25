@@ -21,10 +21,13 @@ namespace TransactionProcessorACL
     using BusinessLogic.Services;
     using Common;
     using Factories;
+    using HealthChecks.UI.Client;
     using MediatR;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;
     using Microsoft.AspNetCore.Mvc.Versioning;
+    using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Options;
     using Models;
     using Newtonsoft.Json;
@@ -59,6 +62,8 @@ namespace TransactionProcessorACL
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            ConfigurationReader.Initialise(Startup.Configuration);
+
             this.ConfigureMiddlewareServices(services);
 
             services.AddTransient<IMediator, Mediator>();
@@ -84,6 +89,18 @@ namespace TransactionProcessorACL
 
         private void ConfigureMiddlewareServices(IServiceCollection services)
         {
+            services.AddHealthChecks()
+                    .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("SecurityConfiguration", "Authority")}/health"),
+                                 name: "Security Service",
+                                 httpMethod: HttpMethod.Get,
+                                 failureStatus: HealthStatus.Unhealthy,
+                                 tags: new string[] { "security", "authorisation" })
+                    .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("AppSettings", "TransactionProcessorApi")}/health"),
+                             name: "Transaction Processor Service",
+                             httpMethod: HttpMethod.Get,
+                             failureStatus: HealthStatus.Unhealthy,
+                             tags: new string[] { "application", "transactionprocessing" });
+
             services.AddApiVersioning(
                                       options =>
                                       {
@@ -196,8 +213,6 @@ namespace TransactionProcessorACL
 
             Logger.Initialise(logger);
 
-            ConfigurationReader.Initialise(Startup.Configuration);
-
             app.AddRequestLogging();
             app.AddResponseLogging();
             app.AddExceptionHandler();
@@ -210,6 +225,11 @@ namespace TransactionProcessorACL
             app.UseEndpoints(endpoints =>
                              {
                                  endpoints.MapControllers();
+                                 endpoints.MapHealthChecks("health", new HealthCheckOptions()
+                                                                     {
+                                                                         Predicate = _ => true,
+                                                                         ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                                                                     });
                              });
 
             app.UseSwagger();
