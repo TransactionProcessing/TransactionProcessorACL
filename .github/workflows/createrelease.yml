@@ -49,11 +49,6 @@ jobs:
     - name: Publish API
       run: dotnet publish "TransactionProcessorACL\TransactionProcessorACL.csproj" --configuration Release --output publishOutput
 
-    - name: Setup .NET Core 2.0
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 2.0.0
-
     - name: Install Octopus CLI
       run: |
         sudo apt update && sudo apt install --no-install-recommends gnupg curl ca-certificates apt-transport-https && \
