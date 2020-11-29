@@ -35,6 +35,7 @@
             this.MerchantUsers = new Dictionary<String, Dictionary<String, String>>();
             this.MerchantUsersTokens = new Dictionary<String, Dictionary<String, String>>();
             this.TransactionResponses = new Dictionary<(Guid merchantId, String transactionNumber, String transactionType), String>();
+            this.ReconciliationResponses = new Dictionary<Guid, String>();
             this.Contracts = new List<Contract>();
         }
 
@@ -53,6 +54,8 @@
         public String EstateUser { get; private set; }
 
         private Dictionary<(Guid merchantId, String transactionNumber, String transactionType), String> TransactionResponses { get; }
+
+        private Dictionary<Guid, String> ReconciliationResponses { get; }
 
         #endregion
 
@@ -136,6 +139,12 @@
             this.TransactionResponses.Add((merchantId, transactionNumber, transactionType), transactionResponse);
         }
 
+        public void AddReconciliationResponse(Guid merchantId,
+                                           String transactionResponse)
+        {
+            this.ReconciliationResponses.Add(merchantId, transactionResponse);
+        }
+
         public static EstateDetails Create(Guid estateId,
                                            String estateName)
         {
@@ -187,6 +196,16 @@
         public Guid GetOperatorId(String operatorName)
         {
             return this.Operators.Single(o => o.Key == operatorName).Value;
+        }
+
+        public String GetReconciliationResponse(Guid merchantId)
+        {
+            var reconciliationResponse =
+                this.ReconciliationResponses
+                    .Where(t => t.Key == merchantId)
+                    .SingleOrDefault();
+
+            return reconciliationResponse.Value;
         }
 
         public String GetTransactionResponse(Guid merchantId,

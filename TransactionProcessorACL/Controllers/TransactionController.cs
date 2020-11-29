@@ -124,6 +124,26 @@
             return request;
         }
 
+        /// <summary>
+        /// Creates the command from request.
+        /// </summary>
+        /// <param name="reconciliationRequestMessage">The reconciliation request message.</param>
+        /// <returns></returns>
+        private ProcessReconciliationRequest CreateCommandFromRequest(ReconciliationRequestMessage reconciliationRequestMessage)
+        {
+            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "EstateId").Value);
+            Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "MerchantId").Value);
+
+            ProcessReconciliationRequest request = ProcessReconciliationRequest.Create(estateId,
+                                                                                       merchantId,
+                                                                                       reconciliationRequestMessage.TransactionDateTime,
+                                                                                       reconciliationRequestMessage.DeviceIdentifier,
+                                                                                       reconciliationRequestMessage.TransactionCount,
+                                                                                       reconciliationRequestMessage.TransactionValue);
+
+            return request;
+        }
+
         #endregion
 
         #region Others

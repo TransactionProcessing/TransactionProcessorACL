@@ -752,6 +752,16 @@ namespace TransactionProcessor.IntegrationTests.Shared
             }
         }
 
+        private void ValidateTransactionResponse(ReconciliationResponseMessage reconciliationResponseMessage,
+                                                 TableRow tableRow)
+        {
+            String expectedResponseCode = SpecflowTableHelper.GetStringRowValue(tableRow, "ResponseCode");
+            String expectedResponseMessage = SpecflowTableHelper.GetStringRowValue(tableRow, "ResponseMessage");
+
+            reconciliationResponseMessage.ResponseCode.ShouldBe(expectedResponseCode);
+            reconciliationResponseMessage.ResponseMessage.ShouldBe(expectedResponseMessage);
+        }
+
         private void ValidateTransactionResponse(LogonTransactionResponseMessage logonTransactionResponseMessage,
                                            TableRow tableRow)
         {
@@ -790,6 +800,83 @@ namespace TransactionProcessor.IntegrationTests.Shared
             }
         }
 
+        [When(@"I perform the following reconciliations")]
+        public async Task WhenIPerformTheFollowingReconciliations(Table table)
+        {
+            foreach (TableRow tableRow in table.Rows)
+            {
+                String merchantName = SpecflowTableHelper.GetStringRowValue(tableRow, "MerchantName");
+                String dateString = SpecflowTableHelper.GetStringRowValue(tableRow, "DateTime");
+                DateTime transactionDateTime = SpecflowTableHelper.GetDateForDateString(dateString, DateTime.Today);
+                String deviceIdentifier = SpecflowTableHelper.GetStringRowValue(tableRow, "DeviceIdentifier");
+                Int32 transactionCount = SpecflowTableHelper.GetIntValue(tableRow, "TransactionCount");
+                Decimal transactionValue = SpecflowTableHelper.GetDecimalValue(tableRow, "TransactionValue");
+
+                EstateDetails estateDetails = this.TestingContext.GetEstateDetails(tableRow);
+
+                // Lookup the merchant id
+                Guid merchantId = estateDetails.GetMerchantId(merchantName);
+                String merchantToken = estateDetails.GetMerchantUserToken(merchantName);
+
+                String reconciliationResponse = await this.PerformReconciliationTransaction(merchantToken,
+                                                                                            transactionDateTime,
+                                                                                            deviceIdentifier,
+                                                                                            transactionCount,
+                                                                                            transactionValue,
+                                                                                            CancellationToken.None);
+
+                estateDetails.AddReconciliationResponse(merchantId, reconciliationResponse);
+            }
+        }
+
+        [Then(@"reconciliation response should contain the following information")]
+        public void ThenReconciliationResponseShouldContainTheFollowingInformation(Table table)
+        {
+            foreach (TableRow tableRow in table.Rows)
+            {
+                // Get the merchant name
+                EstateDetails estateDetails = this.TestingContext.GetEstateDetails(tableRow);
+
+                String merchantName = SpecflowTableHelper.GetStringRowValue(tableRow, "MerchantName");
+                Guid merchantId = estateDetails.GetMerchantId(merchantName);
+                String responseMessage = estateDetails.GetReconciliationResponse(merchantId);
+
+                Object transactionResponse = JsonConvert.DeserializeObject(responseMessage,
+                                                                           new JsonSerializerSettings
+                                                                           {
+                                                                               TypeNameHandling = TypeNameHandling.All
+                                                                           });
+                this.ValidateTransactionResponse((dynamic)transactionResponse, tableRow);
+            }
+        }
+
+        private async Task<String> PerformReconciliationTransaction(String merchantToken, DateTime transactionDateTime, String deviceIdentifier, Int32 transactionCount, Decimal transactionValue, CancellationToken cancellationToken)
+        {
+            ReconciliationRequestMessage reconciliationRequestMessage = new ReconciliationRequestMessage
+            {
+                                                              TransactionDateTime = transactionDateTime,
+                                                              DeviceIdentifier = deviceIdentifier,
+                                                              TransactionValue = transactionValue,
+                                                              TransactionCount = transactionCount,
+                                                          };
+
+            String uri = "api/transactions";
+
+            StringContent content = new StringContent(JsonConvert.SerializeObject(reconciliationRequestMessage, new JsonSerializerSettings
+                                                                                                                {
+                                                                                                                    TypeNameHandling = TypeNameHandling.All
+                                                                                                                }), Encoding.UTF8, "application/json");
+
+            this.TestingContext.DockerHelper.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", merchantToken);
+
+            HttpResponseMessage response = await this.TestingContext.DockerHelper.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+
+            response.IsSuccessStatusCode.ShouldBeTrue();
+
+            String responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            return responseContent;
+        }
 
     }
 }

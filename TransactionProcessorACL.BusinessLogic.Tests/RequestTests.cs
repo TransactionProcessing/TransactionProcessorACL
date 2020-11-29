@@ -61,6 +61,24 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             request.ProductId.ShouldBe(TestData.ProductId);
         }
 
+        [Fact]
+        public void ProcessReconciliationRequest_CanBeCreated_IsCreated()
+        {
+            ProcessReconciliationRequest request = ProcessReconciliationRequest.Create(TestData.EstateId,
+                                                                                       TestData.MerchantId,
+                                                                                       TestData.TransactionDateTime,
+                                                                                       TestData.DeviceIdentifier,
+                                                                                       TestData.ReconciliationTransactionCount,
+                                                                                       TestData.ReconciliationTransactionValue);
+
+            request.EstateId.ShouldBe(TestData.EstateId);
+            request.MerchantId.ShouldBe(TestData.MerchantId);
+            request.TransactionDateTime.ShouldBe(TestData.TransactionDateTime);
+            request.DeviceIdentifier.ShouldBe(TestData.DeviceIdentifier);
+            request.TransactionCount.ShouldBe(TestData.ReconciliationTransactionCount);
+            request.TransactionValue.ShouldBe(TestData.ReconciliationTransactionValue);
+        }
+
         #endregion
     }
 }

@@ -24,6 +24,13 @@
         /// <returns></returns>
         SaleTransactionResponseMessage ConvertFrom(ProcessSaleTransactionResponse processSaleTransactionResponse);
 
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="processReconciliationResponse">The process reconciliation response.</param>
+        /// <returns></returns>
+        ReconciliationResponseMessage ConvertFrom(ProcessReconciliationResponse processReconciliationResponse);
+
         #endregion
     }
 }

@@ -73,6 +73,30 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             response.ResponseMessage.ShouldBe(TestData.ResponseMessage);
         }
 
+        [Fact]
+        public async Task ProcessReconciliationRequestHandler_Handle_RequestIsHandled()
+        {
+            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            applicationService
+                .Setup(a => a.ProcessReconciliation(It.IsAny<Guid>(),
+                                                      It.IsAny<Guid>(),
+                                                      It.IsAny<DateTime>(),
+                                                      It.IsAny<String>(),
+                                                      It.IsAny<Int32>(),
+                                                      It.IsAny<Decimal>(),
+                                                      It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessReconciliationResponse);
+            ProcessReconciliationRequestHandler requestHandler = new ProcessReconciliationRequestHandler(applicationService.Object);
+
+            ProcessReconciliationRequest request = TestData.ProcessReconciliationRequest;
+            ProcessReconciliationResponse response = await requestHandler.Handle(request, CancellationToken.None);
+
+            response.ShouldNotBeNull();
+            response.ResponseCode.ShouldBe(TestData.ResponseCode);
+            response.ResponseMessage.ShouldBe(TestData.ResponseMessage);
+            response.EstateId.ShouldBe(TestData.EstateId);
+            response.MerchantId.ShouldBe(TestData.MerchantId);
+        }
+
         #endregion
     }
 }

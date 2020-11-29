@@ -276,5 +276,117 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             saleResponse.ResponseMessage.ShouldBe(TestData.GeneralErrorResponseMessage);
             saleResponse.ResponseCode.ShouldBe(TestData.GeneralErrorResponseCode);
         }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_TransactionIsSuccessful()
+        {
+            IConfigurationRoot configuration = this.SetupMemoryConfiguration();
+            ConfigurationReader.Initialise(configuration);
+
+            Mock<ITransactionProcessorClient> transactionProcessorClient = new Mock<ITransactionProcessorClient>();
+            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
+                                      .ReturnsAsync(TestData.SerialisedMessageResponse);
+            Mock<ISecurityServiceClient> securityServiceClient = new Mock<ISecurityServiceClient>();
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.TokenResponse);
+
+            ITransactionProcessorACLApplicationService applicationService =
+                new TransactionProcessorACLApplicationService(transactionProcessorClient.Object, securityServiceClient.Object);
+
+            ProcessReconciliationResponse reconciliationResponse = await applicationService.ProcessReconciliation(TestData.EstateId,
+                TestData.MerchantId,
+                TestData.TransactionDateTime,
+                TestData.DeviceIdentifier,
+                TestData.ReconciliationTransactionCount,
+                TestData.ReconciliationTransactionValue,
+                CancellationToken.None);
+
+            reconciliationResponse.ShouldNotBeNull();
+            reconciliationResponse.ResponseMessage.ShouldBe(TestData.ResponseMessage);
+            reconciliationResponse.ResponseCode.ShouldBe(TestData.ResponseCode);
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_InvalidOperationExceptionErrorInReconciliation_TransactionIsNotSuccessful()
+        {
+            IConfigurationRoot configuration = this.SetupMemoryConfiguration();
+            ConfigurationReader.Initialise(configuration);
+
+            Mock<ITransactionProcessorClient> transactionProcessorClient = new Mock<ITransactionProcessorClient>();
+            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
+                                      .ThrowsAsync(new Exception("Error", new InvalidOperationException(TestData.InvalidOperationErrorResponseMessage)));
+            Mock<ISecurityServiceClient> securityServiceClient = new Mock<ISecurityServiceClient>();
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.TokenResponse);
+
+            ITransactionProcessorACLApplicationService applicationService =
+                new TransactionProcessorACLApplicationService(transactionProcessorClient.Object, securityServiceClient.Object);
+
+            ProcessReconciliationResponse reconciliationResponse = await applicationService.ProcessReconciliation(TestData.EstateId,
+                TestData.MerchantId,
+                TestData.TransactionDateTime,
+                TestData.DeviceIdentifier,
+                TestData.ReconciliationTransactionCount,
+                TestData.ReconciliationTransactionValue,
+                CancellationToken.None);
+
+            reconciliationResponse.ShouldNotBeNull();
+            reconciliationResponse.ResponseMessage.ShouldBe(TestData.InvalidOperationErrorResponseMessage);
+            reconciliationResponse.ResponseCode.ShouldBe(TestData.InvalidOperationErrorResponseCode);
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_HttpRequestExceptionErrorInReconciliation_TransactionIsNotSuccessful()
+        {
+            IConfigurationRoot configuration = this.SetupMemoryConfiguration();
+            ConfigurationReader.Initialise(configuration);
+
+            Mock<ITransactionProcessorClient> transactionProcessorClient = new Mock<ITransactionProcessorClient>();
+            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
+                                      .ThrowsAsync(new Exception("Error", new HttpRequestException(TestData.HttpRequestErrorResponseMessage)));
+            Mock<ISecurityServiceClient> securityServiceClient = new Mock<ISecurityServiceClient>();
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.TokenResponse);
+
+            ITransactionProcessorACLApplicationService applicationService =
+                new TransactionProcessorACLApplicationService(transactionProcessorClient.Object, securityServiceClient.Object);
+
+            ProcessReconciliationResponse reconciliationResponse = await applicationService.ProcessReconciliation(TestData.EstateId,
+                TestData.MerchantId,
+                TestData.TransactionDateTime,
+                TestData.DeviceIdentifier,
+                TestData.ReconciliationTransactionCount,
+                TestData.ReconciliationTransactionValue,
+                CancellationToken.None);
+
+            reconciliationResponse.ShouldNotBeNull();
+            reconciliationResponse.ResponseMessage.ShouldBe(TestData.HttpRequestErrorResponseMessage);
+            reconciliationResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_OtherExceptionErrorInReconciliation_TransactionIsNotSuccessful()
+        {
+            IConfigurationRoot configuration = this.SetupMemoryConfiguration();
+            ConfigurationReader.Initialise(configuration);
+
+            Mock<ITransactionProcessorClient> transactionProcessorClient = new Mock<ITransactionProcessorClient>();
+            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
+                                      .ThrowsAsync(new Exception("Error", new Exception(TestData.GeneralErrorResponseMessage)));
+            Mock<ISecurityServiceClient> securityServiceClient = new Mock<ISecurityServiceClient>();
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.TokenResponse);
+
+            ITransactionProcessorACLApplicationService applicationService =
+                new TransactionProcessorACLApplicationService(transactionProcessorClient.Object, securityServiceClient.Object);
+
+            ProcessReconciliationResponse reconciliationResponse = await applicationService.ProcessReconciliation(TestData.EstateId,
+                                                                                                           TestData.MerchantId,
+                                                                                                           TestData.TransactionDateTime,
+                                                                                                           TestData.DeviceIdentifier,
+                                                                                                           TestData.ReconciliationTransactionCount,
+                                                                                                           TestData.ReconciliationTransactionValue,
+                                                                                                           CancellationToken.None);
+
+            reconciliationResponse.ShouldNotBeNull();
+            reconciliationResponse.ResponseMessage.ShouldBe(TestData.GeneralErrorResponseMessage);
+            reconciliationResponse.ResponseCode.ShouldBe(TestData.GeneralErrorResponseCode);
+        }
     }
 }
