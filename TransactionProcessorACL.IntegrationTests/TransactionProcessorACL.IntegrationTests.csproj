@@ -36,4 +36,17 @@
     <ProjectReference Include="..\TransactionProcessorACL.DataTransferObjects\TransactionProcessorACL.DataTransferObjects.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Reconciliation\Reconciliation.feature.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <SpecFlowFeatureFiles Update="Reconciliation\Reconciliation.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Reconciliation.feature.cs</LastGenOutput>
+    </SpecFlowFeatureFiles>
+  </ItemGroup>
+
 </Project>

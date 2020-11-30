@@ -53,6 +53,26 @@
             return saleTransactionResponseMessage;
         }
 
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="processReconciliationResponse">The process reconciliation response.</param>
+        /// <returns></returns>
+        public ReconciliationResponseMessage ConvertFrom(ProcessReconciliationResponse processReconciliationResponse)
+        {
+            if (processReconciliationResponse == null)
+            {
+                return null;
+            }
+
+            ReconciliationResponseMessage reconciliationResponseMessage = new ReconciliationResponseMessage();
+
+            reconciliationResponseMessage.ResponseMessage = processReconciliationResponse.ResponseMessage;
+            reconciliationResponseMessage.ResponseCode = processReconciliationResponse.ResponseCode;
+
+            return reconciliationResponseMessage;
+        }
+
         #endregion
     }
 }

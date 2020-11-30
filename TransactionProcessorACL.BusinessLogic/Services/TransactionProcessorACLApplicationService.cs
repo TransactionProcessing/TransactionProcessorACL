@@ -254,6 +254,83 @@
             return response;
         }
 
+        public async Task<ProcessReconciliationResponse> ProcessReconciliation(Guid estateId,
+                                                                               Guid merchantId,
+                                                                               DateTime transactionDateTime,
+                                                                               String deviceIdentifier,
+                                                                               Int32 transactionCount,
+                                                                               Decimal transactionValue,
+                                                                               CancellationToken cancellationToken)
+        {
+            // Get a client token to call the Transaction Processor
+            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
+            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
+
+            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+
+            ReconciliationRequest reconciliationRequest = new ReconciliationRequest();
+            reconciliationRequest.DeviceIdentifier = deviceIdentifier;
+            reconciliationRequest.TransactionDateTime = transactionDateTime;
+            reconciliationRequest.TransactionCount = transactionCount;
+            reconciliationRequest.TransactionValue = transactionValue;
+
+            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
+            requestSerialisedMessage.Metadata.Add("EstateId", estateId.ToString());
+            requestSerialisedMessage.Metadata.Add("MerchantId", merchantId.ToString());
+            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(reconciliationRequest,
+                                                                                  new JsonSerializerSettings
+                                                                                  {
+                                                                                      TypeNameHandling = TypeNameHandling.All
+                                                                                  });
+
+            ProcessReconciliationResponse response = null;
+
+            try
+            {
+                SerialisedMessage responseSerialisedMessage =
+                    await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
+
+                ReconciliationResponse reconciliationResponse = JsonConvert.DeserializeObject<ReconciliationResponse>(responseSerialisedMessage.SerialisedData);
+
+                response = new ProcessReconciliationResponse
+                {
+                    ResponseCode = reconciliationResponse.ResponseCode,
+                    ResponseMessage = reconciliationResponse.ResponseMessage
+                };
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException is InvalidOperationException)
+                {
+                    // This means there is an error in the request
+                    response = new ProcessReconciliationResponse
+                    {
+                        ResponseCode = "0001", // Request Message error
+                        ResponseMessage = ex.InnerException.Message
+                    };
+                }
+                else if (ex.InnerException is HttpRequestException)
+                {
+                    // Request Send Exception
+                    response = new ProcessReconciliationResponse
+                    {
+                        ResponseCode = "0002", // Request Message error
+                        ResponseMessage = "Error Sending Request Message"
+                    };
+                }
+                else
+                {
+                    response = new ProcessReconciliationResponse
+                    {
+                        ResponseCode = "0003", // General error
+                        ResponseMessage = "General Error"
+                    };
+                }
+            }
+
+            return response;
+        }
+
         #endregion
     }
 }

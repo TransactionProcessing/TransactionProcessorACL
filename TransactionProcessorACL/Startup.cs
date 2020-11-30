@@ -75,8 +75,10 @@ namespace TransactionProcessorACL
             services.AddSingleton<IModelFactory, ModelFactory>();
             services.AddSingleton<IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>, ProcessLogonTransactionRequestHandler>();
             services.AddSingleton<IRequestHandler<ProcessSaleTransactionRequest, ProcessSaleTransactionResponse>, ProcessSaleTransactionRequestHandler>();
+            services.AddSingleton<IRequestHandler<ProcessReconciliationRequest, ProcessReconciliationResponse>, ProcessReconciliationRequestHandler>();
             services.AddSingleton<IRequest<ProcessLogonTransactionResponse>, ProcessLogonTransactionRequest>();
             services.AddSingleton<IRequest<ProcessSaleTransactionResponse>, ProcessSaleTransactionRequest>();
+            services.AddSingleton<IRequest<ProcessReconciliationResponse>, ProcessReconciliationRequest>();
             services.AddSingleton<ITransactionProcessorACLApplicationService, TransactionProcessorACLApplicationService>();
             services.AddSingleton<ITransactionProcessorClient, TransactionProcessorClient>();
             services.AddSingleton<ISecurityServiceClient, SecurityServiceClient>();

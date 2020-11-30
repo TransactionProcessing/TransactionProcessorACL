@@ -109,7 +109,7 @@
                                                                                       {
                                                                                           ResponseMessage = TestData.ResponseMessage,
                                                                                           ResponseCode = TestData.ResponseCode
-                                                                                      };
+        };
 
         public static String OperatorIdentifier = "Operator1";
 
@@ -134,5 +134,24 @@
                                                                                                                          TestData.CustomerEmailAddress,
                                                                                                                          TestData.ContractId,
                                                                                                                          TestData.ProductId);
+
+        public static Int32 ReconciliationTransactionCount = 1;
+
+        public static Decimal ReconciliationTransactionValue = 100.00m;
+
+        public static ProcessReconciliationRequest ProcessReconciliationRequest= ProcessReconciliationRequest.Create(TestData.EstateId,
+             TestData.MerchantId,
+             TestData.TransactionDateTime,
+             TestData.DeviceIdentifier,
+             TestData.ReconciliationTransactionCount,
+             TestData.ReconciliationTransactionValue);
+
+        public static ProcessReconciliationResponse ProcessReconciliationResponse = new ProcessReconciliationResponse
+        {
+                                                                                        ResponseMessage = TestData.ResponseMessage,
+                                                                                        ResponseCode = TestData.ResponseCode,
+                                                                                        EstateId = TestData.EstateId,
+                                                                                        MerchantId = TestData.MerchantId
+        };
     }
 }
