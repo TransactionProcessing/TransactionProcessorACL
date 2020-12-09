@@ -166,11 +166,10 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                              TestData.TransactionNumber,
                                                                                                              TestData.DeviceIdentifier,
                                                                                                              TestData.OperatorIdentifier,
-                                                                                                             TestData.SaleAmount,
-                                                                                                             TestData.CustomerAccountNumber,
                                                                                                              TestData.CustomerEmailAddress,
                                                                                                              TestData.ContractId,
                                                                                                              TestData.ProductId,
+                                                                                                             TestData.AdditionalRequestMetadata,
                                                                                                              CancellationToken.None);
 
             saleResponse.ShouldNotBeNull();
@@ -199,11 +198,10 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                           TestData.TransactionNumber,
                                                                                                           TestData.DeviceIdentifier,
                                                                                                           TestData.OperatorIdentifier,
-                                                                                                          TestData.SaleAmount,
-                                                                                                          TestData.CustomerAccountNumber,
                                                                                                           TestData.CustomerEmailAddress,
                                                                                                           TestData.ContractId,
                                                                                                           TestData.ProductId,
+                                                                                                          TestData.AdditionalRequestMetadata,
                                                                                                           CancellationToken.None);
 
             saleResponse.ShouldNotBeNull();
@@ -232,11 +230,10 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                           TestData.TransactionNumber,
                                                                                                           TestData.DeviceIdentifier,
                                                                                                           TestData.OperatorIdentifier,
-                                                                                                          TestData.SaleAmount,
-                                                                                                          TestData.CustomerAccountNumber,
                                                                                                           TestData.CustomerEmailAddress,
                                                                                                           TestData.ContractId,
                                                                                                           TestData.ProductId,
+                                                                                                          TestData.AdditionalRequestMetadata,
                                                                                                           CancellationToken.None);
 
             saleResponse.ShouldNotBeNull();
@@ -265,11 +262,10 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                           TestData.TransactionNumber,
                                                                                                           TestData.DeviceIdentifier,
                                                                                                           TestData.OperatorIdentifier,
-                                                                                                          TestData.SaleAmount,
-                                                                                                          TestData.CustomerAccountNumber,
                                                                                                           TestData.CustomerEmailAddress,
                                                                                                           TestData.ContractId,
                                                                                                           TestData.ProductId,
+                                                                                                          TestData.AdditionalRequestMetadata,
                                                                                                           CancellationToken.None);
 
             saleResponse.ShouldNotBeNull();

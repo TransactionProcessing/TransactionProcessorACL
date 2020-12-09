@@ -108,7 +108,9 @@
         public static ProcessSaleTransactionResponse ProcessSaleTransactionResponse = new ProcessSaleTransactionResponse
                                                                                       {
                                                                                           ResponseMessage = TestData.ResponseMessage,
-                                                                                          ResponseCode = TestData.ResponseCode
+                                                                                          ResponseCode = TestData.ResponseCode,
+                                                                                          EstateId = TestData.EstateId,
+                                                                                          MerchantId = TestData.MerchantId
         };
 
         public static String OperatorIdentifier = "Operator1";
@@ -123,17 +125,22 @@
 
         public static Guid ProductId = Guid.Parse("B74D71CA-CC5E-4F49-8412-79D36035D68E");
 
+        public static Dictionary<String, String> AdditionalRequestMetadata = new Dictionary<String, String>
+                                                                             {
+                                                                                 {"Amount", TestData.SaleAmount.ToString()},
+                                                                                 {"CustomerAccountNumber", TestData.CustomerAccountNumber}
+                                                                             };
+
         public static ProcessSaleTransactionRequest ProcessSaleTransactionRequest = ProcessSaleTransactionRequest.Create(TestData.EstateId,
-                                                                                                                         TestData.MerchantId,
-                                                                                                                         TestData.TransactionDateTime,
-                                                                                                                         TestData.TransactionNumber,
-                                                                                                                         TestData.DeviceIdentifier,
-                                                                                                                         TestData.OperatorIdentifier,
-                                                                                                                         TestData.SaleAmount,
-                                                                                                                         TestData.CustomerAccountNumber,
-                                                                                                                         TestData.CustomerEmailAddress,
-                                                                                                                         TestData.ContractId,
-                                                                                                                         TestData.ProductId);
+            TestData.MerchantId,
+            TestData.TransactionDateTime,
+            TestData.TransactionNumber,
+            TestData.DeviceIdentifier,
+            TestData.CustomerAccountNumber,
+            TestData.CustomerEmailAddress,
+            TestData.ContractId,
+            TestData.ProductId,
+            TestData.AdditionalRequestMetadata);
 
         public static Int32 ReconciliationTransactionCount = 1;
 

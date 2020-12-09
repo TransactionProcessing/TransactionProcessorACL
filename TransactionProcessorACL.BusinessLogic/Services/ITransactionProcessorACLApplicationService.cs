@@ -37,11 +37,10 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         /// <param name="transactionNumber">The transaction number.</param>
         /// <param name="deviceIdentifier">The device identifier.</param>
         /// <param name="operatorIdentifier">The operator identifier.</param>
-        /// <param name="amount">The amount.</param>
-        /// <param name="customerAccountNumber">The customer account number.</param>
         /// <param name="customerEmailAddress">The customer email address.</param>
         /// <param name="contractId">The contract identifier.</param>
         /// <param name="productId">The product identifier.</param>
+        /// <param name="additionalRequestMetadata">The additional request metadata.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task<ProcessSaleTransactionResponse> ProcessSaleTransaction(Guid estateId,
@@ -50,11 +49,10 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                       String transactionNumber,
                                                                       String deviceIdentifier,
                                                                       String operatorIdentifier,
-                                                                      Decimal amount,
-                                                                      String customerAccountNumber,
                                                                       String customerEmailAddress,
                                                                       Guid contractId,
                                                                       Guid productId,
+                                                                      Dictionary<String,String> additionalRequestMetadata,
                                                                       CancellationToken cancellationToken);
 
         /// <summary>

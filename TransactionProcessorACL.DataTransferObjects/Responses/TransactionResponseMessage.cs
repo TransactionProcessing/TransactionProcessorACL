@@ -24,5 +24,29 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// The response message.
         /// </value>
         public String ResponseMessage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the additional response meta data.
+        /// </summary>
+        /// <value>
+        /// The additional response meta data.
+        /// </value>
+        public Dictionary<String, String> AdditionalResponseMetaData { get; set; }
+
+        /// <summary>
+        /// Gets or sets the estate identifier.
+        /// </summary>
+        /// <value>
+        /// The estate identifier.
+        /// </value>
+        public Guid EstateId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the merchant identifier.
+        /// </summary>
+        /// <value>
+        /// The merchant identifier.
+        /// </value>
+        public Guid MerchantId { get; set; }
     }
 }

@@ -49,6 +49,8 @@
 
             saleTransactionResponseMessage.ResponseMessage = processSaleTransactionResponse.ResponseMessage;
             saleTransactionResponseMessage.ResponseCode = processSaleTransactionResponse.ResponseCode;
+            saleTransactionResponseMessage.MerchantId = processSaleTransactionResponse.MerchantId;
+            saleTransactionResponseMessage.EstateId = processSaleTransactionResponse.EstateId;
 
             return saleTransactionResponseMessage;
         }
@@ -69,7 +71,8 @@
 
             reconciliationResponseMessage.ResponseMessage = processReconciliationResponse.ResponseMessage;
             reconciliationResponseMessage.ResponseCode = processReconciliationResponse.ResponseCode;
-
+            reconciliationResponseMessage.MerchantId = processReconciliationResponse.MerchantId;
+            reconciliationResponseMessage.EstateId = processReconciliationResponse.EstateId;
             return reconciliationResponseMessage;
         }
 

@@ -624,12 +624,14 @@ namespace TransactionProcessor.IntegrationTests.Shared
                 TransactionDateTime = transactionDateTime,
                 TransactionNumber = transactionNumber,
                 OperatorIdentifier = operatorIdentifier,
-                Amount = transactionAmount,
-                CustomerAccountNumber = customerAccountNumber,
                 CustomerEmailAddress = customerEmailAddress,
                 ContractId = contractId,
                 ProductId = productId
             };
+
+            saleTransactionRequestMessage.AdditionalRequestMetaData = new Dictionary<String, String>();
+            saleTransactionRequestMessage.AdditionalRequestMetaData.Add("Amount", transactionAmount.ToString());
+            saleTransactionRequestMessage.AdditionalRequestMetaData.Add("CustomerAccountNumber", customerAccountNumber);
 
             String uri = "api/transactions";
 

@@ -1,6 +1,7 @@
 namespace TransactionProcessorACL.BusinesssLogic.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessLogic.RequestHandlers;
@@ -56,11 +57,10 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                       It.IsAny<String>(),
                                                       It.IsAny<String>(),
                                                       It.IsAny<String>(),
-                                                      It.IsAny<Decimal>(),
-                                                      It.IsAny<String>(),
                                                       It.IsAny<String>(),
                                                       It.IsAny<Guid>(),
                                                       It.IsAny<Guid>(),
+                                                      It.IsAny<Dictionary<String,String>>(),
                                                       It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessSaleTransactionResponse);
 
             ProcessSaleTransactionRequestHandler requestHandler = new ProcessSaleTransactionRequestHandler(applicationService.Object);

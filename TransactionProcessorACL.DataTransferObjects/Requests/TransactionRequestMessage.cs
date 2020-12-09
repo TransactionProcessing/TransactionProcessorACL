@@ -1,6 +1,7 @@
 ﻿namespace TransactionProcessorACL.DataTransferObjects
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
@@ -34,6 +35,14 @@
         /// The transaction number.
         /// </value>
         public String TransactionNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the additional request meta data.
+        /// </summary>
+        /// <value>
+        /// The additional request meta data.
+        /// </value>
+        public Dictionary<String,String> AdditionalRequestMetaData { get; set; }
 
         #endregion
     }

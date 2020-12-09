@@ -11,15 +11,7 @@
     public class SaleTransactionRequestMessage : TransactionRequestMessage
     {
         #region Properties
-
-        /// <summary>
-        /// Gets or sets the amount.
-        /// </summary>
-        /// <value>
-        /// The amount.
-        /// </value>
-        public Decimal Amount { get; set; }
-
+        
         /// <summary>
         /// Gets or sets the contract identifier.
         /// </summary>
@@ -27,15 +19,7 @@
         /// The contract identifier.
         /// </value>
         public Guid ContractId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the customer account number.
-        /// </summary>
-        /// <value>
-        /// The customer account number.
-        /// </value>
-        public String CustomerAccountNumber { get; set; }
-
+        
         /// <summary>
         /// Gets or sets the customer email address.
         /// </summary>
