@@ -83,9 +83,9 @@ Background:
 
 	Given I make the following manual merchant deposits 
 	| Reference | Amount  | DateTime | MerchantName    | EstateName    |
-	| Deposit1  | 200.00 | Today    | Test Merchant 1 | Test Estate 1 |
-	| Deposit1  | 100.00 | Today    | Test Merchant 2 | Test Estate 1 |
-	| Deposit1  | 100.00 | Today    | Test Merchant 3 | Test Estate 2 |
+	| Deposit1  | 210.00 | Today    | Test Merchant 1 | Test Estate 1 |
+	| Deposit1  | 110.00 | Today    | Test Merchant 2 | Test Estate 1 |
+	| Deposit1  | 110.00 | Today    | Test Merchant 3 | Test Estate 2 |
 
 @PRTest
 Scenario: Sale Transaction
