@@ -421,19 +421,19 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "EstateName"});
             table45.AddRow(new string[] {
                         "Deposit1",
-                        "200.00",
+                        "210.00",
                         "Today",
                         "Test Merchant 1",
                         "Test Estate 1"});
             table45.AddRow(new string[] {
                         "Deposit1",
-                        "100.00",
+                        "110.00",
                         "Today",
                         "Test Merchant 2",
                         "Test Estate 1"});
             table45.AddRow(new string[] {
                         "Deposit1",
-                        "100.00",
+                        "110.00",
                         "Today",
                         "Test Merchant 3",
                         "Test Estate 2"});
