@@ -448,6 +448,8 @@ namespace TransactionProcessor.IntegrationTests.Shared
                         String customerEmailAddress = SpecflowTableHelper.GetStringRowValue(tableRow, "CustomerEmailAddress");
                         String contractDescription = SpecflowTableHelper.GetStringRowValue(tableRow, "ContractDescription");
                         String productName = SpecflowTableHelper.GetStringRowValue(tableRow, "ProductName");
+                        String recipientEmail = SpecflowTableHelper.GetStringRowValue(tableRow, "RecipientEmail");
+                        String recipientMobile = SpecflowTableHelper.GetStringRowValue(tableRow, "RecipientMobile");
 
                         Guid contractId = Guid.Empty;
                         Guid productId = Guid.Empty;
@@ -459,17 +461,38 @@ namespace TransactionProcessor.IntegrationTests.Shared
                             productId = product.ProductId;
                         }
 
+                        Dictionary<String,String> additionalRequestMetaData = new Dictionary<String, String>();
+
+                        if (transactionAmount> 0)
+                        {
+                            additionalRequestMetaData.Add("Amount", transactionAmount.ToString());
+                        }
+
+                        if (String.IsNullOrEmpty(customerAccountNumber) == false)
+                        {
+                            additionalRequestMetaData.Add("CustomerAccountNumber", customerAccountNumber);
+                        }
+
+                        if (String.IsNullOrEmpty(recipientEmail) == false)
+                        {
+                            additionalRequestMetaData.Add("RecipientEmail", recipientEmail);
+                        }
+
+                        if (String.IsNullOrEmpty(recipientMobile) == false)
+                        {
+                            additionalRequestMetaData.Add("RecipientMobile", recipientMobile);
+                        }
+
                         responseMessage = await this.PerformSaleTransaction(merchantToken,
                                                                             transactionDateTime,
                                                                             transactionType,
                                                                             transactionNumber,
                                                                             deviceIdentifier,
                                                                             operatorIdentifier,
-                                                                            transactionAmount,
-                                                                            customerAccountNumber,
                                                                             customerEmailAddress,
                                                                             contractId,
                                                                             productId,
+                                                                            additionalRequestMetaData,
                                                                             CancellationToken.None);
                         break;
 
@@ -613,9 +636,11 @@ namespace TransactionProcessor.IntegrationTests.Shared
             return responseContent;
         }
 
-        private async Task<String> PerformSaleTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String deviceIdentifier, String operatorIdentifier, Decimal transactionAmount, String customerAccountNumber, String customerEmailAddress,
+        private async Task<String> PerformSaleTransaction(String merchantToken, DateTime transactionDateTime, String transactionType, String transactionNumber, String deviceIdentifier, String operatorIdentifier, 
+                                                          String customerEmailAddress,
                                                           Guid contractId,
                                                           Guid productId,
+                                                          Dictionary<String,String> additionalRequestMetaData,
                                                           CancellationToken cancellationToken)
         {
             SaleTransactionRequestMessage saleTransactionRequestMessage = new SaleTransactionRequestMessage
@@ -624,12 +649,12 @@ namespace TransactionProcessor.IntegrationTests.Shared
                 TransactionDateTime = transactionDateTime,
                 TransactionNumber = transactionNumber,
                 OperatorIdentifier = operatorIdentifier,
-                Amount = transactionAmount,
-                CustomerAccountNumber = customerAccountNumber,
                 CustomerEmailAddress = customerEmailAddress,
                 ContractId = contractId,
                 ProductId = productId
             };
+
+            saleTransactionRequestMessage.AdditionalRequestMetaData = additionalRequestMetaData;
 
             String uri = "api/transactions";
 

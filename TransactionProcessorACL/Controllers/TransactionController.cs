@@ -115,11 +115,10 @@
                                                                                          saleTransactionRequestMessage.TransactionNumber,
                                                                                          saleTransactionRequestMessage.DeviceIdentifier,
                                                                                          saleTransactionRequestMessage.OperatorIdentifier,
-                                                                                         saleTransactionRequestMessage.Amount,
-                                                                                         saleTransactionRequestMessage.CustomerAccountNumber,
                                                                                          saleTransactionRequestMessage.CustomerEmailAddress,
                                                                                          saleTransactionRequestMessage.ContractId,
-                                                                                         saleTransactionRequestMessage.ProductId);
+                                                                                         saleTransactionRequestMessage.ProductId,
+                                                                                         saleTransactionRequestMessage.AdditionalRequestMetaData);
 
             return request;
         }

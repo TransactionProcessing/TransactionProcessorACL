@@ -50,11 +50,10 @@
                                                                         request.TransactionNumber,
                                                                         request.DeviceIdentifier,
                                                                         request.OperatorIdentifier,
-                                                                        request.Amount,
-                                                                        request.CustomerAccountNumber,
                                                                         request.CustomerEmailAddress,
                                                                         request.ContractId,
                                                                         request.ProductId,
+                                                                        request.AdditionalRequestMetadata,
                                                                         cancellationToken);
         }
 

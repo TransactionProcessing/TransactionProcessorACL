@@ -53,6 +53,8 @@ namespace TransactionProcessorACL.Tests.General
             response.ShouldNotBeNull();
             response.ResponseMessage.ShouldBe(processSaleTransactionResponse.ResponseMessage);
             response.ResponseCode.ShouldBe(processSaleTransactionResponse.ResponseCode);
+            response.EstateId.ShouldBe(processSaleTransactionResponse.EstateId);
+            response.MerchantId.ShouldBe(processSaleTransactionResponse.MerchantId);
         }
 
         [Fact]
@@ -63,6 +65,34 @@ namespace TransactionProcessorACL.Tests.General
             ProcessSaleTransactionResponse processSaleTransactionResponse = null;
 
             SaleTransactionResponseMessage response = modelFactory.ConvertFrom(processSaleTransactionResponse);
+
+            response.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ProcessReconciliationResponse_IsConverted()
+        {
+            ModelFactory modelFactory = new ModelFactory();
+
+            ProcessReconciliationResponse processReconciliationResponse = TestData.ProcessReconciliationResponse;
+
+            ReconciliationResponseMessage response = modelFactory.ConvertFrom(processReconciliationResponse);
+
+            response.ShouldNotBeNull();
+            response.ResponseMessage.ShouldBe(processReconciliationResponse.ResponseMessage);
+            response.ResponseCode.ShouldBe(processReconciliationResponse.ResponseCode);
+            response.EstateId.ShouldBe(processReconciliationResponse.EstateId);
+            response.MerchantId.ShouldBe(processReconciliationResponse.MerchantId);
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ProcessReconciliationResponse_NullValue_IsConverted()
+        {
+            ModelFactory modelFactory = new ModelFactory();
+
+            ProcessReconciliationResponse processReconciliationResponse = null;
+
+            ReconciliationResponseMessage response = modelFactory.ConvertFrom(processReconciliationResponse);
 
             response.ShouldBeNull();
         }

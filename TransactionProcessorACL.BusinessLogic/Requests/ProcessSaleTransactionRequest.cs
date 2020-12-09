@@ -1,6 +1,7 @@
 ﻿namespace TransactionProcessorACL.BusinessLogic.Requests
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using MediatR;
     using Models;
@@ -27,33 +28,29 @@
         /// <param name="transactionNumber">The transaction number.</param>
         /// <param name="deviceIdentifier">The device identifier.</param>
         /// <param name="operatorIdentifier">The operator identifier.</param>
-        /// <param name="amount">The amount.</param>
-        /// <param name="customerAccountNumber">The customer account number.</param>
         /// <param name="customerEmailAddress">The customer email address.</param>
         /// <param name="contractId">The contract identifier.</param>
         /// <param name="productId">The product identifier.</param>
-        /// <param name="">The .</param>
+        /// <param name="additionalRequestMetadata">The additional request metadata.</param>
         private ProcessSaleTransactionRequest(Guid estateId,
                                               Guid merchantId,
                                               DateTime transactionDateTime,
                                               String transactionNumber,
                                               String deviceIdentifier,
                                               String operatorIdentifier,
-                                              Decimal amount,
-                                              String customerAccountNumber,
                                               String customerEmailAddress,
                                               Guid contractId,
-                                              Guid productId)
+                                              Guid productId,
+                                              Dictionary<String, String> additionalRequestMetadata)
         {
             this.EstateId = estateId;
             this.MerchantId = merchantId;
             this.DeviceIdentifier = deviceIdentifier;
             this.OperatorIdentifier = operatorIdentifier;
-            this.Amount = amount;
-            this.CustomerAccountNumber = customerAccountNumber;
             this.CustomerEmailAddress = customerEmailAddress;
             this.ContractId = contractId;
             this.ProductId = productId;
+            this.AdditionalRequestMetadata = additionalRequestMetadata;
             this.TransactionDateTime = transactionDateTime;
             this.TransactionNumber = transactionNumber;
         }
@@ -61,23 +58,7 @@
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets the amount.
-        /// </summary>
-        /// <value>
-        /// The amount.
-        /// </value>
-        public Decimal Amount { get; }
-
-        /// <summary>
-        /// Gets the customer account number.
-        /// </summary>
-        /// <value>
-        /// The customer account number.
-        /// </value>
-        public String CustomerAccountNumber { get; }
-
+        
         /// <summary>
         /// Gets the customer email address.
         /// </summary>
@@ -101,6 +82,14 @@
         /// The product identifier.
         /// </value>
         public Guid ProductId { get; }
+
+        /// <summary>
+        /// Gets the additional request metadata.
+        /// </summary>
+        /// <value>
+        /// The additional request metadata.
+        /// </value>
+        public Dictionary<String, String> AdditionalRequestMetadata { get; }
 
         /// <summary>
         /// Gets the device identifier.
@@ -163,11 +152,10 @@
         /// <param name="transactionNumber">The transaction number.</param>
         /// <param name="deviceIdentifier">The device identifier.</param>
         /// <param name="operatorIdentifier">The operator identifier.</param>
-        /// <param name="amount">The amount.</param>
-        /// <param name="customerAccountNumber">The customer account number.</param>
         /// <param name="customerEmailAddress">The customer email address.</param>
         /// <param name="contractId">The contract identifier.</param>
         /// <param name="productId">The product identifier.</param>
+        /// <param name="additionalRequestMetadata">The additional request metadata.</param>
         /// <returns></returns>
         public static ProcessSaleTransactionRequest Create(Guid estateId,
                                                            Guid merchantId,
@@ -175,11 +163,10 @@
                                                            String transactionNumber,
                                                            String deviceIdentifier,
                                                            String operatorIdentifier,
-                                                           Decimal amount,
-                                                           String customerAccountNumber,
                                                            String customerEmailAddress,
                                                            Guid contractId,
-                                                           Guid productId)
+                                                           Guid productId,
+                                                           Dictionary<String,String> additionalRequestMetadata)
         {
             return new ProcessSaleTransactionRequest(estateId,
                                                      merchantId,
@@ -187,11 +174,10 @@
                                                      transactionNumber,
                                                      deviceIdentifier,
                                                      operatorIdentifier,
-                                                     amount,
-                                                     customerAccountNumber,
                                                      customerEmailAddress,
                                                      contractId,
-                                                     productId);
+                                                     productId,
+                                                     additionalRequestMetadata);
         }
 
         #endregion

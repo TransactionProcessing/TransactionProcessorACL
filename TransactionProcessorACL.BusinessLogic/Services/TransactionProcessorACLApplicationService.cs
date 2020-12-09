@@ -154,11 +154,10 @@
         /// <param name="transactionNumber">The transaction number.</param>
         /// <param name="deviceIdentifier">The device identifier.</param>
         /// <param name="operatorIdentifier">The operator identifier.</param>
-        /// <param name="amount">The amount.</param>
-        /// <param name="customerAccountNumber">The customer account number.</param>
         /// <param name="customerEmailAddress">The customer email address.</param>
         /// <param name="contractId">The contract identifier.</param>
         /// <param name="productId">The product identifier.</param>
+        /// <param name="additionalRequestMetadata">The additional request metadata.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         public async Task<ProcessSaleTransactionResponse> ProcessSaleTransaction(Guid estateId,
@@ -167,11 +166,10 @@
                                                                                    String transactionNumber,
                                                                                    String deviceIdentifier,
                                                                                    String operatorIdentifier,
-                                                                                   Decimal amount,
-                                                                                   String customerAccountNumber,
                                                                                    String customerEmailAddress,
                                                                                    Guid contractId,
                                                                                    Guid productId,
+                                                                                   Dictionary<String, String> additionalRequestMetadata,
                                                                                    CancellationToken cancellationToken)
         {
             // Get a client token to call the Transaction Processor
@@ -193,9 +191,7 @@
             saleTransactionRequest.ProductId = productId;
 
             // Build up the metadata
-            saleTransactionRequest.AdditionalTransactionMetadata = new Dictionary<String, String>();
-            saleTransactionRequest.AdditionalTransactionMetadata.Add("Amount", amount.ToString());
-            saleTransactionRequest.AdditionalTransactionMetadata.Add("CustomerAccountNumber", customerAccountNumber);
+            saleTransactionRequest.AdditionalTransactionMetadata = additionalRequestMetadata;
             
             SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
             requestSerialisedMessage.Metadata.Add("EstateId", estateId.ToString());
@@ -218,7 +214,9 @@
                 response = new ProcessSaleTransactionResponse
                 {
                     ResponseCode = saleTransactionResponse.ResponseCode,
-                    ResponseMessage = saleTransactionResponse.ResponseMessage
+                    ResponseMessage = saleTransactionResponse.ResponseMessage,
+                    EstateId = estateId,
+                    MerchantId = merchantId
                 };
             }
             catch (Exception ex)
@@ -229,7 +227,9 @@
                     response = new ProcessSaleTransactionResponse
                     {
                         ResponseCode = "0001", // Request Message error
-                        ResponseMessage = ex.InnerException.Message
+                        ResponseMessage = ex.InnerException.Message,
+                        EstateId = estateId,
+                        MerchantId = merchantId
                     };
                 }
                 else if (ex.InnerException is HttpRequestException) 
@@ -238,16 +238,20 @@
                     response = new ProcessSaleTransactionResponse
                                {
                                    ResponseCode = "0002", // Request Message error
-                                   ResponseMessage = "Error Sending Request Message"
-                               };
+                                   ResponseMessage = "Error Sending Request Message",
+                                   EstateId = estateId,
+                                   MerchantId = merchantId
+                    };
                 }
                 else
                 {
                     response = new ProcessSaleTransactionResponse
                                {
                                    ResponseCode = "0003", // General error
-                                   ResponseMessage = "General Error"
-                               };
+                                   ResponseMessage = "General Error",
+                                   EstateId = estateId,
+                                   MerchantId = merchantId
+                    };
                 }
             }
 

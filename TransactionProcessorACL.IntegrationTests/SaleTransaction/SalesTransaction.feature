@@ -12,11 +12,12 @@ Background:
 	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | MerchantId, EstateId, role |
 	| transactionProcessor    | Transaction Processor REST     | Secret1 | transactionProcessor    |                            |
 	| transactionProcessorACL | Transaction Processor ACL REST | Secret1 | transactionProcessorACL | MerchantId, EstateId, role |
+	| voucherManagement       | Voucher Management REST        | Secret1 | voucherManagement       |                            |
 
 	Given the following clients exist
-	| ClientId       | ClientName      | Secret  | AllowedScopes                                                 | AllowedGrantTypes  |
-	| serviceClient  | Service Client  | Secret1 | estateManagement,transactionProcessor,transactionProcessorACL | client_credentials |
-	| merchantClient | Merchant Client | Secret1 | transactionProcessorACL                                       | password           |
+	| ClientId       | ClientName      | Secret  | AllowedScopes                                                                   | AllowedGrantTypes  |
+	| serviceClient  | Service Client  | Secret1 | estateManagement,transactionProcessor,transactionProcessorACL,voucherManagement | client_credentials |
+	| merchantClient | Merchant Client | Secret1 | transactionProcessorACL                                                         | password           |
 
 	Given I have a token to access the estate management and transaction processor acl resources
 	| ClientId      | 
@@ -30,17 +31,23 @@ Background:
 	Given I have created the following operators
 	| EstateName    | OperatorName | RequireCustomMerchantNumber | RequireCustomTerminalNumber |
 	| Test Estate 1 | Safaricom    | True                        | True                        |
+	| Test Estate 1 | Voucher      | True                        | True                        |
 	| Test Estate 2 | Safaricom    | True                        | True                        |
+	| Test Estate 2 | Voucher      | True                        | True                        |
 
 	Given I create a contract with the following values
 	| EstateName    | OperatorName    | ContractDescription |
 	| Test Estate 1 | Safaricom | Safaricom Contract |
+	| Test Estate 1 | Voucher      | Hospital 1 Contract |
 	| Test Estate 2 | Safaricom | Safaricom Contract |
+	| Test Estate 2 | Voucher      | Hospital 1 Contract |
 
 	When I create the following Products
-	| EstateName    | OperatorName    | ContractDescription | ProductName    | DisplayText | Value  |
-	| Test Estate 1 | Safaricom | Safaricom Contract | Variable Topup | Custom      |        |
-	| Test Estate 2 | Safaricom | Safaricom Contract | Variable Topup | Custom      |        |
+	| EstateName    | OperatorName | ContractDescription | ProductName    | DisplayText | Value |
+	| Test Estate 1 | Safaricom    | Safaricom Contract  | Variable Topup | Custom      |       |
+	| Test Estate 1 | Voucher      | Hospital 1 Contract | 10 KES         | 10 KES      |       |
+	| Test Estate 2 | Safaricom    | Safaricom Contract  | Variable Topup | Custom      |       |
+	| Test Estate 2 | Voucher      | Hospital 1 Contract | 10 KES         | 10 KES      |       |
 
 	When I add the following Transaction Fees
 	| EstateName    | OperatorName | ContractDescription | ProductName    | CalculationType | FeeDescription      | Value |
@@ -62,8 +69,11 @@ Background:
 	Given I have assigned the following  operator to the merchants
 	| OperatorName | MerchantName    | MerchantNumber | TerminalNumber | EstateName    |
 	| Safaricom    | Test Merchant 1 | 00000001       | 10000001       | Test Estate 1 |
+	| Voucher      | Test Merchant 1 | 00000001       | 10000001       | Test Estate 1 |
 	| Safaricom    | Test Merchant 2 | 00000002       | 10000002       | Test Estate 1 |
+	| Voucher      | Test Merchant 2 | 00000002       | 10000002       | Test Estate 1 |
 	| Safaricom    | Test Merchant 3 | 00000003       | 10000003       | Test Estate 2 |
+	| Voucher      | Test Merchant 3 | 00000003       | 10000003       | Test Estate 2 |
 
 	Given I have assigned the following devices to the merchants
 	| DeviceIdentifier | MerchantName    | EstateName    |
@@ -73,27 +83,30 @@ Background:
 
 	Given I make the following manual merchant deposits 
 	| Reference | Amount  | DateTime | MerchantName    | EstateName    |
-	| Deposit1  | 200.00 | Today    | Test Merchant 1 | Test Estate 1 |
-	| Deposit1  | 100.00 | Today    | Test Merchant 2 | Test Estate 1 |
-	| Deposit1  | 100.00 | Today    | Test Merchant 3 | Test Estate 2 |
+	| Deposit1  | 210.00 | Today    | Test Merchant 1 | Test Estate 1 |
+	| Deposit1  | 110.00 | Today    | Test Merchant 2 | Test Estate 1 |
+	| Deposit1  | 110.00 | Today    | Test Merchant 3 | Test Estate 2 |
 
 @PRTest
 Scenario: Sale Transaction
 	Given I am logged in as "merchantuser@testmerchant1.co.uk" with password "123456" for Merchant "Test Merchant 1" for Estate "Test Estate 1" with client "merchantClient"
 	When I perform the following transactions
-	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    | OperatorName | TransactionAmount | CustomerAccountNumber | CustomerEmailAddress        | ContractDescription | ProductName    |
-	| Today    | 1                 | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 100.00           | 123456789             |                             | Safaricom Contract  | Variable Topup |
-	| Today    | 4                 | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 100.00           | 123456789             | testcustomer@customer.co.uk | Safaricom Contract  | Variable Topup |
+	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    | OperatorName | TransactionAmount | CustomerAccountNumber | CustomerEmailAddress        | ContractDescription | ProductName    | RecipientEmail       | RecipientMobile |
+	| Today    | 1                 | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 100.00            | 123456789             |                             | Safaricom Contract  | Variable Topup |                      |                 |
+	| Today    | 4                 | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 100.00            | 123456789             | testcustomer@customer.co.uk | Safaricom Contract  | Variable Topup |                      |                 |
+	| Today    | 5                 | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Voucher      | 10.00             |                       |                             | Hospital 1 Contract | 10 KES         | test@recipient.co.uk |                 |
 	
 	Given I am logged in as "merchantuser@testmerchant2.co.uk" with password "123456" for Merchant "Test Merchant 2" for Estate "Test Estate 1" with client "merchantClient"
 	When I perform the following transactions
-	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    | OperatorName | TransactionAmount | CustomerAccountNumber | CustomerEmailAddress | ContractDescription | ProductName    |
-	| Today    | 2                 | Sale            | Test Merchant 2 | 123456781        | Test Estate 1 | Safaricom    | 100.00           | 123456789             |                      | Safaricom Contract  | Variable Topup |
+	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    | OperatorName | TransactionAmount | CustomerAccountNumber | CustomerEmailAddress | ContractDescription | ProductName    | RecipientEmail | RecipientMobile |
+	| Today    | 2                 | Sale            | Test Merchant 2 | 123456781        | Test Estate 1 | Safaricom    | 100.00            | 123456789             |                      | Safaricom Contract  | Variable Topup |                |                 |
+	| Today    | 6                 | Sale            | Test Merchant 2 | 123456781        | Test Estate 1 | Voucher      | 10.00             |                       |                      | Hospital 1 Contract | 10 KES         |                | 123456789       |
 	
 	Given I am logged in as "merchantuser@testmerchant3.co.uk" with password "123456" for Merchant "Test Merchant 3" for Estate "Test Estate 2" with client "merchantClient"
 	When I perform the following transactions
-	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    | OperatorName | TransactionAmount | CustomerAccountNumber | CustomerEmailAddress | ContractDescription | ProductName    |
-	| Today    | 3                 | Sale            | Test Merchant 3 | 123456782        | Test Estate 2 | Safaricom    | 100.00           | 123456789             |                      | Safaricom Contract  | Variable Topup |
+	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    | OperatorName | TransactionAmount | CustomerAccountNumber | CustomerEmailAddress | ContractDescription | ProductName    | RecipientEmail       | RecipientMobile |
+	| Today    | 3                 | Sale            | Test Merchant 3 | 123456782        | Test Estate 2 | Safaricom    | 100.00            | 123456789             |                      | Safaricom Contract  | Variable Topup |                      |                 |
+	| Today    | 7                 | Sale            | Test Merchant 3 | 123456782        | Test Estate 2 | Voucher      | 10.00             |                       |                      | Hospital 1 Contract | 10 KES         | test@recipient.co.uk |                 |
 	
 	Then transaction response should contain the following information
 	| EstateName    | MerchantName    | TransactionNumber | TransactionType | ResponseCode | ResponseMessage |
@@ -101,3 +114,6 @@ Scenario: Sale Transaction
 	| Test Estate 1 | Test Merchant 2 | 2                 | Sale            | 0000         | SUCCESS         |
 	| Test Estate 2 | Test Merchant 3 | 3                 | Sale            | 0000         | SUCCESS         |
 	| Test Estate 1 | Test Merchant 1 | 4                 | Sale            | 0000         | SUCCESS         |
+	| Test Estate 1 | Test Merchant 1 | 5                 | Sale            | 0000         | SUCCESS         |
+	| Test Estate 1 | Test Merchant 2 | 6                 | Sale            | 0000         | SUCCESS         |
+	| Test Estate 2 | Test Merchant 3 | 7                 | Sale            | 0000         | SUCCESS         |
