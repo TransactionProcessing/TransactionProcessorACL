@@ -1,6 +1,7 @@
 ﻿namespace TransactionProcessorACL.Models
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
     [ExcludeFromCodeCoverage]
@@ -37,5 +38,13 @@
         /// The merchant identifier.
         /// </value>
         public Guid MerchantId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the additional transaction metadata.
+        /// </summary>
+        /// <value>
+        /// The additional transaction metadata.
+        /// </value>
+        public Dictionary<String, String> AdditionalTransactionMetadata { get; set; }
     }
 }
