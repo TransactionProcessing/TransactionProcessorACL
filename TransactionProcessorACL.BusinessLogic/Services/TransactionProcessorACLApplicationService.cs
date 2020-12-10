@@ -216,7 +216,8 @@
                     ResponseCode = saleTransactionResponse.ResponseCode,
                     ResponseMessage = saleTransactionResponse.ResponseMessage,
                     EstateId = estateId,
-                    MerchantId = merchantId
+                    MerchantId = merchantId,
+                    AdditionalTransactionMetadata = saleTransactionResponse.AdditionalTransactionMetadata
                 };
             }
             catch (Exception ex)
