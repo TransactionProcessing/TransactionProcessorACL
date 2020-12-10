@@ -51,6 +51,7 @@
             saleTransactionResponseMessage.ResponseCode = processSaleTransactionResponse.ResponseCode;
             saleTransactionResponseMessage.MerchantId = processSaleTransactionResponse.MerchantId;
             saleTransactionResponseMessage.EstateId = processSaleTransactionResponse.EstateId;
+            saleTransactionResponseMessage.AdditionalResponseMetaData = processSaleTransactionResponse.AdditionalTransactionMetadata;
 
             return saleTransactionResponseMessage;
         }
