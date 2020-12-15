@@ -73,6 +73,7 @@ namespace TransactionProcessorACL
                                                       return t => context.GetService(t);
                                                   });
             services.AddSingleton<IModelFactory, ModelFactory>();
+            services.AddSingleton<IRequestHandler<VersionCheckRequest,Unit>, VersionCheckRequestHandler>();
             services.AddSingleton<IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>, ProcessLogonTransactionRequestHandler>();
             services.AddSingleton<IRequestHandler<ProcessSaleTransactionRequest, ProcessSaleTransactionResponse>, ProcessSaleTransactionRequestHandler>();
             services.AddSingleton<IRequestHandler<ProcessReconciliationRequest, ProcessReconciliationResponse>, ProcessReconciliationRequestHandler>();
@@ -171,31 +172,7 @@ namespace TransactionProcessorACL
             Assembly assembly = this.GetType().GetTypeInfo().Assembly;
             services.AddMvcCore().AddApplicationPart(assembly).AddControllersAsServices();
         }
-
-        //public void ConfigureServices(IServiceCollection services)
-        //{
-        //    // request & notification handlers
-        //    builder.Register<ServiceFactory>(context =>
-        //                                     {
-        //                                         IComponentContext c = context.Resolve<IComponentContext>();
-        //                                         return t => c.Resolve(t);
-        //                                     });
-
-        //    builder.RegisterType<ModelFactory>().As<IModelFactory>().SingleInstance();
-        //    builder.RegisterType<ProcessLogonTransactionRequestHandler>().As<IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>>().SingleInstance();
-        //    builder.RegisterType<ProcessLogonTransactionRequest>().As<IRequest<ProcessLogonTransactionResponse>>().SingleInstance();
-        //    builder.RegisterType<TransactionProcessorACLApplicationService>().As<ITransactionProcessorACLApplicationService>().SingleInstance();
-        //    builder.RegisterType<TransactionProcessorClient>().As<ITransactionProcessorClient>().SingleInstance();
-        //    builder.RegisterType<SecurityServiceClient>().As<ISecurityServiceClient>().SingleInstance();
-        //    builder.RegisterType(typeof(HttpClient)).SingleInstance();
-        //    builder.Register<Func<String, String>>(c => (api) =>
-        //                                                {
-        //                                                    Uri uri = ConfigurationReader.GetBaseServerUri(api);
-        //                                                    return uri.AbsoluteUri.Substring(0, uri.AbsoluteUri.Length - 1);
-        //                                                });
-
-        //}
-
+        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory,
                               IApiVersionDescriptionProvider provider)

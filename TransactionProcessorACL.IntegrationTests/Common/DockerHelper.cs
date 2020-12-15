@@ -103,6 +103,7 @@
 
         public const Int32 TestHostPort = 9000;
 
+        private const String MinimumSupportedApplicationVersion = "1.0.5";
         private Int32 VoucherManagementPort;
         protected String VoucherManagementContainerName;
         public const Int32 VoucherManagementDockerPort = 5007;
@@ -323,6 +324,11 @@
                                                                                                     ("serviceClient", "Secret1"),
                                                                                                     true);
 
+            additionalVariables = new List<String>()
+                                               {
+                                                   $"AppSettings:MinimumSupportedApplicationVersion={DockerHelper.MinimumSupportedApplicationVersion}"
+                                               };
+
             IContainerService transactionProcessorACLContainer = DockerHelper.SetupTransactionProcessorACLContainer(this.TransactionProcessorACLContainerName,
                                                                                                                     this.Logger,
                                                                                                                     "transactionprocessoracl",
@@ -331,7 +337,8 @@
                                                                                                                     null,
                                                                                                                     this.SecurityServiceContainerName, 
                                                                                                                     this.TransactionProcessorContainerName,
-                                                                                                                    ("serviceClient", "Secret1"));
+                                                                                                                    ("serviceClient", "Secret1"),
+                 additionalEnvironmentVariables:additionalVariables);
 
             IContainerService testhostContainer = SetupTestHostContainer(this.TestHostContainerName,
                                                                          this.Logger,

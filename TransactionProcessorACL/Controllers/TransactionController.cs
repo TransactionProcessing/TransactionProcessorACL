@@ -4,6 +4,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
+    using BusinessLogic.RequestHandlers;
     using BusinessLogic.Requests;
     using Common;
     using DataTransferObjects;
@@ -11,6 +12,7 @@
     using MediatR;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Shared.Logger;
 
     /// <summary>
     /// 
@@ -71,6 +73,19 @@
                 return this.Forbid();
             }
 
+            // Do the software version check
+            try
+            {
+                VersionCheckRequest versionCheckRequest = VersionCheckRequest.Create(transactionRequest.ApplicationVersion);
+                await this.Mediator.Send(versionCheckRequest, cancellationToken);
+            }
+            catch(VersionIncompatibleException vex)
+            {
+                Logger.LogError(vex);
+                return this.StatusCode(505);
+            }
+            
+            // Now do the transaction
             dynamic request = this.CreateCommandFromRequest((dynamic)transactionRequest);
             dynamic response = await this.Mediator.Send(request, cancellationToken);
 

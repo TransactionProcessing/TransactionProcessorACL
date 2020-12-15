@@ -13,6 +13,14 @@
         #region Properties
 
         /// <summary>
+        /// Gets or sets the application version.
+        /// </summary>
+        /// <value>
+        /// The application version.
+        /// </value>
+        public String ApplicationVersion { get; set; }
+
+        /// <summary>
         /// Gets or sets the device identifier.
         /// </summary>
         /// <value>
