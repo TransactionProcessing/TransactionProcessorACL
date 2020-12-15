@@ -22,6 +22,20 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     {
         #region Methods
 
+        public RequestHandlerTests()
+        {
+            this.SetupMemoryConfiguration();
+        }
+
+        private void SetupMemoryConfiguration()
+        {
+            if (ConfigurationReader.IsInitialised == false)
+            {
+                IConfigurationRoot configuration = new ConfigurationBuilder().AddInMemoryCollection(TestData.DefaultAppSettings).Build();
+                ConfigurationReader.Initialise(configuration);
+            }
+        }
+
         /// <summary>
         /// Processes the logon transaction request handler handle request is handled.
         /// </summary>
@@ -103,8 +117,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task VersionCheckRequestHandler_Handle_RequestIsHandled()
         {
             VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
-            IConfigurationRoot configurationRoot = new ConfigurationBuilder().AddInMemoryCollection(TestData.DefaultAppSettings).Build();
-            ConfigurationReader.Initialise(configurationRoot);
+            
             VersionCheckRequest request = TestData.VersionCheckRequest;
             Should.NotThrow(async () =>
                             {
@@ -116,10 +129,9 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task VersionCheckRequestHandler_Handle_OldVersion_ErrorThrown()
         {
             VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
-            IConfigurationRoot configurationRoot = new ConfigurationBuilder().AddInMemoryCollection(TestData.DefaultAppSettings).Build();
-            ConfigurationReader.Initialise(configurationRoot);
+            
             VersionCheckRequest request = VersionCheckRequest.Create(TestData.OldApplicationVersion);
-            Should.Throw<NotSupportedException>(async () =>
+            Should.Throw<VersionIncompatibleException>(async () =>
                             {
                                 await requestHandler.Handle(request, CancellationToken.None);
                             });
@@ -129,8 +141,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task VersionCheckRequestHandler_Handle_NewerVersionBuildNumber_RequestIsHandled()
         {
             VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
-            IConfigurationRoot configurationRoot = new ConfigurationBuilder().AddInMemoryCollection(TestData.DefaultAppSettings).Build();
-            ConfigurationReader.Initialise(configurationRoot);
+            
             VersionCheckRequest request = VersionCheckRequest.Create(TestData.NewerApplicationVersion);
             Should.NotThrow(async () =>
                             {
