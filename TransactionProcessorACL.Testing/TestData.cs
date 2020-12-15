@@ -160,5 +160,21 @@
                                                                                         EstateId = TestData.EstateId,
                                                                                         MerchantId = TestData.MerchantId
         };
+
+        public static IReadOnlyDictionary<String, String> DefaultAppSettings =>
+            new Dictionary<String, String>
+            {
+                ["AppSettings:MinimumSupportedApplicationVersion"] = "1.0.5",
+                ["AppSettings: SecurityService"] = "http://192.168.1.133:5001",
+                ["AppSettings:TransactionProcessorApi"]  = "http://192.168.1.133:5002",
+                ["AppSettings:ClientId"] = "ClientId",
+                ["AppSettings:ClientSecret"] = "secret"
+            };
+
+        public static String OldApplicationVersion = "1.0.4";
+        public static String NewerApplicationVersion = "1.0.5.1";
+        public static String ApplicationVersion = "1.0.5";
+
+        public static VersionCheckRequest VersionCheckRequest = VersionCheckRequest.Create(TestData.ApplicationVersion);
     }
 }

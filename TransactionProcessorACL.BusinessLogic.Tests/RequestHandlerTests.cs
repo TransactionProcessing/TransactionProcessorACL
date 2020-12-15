@@ -7,8 +7,10 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using BusinessLogic.RequestHandlers;
     using BusinessLogic.Requests;
     using BusinessLogic.Services;
+    using Microsoft.Extensions.Configuration;
     using Models;
     using Moq;
+    using Shared.General;
     using Shouldly;
     using Testing;
     using Xunit;
@@ -95,6 +97,45 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             response.ResponseMessage.ShouldBe(TestData.ResponseMessage);
             response.EstateId.ShouldBe(TestData.EstateId);
             response.MerchantId.ShouldBe(TestData.MerchantId);
+        }
+
+        [Fact]
+        public async Task VersionCheckRequestHandler_Handle_RequestIsHandled()
+        {
+            VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
+            IConfigurationRoot configurationRoot = new ConfigurationBuilder().AddInMemoryCollection(TestData.DefaultAppSettings).Build();
+            ConfigurationReader.Initialise(configurationRoot);
+            VersionCheckRequest request = TestData.VersionCheckRequest;
+            Should.NotThrow(async () =>
+                            {
+                                await requestHandler.Handle(request, CancellationToken.None);
+                            });
+        }
+
+        [Fact]
+        public async Task VersionCheckRequestHandler_Handle_OldVersion_ErrorThrown()
+        {
+            VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
+            IConfigurationRoot configurationRoot = new ConfigurationBuilder().AddInMemoryCollection(TestData.DefaultAppSettings).Build();
+            ConfigurationReader.Initialise(configurationRoot);
+            VersionCheckRequest request = VersionCheckRequest.Create(TestData.OldApplicationVersion);
+            Should.Throw<NotSupportedException>(async () =>
+                            {
+                                await requestHandler.Handle(request, CancellationToken.None);
+                            });
+        }
+
+        [Fact]
+        public async Task VersionCheckRequestHandler_Handle_NewerVersionBuildNumber_RequestIsHandled()
+        {
+            VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
+            IConfigurationRoot configurationRoot = new ConfigurationBuilder().AddInMemoryCollection(TestData.DefaultAppSettings).Build();
+            ConfigurationReader.Initialise(configurationRoot);
+            VersionCheckRequest request = VersionCheckRequest.Create(TestData.NewerApplicationVersion);
+            Should.NotThrow(async () =>
+                            {
+                                await requestHandler.Handle(request, CancellationToken.None);
+                            });
         }
 
         #endregion

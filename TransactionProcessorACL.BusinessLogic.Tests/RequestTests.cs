@@ -77,6 +77,14 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             request.TransactionValue.ShouldBe(TestData.ReconciliationTransactionValue);
         }
 
+        [Fact]
+        public void VersionCheckRequest_CanBeCreated_IsCreated()
+        {
+            VersionCheckRequest request = VersionCheckRequest.Create(TestData.ApplicationVersion);
+
+            request.VersionNumber.ShouldBe(TestData.ApplicationVersion);
+        }
+
         #endregion
     }
 }

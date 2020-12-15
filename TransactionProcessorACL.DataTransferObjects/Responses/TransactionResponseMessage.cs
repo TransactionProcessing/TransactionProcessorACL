@@ -48,5 +48,13 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// The merchant identifier.
         /// </value>
         public Guid MerchantId { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [requires application update].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [requires application update]; otherwise, <c>false</c>.
+        /// </value>
+        public Boolean RequiresApplicationUpdate { get; set; }
     }
 }
