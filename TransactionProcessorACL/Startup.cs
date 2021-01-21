@@ -133,7 +133,6 @@ namespace TransactionProcessorACL
                 // add a custom operation filter which sets default values
                 c.OperationFilter<SwaggerDefaultValues>();
                 c.ExampleFilters();
-                c.SchemaGeneratorOptions.GeneratePolymorphicSchemas = true;
             });
 
             services.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
