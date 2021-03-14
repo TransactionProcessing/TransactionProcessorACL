@@ -15,9 +15,9 @@ Background:
 
 	Given the following api resources exist
 	| ResourceName            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
-	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | MerchantId, EstateId, role |
+	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | merchantId, estateId, role |
 	| transactionProcessor    | Transaction Processor REST     | Secret1 | transactionProcessor    |                            |
-	| transactionProcessorACL | Transaction Processor ACL REST | Secret1 | transactionProcessorACL | MerchantId, EstateId, role |
+	| transactionProcessorACL | Transaction Processor ACL REST | Secret1 | transactionProcessorACL | merchantId, estateId, role |
 
 	Given the following clients exist
 	| ClientId       | ClientName      | Secret  | AllowedScopes                                                 | AllowedGrantTypes  |
@@ -44,17 +44,17 @@ Background:
 	| Test Merchant 2 | Address Line 1 | TestTown | Test Region | United Kingdom | Test Contact 2 | testcontact2@merchant2.co.uk | Test Estate 1 |
 	| Test Merchant 3 | Address Line 1 | TestTown | Test Region | United Kingdom | Test Contact 3 | testcontact3@merchant2.co.uk | Test Estate 2 |
 
-	Given I have created the following security users
-	| EmailAddress                  | Password | GivenName    | FamilyName | EstateName    | MerchantName    |
-	| merchantuser@testmerchant1.co.uk | 123456   | TestMerchant | User1      | Test Estate 1 | Test Merchant 1 |
-	| merchantuser@testmerchant2.co.uk | 123456   | TestMerchant | User2      | Test Estate 1 | Test Merchant 2 |
-	| merchantuser@testmerchant3.co.uk | 123456   | TestMerchant | User3      | Test Estate 2 | Test Merchant 3 |
-
 	Given I have assigned the following  operator to the merchants
 	| OperatorName    | MerchantName    | MerchantNumber | TerminalNumber | EstateName    |
 	| Test Operator 1 | Test Merchant 1 | 00000001       | 10000001       | Test Estate 1 |
 	| Test Operator 1 | Test Merchant 2 | 00000001       | 10000001       | Test Estate 1 |
 	| Test Operator 1 | Test Merchant 3 | 00000001       | 10000001       | Test Estate 2 |
+
+	Given I have created the following security users
+	| EmailAddress                  | Password | GivenName    | FamilyName | EstateName    | MerchantName    |
+	| merchantuser@testmerchant1.co.uk | 123456   | TestMerchant | User1      | Test Estate 1 | Test Merchant 1 |
+	| merchantuser@testmerchant2.co.uk | 123456   | TestMerchant | User2      | Test Estate 1 | Test Merchant 2 |
+	| merchantuser@testmerchant3.co.uk | 123456   | TestMerchant | User3      | Test Estate 2 | Test Merchant 3 |
 
 @PRTest
 Scenario: Logon Transaction

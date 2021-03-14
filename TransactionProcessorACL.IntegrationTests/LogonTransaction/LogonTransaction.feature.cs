@@ -122,7 +122,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "Estate Managememt REST",
                         "Secret1",
                         "estateManagement",
-                        "MerchantId, EstateId, role"});
+                        "merchantId, estateId, role"});
             table3.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
@@ -134,7 +134,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorACL",
-                        "MerchantId, EstateId, role"});
+                        "merchantId, estateId, role"});
 #line 16
  testRunner.Given("the following api resources exist", ((string)(null)), table3, "Given ");
 #line hidden
@@ -234,62 +234,62 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
  testRunner.Given("I create the following merchants", ((string)(null)), table8, "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+                        "OperatorName",
+                        "MerchantName",
+                        "MerchantNumber",
+                        "TerminalNumber",
+                        "EstateName"});
+            table9.AddRow(new string[] {
+                        "Test Operator 1",
+                        "Test Merchant 1",
+                        "00000001",
+                        "10000001",
+                        "Test Estate 1"});
+            table9.AddRow(new string[] {
+                        "Test Operator 1",
+                        "Test Merchant 2",
+                        "00000001",
+                        "10000001",
+                        "Test Estate 1"});
+            table9.AddRow(new string[] {
+                        "Test Operator 1",
+                        "Test Merchant 3",
+                        "00000001",
+                        "10000001",
+                        "Test Estate 2"});
+#line 47
+ testRunner.Given("I have assigned the following  operator to the merchants", ((string)(null)), table9, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
                         "EmailAddress",
                         "Password",
                         "GivenName",
                         "FamilyName",
                         "EstateName",
                         "MerchantName"});
-            table9.AddRow(new string[] {
+            table10.AddRow(new string[] {
                         "merchantuser@testmerchant1.co.uk",
                         "123456",
                         "TestMerchant",
                         "User1",
                         "Test Estate 1",
                         "Test Merchant 1"});
-            table9.AddRow(new string[] {
+            table10.AddRow(new string[] {
                         "merchantuser@testmerchant2.co.uk",
                         "123456",
                         "TestMerchant",
                         "User2",
                         "Test Estate 1",
                         "Test Merchant 2"});
-            table9.AddRow(new string[] {
+            table10.AddRow(new string[] {
                         "merchantuser@testmerchant3.co.uk",
                         "123456",
                         "TestMerchant",
                         "User3",
                         "Test Estate 2",
                         "Test Merchant 3"});
-#line 47
- testRunner.Given("I have created the following security users", ((string)(null)), table9, "Given ");
-#line hidden
-            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
-                        "OperatorName",
-                        "MerchantName",
-                        "MerchantNumber",
-                        "TerminalNumber",
-                        "EstateName"});
-            table10.AddRow(new string[] {
-                        "Test Operator 1",
-                        "Test Merchant 1",
-                        "00000001",
-                        "10000001",
-                        "Test Estate 1"});
-            table10.AddRow(new string[] {
-                        "Test Operator 1",
-                        "Test Merchant 2",
-                        "00000001",
-                        "10000001",
-                        "Test Estate 1"});
-            table10.AddRow(new string[] {
-                        "Test Operator 1",
-                        "Test Merchant 3",
-                        "00000001",
-                        "10000001",
-                        "Test Estate 2"});
 #line 53
- testRunner.Given("I have assigned the following  operator to the merchants", ((string)(null)), table10, "Given ");
+ testRunner.Given("I have created the following security users", ((string)(null)), table10, "Given ");
 #line hidden
         }
         

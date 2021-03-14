@@ -101,8 +101,8 @@
         /// <returns></returns>
         private ProcessLogonTransactionRequest CreateCommandFromRequest(LogonTransactionRequestMessage logonTransactionRequestMessage)
         {
-            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "EstateId").Value);
-            Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "MerchantId").Value);
+            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "estateId").Value);
+            Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "merchantId").Value);
 
             ProcessLogonTransactionRequest request = ProcessLogonTransactionRequest.Create(estateId,
                                                                                            merchantId,
@@ -121,8 +121,8 @@
         /// <returns></returns>
         private ProcessSaleTransactionRequest CreateCommandFromRequest(SaleTransactionRequestMessage saleTransactionRequestMessage)
         {
-            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "EstateId").Value);
-            Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "MerchantId").Value);
+            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "estateId").Value);
+            Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "merchantId").Value);
 
             ProcessSaleTransactionRequest request = ProcessSaleTransactionRequest.Create(estateId,
                                                                                          merchantId,
@@ -145,8 +145,8 @@
         /// <returns></returns>
         private ProcessReconciliationRequest CreateCommandFromRequest(ReconciliationRequestMessage reconciliationRequestMessage)
         {
-            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "EstateId").Value);
-            Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "MerchantId").Value);
+            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "estateId").Value);
+            Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "merchantId").Value);
 
             ProcessReconciliationRequest request = ProcessReconciliationRequest.Create(estateId,
                                                                                        merchantId,

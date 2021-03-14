@@ -342,126 +342,126 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
  testRunner.Given("I create the following merchants", ((string)(null)), table44, "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table45 = new TechTalk.SpecFlow.Table(new string[] {
+                        "OperatorName",
+                        "MerchantName",
+                        "MerchantNumber",
+                        "TerminalNumber",
+                        "EstateName"});
+            table45.AddRow(new string[] {
+                        "Safaricom",
+                        "Test Merchant 1",
+                        "00000001",
+                        "10000001",
+                        "Test Estate 1"});
+            table45.AddRow(new string[] {
+                        "Voucher",
+                        "Test Merchant 1",
+                        "00000001",
+                        "10000001",
+                        "Test Estate 1"});
+            table45.AddRow(new string[] {
+                        "Safaricom",
+                        "Test Merchant 2",
+                        "00000002",
+                        "10000002",
+                        "Test Estate 1"});
+            table45.AddRow(new string[] {
+                        "Voucher",
+                        "Test Merchant 2",
+                        "00000002",
+                        "10000002",
+                        "Test Estate 1"});
+            table45.AddRow(new string[] {
+                        "Safaricom",
+                        "Test Merchant 3",
+                        "00000003",
+                        "10000003",
+                        "Test Estate 2"});
+            table45.AddRow(new string[] {
+                        "Voucher",
+                        "Test Merchant 3",
+                        "00000003",
+                        "10000003",
+                        "Test Estate 2"});
+#line 70
+ testRunner.Given("I have assigned the following  operator to the merchants", ((string)(null)), table45, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table46 = new TechTalk.SpecFlow.Table(new string[] {
+                        "DeviceIdentifier",
+                        "MerchantName",
+                        "EstateName"});
+            table46.AddRow(new string[] {
+                        "123456780",
+                        "Test Merchant 1",
+                        "Test Estate 1"});
+            table46.AddRow(new string[] {
+                        "123456781",
+                        "Test Merchant 2",
+                        "Test Estate 1"});
+            table46.AddRow(new string[] {
+                        "123456782",
+                        "Test Merchant 3",
+                        "Test Estate 2"});
+#line 79
+ testRunner.Given("I have assigned the following devices to the merchants", ((string)(null)), table46, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table47 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Reference",
+                        "Amount",
+                        "DateTime",
+                        "MerchantName",
+                        "EstateName"});
+            table47.AddRow(new string[] {
+                        "Deposit1",
+                        "210.00",
+                        "Today",
+                        "Test Merchant 1",
+                        "Test Estate 1"});
+            table47.AddRow(new string[] {
+                        "Deposit1",
+                        "110.00",
+                        "Today",
+                        "Test Merchant 2",
+                        "Test Estate 1"});
+            table47.AddRow(new string[] {
+                        "Deposit1",
+                        "110.00",
+                        "Today",
+                        "Test Merchant 3",
+                        "Test Estate 2"});
+#line 85
+ testRunner.Given("I make the following manual merchant deposits", ((string)(null)), table47, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table48 = new TechTalk.SpecFlow.Table(new string[] {
                         "EmailAddress",
                         "Password",
                         "GivenName",
                         "FamilyName",
                         "EstateName",
                         "MerchantName"});
-            table45.AddRow(new string[] {
+            table48.AddRow(new string[] {
                         "merchantuser@testmerchant1.co.uk",
                         "123456",
                         "TestMerchant",
                         "User1",
                         "Test Estate 1",
                         "Test Merchant 1"});
-            table45.AddRow(new string[] {
+            table48.AddRow(new string[] {
                         "merchantuser@testmerchant2.co.uk",
                         "123456",
                         "TestMerchant",
                         "User2",
                         "Test Estate 1",
                         "Test Merchant 2"});
-            table45.AddRow(new string[] {
+            table48.AddRow(new string[] {
                         "merchantuser@testmerchant3.co.uk",
                         "123456",
                         "TestMerchant",
                         "User3",
                         "Test Estate 2",
                         "Test Merchant 3"});
-#line 70
- testRunner.Given("I have created the following security users", ((string)(null)), table45, "Given ");
-#line hidden
-            TechTalk.SpecFlow.Table table46 = new TechTalk.SpecFlow.Table(new string[] {
-                        "OperatorName",
-                        "MerchantName",
-                        "MerchantNumber",
-                        "TerminalNumber",
-                        "EstateName"});
-            table46.AddRow(new string[] {
-                        "Safaricom",
-                        "Test Merchant 1",
-                        "00000001",
-                        "10000001",
-                        "Test Estate 1"});
-            table46.AddRow(new string[] {
-                        "Voucher",
-                        "Test Merchant 1",
-                        "00000001",
-                        "10000001",
-                        "Test Estate 1"});
-            table46.AddRow(new string[] {
-                        "Safaricom",
-                        "Test Merchant 2",
-                        "00000002",
-                        "10000002",
-                        "Test Estate 1"});
-            table46.AddRow(new string[] {
-                        "Voucher",
-                        "Test Merchant 2",
-                        "00000002",
-                        "10000002",
-                        "Test Estate 1"});
-            table46.AddRow(new string[] {
-                        "Safaricom",
-                        "Test Merchant 3",
-                        "00000003",
-                        "10000003",
-                        "Test Estate 2"});
-            table46.AddRow(new string[] {
-                        "Voucher",
-                        "Test Merchant 3",
-                        "00000003",
-                        "10000003",
-                        "Test Estate 2"});
-#line 76
- testRunner.Given("I have assigned the following  operator to the merchants", ((string)(null)), table46, "Given ");
-#line hidden
-            TechTalk.SpecFlow.Table table47 = new TechTalk.SpecFlow.Table(new string[] {
-                        "DeviceIdentifier",
-                        "MerchantName",
-                        "EstateName"});
-            table47.AddRow(new string[] {
-                        "123456780",
-                        "Test Merchant 1",
-                        "Test Estate 1"});
-            table47.AddRow(new string[] {
-                        "123456781",
-                        "Test Merchant 2",
-                        "Test Estate 1"});
-            table47.AddRow(new string[] {
-                        "123456782",
-                        "Test Merchant 3",
-                        "Test Estate 2"});
-#line 85
- testRunner.Given("I have assigned the following devices to the merchants", ((string)(null)), table47, "Given ");
-#line hidden
-            TechTalk.SpecFlow.Table table48 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Reference",
-                        "Amount",
-                        "DateTime",
-                        "MerchantName",
-                        "EstateName"});
-            table48.AddRow(new string[] {
-                        "Deposit1",
-                        "210.00",
-                        "Today",
-                        "Test Merchant 1",
-                        "Test Estate 1"});
-            table48.AddRow(new string[] {
-                        "Deposit1",
-                        "110.00",
-                        "Today",
-                        "Test Merchant 2",
-                        "Test Estate 1"});
-            table48.AddRow(new string[] {
-                        "Deposit1",
-                        "110.00",
-                        "Today",
-                        "Test Merchant 3",
-                        "Test Estate 2"});
 #line 91
- testRunner.Given("I make the following manual merchant deposits", ((string)(null)), table48, "Given ");
+ testRunner.Given("I have created the following security users", ((string)(null)), table48, "Given ");
 #line hidden
         }
         

@@ -67,12 +67,6 @@ Background:
 	| Test Merchant 2 | Address Line 1 | TestTown | Test Region | United Kingdom | Test Contact 2 | testcontact2@merchant2.co.uk | Test Estate 1 |
 	| Test Merchant 3 | Address Line 1 | TestTown | Test Region | United Kingdom | Test Contact 3 | testcontact3@merchant2.co.uk | Test Estate 2 |
 
-	Given I have created the following security users
-	| EmailAddress                  | Password | GivenName    | FamilyName | EstateName    | MerchantName    |
-	| merchantuser@testmerchant1.co.uk | 123456   | TestMerchant | User1      | Test Estate 1 | Test Merchant 1 |
-	| merchantuser@testmerchant2.co.uk | 123456   | TestMerchant | User2      | Test Estate 1 | Test Merchant 2 |
-	| merchantuser@testmerchant3.co.uk | 123456   | TestMerchant | User3      | Test Estate 2 | Test Merchant 3 |
-
 	Given I have assigned the following  operator to the merchants
 	| OperatorName | MerchantName    | MerchantNumber | TerminalNumber | EstateName    |
 	| Safaricom    | Test Merchant 1 | 00000001       | 10000001       | Test Estate 1 |
@@ -93,6 +87,12 @@ Background:
 	| Deposit1  | 210.00 | Today    | Test Merchant 1 | Test Estate 1 |
 	| Deposit1  | 110.00 | Today    | Test Merchant 2 | Test Estate 1 |
 	| Deposit1  | 110.00 | Today    | Test Merchant 3 | Test Estate 2 |
+
+	Given I have created the following security users
+	| EmailAddress                  | Password | GivenName    | FamilyName | EstateName    | MerchantName    |
+	| merchantuser@testmerchant1.co.uk | 123456   | TestMerchant | User1      | Test Estate 1 | Test Merchant 1 |
+	| merchantuser@testmerchant2.co.uk | 123456   | TestMerchant | User2      | Test Estate 1 | Test Merchant 2 |
+	| merchantuser@testmerchant3.co.uk | 123456   | TestMerchant | User3      | Test Estate 2 | Test Merchant 3 |
 
 @PRTest
 Scenario: Sale Transaction
