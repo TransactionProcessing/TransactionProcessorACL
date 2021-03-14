@@ -31,7 +31,7 @@ namespace TransactionProcessorACL.Common
             if (ClaimsHelper.IsPasswordToken(user))
             {
                 // Get the claim from the token
-                userClaim = user.Claims.SingleOrDefault(c => c.Type == customClaimType);
+                userClaim = user.Claims.SingleOrDefault(c => c.Type.ToLower() == customClaimType.ToLower());
 
                 if (userClaim == null)
                 {
