@@ -25,12 +25,7 @@
         /// The device identifier
         /// </summary>
         public static String DeviceIdentifier = "12345678";
-
-        /// <summary>
-        /// The require configuration in response true
-        /// </summary>
-        public static Boolean RequireConfigurationInResponseTrue = true;
-
+        
         /// <summary>
         /// The transaction date time
         /// </summary>
@@ -46,7 +41,6 @@
         /// </summary>
         public static LogonTransactionRequestMessage LogonTransactionRequestMessage = new LogonTransactionRequestMessage
                                                                                       {
-                                                                                          RequireConfigurationInResponse = TestData.RequireConfigurationInResponseTrue,
                                                                                           DeviceIdentifier = TestData.DeviceIdentifier,
                                                                                           TransactionDateTime = TestData.TransactionDateTime,
                                                                                           TransactionNumber = TestData.TransactionNumber
@@ -65,8 +59,7 @@
                                                   TestData.MerchantId,
                                                   TestData.TransactionDateTime,
                                                   TestData.TransactionNumber,
-                                                  TestData.DeviceIdentifier,
-                                                  TestData.RequireConfigurationInResponseTrue);
+                                                  TestData.DeviceIdentifier);
 
         public static String ResponseCode = "0000";
         public static String InvalidOperationErrorResponseCode = "0001";

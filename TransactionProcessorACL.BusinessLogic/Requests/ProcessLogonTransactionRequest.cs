@@ -32,13 +32,11 @@
                                                Guid merchantId,
                                                DateTime transactionDateTime,
                                                String transactionNumber,
-                                               String deviceIdentifier,
-                                               Boolean requireConfigurationInResponse)
+                                               String deviceIdentifier)
         {
             this.EstateId = estateId;
             this.MerchantId = merchantId;
             this.DeviceIdentifier = deviceIdentifier;
-            this.RequireConfigurationInResponse = requireConfigurationInResponse;
             this.TransactionDateTime = transactionDateTime;
             this.TransactionNumber = transactionNumber;
         }
@@ -72,14 +70,6 @@
         public Guid MerchantId { get; }
 
         /// <summary>
-        /// Gets a value indicating whether [require configuration in response].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [require configuration in response]; otherwise, <c>false</c>.
-        /// </value>
-        public Boolean RequireConfigurationInResponse { get; }
-
-        /// <summary>
         /// Gets the transaction date time.
         /// </summary>
         /// <value>
@@ -107,16 +97,14 @@
         /// <param name="transactionDateTime">The transaction date time.</param>
         /// <param name="transactionNumber">The transaction number.</param>
         /// <param name="deviceIdentifier">The device identifier.</param>
-        /// <param name="requireConfigurationInResponse">if set to <c>true</c> [require configuration in response].</param>
         /// <returns></returns>
         public static ProcessLogonTransactionRequest Create(Guid estateId,
                                                             Guid merchantId,
                                                             DateTime transactionDateTime,
                                                             String transactionNumber,
-                                                            String deviceIdentifier,
-                                                            Boolean requireConfigurationInResponse)
+                                                            String deviceIdentifier)
         {
-            return new ProcessLogonTransactionRequest(estateId, merchantId, transactionDateTime, transactionNumber, deviceIdentifier, requireConfigurationInResponse);
+            return new ProcessLogonTransactionRequest(estateId, merchantId, transactionDateTime, transactionNumber, deviceIdentifier);
         }
 
         #endregion

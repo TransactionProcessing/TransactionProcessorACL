@@ -955,7 +955,6 @@
                                                                                 DeviceIdentifier = deviceIdentifier,
                                                                                 TransactionDateTime = transactionDateTime,
                                                                                 TransactionNumber = transactionNumber,
-                                                                                RequireConfigurationInResponse = true,
                                                                                 ApplicationVersion = SharedSteps.ApplicationVersion
                                                                             };
 

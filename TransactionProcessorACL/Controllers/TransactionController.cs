@@ -7,12 +7,16 @@
     using BusinessLogic.RequestHandlers;
     using BusinessLogic.Requests;
     using Common;
+    using Common.Examples;
     using DataTransferObjects;
+    using DataTransferObjects.Responses;
     using Factories;
     using MediatR;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Shared.Logger;
+    using Swashbuckle.AspNetCore.Annotations;
+    using Swashbuckle.AspNetCore.Filters;
 
     /// <summary>
     /// 
@@ -21,7 +25,6 @@
     [ExcludeFromCodeCoverage]
     [Route(TransactionController.ControllerRoute)]
     [ApiController]
-    [ApiVersion("1.0")]
     [Authorize]
     public class TransactionController : ControllerBase
     {
@@ -65,6 +68,10 @@
         /// <returns></returns>
         [HttpPost]
         [Route("")]
+        [SwaggerRequestExample(typeof(TransactionRequestMessage), typeof(TransactionRequestMessageExample))]
+        [SwaggerResponse(200,"OK", typeof(TransactionResponseMessage))]
+        [SwaggerResponseExample(200, typeof(TransactionResponseMessageExample))]
+        
         public async Task<IActionResult> PerformTransaction([FromBody] TransactionRequestMessage transactionRequest,
                                                             CancellationToken cancellationToken)
         {
@@ -108,8 +115,7 @@
                                                                                            merchantId,
                                                                                            logonTransactionRequestMessage.TransactionDateTime,
                                                                                            logonTransactionRequestMessage.TransactionNumber,
-                                                                                           logonTransactionRequestMessage.DeviceIdentifier,
-                                                                                           logonTransactionRequestMessage.RequireConfigurationInResponse);
+                                                                                           logonTransactionRequestMessage.DeviceIdentifier);
 
             return request;
         }
