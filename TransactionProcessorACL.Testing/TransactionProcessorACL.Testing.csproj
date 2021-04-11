@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="TransactionProcessor.Client" Version="1.0.11.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TransactionProcessorACL.BusinessLogic\TransactionProcessorACL.BusinessLogic.csproj" />
     <ProjectReference Include="..\TransactionProcessorACL.DataTransferObjects\TransactionProcessorACL.DataTransferObjects.csproj" />
   </ItemGroup>
