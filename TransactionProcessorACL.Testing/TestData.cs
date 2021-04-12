@@ -25,12 +25,7 @@
         /// The device identifier
         /// </summary>
         public static String DeviceIdentifier = "12345678";
-
-        /// <summary>
-        /// The require configuration in response true
-        /// </summary>
-        public static Boolean RequireConfigurationInResponseTrue = true;
-
+        
         /// <summary>
         /// The transaction date time
         /// </summary>
@@ -46,7 +41,6 @@
         /// </summary>
         public static LogonTransactionRequestMessage LogonTransactionRequestMessage = new LogonTransactionRequestMessage
                                                                                       {
-                                                                                          RequireConfigurationInResponse = TestData.RequireConfigurationInResponseTrue,
                                                                                           DeviceIdentifier = TestData.DeviceIdentifier,
                                                                                           TransactionDateTime = TestData.TransactionDateTime,
                                                                                           TransactionNumber = TestData.TransactionNumber
@@ -65,8 +59,7 @@
                                                   TestData.MerchantId,
                                                   TestData.TransactionDateTime,
                                                   TestData.TransactionNumber,
-                                                  TestData.DeviceIdentifier,
-                                                  TestData.RequireConfigurationInResponseTrue);
+                                                  TestData.DeviceIdentifier);
 
         public static String ResponseCode = "0000";
         public static String InvalidOperationErrorResponseCode = "0001";
@@ -86,14 +79,23 @@
                                                                                             MerchantId = TestData.MerchantId
                                                                                         };
 
-        public static SerialisedMessage SerialisedMessageResponse = new SerialisedMessage
+        public static LogonTransactionResponse ClientLogonTransactionResponse = new LogonTransactionResponse
+                                                                                        {
+                                                                                            ResponseMessage = TestData.ResponseMessage,
+                                                                                            ResponseCode = TestData.ResponseCode,
+                                                                                            EstateId = TestData.EstateId,
+                                                                                            MerchantId = TestData.MerchantId
+                                                                                        };
+
+
+        public static SerialisedMessage SerialisedMessageResponseLogon = new SerialisedMessage
                                                                     {
                                                                         Metadata = new Dictionary<String, String>
                                                                                    {
                                                                                        {"EstateId", TestData.EstateId.ToString()},
                                                                                        {"MerchantId", TestData.MerchantId.ToString()},
                                                                                    },
-                                                                        SerialisedData = JsonConvert.SerializeObject(TestData.ProcessLogonTransactionResponse, new JsonSerializerSettings
+                                                                        SerialisedData = JsonConvert.SerializeObject(TestData.ClientLogonTransactionResponse, new JsonSerializerSettings
                                                                                                                                                                {
                                                                                                                                                                    TypeNameHandling = TypeNameHandling.All
                                                                                                                                                                })
@@ -112,6 +114,27 @@
                                                                                           EstateId = TestData.EstateId,
                                                                                           MerchantId = TestData.MerchantId
         };
+
+        public static SaleTransactionResponse ClientSaleTransactionResponse = new SaleTransactionResponse
+                                                                                      {
+                                                                                          ResponseMessage = TestData.ResponseMessage,
+                                                                                          ResponseCode = TestData.ResponseCode,
+                                                                                          EstateId = TestData.EstateId,
+                                                                                          MerchantId = TestData.MerchantId
+                                                                                      };
+
+        public static SerialisedMessage SerialisedMessageResponseSale = new SerialisedMessage
+                                                                        {
+                                                                            Metadata = new Dictionary<String, String>
+                                                                                       {
+                                                                                           {"EstateId", TestData.EstateId.ToString()},
+                                                                                           {"MerchantId", TestData.MerchantId.ToString()},
+                                                                                       },
+                                                                            SerialisedData = JsonConvert.SerializeObject(TestData.ClientSaleTransactionResponse, new JsonSerializerSettings
+                                                                                {
+                                                                                    TypeNameHandling = TypeNameHandling.All
+                                                                                })
+                                                                        };
 
         public static String OperatorIdentifier = "Operator1";
 
@@ -160,6 +183,27 @@
                                                                                         EstateId = TestData.EstateId,
                                                                                         MerchantId = TestData.MerchantId
         };
+
+        public static TransactionProcessor.DataTransferObjects.ReconciliationResponse ClientReconciliationResponse = new ReconciliationResponse
+                                                                                    {
+                                                                                        ResponseMessage = TestData.ResponseMessage,
+                                                                                        ResponseCode = TestData.ResponseCode,
+                                                                                        EstateId = TestData.EstateId,
+                                                                                        MerchantId = TestData.MerchantId
+                                                                                    };
+
+        public static SerialisedMessage SerialisedMessageResponseReconciliation = new SerialisedMessage
+                                                                                  {
+                                                                                      Metadata = new Dictionary<String, String>
+                                                                                                 {
+                                                                                                     {"EstateId", TestData.EstateId.ToString()},
+                                                                                                     {"MerchantId", TestData.MerchantId.ToString()},
+                                                                                                 },
+                                                                                      SerialisedData = JsonConvert.SerializeObject(TestData.ClientReconciliationResponse, new JsonSerializerSettings
+                                                                                          {
+                                                                                              TypeNameHandling = TypeNameHandling.All
+                                                                                          })
+                                                                                  };
 
         public static IReadOnlyDictionary<String, String> DefaultAppSettings =>
             new Dictionary<String, String>

@@ -126,7 +126,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Estate Managememt REST",
                         "Secret1",
                         "estateManagement",
-                        "MerchantId, EstateId, role"});
+                        "merchantId, estateId, role"});
             table36.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
@@ -138,7 +138,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorACL",
-                        "MerchantId, EstateId, role"});
+                        "merchantId, estateId, role"});
             table36.AddRow(new string[] {
                         "voucherManagement",
                         "Voucher Management REST",
@@ -734,7 +734,7 @@ this.FeatureBackground();
                             "0000",
                             "SUCCESS"});
 #line 118
- testRunner.Then("transaction response should contain the following information", ((string)(null)), table52, "Then ");
+ testRunner.Then("the sale transaction response should contain the following information", ((string)(null)), table52, "Then ");
 #line hidden
             }
             this.ScenarioCleanup();

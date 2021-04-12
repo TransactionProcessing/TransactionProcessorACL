@@ -5,6 +5,7 @@ using System.Text;
 namespace TransactionProcessorACL.DataTransferObjects.Responses
 {
     using System.Diagnostics.CodeAnalysis;
+    using Newtonsoft.Json;
 
     [ExcludeFromCodeCoverage]
     public class TransactionResponseMessage
@@ -15,6 +16,7 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// <value>
         /// The response code.
         /// </value>
+        [JsonProperty("response_code")]
         public String ResponseCode { get; set; }
 
         /// <summary>
@@ -23,6 +25,7 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// <value>
         /// The response message.
         /// </value>
+        [JsonProperty("response_message")]
         public String ResponseMessage { get; set; }
 
         /// <summary>
@@ -31,6 +34,7 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// <value>
         /// The additional response meta data.
         /// </value>
+        [JsonProperty("additional_response_metadata")]
         public Dictionary<String, String> AdditionalResponseMetaData { get; set; }
 
         /// <summary>
@@ -39,6 +43,7 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// <value>
         /// The estate identifier.
         /// </value>
+        [JsonProperty("estate_id")]
         public Guid EstateId { get; set; }
 
         /// <summary>
@@ -47,6 +52,7 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// <value>
         /// The merchant identifier.
         /// </value>
+        [JsonProperty("merchant_id")]
         public Guid MerchantId { get; set; }
 
         /// <summary>
@@ -55,6 +61,7 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// <value>
         ///   <c>true</c> if [requires application update]; otherwise, <c>false</c>.
         /// </value>
+        [JsonProperty("requires_application_update")]
         public Boolean RequiresApplicationUpdate { get; set; }
     }
 }

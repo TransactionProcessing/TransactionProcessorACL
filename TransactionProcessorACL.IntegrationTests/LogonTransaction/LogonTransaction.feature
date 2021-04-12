@@ -73,7 +73,7 @@ Scenario: Logon Transaction
 	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    |
 	| Today    | 3                 | Logon           | Test Merchant 3 | 123456789        | Test Estate 2 |
 	
-	Then transaction response should contain the following information
+	Then the logon transaction response should contain the following information
 	| EstateName    | MerchantName    | TransactionNumber | TransactionType | ResponseCode | ResponseMessage |
 	| Test Estate 1 | Test Merchant 1 | 1                 | Logon           | 0000         | SUCCESS         |
 	| Test Estate 1 | Test Merchant 2 | 2                 | Logon           | 0000         | SUCCESS         |

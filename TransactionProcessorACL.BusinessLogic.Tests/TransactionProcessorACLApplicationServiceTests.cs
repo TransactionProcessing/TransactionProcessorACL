@@ -40,7 +40,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             Mock<ITransactionProcessorClient> transactionProcessorClient = new Mock<ITransactionProcessorClient>();
             transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ReturnsAsync(TestData.SerialisedMessageResponse);
+                                      .ReturnsAsync(TestData.SerialisedMessageResponseLogon);
             Mock<ISecurityServiceClient> securityServiceClient = new Mock<ISecurityServiceClient>();
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.TokenResponse);
 
@@ -136,7 +136,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             Mock<ITransactionProcessorClient> transactionProcessorClient = new Mock<ITransactionProcessorClient>();
             transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ReturnsAsync(TestData.SerialisedMessageResponse);
+                                      .ReturnsAsync(TestData.SerialisedMessageResponseSale);
             Mock<ISecurityServiceClient> securityServiceClient = new Mock<ISecurityServiceClient>();
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.TokenResponse);
 
@@ -252,7 +252,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             Mock<ITransactionProcessorClient> transactionProcessorClient = new Mock<ITransactionProcessorClient>();
             transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ReturnsAsync(TestData.SerialisedMessageResponse);
+                                      .ReturnsAsync(TestData.SerialisedMessageResponseReconciliation);
             Mock<ISecurityServiceClient> securityServiceClient = new Mock<ISecurityServiceClient>();
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.TokenResponse);
 

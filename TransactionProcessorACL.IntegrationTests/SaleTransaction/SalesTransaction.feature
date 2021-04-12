@@ -115,7 +115,7 @@ Scenario: Sale Transaction
 	| Today    | 3                 | Sale            | Test Merchant 3 | 123456782        | Test Estate 2 | Safaricom    | 100.00            | 123456789             |                      | Safaricom Contract  | Variable Topup |                      |                 |
 	| Today    | 7                 | Sale            | Test Merchant 3 | 123456782        | Test Estate 2 | Voucher      | 10.00             |                       |                      | Hospital 1 Contract | 10 KES         | test@recipient.co.uk |                 |
 	
-	Then transaction response should contain the following information
+	Then the sale transaction response should contain the following information
 	| EstateName    | MerchantName    | TransactionNumber | TransactionType | ResponseCode | ResponseMessage |
 	| Test Estate 1 | Test Merchant 1 | 1                 | Sale            | 0000         | SUCCESS         |
 	| Test Estate 1 | Test Merchant 2 | 2                 | Sale            | 0000         | SUCCESS         |
