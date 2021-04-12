@@ -100,7 +100,7 @@ Scenario: Reconciliation Transaction
 	| DateTime | MerchantName    | DeviceIdentifier | EstateName    | TransactionCount | TransactionValue |
 	| Today    | Test Merchant 3 | 123456782        | Test Estate 2 | 3                | 300.00           |
 	
-	Then reconciliation response should contain the following information
+	Then the reconciliation response should contain the following information
 	| EstateName    | MerchantName    | ResponseCode | ResponseMessage |
 	| Test Estate 1 | Test Merchant 1 | 0000         | SUCCESS         |
 	| Test Estate 1 | Test Merchant 2 | 0000         | SUCCESS         |

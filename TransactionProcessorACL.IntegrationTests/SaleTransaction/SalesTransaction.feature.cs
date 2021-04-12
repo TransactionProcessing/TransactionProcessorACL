@@ -734,7 +734,7 @@ this.FeatureBackground();
                             "0000",
                             "SUCCESS"});
 #line 118
- testRunner.Then("transaction response should contain the following information", ((string)(null)), table52, "Then ");
+ testRunner.Then("the sale transaction response should contain the following information", ((string)(null)), table52, "Then ");
 #line hidden
             }
             this.ScenarioCleanup();

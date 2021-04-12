@@ -374,7 +374,7 @@
         /// Thens the reconciliation response should contain the following information.
         /// </summary>
         /// <param name="table">The table.</param>
-        [Then(@"reconciliation response should contain the following information")]
+        [Then(@"the reconciliation response should contain the following information")]
         public void ThenReconciliationResponseShouldContainTheFollowingInformation(Table table)
         {
             foreach (TableRow tableRow in table.Rows)
@@ -386,11 +386,7 @@
                 Guid merchantId = estateDetails.GetMerchantId(merchantName);
                 String responseMessage = estateDetails.GetReconciliationResponse(merchantId);
 
-                Object transactionResponse = JsonConvert.DeserializeObject(responseMessage,
-                                                                           new JsonSerializerSettings
-                                                                           {
-                                                                               TypeNameHandling = TypeNameHandling.All
-                                                                           });
+                ReconciliationResponseMessage transactionResponse = JsonConvert.DeserializeObject<ReconciliationResponseMessage>(responseMessage);
                 this.ValidateTransactionResponse((dynamic)transactionResponse, tableRow);
             }
         }
@@ -399,28 +395,43 @@
         /// Thens the transaction response should contain the following information.
         /// </summary>
         /// <param name="table">The table.</param>
-        [Then(@"transaction response should contain the following information")]
-        public void ThenTransactionResponseShouldContainTheFollowingInformation(Table table)
+        [Then(@"the logon transaction response should contain the following information")]
+        public void ThenTheLogonTransactionResponseShouldContainTheFollowingInformation(Table table)
         {
             foreach (TableRow tableRow in table.Rows)
             {
-                // Get the merchant name
-                EstateDetails estateDetails = this.TestingContext.GetEstateDetails(tableRow);
+                String responseMessage = this.GetResponseMessage(tableRow);
 
-                String merchantName = SpecflowTableHelper.GetStringRowValue(tableRow, "MerchantName");
-                Guid merchantId = estateDetails.GetMerchantId(merchantName);
-
-                String transactionNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionNumber");
-                String transactionType = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionType");
-                String responseMessage = estateDetails.GetTransactionResponse(merchantId, transactionNumber, transactionType);
-
-                Object transactionResponse = JsonConvert.DeserializeObject(responseMessage,
-                                                                           new JsonSerializerSettings
-                                                                           {
-                                                                               TypeNameHandling = TypeNameHandling.All
-                                                                           });
+                LogonTransactionResponseMessage transactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponseMessage>(responseMessage);
                 this.ValidateTransactionResponse((dynamic)transactionResponse, tableRow);
             }
+        }
+
+        [Then(@"the sale transaction response should contain the following information")]
+        public void ThenTheSaleTransactionResponseShouldContainTheFollowingInformation(Table table)
+        {
+            foreach (TableRow tableRow in table.Rows)
+            {
+                String responseMessage = this.GetResponseMessage(tableRow);
+
+                SaleTransactionResponseMessage transactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponseMessage>(responseMessage);
+                this.ValidateTransactionResponse((dynamic)transactionResponse, tableRow);
+            }
+        }
+
+        private String GetResponseMessage(TableRow tableRow )
+        {
+            // Get the merchant name
+            EstateDetails estateDetails = this.TestingContext.GetEstateDetails(tableRow);
+
+            String merchantName = SpecflowTableHelper.GetStringRowValue(tableRow, "MerchantName");
+            Guid merchantId = estateDetails.GetMerchantId(merchantName);
+
+            String transactionNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionNumber");
+            String transactionType = SpecflowTableHelper.GetStringRowValue(tableRow, "TransactionType");
+            String responseMessage = estateDetails.GetTransactionResponse(merchantId, transactionNumber, transactionType);
+
+            return responseMessage;
         }
 
         /// <summary>
@@ -552,10 +563,7 @@
                 this.TestingContext.AddEstateDetails(response.EstateId, estateName);
 
                 this.TestingContext.Logger.LogInformation($"Estate {estateName} created with Id {response.EstateId}");
-            }
-
-            foreach (TableRow tableRow in table.Rows)
-            {
+            
                 EstateDetails estateDetails = this.TestingContext.GetEstateDetails(tableRow);
 
                 EstateResponse estate = null;

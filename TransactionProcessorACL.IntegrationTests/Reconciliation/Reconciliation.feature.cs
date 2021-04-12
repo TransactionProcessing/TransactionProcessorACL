@@ -530,7 +530,7 @@ this.FeatureBackground();
                             "0000",
                             "SUCCESS"});
 #line 103
- testRunner.Then("reconciliation response should contain the following information", ((string)(null)), table33, "Then ");
+ testRunner.Then("the reconciliation response should contain the following information", ((string)(null)), table33, "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
