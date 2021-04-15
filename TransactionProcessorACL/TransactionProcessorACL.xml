@@ -1,0 +1,317 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TransactionProcessorACL</name>
+    </assembly>
+    <members>
+        <member name="M:TransactionProcessorACL.Common.ClaimsHelper.GetUserClaim(System.Security.Claims.ClaimsPrincipal,System.String,System.String)">
+            <summary>
+            Gets the user claims.
+            </summary>
+            <param name="user">The user.</param>
+            <param name="customClaimType">Type of the custom claim.</param>
+            <param name="defaultValue">The default value.</param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">No claim [{customClaimType}] found for user id [{userIdClaim.Value}</exception>
+        </member>
+        <member name="M:TransactionProcessorACL.Common.ClaimsHelper.IsPasswordToken(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Determines whether [is client token] [the specified user].
+            </summary>
+            <param name="user">The user.</param>
+            <returns>
+              <c>true</c> if [is client token] [the specified user]; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:TransactionProcessorACL.Common.ClaimsHelper.ValidateRouteParameter``1(``0,System.Security.Claims.Claim)">
+            <summary>
+            Validates the route parameter.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="routeParameter">The route parameter.</param>
+            <param name="userClaim">The user claim.</param>
+        </member>
+        <member name="M:TransactionProcessorACL.Common.ClaimsHelper.IsUserRolesValid(System.Security.Claims.ClaimsPrincipal,System.String[])">
+            <summary>
+            Determines whether [is user roles valid] [the specified user].
+            </summary>
+            <param name="user">The user.</param>
+            <param name="allowedRoles">The allowed roles.</param>
+            <returns>
+              <c>true</c> if [is user roles valid] [the specified user]; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:TransactionProcessorACL.Common.Examples.ExampleData">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.TransactionCount">
+            <summary>
+            The transaction count
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.TransactionValue">
+            <summary>
+            The transaction value
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.ApplicationVersion">
+            <summary>
+            The application version
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.DeviceIdentifier">
+            <summary>
+            The device identifier
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.TransactionDateTime">
+            <summary>
+            The transaction date time
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.TransactionNumber">
+            <summary>
+            The transaction number
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.ContractId">
+            <summary>
+            The contract identifier
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.CustomerEmailAddress">
+            <summary>
+            The customer email address
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.OperatorIdentifier">
+            <summary>
+            The operator identifier
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.ProductId">
+            <summary>
+            The product identifier
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.EstateId">
+            <summary>
+            The estate identifier
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.MerchantId">
+            <summary>
+            The merchant identifier
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.ResponseCode">
+            <summary>
+            The response code
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.ResponseMessage">
+            <summary>
+            The response message
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Common.Examples.ExampleData.RequiresApplicationUpdate">
+            <summary>
+            The requires application update
+            </summary>
+        </member>
+        <member name="T:TransactionProcessorACL.Common.Examples.TransactionRequestMessageExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IMultipleExamplesProvider&lt;TransactionProcessorACL.DataTransferObjects.TransactionRequestMessage&gt;" />
+        </member>
+        <member name="M:TransactionProcessorACL.Common.Examples.TransactionRequestMessageExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:TransactionProcessorACL.Common.Examples.TransactionResponseMessageExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IMultipleExamplesProvider&lt;TransactionProcessorACL.DataTransferObjects.Responses.TransactionResponseMessage&gt;" />
+        </member>
+        <member name="M:TransactionProcessorACL.Common.Examples.TransactionResponseMessageExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:TransactionProcessorACL.Common.SwaggerDefaultValues">
+            <summary>
+            Represents the Swagger/Swashbuckle operation filter used to document the implicit API version parameter.
+            </summary>
+            <remarks>This <see cref="T:Swashbuckle.AspNetCore.SwaggerGen.IOperationFilter"/> is only required due to bugs in the <see cref="T:Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenerator"/>.
+            Once they are fixed and published, this class can be removed.</remarks>
+        </member>
+        <member name="M:TransactionProcessorACL.Common.SwaggerDefaultValues.Apply(Microsoft.OpenApi.Models.OpenApiOperation,Swashbuckle.AspNetCore.SwaggerGen.OperationFilterContext)">
+            <summary>
+            Applies the filter to the specified operation using the given context.
+            </summary>
+            <param name="operation">The operation to apply the filter to.</param>
+            <param name="context">The current operation filter context.</param>
+        </member>
+        <member name="P:TransactionProcessorACL.Common.SwaggerJsonConverter.CanRead">
+            <summary>
+            Gets a value indicating whether this <see cref="T:Newtonsoft.Json.JsonConverter" /> can read JSON.
+            </summary>
+            <value>
+              <c>true</c> if this <see cref="T:Newtonsoft.Json.JsonConverter" /> can read JSON; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="M:TransactionProcessorACL.Common.SwaggerJsonConverter.CanConvert(System.Type)">
+            <summary>
+            Determines whether this instance can convert the specified object type.
+            </summary>
+            <param name="objectType">Type of the object.</param>
+            <returns>
+              <c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:TransactionProcessorACL.Common.SwaggerJsonConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <summary>
+            Reads the JSON representation of the object.
+            </summary>
+            <param name="reader">The <see cref="T:Newtonsoft.Json.JsonReader" /> to read from.</param>
+            <param name="objectType">Type of the object.</param>
+            <param name="existingValue">The existing value of object being read.</param>
+            <param name="serializer">The calling serializer.</param>
+            <returns>
+            The object value.
+            </returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:TransactionProcessorACL.Common.SwaggerJsonConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <summary>
+            Writes the JSON representation of the object.
+            </summary>
+            <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter" /> to write to.</param>
+            <param name="value">The value.</param>
+            <param name="serializer">The calling serializer.</param>
+        </member>
+        <member name="T:TransactionProcessorACL.Controllers.TransactionController">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.ControllerBase" />
+        </member>
+        <member name="F:TransactionProcessorACL.Controllers.TransactionController.Mediator">
+            <summary>
+            The mediator
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Controllers.TransactionController.ModelFactory">
+            <summary>
+            The model factory
+            </summary>
+        </member>
+        <member name="M:TransactionProcessorACL.Controllers.TransactionController.#ctor(MediatR.IMediator,TransactionProcessorACL.Factories.IModelFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TransactionProcessorACL.Controllers.TransactionController"/> class.
+            </summary>
+            <param name="mediator">The mediator.</param>
+            <param name="modelFactory">The model factory.</param>
+        </member>
+        <member name="M:TransactionProcessorACL.Controllers.TransactionController.PerformTransaction(TransactionProcessorACL.DataTransferObjects.TransactionRequestMessage,System.Threading.CancellationToken)">
+            <summary>
+            Performs the transaction.
+            </summary>
+            <param name="transactionRequest">The transaction request.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:TransactionProcessorACL.Controllers.TransactionController.CreateCommandFromRequest(TransactionProcessorACL.DataTransferObjects.LogonTransactionRequestMessage)">
+            <summary>
+            Creates the command from request.
+            </summary>
+            <param name="logonTransactionRequestMessage">The logon transaction request message.</param>
+            <returns></returns>
+        </member>
+        <member name="M:TransactionProcessorACL.Controllers.TransactionController.CreateCommandFromRequest(TransactionProcessorACL.DataTransferObjects.SaleTransactionRequestMessage)">
+            <summary>
+            Creates the command from request.
+            </summary>
+            <param name="saleTransactionRequestMessage">The sale transaction request message.</param>
+            <returns></returns>
+        </member>
+        <member name="M:TransactionProcessorACL.Controllers.TransactionController.CreateCommandFromRequest(TransactionProcessorACL.DataTransferObjects.ReconciliationRequestMessage)">
+            <summary>
+            Creates the command from request.
+            </summary>
+            <param name="reconciliationRequestMessage">The reconciliation request message.</param>
+            <returns></returns>
+        </member>
+        <member name="F:TransactionProcessorACL.Controllers.TransactionController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:TransactionProcessorACL.Controllers.TransactionController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="T:TransactionProcessorACL.Factories.IModelFactory">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:TransactionProcessorACL.Factories.IModelFactory.ConvertFrom(TransactionProcessorACL.Models.ProcessLogonTransactionResponse)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="processLogonTransactionResponse">The process logon transaction response.</param>
+            <returns></returns>
+        </member>
+        <member name="M:TransactionProcessorACL.Factories.IModelFactory.ConvertFrom(TransactionProcessorACL.Models.ProcessSaleTransactionResponse)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="processSaleTransactionResponse">The process sale transaction response.</param>
+            <returns></returns>
+        </member>
+        <member name="M:TransactionProcessorACL.Factories.IModelFactory.ConvertFrom(TransactionProcessorACL.Models.ProcessReconciliationResponse)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="processReconciliationResponse">The process reconciliation response.</param>
+            <returns></returns>
+        </member>
+        <member name="T:TransactionProcessorACL.Factories.ModelFactory">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:TransactionProcessorACL.Factories.IModelFactory" />
+        </member>
+        <member name="M:TransactionProcessorACL.Factories.ModelFactory.ConvertFrom(TransactionProcessorACL.Models.ProcessLogonTransactionResponse)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="processLogonTransactionResponse">The process logon transaction response.</param>
+            <returns></returns>
+        </member>
+        <member name="M:TransactionProcessorACL.Factories.ModelFactory.ConvertFrom(TransactionProcessorACL.Models.ProcessSaleTransactionResponse)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="processSaleTransactionResponse">The process sale transaction response.</param>
+            <returns></returns>
+        </member>
+        <member name="M:TransactionProcessorACL.Factories.ModelFactory.ConvertFrom(TransactionProcessorACL.Models.ProcessReconciliationResponse)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="processReconciliationResponse">The process reconciliation response.</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

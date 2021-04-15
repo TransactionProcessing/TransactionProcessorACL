@@ -1,0 +1,201 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TransactionProcessorACL.DataTransferObjects</name>
+    </assembly>
+    <members>
+        <member name="T:TransactionProcessorACL.DataTransferObjects.LogonTransactionRequestMessage">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:TransactionProcessorACL.DataTransferObjects.TransactionRequestMessage" />
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.OperatorTotalRequest.ContractId">
+            <summary>
+            Gets or sets the contract identifier.
+            </summary>
+            <value>
+            The contract identifier.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.OperatorTotalRequest.OperatorIdentifier">
+            <summary>
+            Gets or sets the operator identifier.
+            </summary>
+            <value>
+            The operator identifier.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.OperatorTotalRequest.TransactionCount">
+            <summary>
+            Gets or sets the transaction count.
+            </summary>
+            <value>
+            The transaction count.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.OperatorTotalRequest.TransactionValue">
+            <summary>
+            Gets or sets the transaction value.
+            </summary>
+            <value>
+            The transaction value.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.ReconciliationRequestMessage.OperatorTotals">
+            <summary>
+            Gets or sets the operator totals.
+            </summary>
+            <value>
+            The operator totals.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.ReconciliationRequestMessage.TransactionCount">
+            <summary>
+            Gets or sets the transaction count.
+            </summary>
+            <value>
+            The transaction count.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.ReconciliationRequestMessage.TransactionValue">
+            <summary>
+            Gets or sets the transaction value.
+            </summary>
+            <value>
+            The transaction value.
+            </value>
+        </member>
+        <member name="T:TransactionProcessorACL.DataTransferObjects.SaleTransactionRequestMessage">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:TransactionProcessorACL.DataTransferObjects.TransactionRequestMessage" />
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.SaleTransactionRequestMessage.ContractId">
+            <summary>
+            Gets or sets the contract identifier.
+            </summary>
+            <value>
+            The contract identifier.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.SaleTransactionRequestMessage.OperatorIdentifier">
+            <summary>
+            Gets or sets the operator identifier.
+            </summary>
+            <value>
+            The operator identifier.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.SaleTransactionRequestMessage.CustomerEmailAddress">
+            <summary>
+            Gets or sets the customer email address.
+            </summary>
+            <value>
+            The customer email address.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.SaleTransactionRequestMessage.ProductId">
+            <summary>
+            Gets or sets the product identifier.
+            </summary>
+            <value>
+            The product identifier.
+            </value>
+        </member>
+        <member name="T:TransactionProcessorACL.DataTransferObjects.TransactionRequestMessage">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.TransactionRequestMessage.ApplicationVersion">
+            <summary>
+            Gets or sets the application version.
+            </summary>
+            <value>
+            The application version.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.TransactionRequestMessage.DeviceIdentifier">
+            <summary>
+            Gets or sets the device identifier.
+            </summary>
+            <value>
+            The device identifier.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.TransactionRequestMessage.TransactionDateTime">
+            <summary>
+            Gets or sets the transaction date time.
+            </summary>
+            <value>
+            The transaction date time.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.TransactionRequestMessage.TransactionNumber">
+            <summary>
+            Gets or sets the transaction number.
+            </summary>
+            <value>
+            The transaction number.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.TransactionRequestMessage.AdditionalRequestMetaData">
+            <summary>
+            Gets or sets the additional request meta data.
+            </summary>
+            <value>
+            The additional request meta data.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.Responses.TransactionResponseMessage.ResponseCode">
+            <summary>
+            Gets or sets the response code.
+            </summary>
+            <value>
+            The response code.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.Responses.TransactionResponseMessage.ResponseMessage">
+            <summary>
+            Gets or sets the response message.
+            </summary>
+            <value>
+            The response message.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.Responses.TransactionResponseMessage.AdditionalResponseMetaData">
+            <summary>
+            Gets or sets the additional response meta data.
+            </summary>
+            <value>
+            The additional response meta data.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.Responses.TransactionResponseMessage.EstateId">
+            <summary>
+            Gets or sets the estate identifier.
+            </summary>
+            <value>
+            The estate identifier.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.Responses.TransactionResponseMessage.MerchantId">
+            <summary>
+            Gets or sets the merchant identifier.
+            </summary>
+            <value>
+            The merchant identifier.
+            </value>
+        </member>
+        <member name="P:TransactionProcessorACL.DataTransferObjects.Responses.TransactionResponseMessage.RequiresApplicationUpdate">
+            <summary>
+            Gets or sets a value indicating whether [requires application update].
+            </summary>
+            <value>
+              <c>true</c> if [requires application update]; otherwise, <c>false</c>.
+            </value>
+        </member>
+    </members>
+</doc>
