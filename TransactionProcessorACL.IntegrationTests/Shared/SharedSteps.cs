@@ -572,6 +572,12 @@
             
                 EstateDetails estateDetails = this.TestingContext.GetEstateDetails(tableRow);
 
+                // Setup the subscriptions for the estate
+                await Retry.For(async () =>
+                                {
+                                    await this.TestingContext.DockerHelper.PopulateSubscriptionServiceConfiguration(estateName).ConfigureAwait(false);
+                                }, retryFor: TimeSpan.FromMinutes(2), retryInterval: TimeSpan.FromSeconds(30));
+
                 EstateResponse estate = null;
                 await Retry.For(async () =>
                                 {
@@ -648,10 +654,14 @@
                     token = estateDetails.AccessToken;
                 }
 
-                MerchantResponse merchant = await this.TestingContext.DockerHelper.EstateClient
-                                                      .GetMerchant(token, estateDetails.EstateId, merchantId, CancellationToken.None).ConfigureAwait(false);
+                await Retry.For(async () =>
+                                {
+                                    MerchantResponse merchant = await this.TestingContext.DockerHelper.EstateClient
+                                                                          .GetMerchant(token, estateDetails.EstateId, merchantId, CancellationToken.None)
+                                                                          .ConfigureAwait(false);
 
-                merchant.MerchantName.ShouldBe(merchantName);
+                                    merchant.MerchantName.ShouldBe(merchantName);
+                                });
             }
         }
 
