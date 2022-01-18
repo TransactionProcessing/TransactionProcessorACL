@@ -106,19 +106,23 @@ namespace TransactionProcessorACL
             services.AddSingleton<HttpClient>(httpClient);
         }
 
+        private HttpClientHandler ApiEndpointHttpHandler(IServiceProvider serviceProvider)
+        {
+            return new HttpClientHandler
+                   {
+                       ServerCertificateCustomValidationCallback = (message,
+                                                                    cert,
+                                                                    chain,
+                                                                    errors) =>
+                                                                   {
+                                                                       return true;
+                                                                   }
+                   };
+        }
+
         private void ConfigureMiddlewareServices(IServiceCollection services)
         {
-            services.AddHealthChecks()
-                    .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("SecurityConfiguration", "Authority")}/health"),
-                                 name: "Security Service",
-                                 httpMethod: HttpMethod.Get,
-                                 failureStatus: HealthStatus.Unhealthy,
-                                 tags: new string[] { "security", "authorisation" })
-                    .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("AppSettings", "TransactionProcessorApi")}/health"),
-                             name: "Transaction Processor Service",
-                             httpMethod: HttpMethod.Get,
-                             failureStatus: HealthStatus.Unhealthy,
-                             tags: new string[] { "application", "transactionprocessing" });
+            services.AddHealthChecks().AddSecurityService(this.ApiEndpointHttpHandler).AddTransactionProcessorService();
 
             services.AddSwaggerGen(c =>
             {
