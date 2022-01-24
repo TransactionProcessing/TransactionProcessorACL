@@ -16,6 +16,7 @@ namespace TransactionProcessorACL
     using System.IO;
     using System.Net.Http;
     using System.Reflection;
+    using Bootstrapper;
     using BusinessLogic.RequestHandlers;
     using BusinessLogic.Requests;
     using BusinessLogic.Services;
@@ -24,6 +25,7 @@ namespace TransactionProcessorACL
     using DataTransferObjects.Responses;
     using Factories;
     using HealthChecks.UI.Client;
+    using Lamar;
     using MediatR;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -65,141 +67,19 @@ namespace TransactionProcessorACL
         public static IWebHostEnvironment WebHostEnvironment { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public static Container Container;
+
+        public void ConfigureContainer(ServiceRegistry services)
         {
             ConfigurationReader.Initialise(Startup.Configuration);
 
-            this.ConfigureMiddlewareServices(services);
+            services.IncludeRegistry<MiddlewareRegistry>();
+            services.IncludeRegistry<ApplicationServiceRegistry>();
+            services.IncludeRegistry<ClientRegistry>();
+            services.IncludeRegistry<MediatorRegistry>();
+            services.IncludeRegistry<MiscRegistry>();
 
-            services.AddTransient<IMediator, Mediator>();
-
-            services.AddTransient<ServiceFactory>(context =>
-                                                  {
-                                                      return t => context.GetService(t);
-                                                  });
-            services.AddSingleton<IModelFactory, ModelFactory>();
-            services.AddSingleton<IRequestHandler<VersionCheckRequest,Unit>, VersionCheckRequestHandler>();
-            services.AddSingleton<IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>, ProcessLogonTransactionRequestHandler>();
-            services.AddSingleton<IRequestHandler<ProcessSaleTransactionRequest, ProcessSaleTransactionResponse>, ProcessSaleTransactionRequestHandler>();
-            services.AddSingleton<IRequestHandler<ProcessReconciliationRequest, ProcessReconciliationResponse>, ProcessReconciliationRequestHandler>();
-            services.AddSingleton<IRequest<ProcessLogonTransactionResponse>, ProcessLogonTransactionRequest>();
-            services.AddSingleton<IRequest<ProcessSaleTransactionResponse>, ProcessSaleTransactionRequest>();
-            services.AddSingleton<IRequest<ProcessReconciliationResponse>, ProcessReconciliationRequest>();
-            services.AddSingleton<ITransactionProcessorACLApplicationService, TransactionProcessorACLApplicationService>();
-            services.AddSingleton<ITransactionProcessorClient, TransactionProcessorClient>();
-            services.AddSingleton<ISecurityServiceClient, SecurityServiceClient>();
-            services.AddSingleton<Func<String, String>>(container => (serviceName) =>
-                                                                     {
-                                                                         return ConfigurationReader.GetBaseServerUri(serviceName).OriginalString;
-                                                                     });
-            HttpClientHandler httpClientHandler = new HttpClientHandler
-                                                  {
-                                                      ServerCertificateCustomValidationCallback = (message,
-                                                                                                   certificate2,
-                                                                                                   arg3,
-                                                                                                   arg4) =>
-                                                                                                  {
-                                                                                                      return true;
-                                                                                                  }
-                                                  };
-            HttpClient httpClient = new HttpClient(httpClientHandler);
-            services.AddSingleton<HttpClient>(httpClient);
-        }
-
-        private HttpClientHandler ApiEndpointHttpHandler(IServiceProvider serviceProvider)
-        {
-            return new HttpClientHandler
-                   {
-                       ServerCertificateCustomValidationCallback = (message,
-                                                                    cert,
-                                                                    chain,
-                                                                    errors) =>
-                                                                   {
-                                                                       return true;
-                                                                   }
-                   };
-        }
-
-        private void ConfigureMiddlewareServices(IServiceCollection services)
-        {
-            services.AddHealthChecks().AddSecurityService(this.ApiEndpointHttpHandler).AddTransactionProcessorService();
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo
-                                   {
-                                       Title = "Transaction Processor ACL",
-                                       Version = "1.0",
-                                       Description = "A REST Api to provide and Anti Corruption Layer for the Transaction Mobile Application",
-                                       Contact = new OpenApiContact
-                                                 {
-                                                     Name = "Stuart Ferguson",
-                                                     Email = "golfhandicapping@btinternet.com"
-                                                 }
-                                   });
-                c.UseAllOfForInheritance();
-                c.SelectSubTypesUsing(baseType =>
-                                      {
-                                          return typeof(TransactionRequestMessage).Assembly.GetTypes().Where(type => type.IsSubclassOf(baseType));
-                                      });
-
-                c.SelectSubTypesUsing(baseType =>
-                                      {
-                                          return typeof(TransactionResponseMessage).Assembly.GetTypes().Where(type => type.IsSubclassOf(baseType));
-                                      });
-                // add a custom operation filter which sets default values
-                c.OperationFilter<SwaggerDefaultValues>();
-                c.ExampleFilters();
-
-                //Locate the XML files being generated by ASP.NET...
-                var directory = new DirectoryInfo(AppContext.BaseDirectory);
-                var xmlFiles = directory.GetFiles("*.xml");
-
-                //... and tell Swagger to use those XML comments.
-                foreach (FileInfo fileInfo in xmlFiles)
-                {
-                    c.IncludeXmlComments(fileInfo.FullName);
-                }
-            });
-
-            services.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
-
-            services.AddAuthentication(options =>
-                                       {
-                                           options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                                           options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                                           options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                                       })
-                    .AddJwtBearer(options =>
-                    {
-                        options.BackchannelHttpHandler = new HttpClientHandler
-                                                         {
-                                                             ServerCertificateCustomValidationCallback =
-                                                                 (message, certificate, chain, sslPolicyErrors) => true
-                                                         };
-                        options.Authority = ConfigurationReader.GetValue("SecurityConfiguration", "Authority");
-                        options.Audience = ConfigurationReader.GetValue("SecurityConfiguration", "ApiName");
-
-                        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
-                                                            {
-                                                                ValidateAudience = false,
-                                                                ValidAudience = ConfigurationReader.GetValue("SecurityConfiguration", "ApiName"),
-                                                                ValidIssuer = ConfigurationReader.GetValue("SecurityConfiguration", "Authority"),
-                                                            };
-                        options.IncludeErrorDetails = true;
-                    });
-
-            services.AddControllers().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-                options.SerializerSettings.Formatting = Formatting.Indented;
-                options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            });
-
-            Assembly assembly = this.GetType().GetTypeInfo().Assembly;
-            services.AddMvcCore().AddApplicationPart(assembly).AddControllersAsServices();
+            Startup.Container = new Container(services);
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -11,7 +11,8 @@ namespace TransactionProcessorACL
 {
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
-    
+    using Lamar.Microsoft.DependencyInjection;
+
     [ExcludeFromCodeCoverage]
     public class Program
     {
@@ -31,6 +32,7 @@ namespace TransactionProcessorACL
                                                                   .AddEnvironmentVariables().Build();
 
             IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args);
+            hostBuilder.UseLamar();
             hostBuilder.ConfigureWebHostDefaults(webBuilder =>
                                                  {
                                                      webBuilder.UseStartup<Startup>();
