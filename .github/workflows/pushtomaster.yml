@@ -1,4 +1,4 @@
-name: Publish Pre-Release Nuget 
+name: Publish Pre-Release Nuget and Docker
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: "Publish Pre-Release Nugets"
+    name: "Publish Pre-Release Nuget and Docker"
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
@@ -43,5 +43,11 @@ jobs:
       run: |
         dotnet pack "TransactionProcessorACL.DataTransferObjects\TransactionProcessorACL.DataTransferObjects.csproj" /p:PackageVersion=${{ steps.next_version.outputs.VERSION }} --output Nugets
         dotnet nuget push Nugets/TransactionProcessorACL.DataTransferObjects.${{ steps.next_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.MYGET_APIKEY }} --source https://www.myget.org/F/transactionprocessing/api/v2/package
+
+    - name: Publish Images to Docker Hub
+      run: |
+        docker build . --file TransactionProcessorACL/Dockerfile --tag stuartferguson/transactionprocessoracl:master
+        docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
+        docker push stuartferguson/transactionprocessoracl:master
 
 
