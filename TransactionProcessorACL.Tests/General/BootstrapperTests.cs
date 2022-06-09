@@ -11,6 +11,7 @@ namespace TransactionProcessorACL.Tests.General
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Moq;
     using Shared.General;
     using Xunit;
@@ -68,6 +69,7 @@ namespace TransactionProcessorACL.Tests.General
             services.AddSingleton<DiagnosticSource>(diagnosticSource);
             services.AddSingleton<DiagnosticListener>(diagnosticSource);
             services.AddSingleton<IWebHostEnvironment>(hostingEnvironment);
+            services.AddSingleton<IHostEnvironment>(hostingEnvironment);
         }
 
         #endregion
