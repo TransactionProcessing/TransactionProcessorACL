@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TransactionProcessor.Client" Version="1.1.5-build8" />
+    <PackageReference Include="TransactionProcessor.Client" Version="1.1.5" />
   </ItemGroup>
 
   <ItemGroup>
