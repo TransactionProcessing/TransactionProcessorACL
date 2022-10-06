@@ -10,6 +10,7 @@
     using SecurityService.Client;
     using SecurityService.DataTransferObjects.Responses;
     using Shared.General;
+    using Shared.Logger;
     using TransactionProcessor.Client;
     using TransactionProcessor.DataTransferObjects;
 
@@ -121,6 +122,8 @@
                 }
                 else if (ex.InnerException is HttpRequestException)
                 {
+                    Logger.LogError(ex.InnerException);
+
                     // Request Send Exception
                     response = new ProcessLogonTransactionResponse
                     {
