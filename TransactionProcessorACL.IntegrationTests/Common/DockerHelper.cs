@@ -221,6 +221,7 @@
                                                                                                     });
 
             String test = "OperatorConfiguration:PataPawaPostPay:Url=http://" + this.TestHostContainerName + ":9000/PataPawaPostPayService/basichttp";
+            String test2 = "OperatorConfiguration:PataPawaPostPay:ApiLogonRequired=false";
 
             IContainerService transactionProcessorContainer = this.SetupTransactionProcessorContainer("stuartferguson/transactionprocessor",
                                                                                                       new List<INetworkService>
@@ -231,6 +232,7 @@
                                                                                                       additionalEnvironmentVariables:new List<String>
                                                                                                           {
                                                                                                               test,
+                                                                                                              test2,
                                                                                                               insecureEventStoreEnvironmentVariable,
                                                                                                               persistentSubscriptionPollingInSeconds,
                                                                                                               internalSubscriptionServiceCacheDuration,
