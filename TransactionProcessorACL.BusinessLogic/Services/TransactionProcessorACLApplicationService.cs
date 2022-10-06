@@ -125,7 +125,7 @@
                     response = new ProcessLogonTransactionResponse
                     {
                                    ResponseCode = "0002", // Request Message error
-                                   ResponseMessage = "Error Sending Request Message",
+                                   ResponseMessage = $"Error Sending Request Message [{ex.InnerException.Message}]",
                                    EstateId = estateId,
                                    MerchantId = merchantId
                     };
