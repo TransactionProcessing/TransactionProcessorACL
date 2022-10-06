@@ -185,6 +185,7 @@
             saleTransactionRequest.TransactionType = "SALE";
             saleTransactionRequest.OperatorIdentifier = operatorIdentifier;
             saleTransactionRequest.CustomerEmailAddress = customerEmailAddress;
+            saleTransactionRequest.TransactionSource = 1; // Online sale
 
             // Set the product information
             saleTransactionRequest.ContractId = contractId;
