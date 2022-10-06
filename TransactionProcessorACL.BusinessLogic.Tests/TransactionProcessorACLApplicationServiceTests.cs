@@ -103,7 +103,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                              CancellationToken.None);
 
             logonResponse.ShouldNotBeNull();
-            logonResponse.ResponseMessage.ShouldBe(TestData.HttpRequestErrorResponseMessage);
+            logonResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
             logonResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
         }
 
@@ -214,7 +214,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                           CancellationToken.None);
 
             saleResponse.ShouldNotBeNull();
-            saleResponse.ResponseMessage.ShouldBe(TestData.HttpRequestErrorResponseMessage);
+            saleResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
             saleResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
         }
 
@@ -318,7 +318,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 CancellationToken.None);
 
             reconciliationResponse.ShouldNotBeNull();
-            reconciliationResponse.ResponseMessage.ShouldBe(TestData.HttpRequestErrorResponseMessage);
+            reconciliationResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
             reconciliationResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
         }
 
