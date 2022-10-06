@@ -24,6 +24,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     {
         public TransactionProcessorACLApplicationServiceTests()
         {
+            Logger.Initialise(new NullLogger());
+
             this.SetupMemoryConfiguration();
         }
 
@@ -87,8 +89,6 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_HttpRequestExceptionErrorInLogon_TransactionIsNotSuccessful()
         {
-            Logger.Initialise(new NlogLogger());
-
             Mock<ITransactionProcessorClient> transactionProcessorClient = new Mock<ITransactionProcessorClient>();
             transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
                                       .ThrowsAsync(new Exception("Error", new HttpRequestException(TestData.HttpRequestErrorResponseMessage)));
