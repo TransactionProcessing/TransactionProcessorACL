@@ -10,6 +10,7 @@
     using SecurityService.Client;
     using SecurityService.DataTransferObjects.Responses;
     using Shared.General;
+    using Shared.Logger;
     using TransactionProcessor.Client;
     using TransactionProcessor.DataTransferObjects;
 
@@ -121,11 +122,13 @@
                 }
                 else if (ex.InnerException is HttpRequestException)
                 {
+                    Logger.LogError(ex.InnerException);
+
                     // Request Send Exception
                     response = new ProcessLogonTransactionResponse
                     {
                                    ResponseCode = "0002", // Request Message error
-                                   ResponseMessage = "Error Sending Request Message",
+                                   ResponseMessage = $"Error Sending Request Message [{ex.InnerException.Message}]",
                                    EstateId = estateId,
                                    MerchantId = merchantId
                     };
@@ -185,6 +188,7 @@
             saleTransactionRequest.TransactionType = "SALE";
             saleTransactionRequest.OperatorIdentifier = operatorIdentifier;
             saleTransactionRequest.CustomerEmailAddress = customerEmailAddress;
+            saleTransactionRequest.TransactionSource = 1; // Online sale
 
             // Set the product information
             saleTransactionRequest.ContractId = contractId;

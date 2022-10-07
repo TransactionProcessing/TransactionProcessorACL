@@ -13,6 +13,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using Moq;
     using SecurityService.Client;
     using Shared.General;
+    using Shared.Logger;
     using Shouldly;
     using Testing;
     using TransactionProcessor.Client;
@@ -23,6 +24,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     {
         public TransactionProcessorACLApplicationServiceTests()
         {
+            Logger.Initialise(new NullLogger());
+
             this.SetupMemoryConfiguration();
         }
 
@@ -103,7 +106,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                              CancellationToken.None);
 
             logonResponse.ShouldNotBeNull();
-            logonResponse.ResponseMessage.ShouldBe(TestData.HttpRequestErrorResponseMessage);
+            logonResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
             logonResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
         }
 
@@ -214,7 +217,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                           CancellationToken.None);
 
             saleResponse.ShouldNotBeNull();
-            saleResponse.ResponseMessage.ShouldBe(TestData.HttpRequestErrorResponseMessage);
+            saleResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
             saleResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
         }
 
@@ -318,7 +321,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 CancellationToken.None);
 
             reconciliationResponse.ShouldNotBeNull();
-            reconciliationResponse.ResponseMessage.ShouldBe(TestData.HttpRequestErrorResponseMessage);
+            reconciliationResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
             reconciliationResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
         }
 
