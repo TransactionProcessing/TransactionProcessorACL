@@ -222,15 +222,18 @@
 
             String pataPawaUrlEnvironmentVariable = "OperatorConfiguration:PataPawaPostPay:Url=http://" + this.TestHostContainerName + ":9000/PataPawaPostPayService/basichttp";
             String pataPawaApiLogonRequiredEnvironmentVariable = "OperatorConfiguration:PataPawaPostPay:ApiLogonRequired=false";
+            String transactionProcessorReadModelConnectionString = $"ConnectionStrings:TransactionProcessorReadModel=\"server={this.SqlServerDetails.sqlServerContainerName};user id=sa;password={this.SqlServerDetails.sqlServerPassword};database=TransactionProcessorReadModel\"";
 
             IContainerService transactionProcessorContainer = this.SetupTransactionProcessorContainer("stuartferguson/transactionprocessor",
                                                                                                       new List<INetworkService>
                                                                                                       {
-                                                                                                          testNetwork
+                                                                                                          testNetwork,
+                                                                                                          Setup.DatabaseServerNetwork
                                                                                                       },
                                                                                                       true,
                                                                                                       additionalEnvironmentVariables:new List<String>
                                                                                                           {
+                                                                                                              transactionProcessorReadModelConnectionString,
                                                                                                               pataPawaUrlEnvironmentVariable,
                                                                                                               pataPawaApiLogonRequiredEnvironmentVariable,
                                                                                                               insecureEventStoreEnvironmentVariable,
