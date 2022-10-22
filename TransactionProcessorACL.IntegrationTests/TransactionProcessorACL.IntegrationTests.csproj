@@ -7,20 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClientProxyBase" Version="1.3.8" />
+    <PackageReference Include="ClientProxyBase" Version="1.3.9" />
     <PackageReference Include="Ductus.FluentDocker" Version="2.10.51" />
-    <PackageReference Include="EstateManagement.Client" Version="1.1.3" />
+    <PackageReference Include="EstateManagement.Client" Version="1.1.5" />
     <PackageReference Include="EstateReporting.Database" Version="1.1.7" />
+    <PackageReference Include="EventStoreProjections" Version="1.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-    <PackageReference Include="SecurityService.Client" Version="1.1.1" />
-    <PackageReference Include="Shared.IntegrationTesting" Version="1.3.8" />
+    <PackageReference Include="SecurityService.Client" Version="1.1.2-build20" />
+    <PackageReference Include="Shared.IntegrationTesting" Version="1.3.9" />
     <PackageReference Include="Shouldly" Version="4.0.3" />
     <PackageReference Include="SpecFlow" Version="3.9.74" />
     <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.9.74" />
     <PackageReference Include="SpecFlow.xUnit" Version="3.9.74" />
-    <PackageReference Include="TransactionProcessor.Client" Version="1.1.9" />
+    <PackageReference Include="TransactionProcessor.Client" Version="1.1.13-build21" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <PrivateAssets>all</PrivateAssets>

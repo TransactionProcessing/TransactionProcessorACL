@@ -222,15 +222,18 @@
 
             String pataPawaUrlEnvironmentVariable = "OperatorConfiguration:PataPawaPostPay:Url=http://" + this.TestHostContainerName + ":9000/PataPawaPostPayService/basichttp";
             String pataPawaApiLogonRequiredEnvironmentVariable = "OperatorConfiguration:PataPawaPostPay:ApiLogonRequired=false";
+            String transactionProcessorReadModelConnectionString = $"ConnectionStrings:TransactionProcessorReadModel=\"server={this.SqlServerDetails.sqlServerContainerName};user id=sa;password={this.SqlServerDetails.sqlServerPassword};database=TransactionProcessorReadModel\"";
 
             IContainerService transactionProcessorContainer = this.SetupTransactionProcessorContainer("stuartferguson/transactionprocessor",
                                                                                                       new List<INetworkService>
                                                                                                       {
-                                                                                                          testNetwork
+                                                                                                          testNetwork,
+                                                                                                          Setup.DatabaseServerNetwork
                                                                                                       },
                                                                                                       true,
                                                                                                       additionalEnvironmentVariables:new List<String>
                                                                                                           {
+                                                                                                              transactionProcessorReadModelConnectionString,
                                                                                                               pataPawaUrlEnvironmentVariable,
                                                                                                               pataPawaApiLogonRequiredEnvironmentVariable,
                                                                                                               insecureEventStoreEnvironmentVariable,
@@ -313,16 +316,23 @@
             this.HttpClient.BaseAddress = new Uri(TransactionProcessorAclBaseAddressResolver(string.Empty));
 
             await this.LoadEventStoreProjections(this.EventStoreHttpPort, this.IsSecureEventStore).ConfigureAwait(false);
+            await this.PopulateSubscriptionServiceConfigurationGeneric(this.IsSecureEventStore).ConfigureAwait(false);
         }
-
-        public async Task PopulateSubscriptionServiceConfiguration(String estateName, Boolean isSecureEventStore)
+        
+        public async Task PopulateSubscriptionServiceConfigurationForEstate(String estateName, Boolean isSecureEventStore)
         {
             List<(String streamName, String groupName, Int32 maxRetries)> subscriptions = new List<(String streamName, String groupName, Int32 maxRetries)>();
-            subscriptions.Add((estateName.Replace(" ", ""), "Reporting", 5));
+            subscriptions.Add((estateName.Replace(" ", ""), "Reporting", 2));
             subscriptions.Add(($"EstateManagementSubscriptionStream_{estateName.Replace(" ", "")}", "Estate Management", 0));
             subscriptions.Add(($"TransactionProcessorSubscriptionStream_{estateName.Replace(" ", "")}", "Transaction Processor", 0));
-            await this.PopulateSubscriptionServiceConfiguration(this.EventStoreHttpPort, subscriptions,
-                                                                isSecureEventStore);
+            await this.PopulateSubscriptionServiceConfiguration(this.EventStoreHttpPort, subscriptions, isSecureEventStore);
+        }
+        public async Task PopulateSubscriptionServiceConfigurationGeneric(Boolean isSecureEventStore)
+        {
+            List<(String streamName, String groupName, Int32 maxRetries)> subscriptions = new List<(String streamName, String groupName, Int32 maxRetries)>();
+            subscriptions.Add(($"$ce-MerchantBalanceArchive", "Transaction Processor - Ordered", 0));
+            subscriptions.Add(($"$et-EstateCreatedEvent", "Transaction Processor - Ordered", 2));
+            await this.PopulateSubscriptionServiceConfiguration(this.EventStoreHttpPort, subscriptions, isSecureEventStore);
         }
 
         private async Task RemoveEstateReadModel()

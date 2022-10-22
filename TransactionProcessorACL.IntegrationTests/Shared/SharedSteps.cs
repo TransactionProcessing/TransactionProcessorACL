@@ -9,6 +9,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Common;
+    using DataTransferObjects;
     using EstateManagement.DataTransferObjects;
     using EstateManagement.DataTransferObjects.Requests;
     using EstateManagement.DataTransferObjects.Responses;
@@ -235,7 +236,7 @@
 
                 // Get current balance
                 MerchantBalanceResponse previousMerchantBalance =
-                    await this.TestingContext.DockerHelper.EstateClient.GetMerchantBalance(token, estateDetails.EstateId, merchantId, CancellationToken.None);
+                    await this.TestingContext.DockerHelper.TransactionProcessorClient.GetMerchantBalance(token, estateDetails.EstateId, merchantId, CancellationToken.None);
 
                 MakeMerchantDepositRequest makeMerchantDepositRequest = new MakeMerchantDepositRequest
                                                                         {
@@ -264,7 +265,7 @@
                 await Retry.For(async () =>
                                 {
                                     MerchantBalanceResponse currentMerchantBalance =
-                                        await this.TestingContext.DockerHelper.EstateClient.GetMerchantBalance(token,
+                                        await this.TestingContext.DockerHelper.TransactionProcessorClient.GetMerchantBalance(token,
                                                                                                                estateDetails.EstateId,
                                                                                                                merchantId,
                                                                                                                CancellationToken.None);
@@ -574,7 +575,7 @@
                 // Setup the subscriptions for the estate
                 await Retry.For(async () =>
                                 {
-                                    await this.TestingContext.DockerHelper.PopulateSubscriptionServiceConfiguration(estateName,this.TestingContext.DockerHelper.IsSecureEventStore).ConfigureAwait(false);
+                                    await this.TestingContext.DockerHelper.PopulateSubscriptionServiceConfigurationForEstate(estateName,this.TestingContext.DockerHelper.IsSecureEventStore).ConfigureAwait(false);
                                 }, retryFor: TimeSpan.FromMinutes(2), retryInterval: TimeSpan.FromSeconds(30));
 
                 EstateResponse estate = null;
