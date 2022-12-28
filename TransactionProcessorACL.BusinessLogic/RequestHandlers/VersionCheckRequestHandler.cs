@@ -29,8 +29,13 @@
         /// <returns></returns>
         /// <exception cref="NotSupportedException">Version number [{requestVersion}] is less than the Minimum Supported version [{minimumVersion}]</exception>
         public async Task<Unit> Handle(VersionCheckRequest request,
-                                       CancellationToken cancellationToken)
-        {
+                                       CancellationToken cancellationToken) {
+            if (Environment.GetEnvironmentVariable("AppSettings:SkipVersionCheck") != null) {
+                if (Boolean.TryParse(ConfigurationReader.GetValue("AppSettings","SkipVersionCheck"), out Boolean skipVersionCheck) && skipVersionCheck) {
+                    return default;
+                }
+            }
+
             // Get the minimum version from the config
             String versionFromConfig = ConfigurationReader.GetValue("AppSettings", "MinimumSupportedApplicationVersion");
 
