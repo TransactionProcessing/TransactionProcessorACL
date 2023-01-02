@@ -15,4 +15,8 @@
     <ProjectReference Include="..\TransactionProcessorACL.Models\TransactionProcessorACL.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\" />
+  </ItemGroup>
+
 </Project>

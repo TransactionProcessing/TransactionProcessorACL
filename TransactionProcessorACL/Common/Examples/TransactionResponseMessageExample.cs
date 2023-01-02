@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using DataTransferObjects.Responses;
     using Swashbuckle.AspNetCore.Filters;
 
@@ -9,6 +10,7 @@
     /// 
     /// </summary>
     /// <seealso cref="Swashbuckle.AspNetCore.Filters.IMultipleExamplesProvider{TransactionProcessorACL.DataTransferObjects.Responses.TransactionResponseMessage}" />
+    [ExcludeFromCodeCoverage]
     public class TransactionResponseMessageExample : IMultipleExamplesProvider<TransactionResponseMessage>
     {
         #region Methods

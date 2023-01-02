@@ -1,6 +1,7 @@
 ﻿namespace TransactionProcessorACL.Bootstrapper
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
     using System.Net.Http;
@@ -22,6 +23,7 @@
     /// 
     /// </summary>
     /// <seealso cref="Lamar.ServiceRegistry" />
+    [ExcludeFromCodeCoverage]
     public class MiddlewareRegistry : ServiceRegistry
     {
         /// <summary>

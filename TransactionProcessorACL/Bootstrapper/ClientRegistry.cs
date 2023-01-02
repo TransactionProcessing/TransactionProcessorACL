@@ -1,6 +1,7 @@
 ﻿namespace TransactionProcessorACL.Bootstrapper
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Net.Http;
     using Lamar;
     using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,7 @@
     /// 
     /// </summary>
     /// <seealso cref="Lamar.ServiceRegistry" />
+    [ExcludeFromCodeCoverage]
     public class ClientRegistry : ServiceRegistry
     {
         #region Constructors
