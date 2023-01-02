@@ -4,6 +4,7 @@
     using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
+    using Common;
     using MediatR;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Extensions;
@@ -54,18 +55,5 @@
         }
 
         #endregion
-    }
-
-    public class VersionIncompatibleException : Exception
-    {
-        public VersionIncompatibleException(String message) : base(message)
-        {
-            
-        }
-
-        public VersionIncompatibleException(String message, Exception innerException) : base(message, innerException)
-        {
-
-        }
     }
 }

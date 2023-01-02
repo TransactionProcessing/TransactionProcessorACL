@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 
 namespace TransactionProcessorACL.Common.Examples
 {
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.Extensions.Primitives;
     using TransactionProcessor.DataTransferObjects;
 
     /// <summary>
     /// 
     /// </summary>
+    [ExcludeFromCodeCoverage]
     internal static class ExampleData
     {
         /// <summary>

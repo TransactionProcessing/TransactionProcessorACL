@@ -20,7 +20,7 @@ namespace TransactionProcessorACL.Tests.General
     {
         #region Methods
 
-        [Fact(Skip = "needs investigated")]
+        [Fact]
         public void VerifyBootstrapperIsValid()
         {
             Mock<IWebHostEnvironment> hostingEnvironment = new Mock<IWebHostEnvironment>();
@@ -70,6 +70,7 @@ namespace TransactionProcessorACL.Tests.General
             services.AddSingleton<DiagnosticListener>(diagnosticSource);
             services.AddSingleton<IWebHostEnvironment>(hostingEnvironment);
             services.AddSingleton<IHostEnvironment>(hostingEnvironment);
+            services.AddSingleton<IConfiguration>(Startup.Configuration);
         }
 
         #endregion

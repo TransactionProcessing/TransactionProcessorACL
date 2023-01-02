@@ -4,6 +4,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using BusinessLogic.Common;
     using BusinessLogic.RequestHandlers;
     using BusinessLogic.Requests;
     using BusinessLogic.Services;
