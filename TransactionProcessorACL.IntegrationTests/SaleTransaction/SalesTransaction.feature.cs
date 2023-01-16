@@ -241,35 +241,40 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "ContractDescription",
                         "ProductName",
                         "DisplayText",
-                        "Value"});
+                        "Value",
+                        "ProductType"});
             table42.AddRow(new string[] {
                         "Test Estate 1",
                         "Safaricom",
                         "Safaricom Contract",
                         "Variable Topup",
                         "Custom",
-                        ""});
+                        "",
+                        "MobileTopup"});
             table42.AddRow(new string[] {
                         "Test Estate 1",
                         "Voucher",
                         "Hospital 1 Contract",
                         "10 KES",
                         "10 KES",
-                        ""});
+                        "",
+                        "Voucher"});
             table42.AddRow(new string[] {
                         "Test Estate 2",
                         "Safaricom",
                         "Safaricom Contract",
                         "Variable Topup",
                         "Custom",
-                        ""});
+                        "",
+                        "MobileTopup"});
             table42.AddRow(new string[] {
                         "Test Estate 2",
                         "Voucher",
                         "Hospital 1 Contract",
                         "10 KES",
                         "10 KES",
-                        ""});
+                        "",
+                        "Voucher"});
 #line 52
  testRunner.When("I create the following Products", ((string)(null)), table42, "When ");
 #line hidden
