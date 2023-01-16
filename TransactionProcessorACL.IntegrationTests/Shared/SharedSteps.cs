@@ -731,8 +731,9 @@
                                                                           {
                                                                               ProductName = SpecflowTableHelper.GetStringRowValue(tableRow, "ProductName"),
                                                                               DisplayText = SpecflowTableHelper.GetStringRowValue(tableRow, "DisplayText"),
-                                                                              Value = null
-                                                                          };
+                                                                              Value = null,
+                                                                              ProductType = SpecflowTableHelper.GetEnumValue<ProductType>(tableRow, "ProductType"),
+                };
                 if (string.IsNullOrEmpty(productValue) == false)
                 {
                     addProductToContractRequest.Value = decimal.Parse(productValue);
