@@ -1158,6 +1158,42 @@
             saleTransactionResponseMessage.ResponseMessage.ShouldBe(expectedResponseMessage);
         }
 
+        [Given(@"I am logged in as ""(.*)"" with password ""(.*)"" for Estate ""(.*)"" with client ""(.*)""")]
+        public async Task GivenIAmLoggedInAsWithPasswordForEstateWithClient(String username, String password, String estateName, String clientId)
+        {
+            EstateDetails estateDetails = this.TestingContext.GetEstateDetails(estateName);
+
+            ClientDetails clientDetails = this.TestingContext.GetClientDetails(clientId);
+
+            TokenResponse tokenResponse = await this.TestingContext.DockerHelper.SecurityServiceClient
+                                                    .GetToken(username, password, clientId, clientDetails.ClientSecret, CancellationToken.None).ConfigureAwait(false);
+
+            estateDetails.AddVoucherRedemptionUserToken("Voucher", username, tokenResponse.AccessToken);
+        }
+
+        [When(@"I redeem the voucher for Estate '([^']*)' and Merchant '([^']*)' transaction number (.*) the voucher balance will be (.*)")]
+        public async Task WhenIRedeemTheVoucherForEstateAndMerchantTransactionNumberTheVoucherBalanceWillBe(string estateName, string merchantName, int transactionNumber, int balance)
+        {
+            var voucher = await this.TestingContext.GetVoucherByTransactionNumber(estateName, merchantName, transactionNumber);
+
+            EstateDetails estateDetails = this.TestingContext.GetEstateDetails(estateName);
+            // Build URI 
+
+            String uri = $"api/vouchers?applicationVersion=1.0.0&voucherCode={voucher.VoucherCode}";
+
+            String accessToken = estateDetails.GetVoucherRedemptionUserToken("Voucher");
+
+            StringContent content = new StringContent(String.Empty);
+
+            this.TestingContext.DockerHelper.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            HttpResponseMessage response = await this.TestingContext.DockerHelper.HttpClient.PutAsync(uri, content, CancellationToken.None).ConfigureAwait(false);
+
+            response.IsSuccessStatusCode.ShouldBeTrue();
+
+            RedeemVoucherResponseMessage redeemVoucherResponse = JsonConvert.DeserializeObject<RedeemVoucherResponseMessage>(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+        }
+
         #endregion
 
         #region Others

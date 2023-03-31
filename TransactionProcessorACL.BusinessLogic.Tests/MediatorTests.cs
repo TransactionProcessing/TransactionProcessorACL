@@ -29,6 +29,9 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
             this.Requests.Add(TestData.ProcessLogonTransactionRequest);
             this.Requests.Add(TestData.ProcessReconciliationRequest);
             this.Requests.Add(TestData.ProcessSaleTransactionRequest);
+            this.Requests.Add(TestData.VersionCheckRequest);
+            this.Requests.Add(TestData.GetVoucherRequest);
+            this.Requests.Add(TestData.RedeemVoucherRequest);
         }
 
         [Fact]
@@ -127,6 +130,14 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
                                                                                Decimal transactionValue,
                                                                                CancellationToken cancellationToken) {
             return new ProcessReconciliationResponse();
+        }
+
+        public async Task<GetVoucherResponse> GetVoucher(Guid estateId, Guid contractId, String voucherCode, CancellationToken cancellationToken){
+            return new GetVoucherResponse();
+        }
+
+        public async Task<RedeemVoucherResponse> RedeemVoucher(Guid estateId, Guid contractId, String voucherCode, CancellationToken cancellationToken){
+            return new RedeemVoucherResponse();
         }
     }
 }

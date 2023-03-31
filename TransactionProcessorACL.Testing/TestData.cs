@@ -9,6 +9,9 @@
     using TransactionProcessor.DataTransferObjects;
     using TransactionProcessorACL.BusinessLogic.Requests;
     using TransactionProcessorACL.DataTransferObjects;
+    using GetVoucherResponse = TransactionProcessor.DataTransferObjects.GetVoucherResponse;
+    using RedeemVoucherRequest = BusinessLogic.Requests.RedeemVoucherRequest;
+    using RedeemVoucherResponse = TransactionProcessor.DataTransferObjects.RedeemVoucherResponse;
 
     /// <summary>
     /// 
@@ -223,5 +226,82 @@
         public static String ApplicationVersion = "1.0.5";
 
         public static VersionCheckRequest VersionCheckRequest = VersionCheckRequest.Create(TestData.ApplicationVersion);
+        public static RedeemVoucherRequest RedeemVoucherRequest = RedeemVoucherRequest.Create(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
+        public static GetVoucherRequest GetVoucherRequest = GetVoucherRequest.Create(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
+
+        public static String VoucherCode = "1231231234";
+
+        public static GetVoucherResponse GetVoucherResponse =>
+            new GetVoucherResponse
+            {
+                VoucherCode = TestData.VoucherCode,
+                Balance = TestData.Balance,
+                ExpiryDate = TestData.ExpiryDate,
+                GeneratedDateTime = TestData.GeneratedDateTime,
+                IsGenerated = TestData.IsGenerated,
+                IsIssued = TestData.IsIssued,
+                IsRedeemed = TestData.IsRedeemed,
+                IssuedDateTime = TestData.IssuedDateTime,
+                RedeemedDateTime = TestData.RedeemedDateTime,
+                TransactionId = TestData.TransactionId,
+                Value = TestData.Value,
+                VoucherId = TestData.VoucherId
+            };
+
+        public static RedeemVoucherResponse RedeemVoucherResponse =>
+            new RedeemVoucherResponse
+            {
+                VoucherCode = TestData.VoucherCode,
+                RemainingBalance = TestData.Balance,
+                ExpiryDate = TestData.ExpiryDate
+            };
+
+        public static Models.GetVoucherResponse GetVoucherResponseModel =>
+            new Models.GetVoucherResponse
+            {
+                VoucherCode = TestData.VoucherCode,
+                ExpiryDate = TestData.ExpiryDate,
+                ContractId = TestData.ContractId,
+                Value = TestData.Value,
+                VoucherId = TestData.VoucherId,
+                EstateId = TestData.EstateId,
+                ResponseCode = TestData.ResponseCode,
+                ResponseMessage = TestData.ResponseMessage,
+                Balance = TestData.Balance
+            };
+
+        public static Models.RedeemVoucherResponse RedeemVoucherResponseModel =>
+            new Models.RedeemVoucherResponse
+            {
+                VoucherCode = TestData.VoucherCode,
+                ExpiryDate = TestData.ExpiryDate,
+                ContractId = TestData.ContractId,
+                Balance = TestData.Balance,
+                EstateId = TestData.EstateId,
+                ResponseCode = TestData.ResponseCode,
+                ResponseMessage = TestData.ResponseMessage
+            };
+        
+        public static Decimal Balance = 10.00m;
+
+        public static DateTime ExpiryDate = new DateTime(2021, 1, 11);
+
+        public static DateTime GeneratedDateTime = new DateTime(2020, 12, 11);
+
+        public static Boolean IsGenerated = true;
+
+        public static Boolean IsIssued = true;
+
+        public static Boolean IsRedeemed = false;
+
+        public static DateTime IssuedDateTime = new DateTime(2020, 12, 12);
+
+        public static DateTime RedeemedDateTime = new DateTime();
+
+        public static Guid TransactionId = Guid.Parse("793ACA88-B501-435E-BF08-1E5F639A7885");
+
+        public static Decimal Value = 20.00m;
+
+        public static Guid VoucherId = Guid.Parse("C12665AC-1301-47AA-B292-281EC4DE9721");
     }
 }

@@ -31,6 +31,8 @@
             this.AddSingleton<IRequest<ProcessLogonTransactionResponse>, ProcessLogonTransactionRequest>();
             this.AddSingleton<IRequest<ProcessSaleTransactionResponse>, ProcessSaleTransactionRequest>();
             this.AddSingleton<IRequest<ProcessReconciliationResponse>, ProcessReconciliationRequest>();
+            this.AddSingleton<IRequestHandler<GetVoucherRequest, GetVoucherResponse>, VoucherRequestHandler>();
+            this.AddSingleton<IRequestHandler<RedeemVoucherRequest, RedeemVoucherResponse>, VoucherRequestHandler>();
         }
 
         #endregion

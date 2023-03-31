@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using TransactionProcessor.DataTransferObjects;
 
     public class EstateDetails
     {
@@ -220,6 +221,15 @@
             return transactionResponse.Value;
         }
 
+        public String GetTransactionResponse(Guid merchantId,
+                                                        String transactionNumber)
+        {
+            KeyValuePair<(Guid merchantId, String transactionNumber, String transactionType), String> transactionResponse =
+                this.TransactionResponses.Where(t => t.Key.merchantId == merchantId && t.Key.transactionNumber == transactionNumber).SingleOrDefault();
+
+            return transactionResponse.Value;
+        }
+
         public void SetEstateUser(String userName,
                                   String password)
         {
@@ -233,5 +243,39 @@
         }
 
         #endregion
+
+        private Dictionary<String, Dictionary<String, String>> VoucherRedemptionUsersTokens;
+
+        public void AddVoucherRedemptionUserToken(String operatorName,
+                                                  String userName,
+                                                  String token)
+        {
+            if (this.VoucherRedemptionUsersTokens.ContainsKey(operatorName))
+            {
+                Dictionary<String, String> merchantUsersList = this.VoucherRedemptionUsersTokens[operatorName];
+                if (merchantUsersList.ContainsKey(userName) == false)
+                {
+                    merchantUsersList.Add(userName, token);
+                }
+            }
+            else
+            {
+                Dictionary<String, String> merchantUsersList = new Dictionary<String, String>();
+                merchantUsersList.Add(userName, token);
+                this.VoucherRedemptionUsersTokens.Add(operatorName, merchantUsersList);
+            }
+        }
+
+        public String GetVoucherRedemptionUserToken(String operatorName)
+        {
+            KeyValuePair<String, Dictionary<String, String>> x = this.VoucherRedemptionUsersTokens.SingleOrDefault(x => x.Key == operatorName);
+
+            if (x.Value != null)
+            {
+                return x.Value.First().Value;
+            }
+
+            return string.Empty;
+        }
     }
 }
