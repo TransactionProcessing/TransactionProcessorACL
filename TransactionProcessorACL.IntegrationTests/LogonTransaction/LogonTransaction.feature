@@ -75,6 +75,6 @@ Scenario: Logon Transaction
 	
 	Then the logon transaction response should contain the following information
 	| EstateName    | MerchantName    | TransactionNumber | TransactionType | ResponseCode | ResponseMessage |
-	| Test Estate 1 | Test Merchant 1 | 1                 | Logon           | 0000         | SUCCESS         |
-	| Test Estate 1 | Test Merchant 2 | 2                 | Logon           | 0000         | SUCCESS         |
-	| Test Estate 2 | Test Merchant 3 | 3                 | Logon           | 0000         | SUCCESS         |
+	| Test Estate 1 | Test Merchant 1 | 1                 | Logon           | 0001         | SUCCESS         |
+	| Test Estate 1 | Test Merchant 2 | 2                 | Logon           | 0001         | SUCCESS         |
+	| Test Estate 2 | Test Merchant 3 | 3                 | Logon           | 0001         | SUCCESS         |
