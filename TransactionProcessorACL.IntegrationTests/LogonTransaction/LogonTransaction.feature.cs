@@ -397,21 +397,21 @@ this.FeatureBackground();
                             "Test Merchant 1",
                             "1",
                             "Logon",
-                            "0000",
+                            "0001",
                             "SUCCESS"});
                 table14.AddRow(new string[] {
                             "Test Estate 1",
                             "Test Merchant 2",
                             "2",
                             "Logon",
-                            "0000",
+                            "0001",
                             "SUCCESS"});
                 table14.AddRow(new string[] {
                             "Test Estate 2",
                             "Test Merchant 3",
                             "3",
                             "Logon",
-                            "0000",
+                            "0001",
                             "SUCCESS"});
 #line 76
  testRunner.Then("the logon transaction response should contain the following information", ((string)(null)), table14, "Then ");

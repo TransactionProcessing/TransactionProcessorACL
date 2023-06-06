@@ -17,7 +17,11 @@
 
         private readonly Dictionary<String, Dictionary<String, String>> MerchantUsers;
 
+        private readonly Dictionary<String, Dictionary<String, String>> VoucherRedemptionUsers;
+
         private readonly Dictionary<String, Dictionary<String, String>> MerchantUsersTokens;
+
+        private Dictionary<String, Dictionary<String, String>> VoucherRedemptionUsersTokens;
 
         private readonly Dictionary<String, Guid> Operators;
 
@@ -34,6 +38,8 @@
             this.Operators = new Dictionary<String, Guid>();
             this.MerchantUsers = new Dictionary<String, Dictionary<String, String>>();
             this.MerchantUsersTokens = new Dictionary<String, Dictionary<String, String>>();
+            this.VoucherRedemptionUsers = new Dictionary<String, Dictionary<String, String>>();
+            this.VoucherRedemptionUsersTokens = new Dictionary<String, Dictionary<String, String>>();
             this.TransactionResponses = new Dictionary<(Guid merchantId, String transactionNumber, String transactionType), String>();
             this.ReconciliationResponses = new Dictionary<Guid, String>();
             this.Contracts = new List<Contract>();
@@ -105,6 +111,26 @@
             }
         }
 
+        public void AddVoucherRedemptionUser(String operatorName,
+                                             String userName,
+                                             String password)
+        {
+            if (this.VoucherRedemptionUsers.ContainsKey(operatorName))
+            {
+                Dictionary<String, String> voucherRedemptionUsersList = this.VoucherRedemptionUsers[operatorName];
+                if (voucherRedemptionUsersList.ContainsKey(userName) == false)
+                {
+                    voucherRedemptionUsersList.Add(userName, password);
+                }
+            }
+            else
+            {
+                Dictionary<String, String> voucherRedemptionUsersList = new Dictionary<String, String>();
+                voucherRedemptionUsersList.Add(userName, password);
+                this.VoucherRedemptionUsers.Add(operatorName, voucherRedemptionUsersList);
+            }
+        }
+
         public void AddMerchantUserToken(String merchantName,
                                          String userName,
                                          String token)
@@ -122,6 +148,26 @@
                 Dictionary<String, String> merchantUsersList = new Dictionary<String, String>();
                 merchantUsersList.Add(userName, token);
                 this.MerchantUsersTokens.Add(merchantName, merchantUsersList);
+            }
+        }
+
+        public void AddVoucherRedemptionUserToken(String operatorName,
+                                                  String userName,
+                                                  String token)
+        {
+            if (this.VoucherRedemptionUsersTokens.ContainsKey(operatorName))
+            {
+                Dictionary<String, String> merchantUsersList = this.VoucherRedemptionUsersTokens[operatorName];
+                if (merchantUsersList.ContainsKey(userName) == false)
+                {
+                    merchantUsersList.Add(userName, token);
+                }
+            }
+            else
+            {
+                Dictionary<String, String> merchantUsersList = new Dictionary<String, String>();
+                merchantUsersList.Add(userName, token);
+                this.VoucherRedemptionUsersTokens.Add(operatorName, merchantUsersList);
             }
         }
 
@@ -149,6 +195,18 @@
                                            String estateName)
         {
             return new EstateDetails(estateId, estateName);
+        }
+
+        public String GetVoucherRedemptionUserToken(String operatorName)
+        {
+            KeyValuePair<String, Dictionary<String, String>> x = this.VoucherRedemptionUsersTokens.SingleOrDefault(x => x.Key == operatorName);
+
+            if (x.Value != null)
+            {
+                return x.Value.First().Value;
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -231,7 +289,7 @@
         {
             this.AccessToken = accessToken;
         }
-
+        
         #endregion
     }
 }

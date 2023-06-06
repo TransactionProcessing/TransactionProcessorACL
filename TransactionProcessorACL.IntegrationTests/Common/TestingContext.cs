@@ -3,7 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using DataTransferObjects;
     using global::Shared.Logger;
+    using Newtonsoft.Json;
     using Shouldly;
     using TechTalk.SpecFlow;
 
@@ -158,6 +162,24 @@
             estateDetails.ShouldNotBeNull();
 
             return estateDetails;
+        }
+
+        public async Task<GetVoucherResponse> GetVoucherByTransactionNumber(String estateName, String merchantName, Int32 transactionNumber)
+        {
+            EstateDetails estate = this.GetEstateDetails(estateName);
+            Guid merchantId = estate.GetMerchantId(merchantName);
+            var serialisedMessage = estate.GetTransactionResponse(merchantId, transactionNumber.ToString(), "Sale");
+            SaleTransactionResponse transactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponse>(serialisedMessage,
+                                                                                                                 new JsonSerializerSettings
+                                                                                                                 {
+                                                                                                                     TypeNameHandling = TypeNameHandling.All
+                                                                                                                 });
+            GetVoucherResponse voucher = await this.DockerHelper.TransactionProcessorClient.GetVoucherByTransactionId(this.AccessToken,
+                                                                                                                      estate.EstateId,
+                                                                                                                      transactionResponse.TransactionId,
+                                                                                                                      CancellationToken.None);
+
+            return voucher;
         }
 
         #endregion

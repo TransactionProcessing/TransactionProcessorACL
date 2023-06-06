@@ -11,11 +11,6 @@
     {
         #region Methods
 
-        /// <summary>
-        /// Converts from.
-        /// </summary>
-        /// <param name="processLogonTransactionResponse">The process logon transaction response.</param>
-        /// <returns></returns>
         public LogonTransactionResponseMessage ConvertFrom(ProcessLogonTransactionResponse processLogonTransactionResponse)
         {
             if (processLogonTransactionResponse == null)
@@ -29,15 +24,11 @@
             logonTransactionResponseMessage.ResponseCode = processLogonTransactionResponse.ResponseCode;
             logonTransactionResponseMessage.MerchantId = processLogonTransactionResponse.MerchantId;
             logonTransactionResponseMessage.EstateId = processLogonTransactionResponse.EstateId;
+            logonTransactionResponseMessage.TransactionId = processLogonTransactionResponse.TransactionId;
 
             return logonTransactionResponseMessage;
         }
 
-        /// <summary>
-        /// Converts from.
-        /// </summary>
-        /// <param name="processSaleTransactionResponse">The process sale transaction response.</param>
-        /// <returns></returns>
         public SaleTransactionResponseMessage ConvertFrom(ProcessSaleTransactionResponse processSaleTransactionResponse)
         {
             if (processSaleTransactionResponse == null)
@@ -51,16 +42,13 @@
             saleTransactionResponseMessage.ResponseCode = processSaleTransactionResponse.ResponseCode;
             saleTransactionResponseMessage.MerchantId = processSaleTransactionResponse.MerchantId;
             saleTransactionResponseMessage.EstateId = processSaleTransactionResponse.EstateId;
+            saleTransactionResponseMessage.TransactionId = processSaleTransactionResponse.TransactionId;
             saleTransactionResponseMessage.AdditionalResponseMetaData = processSaleTransactionResponse.AdditionalTransactionMetadata;
+            
 
             return saleTransactionResponseMessage;
         }
 
-        /// <summary>
-        /// Converts from.
-        /// </summary>
-        /// <param name="processReconciliationResponse">The process reconciliation response.</param>
-        /// <returns></returns>
         public ReconciliationResponseMessage ConvertFrom(ProcessReconciliationResponse processReconciliationResponse)
         {
             if (processReconciliationResponse == null)
@@ -74,7 +62,53 @@
             reconciliationResponseMessage.ResponseCode = processReconciliationResponse.ResponseCode;
             reconciliationResponseMessage.MerchantId = processReconciliationResponse.MerchantId;
             reconciliationResponseMessage.EstateId = processReconciliationResponse.EstateId;
+            reconciliationResponseMessage.TransactionId = processReconciliationResponse.TransactionId;
+
             return reconciliationResponseMessage;
+        }
+
+        public GetVoucherResponseMessage ConvertFrom(GetVoucherResponse model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            GetVoucherResponseMessage responseMessage = new GetVoucherResponseMessage
+            {
+                ContractId = model.ContractId,
+                EstateId = model.EstateId,
+                VoucherCode = model.VoucherCode,
+                VoucherId = model.VoucherId,
+                ExpiryDate = model.ExpiryDate,
+                Value = model.Value,
+                ResponseMessage = model.ResponseMessage,
+                ResponseCode = model.ResponseCode,
+                Balance = model.Balance
+            };
+
+            return responseMessage;
+        }
+
+        public RedeemVoucherResponseMessage ConvertFrom(RedeemVoucherResponse model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            RedeemVoucherResponseMessage responseMessage = new RedeemVoucherResponseMessage
+            {
+                VoucherCode = model.VoucherCode,
+                Balance = model.Balance,
+                ResponseMessage = model.ResponseMessage,
+                ContractId = model.ContractId,
+                EstateId = model.EstateId,
+                ExpiryDate = model.ExpiryDate,
+                ResponseCode = model.ResponseCode
+            };
+
+            return responseMessage;
         }
 
         #endregion

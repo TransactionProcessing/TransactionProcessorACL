@@ -83,6 +83,29 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             request.VersionNumber.ShouldBe(TestData.ApplicationVersion);
         }
 
+        /// <summary>
+        /// Processes the logon transaction request can be created is created.
+        /// </summary>
+        [Fact]
+        public void GetVoucherRequest_CanBeCreated_IsCreated()
+        {
+            GetVoucherRequest request = GetVoucherRequest.Create(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
+
+            request.EstateId.ShouldBe(TestData.EstateId);
+            request.ContractId.ShouldBe(TestData.ContractId);
+            request.VoucherCode.ShouldBe(TestData.VoucherCode);
+        }
+
+        [Fact]
+        public void RedeemVoucherRequest_CanBeCreated_IsCreated()
+        {
+            RedeemVoucherRequest request = RedeemVoucherRequest.Create(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
+
+            request.EstateId.ShouldBe(TestData.EstateId);
+            request.ContractId.ShouldBe(TestData.ContractId);
+            request.VoucherCode.ShouldBe(TestData.VoucherCode);
+        }
+
         #endregion
     }
 }
