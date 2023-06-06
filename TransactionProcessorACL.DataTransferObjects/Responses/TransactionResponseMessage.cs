@@ -63,5 +63,8 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// </value>
         [JsonProperty("requires_application_update")]
         public Boolean RequiresApplicationUpdate { get; set; }
+
+        [JsonProperty("transaction_id")]
+        public Guid TransactionId { get; set; }
     }
 }

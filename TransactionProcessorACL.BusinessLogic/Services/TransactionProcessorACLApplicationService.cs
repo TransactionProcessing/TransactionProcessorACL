@@ -13,6 +13,8 @@
     using Shared.Logger;
     using TransactionProcessor.Client;
     using TransactionProcessor.DataTransferObjects;
+    using GetVoucherResponse = Models.GetVoucherResponse;
+    using RedeemVoucherResponse = Models.RedeemVoucherResponse;
 
     /// <summary>
     /// 
@@ -104,8 +106,9 @@
                                ResponseCode = logonTransactionResponse.ResponseCode,
                                ResponseMessage = logonTransactionResponse.ResponseMessage,
                                EstateId = estateId,
-                               MerchantId = merchantId
-                           };
+                               MerchantId = merchantId,
+                               TransactionId = logonTransactionResponse.TransactionId,
+                };
             }
             catch(Exception ex)
             {
@@ -221,7 +224,8 @@
                     ResponseMessage = saleTransactionResponse.ResponseMessage,
                     EstateId = estateId,
                     MerchantId = merchantId,
-                    AdditionalTransactionMetadata = saleTransactionResponse.AdditionalTransactionMetadata
+                    AdditionalTransactionMetadata = saleTransactionResponse.AdditionalTransactionMetadata,
+                    TransactionId = saleTransactionResponse.TransactionId,
                 };
             }
             catch (Exception ex)
@@ -304,7 +308,8 @@
                 response = new ProcessReconciliationResponse
                 {
                     ResponseCode = reconciliationResponse.ResponseCode,
-                    ResponseMessage = reconciliationResponse.ResponseMessage
+                    ResponseMessage = reconciliationResponse.ResponseMessage,
+                    TransactionId = reconciliationResponse.TransactionId,
                 };
             }
             catch (Exception ex)
@@ -333,6 +338,135 @@
                     {
                         ResponseCode = "0003", // General error
                         ResponseMessage = "General Error"
+                    };
+                }
+            }
+
+            return response;
+        }
+
+        public async Task<GetVoucherResponse> GetVoucher(Guid estateId,
+                                                         Guid contractId,
+                                                         String voucherCode,
+                                                         CancellationToken cancellationToken)
+        {
+            // Get a client token to call the Voucher Management
+            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
+            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
+
+            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+
+            GetVoucherResponse response = null;
+
+            try
+            {
+                TransactionProcessor.DataTransferObjects.GetVoucherResponse getVoucherResponse = await this.TransactionProcessorClient.GetVoucherByCode(accessToken.AccessToken, estateId, voucherCode, cancellationToken);
+
+                response = new GetVoucherResponse
+                {
+                    ResponseCode = "0000", // Success
+                    ContractId = contractId,
+                    EstateId = estateId,
+                    ExpiryDate = getVoucherResponse.ExpiryDate,
+                    Value = getVoucherResponse.Value,
+                    VoucherCode = getVoucherResponse.VoucherCode,
+                    VoucherId = getVoucherResponse.VoucherId,
+                    Balance = getVoucherResponse.Balance
+                };
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException is InvalidOperationException)
+                {
+                    // This means there is an error in the request
+                    response = new GetVoucherResponse
+                    {
+                        ResponseCode = "0001", // Request Message error
+                        ResponseMessage = ex.InnerException.Message,
+                    };
+                }
+                else if (ex.InnerException is HttpRequestException)
+                {
+                    // Request Send Exception
+                    response = new GetVoucherResponse
+                    {
+                        ResponseCode = "0002", // Request Message error
+                        ResponseMessage = "Error Sending Request Message",
+                    };
+                }
+                else
+                {
+                    response = new GetVoucherResponse
+                    {
+                        ResponseCode = "0003", // General error
+                        ResponseMessage = "General Error",
+                    };
+                }
+            }
+
+            return response;
+        }
+
+        public async Task<RedeemVoucherResponse> RedeemVoucher(Guid estateId,
+                                                               Guid contractId,
+                                                               String voucherCode,
+                                                               CancellationToken cancellationToken)
+        {
+            // Get a client token to call the Voucher Management
+            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
+            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
+
+            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+
+            RedeemVoucherResponse response = null;
+
+            try
+            {
+                RedeemVoucherRequest redeemVoucherRequest = new RedeemVoucherRequest
+                {
+                    EstateId = estateId,
+                    VoucherCode = voucherCode
+                };
+
+                TransactionProcessor.DataTransferObjects.RedeemVoucherResponse redeemVoucherResponse = await this.TransactionProcessorClient.RedeemVoucher(accessToken.AccessToken, redeemVoucherRequest, cancellationToken);
+
+                response = new RedeemVoucherResponse
+                {
+                    ResponseCode = "0000", // Success
+                    ResponseMessage = "SUCCESS",
+                    ContractId = contractId,
+                    EstateId = estateId,
+                    ExpiryDate = redeemVoucherResponse.ExpiryDate,
+                    Balance = redeemVoucherResponse.RemainingBalance,
+                    VoucherCode = redeemVoucherResponse.VoucherCode
+                };
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException is InvalidOperationException)
+                {
+                    // This means there is an error in the request
+                    response = new RedeemVoucherResponse
+                    {
+                        ResponseCode = "0001", // Request Message error
+                        ResponseMessage = ex.InnerException.Message,
+                    };
+                }
+                else if (ex.InnerException is HttpRequestException)
+                {
+                    // Request Send Exception
+                    response = new RedeemVoucherResponse
+                    {
+                        ResponseCode = "0002", // Request Message error
+                        ResponseMessage = "Error Sending Request Message",
+                    };
+                }
+                else
+                {
+                    response = new RedeemVoucherResponse
+                    {
+                        ResponseCode = "0003", // General error
+                        ResponseMessage = "General Error",
                     };
                 }
             }

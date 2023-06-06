@@ -38,5 +38,7 @@ namespace TransactionProcessorACL.Models
         /// The merchant identifier.
         /// </value>
         public Guid MerchantId { get; set; }
+
+        public Guid TransactionId { get; set; }
     }
 }

@@ -150,6 +150,30 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                             });
         }
 
+        [Fact]
+        public async Task VoucherRequestHandler_GetVoucherRequest_Handle_RequestIsHandled()
+        {
+            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            VoucherRequestHandler requestHandler = new VoucherRequestHandler(applicationService.Object);
+
+            Should.NotThrow(async () =>
+                            {
+                                await requestHandler.Handle(TestData.GetVoucherRequest, CancellationToken.None);
+                            });
+        }
+
+        [Fact]
+        public async Task VoucherRequestHandler_RedeemVoucherRequest_Handle_RequestIsHandled()
+        {
+            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            VoucherRequestHandler requestHandler = new VoucherRequestHandler(applicationService.Object);
+
+            Should.NotThrow(async () =>
+                            {
+                                await requestHandler.Handle(TestData.RedeemVoucherRequest, CancellationToken.None);
+                            });
+        }
+
         #endregion
     }
 }

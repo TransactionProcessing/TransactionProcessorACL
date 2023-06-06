@@ -7,6 +7,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Models;
     using System.Diagnostics.CodeAnalysis;
+    using RedeemVoucherRequest = BusinessLogic.Requests.RedeemVoucherRequest;
 
     /// <summary>
     /// 
@@ -24,13 +25,18 @@
         {
             this.AddTransient<IMediator, Mediator>();
             this.AddTransient<ServiceFactory>(context => { return t => context.GetService(t); });
+            
             this.AddSingleton<IRequestHandler<VersionCheckRequest, Unit>, VersionCheckRequestHandler>();
+            
             this.AddSingleton<IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>, ProcessLogonTransactionRequestHandler>();
             this.AddSingleton<IRequestHandler<ProcessSaleTransactionRequest, ProcessSaleTransactionResponse>, ProcessSaleTransactionRequestHandler>();
             this.AddSingleton<IRequestHandler<ProcessReconciliationRequest, ProcessReconciliationResponse>, ProcessReconciliationRequestHandler>();
             this.AddSingleton<IRequest<ProcessLogonTransactionResponse>, ProcessLogonTransactionRequest>();
             this.AddSingleton<IRequest<ProcessSaleTransactionResponse>, ProcessSaleTransactionRequest>();
             this.AddSingleton<IRequest<ProcessReconciliationResponse>, ProcessReconciliationRequest>();
+
+            this.AddSingleton<IRequestHandler<GetVoucherRequest, GetVoucherResponse>, VoucherRequestHandler>();
+            this.AddSingleton<IRequestHandler<RedeemVoucherRequest, RedeemVoucherResponse>, VoucherRequestHandler>();
         }
 
         #endregion

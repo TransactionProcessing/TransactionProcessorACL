@@ -77,4 +77,8 @@
     </SpecFlowFeatureFiles>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RedeemVoucher\" />
+  </ItemGroup>
+
 </Project>
