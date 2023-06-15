@@ -18,3 +18,5 @@
 ## Code Quality Results
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0c614670e9e34ddba1d04c0d790fc969)](https://www.codacy.com/manual/stuart_ferguson1/TransactionProcessorACL?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TransactionProcessing/TransactionProcessorACL&amp;utm_campaign=Badge_Grade)
+
+![Alt](https://repobeats.axiom.co/api/embed/8dba624b603ade6802426c5a037174aff11e1f2d.svg "Repobeats analytics image")
