@@ -20,7 +20,7 @@ jobs:
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
     - name: Restore Nuget Packages
-      run: dotnet restore TransactionProcessorACL.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+      run: dotnet restore TransactionProcessorACL.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
     - name: Build Code
       run: dotnet build TransactionProcessorACL.sln --configuration Release
@@ -113,6 +113,6 @@ jobs:
       if: ${{ github.event.release.prerelease == false }} 
       run: |
         dotnet pack "TransactionProcessorACL.DataTransferObjects\TransactionProcessorACL.DataTransferObjects.csproj" /p:PackageVersion=${{ steps.get_version.outputs.VERSION }} --output Nugets
-        dotnet nuget push Nugets/TransactionProcessorACL.DataTransferObjects.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.MYGET_APIKEY }} --source https://www.myget.org/F/transactionprocessing/api/v2/package
+        dotnet nuget push Nugets/TransactionProcessorACL.DataTransferObjects.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }}
 
 

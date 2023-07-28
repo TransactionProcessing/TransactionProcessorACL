@@ -20,7 +20,7 @@ jobs:
         fetch-depth: 0
                
     - name: Restore Nuget Packages
-      run: dotnet restore TransactionProcessorACL.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+      run: dotnet restore TransactionProcessorACL.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
     - name: 'Get Previous tag'
       id: get-latest-tag
@@ -42,7 +42,7 @@ jobs:
     - name: Build and Publish Nuget Packages
       run: |
         dotnet pack "TransactionProcessorACL.DataTransferObjects\TransactionProcessorACL.DataTransferObjects.csproj" /p:PackageVersion=${{ steps.next_version.outputs.VERSION }} --output Nugets
-        dotnet nuget push Nugets/TransactionProcessorACL.DataTransferObjects.${{ steps.next_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.MYGET_APIKEY }} --source https://www.myget.org/F/transactionprocessing/api/v2/package
+        dotnet nuget push Nugets/TransactionProcessorACL.DataTransferObjects.${{ steps.next_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }}
 
     - name: Publish Images to Docker Hub
       run: |
