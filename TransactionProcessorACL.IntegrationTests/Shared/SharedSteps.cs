@@ -1107,8 +1107,10 @@
 
         [When(@"I redeem the voucher for Estate '([^']*)' and Merchant '([^']*)' transaction number (.*) the voucher balance will be (.*)")]
         public async Task WhenIRedeemTheVoucherForEstateAndMerchantTransactionNumberTheVoucherBalanceWillBe(string estateName, string merchantName, int transactionNumber, int balance){
-            var voucher = await this.TestingContext.GetVoucherByTransactionNumber(estateName, merchantName, transactionNumber);
-
+            GetVoucherResponse voucher = null;
+            await Retry.For(async () => {
+                                voucher = await this.TestingContext.GetVoucherByTransactionNumber(estateName, merchantName, transactionNumber);
+                            });
             EstateDetails estateDetails = this.TestingContext.GetEstateDetails(estateName);
             // Build URI 
 
