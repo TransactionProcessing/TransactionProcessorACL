@@ -7,8 +7,8 @@
   <ItemGroup>
     <PackageReference Include="MediatR" Version="11.0.0" />
     <PackageReference Include="SecurityService.Client" Version="2023.6.2" />
-    <PackageReference Include="Shared" Version="2023.7.1" />
-    <PackageReference Include="TransactionProcessor.Client" Version="2023.7.2" />
+    <PackageReference Include="Shared" Version="2023.11.1" />
+    <PackageReference Include="TransactionProcessor.Client" Version="2023.10.1" />
   </ItemGroup>
 
   <ItemGroup>
