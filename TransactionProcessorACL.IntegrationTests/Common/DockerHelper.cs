@@ -67,9 +67,9 @@
         /// Starts the containers for scenario run.
         /// </summary>
         /// <param name="scenarioName">Name of the scenario.</param>
-        public override async Task StartContainersForScenarioRun(String scenarioName)
+        public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
         {
-            await base.StartContainersForScenarioRun(scenarioName);
+            await base.StartContainersForScenarioRun(scenarioName, dockerServices);
 
             
             // Setup the base address resolvers
