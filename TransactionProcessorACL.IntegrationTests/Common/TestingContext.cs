@@ -6,6 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using DataTransferObjects;
+    using EstateManagement.IntegrationTesting.Helpers;
     using global::Shared.Logger;
     using Newtonsoft.Json;
     using Shouldly;
@@ -26,7 +27,7 @@
         /// <summary>
         /// The estates
         /// </summary>
-        private readonly List<EstateDetails> Estates;
+        public readonly List<EstateDetails1> Estates;
 
         #endregion
 
@@ -37,7 +38,7 @@
         /// </summary>
         public TestingContext()
         {
-            this.Estates = new List<EstateDetails>();
+            this.Estates = new List<EstateDetails1>();
             this.Clients = new List<ClientDetails>();
         }
 
@@ -92,18 +93,10 @@
         /// <param name="estateId">The estate identifier.</param>
         /// <param name="estateName">Name of the estate.</param>
         public void AddEstateDetails(Guid estateId,
-                                     String estateName)
+                                     String estateName,
+                                     String estateReference)
         {
-            this.Estates.Add(EstateDetails.Create(estateId, estateName));
-        }
-
-        /// <summary>
-        /// Gets all estate ids.
-        /// </summary>
-        /// <returns></returns>
-        public List<Guid> GetAllEstateIds()
-        {
-            return this.Estates.Select(e => e.EstateId).ToList();
+            this.Estates.Add(new EstateDetails1(EstateDetails.Create(estateId, estateName, estateReference)));
         }
 
         /// <summary>
@@ -125,11 +118,11 @@
         /// </summary>
         /// <param name="tableRow">The table row.</param>
         /// <returns></returns>
-        public EstateDetails GetEstateDetails(TableRow tableRow)
+        public EstateDetails1 GetEstateDetails(TableRow tableRow)
         {
             String estateName = SpecflowTableHelper.GetStringRowValue(tableRow, "EstateName");
 
-            EstateDetails estateDetails = this.Estates.SingleOrDefault(e => e.EstateName == estateName);
+            EstateDetails1 estateDetails = this.Estates.SingleOrDefault(e => e.EstateDetails.EstateName == estateName);
 
             estateDetails.ShouldNotBeNull();
 
@@ -141,9 +134,9 @@
         /// </summary>
         /// <param name="estateName">Name of the estate.</param>
         /// <returns></returns>
-        public EstateDetails GetEstateDetails(String estateName)
+        public EstateDetails1 GetEstateDetails(String estateName)
         {
-            EstateDetails estateDetails = this.Estates.SingleOrDefault(e => e.EstateName == estateName);
+            EstateDetails1 estateDetails = this.Estates.SingleOrDefault(e => e.EstateDetails.EstateName == estateName);
 
             estateDetails.ShouldNotBeNull();
 
@@ -155,32 +148,32 @@
         /// </summary>
         /// <param name="estateId">The estate identifier.</param>
         /// <returns></returns>
-        public EstateDetails GetEstateDetails(Guid estateId)
+        public EstateDetails1 GetEstateDetails(Guid estateId)
         {
-            EstateDetails estateDetails = this.Estates.SingleOrDefault(e => e.EstateId == estateId);
+            EstateDetails1 estateDetails = this.Estates.SingleOrDefault(e => e.EstateDetails.EstateId == estateId);
 
             estateDetails.ShouldNotBeNull();
 
             return estateDetails;
         }
 
-        public async Task<GetVoucherResponse> GetVoucherByTransactionNumber(String estateName, String merchantName, Int32 transactionNumber)
-        {
-            EstateDetails estate = this.GetEstateDetails(estateName);
-            Guid merchantId = estate.GetMerchantId(merchantName);
-            var serialisedMessage = estate.GetTransactionResponse(merchantId, transactionNumber.ToString(), "Sale");
-            SaleTransactionResponse transactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponse>(serialisedMessage,
-                                                                                                                 new JsonSerializerSettings
-                                                                                                                 {
-                                                                                                                     TypeNameHandling = TypeNameHandling.All
-                                                                                                                 });
-            GetVoucherResponse voucher = await this.DockerHelper.TransactionProcessorClient.GetVoucherByTransactionId(this.AccessToken,
-                                                                                                                      estate.EstateId,
-                                                                                                                      transactionResponse.TransactionId,
-                                                                                                                      CancellationToken.None);
+        //public async Task<GetVoucherResponse> GetVoucherByTransactionNumber(String estateName, String merchantName, Int32 transactionNumber)
+        //{
+        //    EstateDetails estate = this.GetEstateDetails(estateName);
+        //    Guid merchantId = estate.GetMerchantId(merchantName);
+        //    var serialisedMessage = estate.GetTransactionResponse(merchantId, transactionNumber.ToString(), "Sale");
+        //    SaleTransactionResponse transactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponse>(serialisedMessage,
+        //                                                                                                         new JsonSerializerSettings
+        //                                                                                                         {
+        //                                                                                                             TypeNameHandling = TypeNameHandling.All
+        //                                                                                                         });
+        //    GetVoucherResponse voucher = await this.DockerHelper.TransactionProcessorClient.GetVoucherByTransactionId(this.AccessToken,
+        //                                                                                                              estate.EstateId,
+        //                                                                                                              transactionResponse.TransactionId,
+        //                                                                                                              CancellationToken.None);
 
-            return voucher;
-        }
+        //    return voucher;
+        //}
 
         #endregion
     }

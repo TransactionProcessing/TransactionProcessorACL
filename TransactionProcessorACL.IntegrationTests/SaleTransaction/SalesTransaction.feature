@@ -4,7 +4,7 @@ Feature: SalesTransaction
 Background: 
 
 	Given the following security roles exist
-	| RoleName |
+	| Role Name |
 	| Merchant   |
 
 	Given I create the following api scopes
@@ -15,14 +15,14 @@ Background:
 	| voucherManagement | Voucher Management REST  Scope | A scope for Voucher Management REST |
 
 	Given the following api resources exist
-	| ResourceName            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
+	| Name            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
 	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | merchantId, estateId, role |
 	| transactionProcessor    | Transaction Processor REST     | Secret1 | transactionProcessor    |                            |
 	| transactionProcessorACL | Transaction Processor ACL REST | Secret1 | transactionProcessorACL | merchantId, estateId, role |
 	| voucherManagement       | Voucher Management REST        | Secret1 | voucherManagement       |                            |
 
 	Given the following clients exist
-	| ClientId       | ClientName      | Secret  | AllowedScopes                                                                   | AllowedGrantTypes  |
+	| ClientId       | ClientName      | Secret  | Scopes                                                                   | GrantTypes  |
 	| serviceClient  | Service Client  | Secret1 | estateManagement,transactionProcessor,transactionProcessorACL,voucherManagement | client_credentials |
 	| merchantClient | Merchant Client | Secret1 | transactionProcessorACL                                                         | password           |
 

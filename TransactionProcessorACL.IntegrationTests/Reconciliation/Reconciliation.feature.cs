@@ -84,7 +84,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
 #line 4
 #line hidden
             TechTalk.SpecFlow.Table table15 = new TechTalk.SpecFlow.Table(new string[] {
-                        "RoleName"});
+                        "Role Name"});
             table15.AddRow(new string[] {
                         "Merchant"});
 #line 6
@@ -110,7 +110,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
  testRunner.Given("I create the following api scopes", ((string)(null)), table16, "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table17 = new TechTalk.SpecFlow.Table(new string[] {
-                        "ResourceName",
+                        "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
@@ -140,8 +140,8 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "ClientId",
                         "ClientName",
                         "Secret",
-                        "AllowedScopes",
-                        "AllowedGrantTypes"});
+                        "Scopes",
+                        "GrantTypes"});
             table18.AddRow(new string[] {
                         "serviceClient",
                         "Service Client",
@@ -445,14 +445,18 @@ this.FeatureBackground();
                             "DeviceIdentifier",
                             "EstateName",
                             "TransactionCount",
-                            "TransactionValue"});
+                            "TransactionValue",
+                            "TransactionNumber",
+                            "TransactionType"});
                 table30.AddRow(new string[] {
                             "Today",
                             "Test Merchant 1",
                             "123456780",
                             "Test Estate 1",
                             "1",
-                            "100.00"});
+                            "100.00",
+                            "1",
+                            "Reconciliation"});
 #line 89
  testRunner.When("I perform the following reconciliations", ((string)(null)), table30, "When ");
 #line hidden
@@ -467,14 +471,18 @@ this.FeatureBackground();
                             "DeviceIdentifier",
                             "EstateName",
                             "TransactionCount",
-                            "TransactionValue"});
+                            "TransactionValue",
+                            "TransactionNumber",
+                            "TransactionType"});
                 table31.AddRow(new string[] {
                             "Today",
                             "Test Merchant 2",
                             "123456781",
                             "Test Estate 1",
                             "2",
-                            "200.00"});
+                            "200.00",
+                            "2",
+                            "Reconciliation"});
 #line 94
  testRunner.When("I perform the following reconciliations", ((string)(null)), table31, "When ");
 #line hidden
@@ -489,35 +497,43 @@ this.FeatureBackground();
                             "DeviceIdentifier",
                             "EstateName",
                             "TransactionCount",
-                            "TransactionValue"});
+                            "TransactionValue",
+                            "TransactionNumber",
+                            "TransactionType"});
                 table32.AddRow(new string[] {
                             "Today",
                             "Test Merchant 3",
                             "123456782",
                             "Test Estate 2",
                             "3",
-                            "300.00"});
+                            "300.00",
+                            "3",
+                            "Reconciliation"});
 #line 99
  testRunner.When("I perform the following reconciliations", ((string)(null)), table32, "When ");
 #line hidden
                 TechTalk.SpecFlow.Table table33 = new TechTalk.SpecFlow.Table(new string[] {
                             "EstateName",
                             "MerchantName",
+                            "TransactionNumber",
                             "ResponseCode",
                             "ResponseMessage"});
                 table33.AddRow(new string[] {
                             "Test Estate 1",
                             "Test Merchant 1",
+                            "1",
                             "0000",
                             "SUCCESS"});
                 table33.AddRow(new string[] {
                             "Test Estate 1",
                             "Test Merchant 2",
+                            "2",
                             "0000",
                             "SUCCESS"});
                 table33.AddRow(new string[] {
                             "Test Estate 2",
                             "Test Merchant 3",
+                            "3",
                             "0000",
                             "SUCCESS"});
 #line 103

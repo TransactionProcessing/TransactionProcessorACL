@@ -84,7 +84,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
 #line 4
 #line hidden
             TechTalk.SpecFlow.Table table51 = new TechTalk.SpecFlow.Table(new string[] {
-                        "RoleName"});
+                        "Role Name"});
             table51.AddRow(new string[] {
                         "Merchant"});
 #line 6
@@ -114,7 +114,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
  testRunner.Given("I create the following api scopes", ((string)(null)), table52, "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table53 = new TechTalk.SpecFlow.Table(new string[] {
-                        "ResourceName",
+                        "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
@@ -150,8 +150,8 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "ClientId",
                         "ClientName",
                         "Secret",
-                        "AllowedScopes",
-                        "AllowedGrantTypes"});
+                        "Scopes",
+                        "GrantTypes"});
             table54.AddRow(new string[] {
                         "serviceClient",
                         "Service Client",
