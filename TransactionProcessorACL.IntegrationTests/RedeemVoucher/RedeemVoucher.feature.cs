@@ -84,7 +84,7 @@ namespace TransactionProcessorACL.IntegrationTests.RedeemVoucher
 #line 4
 #line hidden
             TechTalk.SpecFlow.Table table34 = new TechTalk.SpecFlow.Table(new string[] {
-                        "RoleName"});
+                        "Role Name"});
             table34.AddRow(new string[] {
                         "Merchant"});
             table34.AddRow(new string[] {
@@ -116,7 +116,7 @@ namespace TransactionProcessorACL.IntegrationTests.RedeemVoucher
  testRunner.Given("I create the following api scopes", ((string)(null)), table35, "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table36 = new TechTalk.SpecFlow.Table(new string[] {
-                        "ResourceName",
+                        "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
@@ -152,8 +152,8 @@ namespace TransactionProcessorACL.IntegrationTests.RedeemVoucher
                         "ClientId",
                         "ClientName",
                         "Secret",
-                        "AllowedScopes",
-                        "AllowedGrantTypes"});
+                        "Scopes",
+                        "GrantTypes"});
             table37.AddRow(new string[] {
                         "serviceClient",
                         "Service Client",
@@ -193,12 +193,12 @@ namespace TransactionProcessorACL.IntegrationTests.RedeemVoucher
  testRunner.Given("I have created the following estates", ((string)(null)), table39, "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table40 = new TechTalk.SpecFlow.Table(new string[] {
-                        "EmailAddress",
+                        "Email Address",
                         "Password",
-                        "GivenName",
-                        "FamilyName",
+                        "Given Name",
+                        "Family Name",
                         "EstateName",
-                        "RoleName"});
+                        "Roles"});
             table40.AddRow(new string[] {
                         "redemptionuser@testredemption1.co.uk",
                         "123456",
@@ -214,7 +214,7 @@ namespace TransactionProcessorACL.IntegrationTests.RedeemVoucher
                         "Test Estate 2",
                         "VoucherRedemption"});
 #line 40
- testRunner.Given("I have created the following security users", ((string)(null)), table40, "Given ");
+ testRunner.Given("I have created the following security users for voucher redemption", ((string)(null)), table40, "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table41 = new TechTalk.SpecFlow.Table(new string[] {
                         "EstateName",

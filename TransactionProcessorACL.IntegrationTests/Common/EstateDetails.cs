@@ -3,8 +3,86 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using EstateManagement.IntegrationTesting.Helpers;
 
-    public class EstateDetails
+    public class EstateDetails1{
+        public readonly EstateDetails EstateDetails;
+
+        private readonly Dictionary<Guid, Dictionary<String, String>> MerchantUsersTokens;
+        private Dictionary<String, Dictionary<String, String>> VoucherRedemptionUsersTokens;
+        public EstateDetails1(EstateDetails estateDetails){
+            this.EstateDetails = estateDetails;
+            this.MerchantUsersTokens = new Dictionary<Guid, Dictionary<String, String>>();
+            this.VoucherRedemptionUsersTokens = new Dictionary<String, Dictionary<String, String>>();
+        }
+
+        public void AddMerchantUserToken(Guid merchantId,
+                                         String userName,
+                                         String token)
+        {
+            if (this.MerchantUsersTokens.ContainsKey(merchantId))
+            {
+                Dictionary<String, String> merchantUsersList = this.MerchantUsersTokens[merchantId];
+                if (merchantUsersList.ContainsKey(userName) == false)
+                {
+                    merchantUsersList.Add(userName, token);
+                }
+            }
+            else
+            {
+                Dictionary<String, String> merchantUsersList = new Dictionary<String, String>();
+                merchantUsersList.Add(userName, token);
+                this.MerchantUsersTokens.Add(merchantId, merchantUsersList);
+            }
+        }
+
+        public void AddVoucherRedemptionUserToken(String operatorName,
+                                                  String userName,
+                                                  String token)
+        {
+            if (this.VoucherRedemptionUsersTokens.ContainsKey(operatorName))
+            {
+                Dictionary<String, String> merchantUsersList = this.VoucherRedemptionUsersTokens[operatorName];
+                if (merchantUsersList.ContainsKey(userName) == false)
+                {
+                    merchantUsersList.Add(userName, token);
+                }
+            }
+            else
+            {
+                Dictionary<String, String> merchantUsersList = new Dictionary<String, String>();
+                merchantUsersList.Add(userName, token);
+                this.VoucherRedemptionUsersTokens.Add(operatorName, merchantUsersList);
+            }
+        }
+
+        public String GetMerchantUserToken(Guid merchantId)
+        {
+            KeyValuePair<Guid, Dictionary<String, String>> x = this.MerchantUsersTokens.SingleOrDefault(x => x.Key == merchantId);
+
+            if (x.Value != null)
+            {
+                return x.Value.First().Value;
+            }
+
+            return string.Empty;
+        }
+
+        public String GetVoucherRedemptionUserToken(String operatorName)
+        {
+            KeyValuePair<String, Dictionary<String, String>> x = this.VoucherRedemptionUsersTokens.SingleOrDefault(x => x.Key == operatorName);
+
+            if (x.Value != null)
+            {
+                return x.Value.First().Value;
+            }
+
+            return string.Empty;
+        }
+    }
+
+    /*
+    public class EstateDetails1
     {
         #region Fields
 
@@ -291,5 +369,5 @@
         }
         
         #endregion
-    }
+    }*/
 }

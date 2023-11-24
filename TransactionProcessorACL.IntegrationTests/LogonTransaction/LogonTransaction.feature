@@ -4,7 +4,7 @@ Feature: LogonTransaction
 Background: 
 
 	Given the following security roles exist
-	| RoleName |
+	| Role Name |
 	| Merchant   |
 
 	Given I create the following api scopes
@@ -14,13 +14,13 @@ Background:
 	| transactionProcessorACL | Transaction Processor ACL REST  Scope | A scope for Transaction Processor ACL REST |
 
 	Given the following api resources exist
-	| ResourceName            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
+	| Name            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
 	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | merchantId, estateId, role |
 	| transactionProcessor    | Transaction Processor REST     | Secret1 | transactionProcessor    |                            |
 	| transactionProcessorACL | Transaction Processor ACL REST | Secret1 | transactionProcessorACL | merchantId, estateId, role |
 
 	Given the following clients exist
-	| ClientId       | ClientName      | Secret  | AllowedScopes                                                 | AllowedGrantTypes  |
+	| ClientId       | ClientName      | Secret  | Scopes                                                 | GrantTypes  |
 	| serviceClient  | Service Client  | Secret1 | estateManagement,transactionProcessor,transactionProcessorACL | client_credentials |
 	| merchantClient | Merchant Client | Secret1 | transactionProcessorACL                                       | password           |
 
