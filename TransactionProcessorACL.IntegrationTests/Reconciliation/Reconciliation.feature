@@ -4,7 +4,7 @@ Feature: Reconciliation
 Background: 
 
 	Given the following security roles exist
-	| RoleName |
+	| Role Name |
 	| Merchant   |
 
 	Given I create the following api scopes
@@ -14,13 +14,13 @@ Background:
 	| transactionProcessorACL | Transaction Processor ACL REST  Scope | A scope for Transaction Processor ACL REST |
 
 	Given the following api resources exist
-	| ResourceName            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
+	| Name            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
 	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | merchantId, estateId, role |
 	| transactionProcessor    | Transaction Processor REST     | Secret1 | transactionProcessor    |                            |
 	| transactionProcessorACL | Transaction Processor ACL REST | Secret1 | transactionProcessorACL | merchantId, estateId, role |
 
 	Given the following clients exist
-	| ClientId       | ClientName      | Secret  | AllowedScopes                                                 | AllowedGrantTypes  |
+	| ClientId       | ClientName      | Secret  | Scopes                                                 | GrantTypes  |
 	| serviceClient  | Service Client  | Secret1 | estateManagement,transactionProcessor,transactionProcessorACL | client_credentials |
 	| merchantClient | Merchant Client | Secret1 | transactionProcessorACL                                       | password           |
 
@@ -87,21 +87,21 @@ Background:
 Scenario: Reconciliation Transaction
 	Given I am logged in as "merchantuser@testmerchant1.co.uk" with password "123456" for Merchant "Test Merchant 1" for Estate "Test Estate 1" with client "merchantClient"
 	When I perform the following reconciliations
-	| DateTime | MerchantName    | DeviceIdentifier | EstateName    | TransactionCount | TransactionValue |
-	| Today    | Test Merchant 1 | 123456780        | Test Estate 1 | 1                | 100.00           |
+	| DateTime | MerchantName    | DeviceIdentifier | EstateName    | TransactionCount | TransactionValue | TransactionNumber |TransactionType |
+	| Today    | Test Merchant 1 | 123456780        | Test Estate 1 | 1                | 100.00           | 1                 |Reconciliation  |
 		
 	Given I am logged in as "merchantuser@testmerchant2.co.uk" with password "123456" for Merchant "Test Merchant 2" for Estate "Test Estate 1" with client "merchantClient"
 	When I perform the following reconciliations
-	| DateTime | MerchantName    | DeviceIdentifier | EstateName    | TransactionCount | TransactionValue |
-	| Today    | Test Merchant 2 | 123456781        | Test Estate 1 | 2                | 200.00           |
+	| DateTime | MerchantName    | DeviceIdentifier | EstateName    | TransactionCount | TransactionValue | TransactionNumber |TransactionType |
+	| Today    | Test Merchant 2 | 123456781        | Test Estate 1 | 2                | 200.00           | 2                 |Reconciliation  |
 	
 	Given I am logged in as "merchantuser@testmerchant3.co.uk" with password "123456" for Merchant "Test Merchant 3" for Estate "Test Estate 2" with client "merchantClient"
 	When I perform the following reconciliations
-	| DateTime | MerchantName    | DeviceIdentifier | EstateName    | TransactionCount | TransactionValue |
-	| Today    | Test Merchant 3 | 123456782        | Test Estate 2 | 3                | 300.00           |
+	| DateTime | MerchantName    | DeviceIdentifier | EstateName    | TransactionCount | TransactionValue | TransactionNumber | TransactionType |
+	| Today    | Test Merchant 3 | 123456782        | Test Estate 2 | 3                | 300.00           | 3                 | Reconciliation  |
 	
 	Then the reconciliation response should contain the following information
-	| EstateName    | MerchantName    | ResponseCode | ResponseMessage |
-	| Test Estate 1 | Test Merchant 1 | 0000         | SUCCESS         |
-	| Test Estate 1 | Test Merchant 2 | 0000         | SUCCESS         |
-	| Test Estate 2 | Test Merchant 3 | 0000         | SUCCESS         |
+	| EstateName    | MerchantName    | TransactionNumber | ResponseCode | ResponseMessage |
+	| Test Estate 1 | Test Merchant 1 | 1                 | 0000         | SUCCESS         |
+	| Test Estate 1 | Test Merchant 2 | 2                 | 0000         | SUCCESS         |
+	| Test Estate 2 | Test Merchant 3 | 3                 | 0000         | SUCCESS         |

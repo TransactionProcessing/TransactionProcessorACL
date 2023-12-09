@@ -4,7 +4,7 @@ Feature: RedeemVoucher
 Background: 
 
 	Given the following security roles exist
-	| RoleName |
+	| Role Name |
 	| Merchant   |
 	| VoucherRedemption   |
 
@@ -16,14 +16,14 @@ Background:
 	| voucherManagement | Voucher Management REST  Scope | A scope for Voucher Management REST |
 
 	Given the following api resources exist
-	| ResourceName            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
+	| Name            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
 	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | merchantId, estateId, role |
 	| transactionProcessor    | Transaction Processor REST     | Secret1 | transactionProcessor    |                            |
 	| transactionProcessorACL | Transaction Processor ACL REST | Secret1 | transactionProcessorACL | merchantId, estateId, role, contractId |
 	| voucherManagement       | Voucher Management REST        | Secret1 | voucherManagement       |                            |
 
 	Given the following clients exist
-	| ClientId         | ClientName        | Secret  | AllowedScopes                                                                   | AllowedGrantTypes  |
+	| ClientId         | ClientName        | Secret  | Scopes                                                                   | GrantTypes  |
 	| serviceClient    | Service Client    | Secret1 | estateManagement,transactionProcessor,transactionProcessorACL,voucherManagement | client_credentials |
 	| merchantClient   | Merchant Client   | Secret1 | transactionProcessorACL                                                         | password           |
 	| redemptionClient | Redemption Client | Secret1 | transactionProcessorACL                                                         | password           |
@@ -37,8 +37,8 @@ Background:
 	| Test Estate 1 |
 	| Test Estate 2 |
 
-	Given I have created the following security users
-	| EmailAddress                         | Password | GivenName      | FamilyName | EstateName    | RoleName          |
+	Given I have created the following security users for voucher redemption
+	| Email Address                         | Password | Given Name      | Family Name | EstateName    | Roles          |
 	| redemptionuser@testredemption1.co.uk | 123456   | TestRedemption | User1      | Test Estate 1 | VoucherRedemption |
 	| redemptionuser@testredemption2.co.uk | 123456   | TestRedemption | User2      | Test Estate 2 | VoucherRedemption |
 

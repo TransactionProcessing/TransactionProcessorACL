@@ -32,6 +32,8 @@
         /// </summary>
         public HttpClient HttpClient;
 
+        public HttpClient TestHostHttpClient;
+
         /// <summary>
         /// The security service client
         /// </summary>
@@ -93,37 +95,20 @@
             this.EstateClient = new EstateClient(EstateManagementBaseAddressResolver, httpClient);
             this.SecurityServiceClient = new SecurityServiceClient(SecurityServiceBaseAddressResolver, httpClient);
             this.TransactionProcessorClient = new TransactionProcessorClient(TransactionProcessorBaseAddressResolver, httpClient);
+            this.TestHostHttpClient = new HttpClient(clientHandler);
+            this.TestHostHttpClient.BaseAddress = new Uri($"http://127.0.0.1:{this.TestHostServicePort}");
 
             this.HttpClient = new HttpClient();
             this.HttpClient.BaseAddress = new Uri(TransactionProcessorAclBaseAddressResolver(string.Empty));
 
         }
         
-       private async Task RemoveEstateReadModel()
-        {
-            List<Guid> estateIdList = this.TestingContext.GetAllEstateIds();
-
-            foreach (Guid estateId in estateIdList)
-            {
-                String databaseName = $"EstateReportingReadModel{estateId}";
-
-                // Build the connection string (to master)
-                String connectionString = Setup.GetLocalConnectionString(databaseName);
-                await Retry.For(async () =>
-                                {
-                                    EstateManagementSqlServerContext context = new EstateManagementSqlServerContext(connectionString);
-                                    await context.Database.EnsureDeletedAsync(CancellationToken.None);
-                                }, retryFor: TimeSpan.FromMinutes(2), retryInterval: TimeSpan.FromSeconds(30));
-            }
-        }
-
+       
         /// <summary>
         /// Stops the containers for scenario run.
         /// </summary>
         public override async Task StopContainersForScenarioRun()
         {
-            await RemoveEstateReadModel().ConfigureAwait(false);
-
             base.StopContainersForScenarioRun();
         }
         
