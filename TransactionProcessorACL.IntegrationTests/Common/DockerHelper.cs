@@ -11,6 +11,7 @@
     using Ductus.FluentDocker.Services.Extensions;
     using EstateManagement.Client;
     using EstateManagement.Database.Contexts;
+    using EventStore.Client;
     using global::Shared.IntegrationTesting;
     using SecurityService.Client;
 
@@ -47,6 +48,8 @@
         private const String MinimumSupportedApplicationVersion = "1.0.5";
 
         private readonly TestingContext TestingContext;
+
+        public EventStoreProjectionManagementClient ProjectionManagementClient;
 
         #endregion
 
@@ -100,6 +103,8 @@
 
             this.HttpClient = new HttpClient();
             this.HttpClient.BaseAddress = new Uri(TransactionProcessorAclBaseAddressResolver(string.Empty));
+
+            this.ProjectionManagementClient = new EventStoreProjectionManagementClient(ConfigureEventStoreSettings());
 
         }
         

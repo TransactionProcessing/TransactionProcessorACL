@@ -2,6 +2,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.Json;
     using System.Threading;
     using System.Threading.Tasks;
     using DataTransferObjects;
@@ -9,6 +10,7 @@
     using EstateManagement.DataTransferObjects.Requests;
     using EstateManagement.DataTransferObjects.Responses;
     using EstateManagement.IntegrationTesting.Helpers;
+    using Newtonsoft.Json.Linq;
     using SecurityService.DataTransferObjects;
     using SecurityService.DataTransferObjects.Requests;
     using SecurityService.DataTransferObjects.Responses;
@@ -124,7 +126,7 @@
         /// <param name="table">The table.</param>
         [Given(@"I create a contract with the following values")]
         public async Task GivenICreateAContractWithTheFollowingValues(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, CreateContractRequest)> requests = table.Rows.ToCreateContractRequests(estates);
             List<ContractResponse> responses = await this.EstateManagementSteps.GivenICreateAContractWithTheFollowingValues(this.TestingContext.AccessToken, requests);
         }
@@ -141,7 +143,7 @@
         /// <param name="table">The table.</param>
         [Given(@"I have assigned the following devices to the merchants")]
         public async Task GivenIHaveAssignedTheFollowingDevicesToTheMerchants(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, AddMerchantDeviceRequest)> requests = table.Rows.ToAddMerchantDeviceRequests(estates);
 
             List<(EstateDetails, MerchantResponse, String)> results = await this.EstateManagementSteps.GivenIHaveAssignedTheFollowingDevicesToTheMerchants(this.TestingContext.AccessToken, requests);
@@ -149,6 +151,14 @@
                 this.TestingContext.Logger.LogInformation($"Device {result.Item3} assigned to Merchant {result.Item2.MerchantName} Estate {result.Item1.EstateName}");
             }
         }
+
+        [When(@"I add the following contracts to the following merchants")]
+        public async Task WhenIAddTheFollowingContractsToTheFollowingMerchants(Table table){
+            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            List<(EstateDetails, Guid, Guid)> requests = table.Rows.ToAddContractToMerchantRequests(estates);
+            await this.EstateManagementSteps.WhenIAddTheFollowingContractsToTheFollowingMerchants(this.TestingContext.AccessToken, requests);
+        }
+
 
         /// <summary>
         /// Givens the i have a token to access the estate management and transaction processor acl resources.
@@ -163,28 +173,34 @@
             this.TestingContext.AccessToken = await this.SecurityServiceSteps.GetClientToken(clientDetails.ClientId, clientDetails.ClientSecret, CancellationToken.None);
         }
 
+        private async Task<Decimal> GetMerchantBalance(Guid merchantId)
+        {
+            JsonElement jsonElement = (JsonElement)await this.TestingContext.DockerHelper.ProjectionManagementClient.GetStateAsync<dynamic>("MerchantBalanceProjection", $"MerchantBalance-{merchantId:N}");
+            JObject jsonObject = JObject.Parse(jsonElement.GetRawText());
+            decimal balanceValue = jsonObject.SelectToken("merchant.balance").Value<decimal>();
+            return balanceValue;
+        }
+
         /// <summary>
         /// Givens the i make the following manual merchant deposits.
         /// </summary>
         /// <param name="table">The table.</param>
         [Given(@"I make the following manual merchant deposits")]
         public async Task GivenIMakeTheFollowingManualMerchantDeposits(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, MakeMerchantDepositRequest)> requests = table.Rows.ToMakeMerchantDepositRequest(estates);
 
             foreach ((EstateDetails, Guid, MakeMerchantDepositRequest) request in requests){
-                MerchantBalanceResponse previousMerchantBalance = await this.TestingContext.DockerHelper.TransactionProcessorClient.GetMerchantBalance(this.TestingContext.AccessToken,
-                                                                                                                                                       request.Item1.EstateId,
-                                                                                                                                                       request.Item2,
-                                                                                                                                                       CancellationToken.None);
+                Decimal previousMerchantBalance = await this.GetMerchantBalance(request.Item2);
 
                 await this.EstateManagementSteps.GivenIMakeTheFollowingManualMerchantDeposits(this.TestingContext.AccessToken, request);
 
                 await Retry.For(async () => {
-                                    MerchantBalanceResponse currentMerchantBalance = await this.TestingContext.DockerHelper.TransactionProcessorClient.GetMerchantBalance(this.TestingContext.AccessToken, request.Item1.EstateId, request.Item2, CancellationToken.None);
-                                    currentMerchantBalance.AvailableBalance.ShouldBe(previousMerchantBalance.AvailableBalance + request.Item3.Amount);
+                    Decimal currentMerchantBalance = await this.GetMerchantBalance(request.Item2);
 
-                                    this.TestingContext.Logger.LogInformation($"Deposit Reference {request.Item3.Reference} made for Merchant Id {request.Item2}");
+                    currentMerchantBalance.ShouldBe(previousMerchantBalance + request.Item3.Amount);
+
+                    this.TestingContext.Logger.LogInformation($"Deposit Reference {request.Item3.Reference} made for Merchant Id {request.Item2}");
                                 });
             }
         }
@@ -251,7 +267,7 @@
         /// <param name="table">The table.</param>
         [When(@"I add the following Transaction Fees")]
         public async Task WhenIAddTheFollowingTransactionFees(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Contract, Product, AddTransactionFeeForProductToContractRequest)> requests = table.Rows.ToAddTransactionFeeForProductToContractRequests(estates);
             await this.EstateManagementSteps.WhenIAddTheFollowingTransactionFees(this.TestingContext.AccessToken, requests);
         }
@@ -263,7 +279,7 @@
         [Given(@"I have assigned the following  operator to the merchants")]
         [When(@"I assign the following  operator to the merchants")]
         public async Task WhenIAssignTheFollowingOperatorToTheMerchants(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, AssignOperatorRequest)> requests = table.Rows.ToAssignOperatorRequests(estates);
 
             List<(EstateDetails, MerchantOperatorResponse)> results = await this.EstateManagementSteps.WhenIAssignTheFollowingOperatorToTheMerchants(this.TestingContext.AccessToken, requests);
@@ -308,7 +324,7 @@
         [Given("I create the following merchants")]
         [When(@"I create the following merchants")]
         public async Task WhenICreateTheFollowingMerchants(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails estate, CreateMerchantRequest)> requests = table.Rows.ToCreateMerchantRequests(estates);
 
             List<MerchantResponse> verifiedMerchants = await this.EstateManagementSteps.WhenICreateTheFollowingMerchants(this.TestingContext.AccessToken, requests);
@@ -327,7 +343,7 @@
         [Given(@"I have created the following operators")]
         [When(@"I create the following operators")]
         public async Task WhenICreateTheFollowingOperators(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails estate, CreateOperatorRequest request)> requests = table.Rows.ToCreateOperatorRequests(estates);
 
             List<(Guid, EstateOperatorResponse)> results = await this.EstateManagementSteps.WhenICreateTheFollowingOperators(this.TestingContext.AccessToken, requests);
@@ -343,7 +359,7 @@
         /// <param name="table">The table.</param>
         [When(@"I create the following Products")]
         public async Task WhenICreateTheFollowingProducts(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Contract, AddProductToContractRequest)> requests = table.Rows.ToAddProductToContractRequest(estates);
             await this.EstateManagementSteps.WhenICreateTheFollowingProducts(this.TestingContext.AccessToken, requests);
         }
@@ -355,7 +371,7 @@
         [When(@"I create the following security users")]
         [Given("I have created the following security users")]
         public async Task WhenICreateTheFollowingSecurityUsers(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<CreateNewUserRequest> createUserRequests = table.Rows.ToCreateNewUserRequests(estates);
             await this.EstateManagementSteps.WhenICreateTheFollowingSecurityUsers(this.TestingContext.AccessToken, createUserRequests, estates);
         }
@@ -372,7 +388,7 @@
         /// <param name="table">The table.</param>
         [When(@"I perform the following reconciliations")]
         public async Task WhenIPerformTheFollowingReconciliations(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages = table.Rows.ToSerialisedMessages(estates);
             List<(EstateDetails, String, Guid, String, TransactionRequestMessage)> requestMessages = SpecflowExtensions.ToACLSerialisedMessages(SharedSteps.ApplicationVersion,
                                                                                                                                                 serialisedMessages,
@@ -389,7 +405,7 @@
         /// <param name="table">The table.</param>
         [When(@"I perform the following transactions")]
         public async Task WhenIPerformTheFollowingTransactions(Table table){
-            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages = table.Rows.ToSerialisedMessages(estates);
             List<(EstateDetails, String, Guid, String, TransactionRequestMessage)> requestMessages = SpecflowExtensions.ToACLSerialisedMessages(SharedSteps.ApplicationVersion,
                                                                                                                                                 serialisedMessages,
