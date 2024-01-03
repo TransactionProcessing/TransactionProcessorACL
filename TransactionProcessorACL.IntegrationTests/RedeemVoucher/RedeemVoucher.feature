@@ -75,7 +75,7 @@ Background:
 When I add the following contracts to the following merchants
 	| EstateName    | MerchantName    | ContractDescription       |
 	| Test Estate 1 | Test Merchant 1 | Hospital 1 Contract       |
-	| Test Estate 2 | Test Merchant 2 | Hospital 1 Contract       |
+	| Test Estate 2 | Test Merchant 2 | Hospital 2 Contract       |
 
 	Given I make the following manual merchant deposits 
 	| Reference | Amount  | DateTime | MerchantName    | EstateName    |
