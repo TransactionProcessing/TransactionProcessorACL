@@ -9,7 +9,7 @@ namespace TransactionProcessor.IntegrationTests.Common
     using global::Shared.IntegrationTesting;
     using global::Shared.Logger;
     using NLog;
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
     [Scope(Tag = "base")]
@@ -35,8 +35,19 @@ namespace TransactionProcessor.IntegrationTests.Common
             logger.Initialise(LogManager.GetLogger(scenarioName), scenarioName);
             LogManager.AddHiddenAssembly(typeof(NlogLogger).Assembly);
 
+            DockerServices dockerServices = DockerServices.CallbackHandler | DockerServices.EstateManagement | DockerServices.EventStore |
+                                            DockerServices.FileProcessor | DockerServices.MessagingService | DockerServices.SecurityService |
+                                            DockerServices.SqlServer | DockerServices.TestHost | DockerServices.TransactionProcessor |
+                                            DockerServices.TransactionProcessorAcl;
+
             this.TestingContext.DockerHelper = new DockerHelper();
             this.TestingContext.DockerHelper.Logger = logger;
+            this.TestingContext.Logger = logger;
+            this.TestingContext.DockerHelper.RequiredDockerServices = dockerServices;
+            this.TestingContext.Logger.LogInformation("About to Start Global Setup");
+
+            await Setup.GlobalSetup(this.TestingContext.DockerHelper);
+
             this.TestingContext.DockerHelper.SqlServerContainer = Setup.DatabaseServerContainer;
             this.TestingContext.DockerHelper.SqlServerNetwork = Setup.DatabaseServerNetwork;
             this.TestingContext.DockerHelper.DockerCredentials = Setup.DockerCredentials;
@@ -47,21 +58,16 @@ namespace TransactionProcessor.IntegrationTests.Common
 
             this.TestingContext.Logger = logger;
             this.TestingContext.Logger.LogInformation("About to Start Containers for Scenario Run");
-
-            DockerServices dockerServices = DockerServices.CallbackHandler | DockerServices.EstateManagement | DockerServices.EventStore |
-                                            DockerServices.FileProcessor | DockerServices.MessagingService | DockerServices.SecurityService |
-                                            DockerServices.SqlServer | DockerServices.TestHost | DockerServices.TransactionProcessor |
-                                            DockerServices.TransactionProcessorAcl;
-
             await this.TestingContext.DockerHelper.StartContainersForScenarioRun(scenarioName, dockerServices).ConfigureAwait(false);
             this.TestingContext.Logger.LogInformation("Containers for Scenario Run Started");
         }
 
         [AfterScenario]
-        public async Task StopSystem()
-        {
+        public async Task StopSystem(){
+            DockerServices shareDockerServices = DockerServices.SqlServer;
+
             this.TestingContext.Logger.LogInformation("About to Stop Containers for Scenario Run");
-            await this.TestingContext.DockerHelper.StopContainersForScenarioRun().ConfigureAwait(false);
+            await this.TestingContext.DockerHelper.StopContainersForScenarioRun(shareDockerServices).ConfigureAwait(false);
             this.TestingContext.Logger.LogInformation("Containers for Scenario Run Stopped");
         }
     }

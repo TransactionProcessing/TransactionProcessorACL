@@ -9,8 +9,9 @@
     using EstateManagement.IntegrationTesting.Helpers;
     using global::Shared.Logger;
     using Newtonsoft.Json;
+    using Reqnroll;
+    using Shared.IntegrationTesting;
     using Shouldly;
-    using TechTalk.SpecFlow;
 
     /// <summary>
     /// 
@@ -118,9 +119,9 @@
         /// </summary>
         /// <param name="tableRow">The table row.</param>
         /// <returns></returns>
-        public EstateDetails1 GetEstateDetails(TableRow tableRow)
+        public EstateDetails1 GetEstateDetails(DataTableRow tableRow)
         {
-            String estateName = SpecflowTableHelper.GetStringRowValue(tableRow, "EstateName");
+            String estateName = ReqnrollTableHelper.GetStringRowValue(tableRow, "EstateName");
 
             EstateDetails1 estateDetails = this.Estates.SingleOrDefault(e => e.EstateDetails.EstateName == estateName);
 
