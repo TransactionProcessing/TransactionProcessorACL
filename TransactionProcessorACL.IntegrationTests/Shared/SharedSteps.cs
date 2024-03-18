@@ -11,12 +11,12 @@
     using EstateManagement.DataTransferObjects.Responses;
     using EstateManagement.IntegrationTesting.Helpers;
     using Newtonsoft.Json.Linq;
+    using Reqnroll;
     using SecurityService.DataTransferObjects;
     using SecurityService.DataTransferObjects.Requests;
     using SecurityService.DataTransferObjects.Responses;
     using SecurityService.IntegrationTesting.Helpers;
     using Shouldly;
-    using TechTalk.SpecFlow;
     using TransactionProcessor.DataTransferObjects;
     using TransactionProcessor.IntegrationTesting.Helpers;
     using TransactionProcessor.IntegrationTests.Common;
@@ -125,14 +125,14 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [Given(@"I create a contract with the following values")]
-        public async Task GivenICreateAContractWithTheFollowingValues(Table table){
+        public async Task GivenICreateAContractWithTheFollowingValues(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, CreateContractRequest)> requests = table.Rows.ToCreateContractRequests(estates);
             List<ContractResponse> responses = await this.EstateManagementSteps.GivenICreateAContractWithTheFollowingValues(this.TestingContext.AccessToken, requests);
         }
 
         [Given(@"I create the following api scopes")]
-        public async Task GivenICreateTheFollowingApiScopes(Table table){
+        public async Task GivenICreateTheFollowingApiScopes(DataTable table){
             List<CreateApiScopeRequest> requests = table.Rows.ToCreateApiScopeRequests();
             await this.SecurityServiceSteps.GivenICreateTheFollowingApiScopes(requests);
         }
@@ -142,7 +142,7 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [Given(@"I have assigned the following devices to the merchants")]
-        public async Task GivenIHaveAssignedTheFollowingDevicesToTheMerchants(Table table){
+        public async Task GivenIHaveAssignedTheFollowingDevicesToTheMerchants(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, AddMerchantDeviceRequest)> requests = table.Rows.ToAddMerchantDeviceRequests(estates);
 
@@ -153,7 +153,7 @@
         }
 
         [When(@"I add the following contracts to the following merchants")]
-        public async Task WhenIAddTheFollowingContractsToTheFollowingMerchants(Table table){
+        public async Task WhenIAddTheFollowingContractsToTheFollowingMerchants(DataTable table){
             List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, Guid)> requests = table.Rows.ToAddContractToMerchantRequests(estates);
             await this.EstateManagementSteps.WhenIAddTheFollowingContractsToTheFollowingMerchants(this.TestingContext.AccessToken, requests);
@@ -165,9 +165,9 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [Given(@"I have a token to access the estate management and transaction processor acl resources")]
-        public async Task GivenIHaveATokenToAccessTheEstateManagementAndTransactionProcessorAclResources(Table table){
-            TableRow firstRow = table.Rows.First();
-            String clientId = SpecflowTableHelper.GetStringRowValue(firstRow, "ClientId");
+        public async Task GivenIHaveATokenToAccessTheEstateManagementAndTransactionProcessorAclResources(DataTable table){
+            DataTableRow firstRow = table.Rows.First();
+            String clientId = ReqnrollTableHelper.GetStringRowValue(firstRow, "ClientId");
             ClientDetails clientDetails = this.TestingContext.GetClientDetails(clientId);
 
             this.TestingContext.AccessToken = await this.SecurityServiceSteps.GetClientToken(clientDetails.ClientId, clientDetails.ClientSecret, CancellationToken.None);
@@ -186,7 +186,7 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [Given(@"I make the following manual merchant deposits")]
-        public async Task GivenIMakeTheFollowingManualMerchantDeposits(Table table){
+        public async Task GivenIMakeTheFollowingManualMerchantDeposits(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, MakeMerchantDepositRequest)> requests = table.Rows.ToMakeMerchantDepositRequest(estates);
 
@@ -206,7 +206,7 @@
         }
 
         [Given(@"the following api resources exist")]
-        public async Task GivenTheFollowingApiResourcesExist(Table table){
+        public async Task GivenTheFollowingApiResourcesExist(DataTable table){
             List<CreateApiResourceRequest> requests = table.Rows.ToCreateApiResourceRequests();
             await this.SecurityServiceSteps.GivenTheFollowingApiResourcesExist(requests);
         }
@@ -216,7 +216,7 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [Given(@"the following clients exist")]
-        public async Task GivenTheFollowingClientsExist(Table table){
+        public async Task GivenTheFollowingClientsExist(DataTable table){
             List<CreateClientRequest> requests = table.Rows.ToCreateClientRequests();
             List<(String clientId, String secret, List<String> allowedGrantTypes)> results = await this.SecurityServiceSteps.GivenTheFollowingClientsExist(requests);
 
@@ -230,7 +230,7 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [Given(@"the following security roles exist")]
-        public async Task GivenTheFollowingSecurityRolesExist(Table table){
+        public async Task GivenTheFollowingSecurityRolesExist(DataTable table){
             List<CreateRoleRequest> requests = table.Rows.ToCreateRoleRequests();
             await this.SecurityServiceSteps.GivenICreateTheFollowingRoles(requests, CancellationToken.None);
         }
@@ -240,8 +240,8 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [Then(@"the reconciliation response should contain the following information")]
-        public void ThenReconciliationResponseShouldContainTheFollowingInformation(Table table){
-            List<SpecflowExtensions.ExpectedReconciliationResponse> expectedResponses = table.Rows.ToExpectedReconciliationResponseDetails(this.TestingContext.Estates);
+        public void ThenReconciliationResponseShouldContainTheFollowingInformation(DataTable table){
+            List<ReqnrollExtensions.ExpectedReconciliationResponse> expectedResponses = table.Rows.ToExpectedReconciliationResponseDetails(this.TestingContext.Estates);
             this.AclSteps.ThenReconciliationResponseShouldContainTheFollowingInformation(expectedResponses, this.TestingContext.Estates);
         }
 
@@ -250,14 +250,14 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [Then(@"the logon transaction response should contain the following information")]
-        public void ThenTheLogonTransactionResponseShouldContainTheFollowingInformation(Table table){
-            List<SpecflowExtensions.ExpectedTransactionResponse> expectedResponses = table.Rows.ToExpectedTransactionResponseDetails(this.TestingContext.Estates);
+        public void ThenTheLogonTransactionResponseShouldContainTheFollowingInformation(DataTable table){
+            List<ReqnrollExtensions.ExpectedTransactionResponse> expectedResponses = table.Rows.ToExpectedTransactionResponseDetails(this.TestingContext.Estates);
             this.AclSteps.ThenTheLogonTransactionResponseShouldContainTheFollowingInformation(expectedResponses, this.TestingContext.Estates);
         }
 
         [Then(@"the sale transaction response should contain the following information")]
-        public void ThenTheSaleTransactionResponseShouldContainTheFollowingInformation(Table table){
-            List<SpecflowExtensions.ExpectedTransactionResponse> expectedResponses = table.Rows.ToExpectedTransactionResponseDetails(this.TestingContext.Estates);
+        public void ThenTheSaleTransactionResponseShouldContainTheFollowingInformation(DataTable table){
+            List<ReqnrollExtensions.ExpectedTransactionResponse> expectedResponses = table.Rows.ToExpectedTransactionResponseDetails(this.TestingContext.Estates);
             this.AclSteps.ThenTheSaleTransactionResponseShouldContainTheFollowingInformation(expectedResponses, this.TestingContext.Estates);
         }
 
@@ -266,7 +266,7 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [When(@"I add the following Transaction Fees")]
-        public async Task WhenIAddTheFollowingTransactionFees(Table table){
+        public async Task WhenIAddTheFollowingTransactionFees(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Contract, Product, AddTransactionFeeForProductToContractRequest)> requests = table.Rows.ToAddTransactionFeeForProductToContractRequests(estates);
             await this.EstateManagementSteps.WhenIAddTheFollowingTransactionFees(this.TestingContext.AccessToken, requests);
@@ -278,7 +278,7 @@
         /// <param name="table">The table.</param>
         [Given(@"I have assigned the following  operator to the merchants")]
         [When(@"I assign the following  operator to the merchants")]
-        public async Task WhenIAssignTheFollowingOperatorToTheMerchants(Table table){
+        public async Task WhenIAssignTheFollowingOperatorToTheMerchants(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, AssignOperatorRequest)> requests = table.Rows.ToAssignOperatorRequests(estates);
 
@@ -295,20 +295,9 @@
         /// <param name="table">The table.</param>
         [Given(@"I have created the following estates")]
         [When(@"I create the following estates")]
-        public async Task WhenICreateTheFollowingEstates(Table table){
+        public async Task WhenICreateTheFollowingEstates(DataTable table){
             List<CreateEstateRequest> requests = table.Rows.ToCreateEstateRequests();
-
-            foreach (CreateEstateRequest request in requests){
-                // Setup the subscriptions for the estate
-                await Retry.For(async () => {
-                                    await this.TestingContext.DockerHelper
-                                              .CreateEstateSubscriptions(request.EstateName)
-                                              .ConfigureAwait(false);
-                                },
-                                retryFor:TimeSpan.FromMinutes(2),
-                                retryInterval:TimeSpan.FromSeconds(30));
-            }
-
+            
             List<EstateResponse> verifiedEstates = await this.EstateManagementSteps.WhenICreateTheFollowingEstates(this.TestingContext.AccessToken, requests);
 
             foreach (EstateResponse verifiedEstate in verifiedEstates){
@@ -323,7 +312,7 @@
         /// <param name="table">The table.</param>
         [Given("I create the following merchants")]
         [When(@"I create the following merchants")]
-        public async Task WhenICreateTheFollowingMerchants(Table table){
+        public async Task WhenICreateTheFollowingMerchants(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails estate, CreateMerchantRequest)> requests = table.Rows.ToCreateMerchantRequests(estates);
 
@@ -342,7 +331,7 @@
         /// <param name="table">The table.</param>
         [Given(@"I have created the following operators")]
         [When(@"I create the following operators")]
-        public async Task WhenICreateTheFollowingOperators(Table table){
+        public async Task WhenICreateTheFollowingOperators(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails estate, CreateOperatorRequest request)> requests = table.Rows.ToCreateOperatorRequests(estates);
 
@@ -358,7 +347,7 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [When(@"I create the following Products")]
-        public async Task WhenICreateTheFollowingProducts(Table table){
+        public async Task WhenICreateTheFollowingProducts(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Contract, AddProductToContractRequest)> requests = table.Rows.ToAddProductToContractRequest(estates);
             await this.EstateManagementSteps.WhenICreateTheFollowingProducts(this.TestingContext.AccessToken, requests);
@@ -370,14 +359,14 @@
         /// <param name="table">The table.</param>
         [When(@"I create the following security users")]
         [Given("I have created the following security users")]
-        public async Task WhenICreateTheFollowingSecurityUsers(Table table){
+        public async Task WhenICreateTheFollowingSecurityUsers(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<CreateNewUserRequest> createUserRequests = table.Rows.ToCreateNewUserRequests(estates);
             await this.EstateManagementSteps.WhenICreateTheFollowingSecurityUsers(this.TestingContext.AccessToken, createUserRequests, estates);
         }
 
         [Given(@"I have created the following security users for voucher redemption")]
-        public async Task GivenIHaveCreatedTheFollowingSecurityUsersForVoucherRedemption(Table table){
+        public async Task GivenIHaveCreatedTheFollowingSecurityUsersForVoucherRedemption(DataTable table){
             List<CreateUserRequest> createUserRequests = table.Rows.ToAclCreateUserRequests(this.TestingContext.Estates);
             await this.SecurityServiceSteps.GivenICreateTheFollowingUsers(createUserRequests, CancellationToken.None);
         }
@@ -387,10 +376,10 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [When(@"I perform the following reconciliations")]
-        public async Task WhenIPerformTheFollowingReconciliations(Table table){
+        public async Task WhenIPerformTheFollowingReconciliations(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages = table.Rows.ToSerialisedMessages(estates);
-            List<(EstateDetails, String, Guid, String, TransactionRequestMessage)> requestMessages = SpecflowExtensions.ToACLSerialisedMessages(SharedSteps.ApplicationVersion,
+            List<(EstateDetails, String, Guid, String, TransactionRequestMessage)> requestMessages = ReqnrollExtensions.ToACLSerialisedMessages(SharedSteps.ApplicationVersion,
                                                                                                                                                 serialisedMessages,
                                                                                                                                                 this.TestingContext.Estates);
 
@@ -404,10 +393,10 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [When(@"I perform the following transactions")]
-        public async Task WhenIPerformTheFollowingTransactions(Table table){
+        public async Task WhenIPerformTheFollowingTransactions(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages = table.Rows.ToSerialisedMessages(estates);
-            List<(EstateDetails, String, Guid, String, TransactionRequestMessage)> requestMessages = SpecflowExtensions.ToACLSerialisedMessages(SharedSteps.ApplicationVersion,
+            List<(EstateDetails, String, Guid, String, TransactionRequestMessage)> requestMessages = ReqnrollExtensions.ToACLSerialisedMessages(SharedSteps.ApplicationVersion,
                                                                                                                                                 serialisedMessages,
                                                                                                                                                 this.TestingContext.Estates);
 

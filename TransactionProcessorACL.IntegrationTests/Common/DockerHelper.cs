@@ -68,6 +68,20 @@
 
         #region Methods
 
+        public override async Task CreateSubscriptions(){
+            List<(String streamName, String groupName, Int32 maxRetries)> subscriptions = new List<(String streamName, String groupName, Int32 maxRetries)>();
+            subscriptions.AddRange(MessagingService.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
+            subscriptions.AddRange(EstateManagement.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
+            subscriptions.AddRange(TransactionProcessor.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
+
+            foreach ((String streamName, String groupName, Int32 maxRetries) subscription in subscriptions)
+            {
+                var x = subscription;
+                x.maxRetries = 2;
+                await this.CreatePersistentSubscription(x);
+            }
+        }
+
         /// <summary>
         /// Starts the containers for scenario run.
         /// </summary>
@@ -106,15 +120,6 @@
 
             this.ProjectionManagementClient = new EventStoreProjectionManagementClient(ConfigureEventStoreSettings());
 
-        }
-        
-       
-        /// <summary>
-        /// Stops the containers for scenario run.
-        /// </summary>
-        public override async Task StopContainersForScenarioRun()
-        {
-            base.StopContainersForScenarioRun();
         }
         
         #endregion
