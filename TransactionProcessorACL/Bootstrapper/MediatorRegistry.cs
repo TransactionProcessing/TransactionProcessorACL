@@ -24,9 +24,8 @@
         public MediatorRegistry()
         {
             this.AddTransient<IMediator, Mediator>();
-            this.AddTransient<ServiceFactory>(context => { return t => context.GetService(t); });
             
-            this.AddSingleton<IRequestHandler<VersionCheckRequest, Unit>, VersionCheckRequestHandler>();
+            this.AddSingleton<IRequestHandler<VersionCheckRequest>, VersionCheckRequestHandler>();
             
             this.AddSingleton<IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>, ProcessLogonTransactionRequestHandler>();
             this.AddSingleton<IRequestHandler<ProcessSaleTransactionRequest, ProcessSaleTransactionResponse>, ProcessSaleTransactionRequestHandler>();
