@@ -29,11 +29,11 @@
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException">Version number [{requestVersion}] is less than the Minimum Supported version [{minimumVersion}]</exception>
-        public async Task<Unit> Handle(VersionCheckRequest request,
+        public async Task Handle(VersionCheckRequest request,
                                        CancellationToken cancellationToken) {
             if (Environment.GetEnvironmentVariable("AppSettings:SkipVersionCheck") != null) {
                 if (Boolean.TryParse(ConfigurationReader.GetValue("AppSettings","SkipVersionCheck"), out Boolean skipVersionCheck) && skipVersionCheck) {
-                    return default;
+                    return;
                 }
             }
 
@@ -50,8 +50,6 @@
                 // This is not compatible
                 throw new VersionIncompatibleException($"Version Mistmatch - Version number [{requestVersion}] is less than the Minimum Supported version [{minimumVersion}]");
             }
-
-            return default;
         }
 
         #endregion

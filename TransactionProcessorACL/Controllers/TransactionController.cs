@@ -15,6 +15,7 @@
     using MediatR;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Models;
     using Shared.Logger;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;
@@ -92,14 +93,28 @@
                 Logger.LogError(vex);
                 return this.StatusCode(505);
             }
-            
-            // Now do the transaction
-            dynamic request = this.CreateCommandFromRequest((dynamic)transactionRequest);
-            dynamic response = await this.Mediator.Send(request, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(response));
-            // TODO: Populate the GET route
-            //return this.Created("", transactionResponse);
+            // Now do the transaction
+            TransactionResponseMessage dto = null;
+            switch (transactionRequest){
+                case SaleTransactionRequestMessage msg:
+                    ProcessSaleTransactionRequest saleRequest = this.CreateCommandFromRequest(msg);
+                    ProcessSaleTransactionResponse saleResponse = await this.Mediator.Send(saleRequest, cancellationToken);
+                    dto = this.ModelFactory.ConvertFrom(saleResponse);
+                    break;
+                case LogonTransactionRequestMessage msg:
+                    ProcessLogonTransactionRequest logonRequest = this.CreateCommandFromRequest(msg);
+                    ProcessLogonTransactionResponse logonResponse = await this.Mediator.Send(logonRequest, cancellationToken);
+                    dto = this.ModelFactory.ConvertFrom(logonResponse);
+                    break;
+                case ReconciliationRequestMessage msg:
+                    ProcessReconciliationRequest reconciliationRequest = this.CreateCommandFromRequest(msg);
+                    ProcessReconciliationResponse reconciliationResponse = await this.Mediator.Send(reconciliationRequest, cancellationToken);
+                    dto = this.ModelFactory.ConvertFrom(reconciliationResponse);
+                    break;
+            }
+
+            return this.Ok(dto);
         }
 
         /// <summary>
