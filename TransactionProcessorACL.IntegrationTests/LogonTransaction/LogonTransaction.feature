@@ -38,6 +38,11 @@ Background:
 	| Test Estate 1 | Test Operator 1 | True                        | True                        |
 	| Test Estate 2 | Test Operator 1 | True                        | True                        |
 
+	And I have assigned the following operators to the estates
+	| EstateName    | OperatorName    | 
+	| Test Estate 1 | Test Operator 1 |
+	| Test Estate 2 | Test Operator 1 |
+
 	Given I create the following merchants
 	| MerchantName    | AddressLine1   | Town     | Region      | Country        | ContactName    | EmailAddress                 | EstateName    |
 	| Test Merchant 1 | Address Line 1 | TestTown | Test Region | United Kingdom | Test Contact 1 | testcontact1@merchant1.co.uk | Test Estate 1 |
