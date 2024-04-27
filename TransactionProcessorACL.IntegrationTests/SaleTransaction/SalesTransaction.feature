@@ -42,6 +42,13 @@ Background:
 	| Test Estate 2 | Safaricom    | True                        | True                        |
 	| Test Estate 2 | Voucher      | True                        | True                        |
 
+	And I have assigned the following operators to the estates
+	| EstateName    | OperatorName    | 
+	| Test Estate 1 | Safaricom |
+	| Test Estate 1 | Voucher |
+	| Test Estate 2 | Safaricom |
+	| Test Estate 2 | Voucher |
+
 	Given I create a contract with the following values
 	| EstateName    | OperatorName    | ContractDescription |
 	| Test Estate 1 | Safaricom | Safaricom Contract |
