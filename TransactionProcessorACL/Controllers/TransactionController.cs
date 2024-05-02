@@ -151,7 +151,7 @@
                                                                                          saleTransactionRequestMessage.TransactionDateTime,
                                                                                          saleTransactionRequestMessage.TransactionNumber,
                                                                                          saleTransactionRequestMessage.DeviceIdentifier,
-                                                                                         saleTransactionRequestMessage.OperatorIdentifier,
+                                                                                         saleTransactionRequestMessage.OperatorId,
                                                                                          saleTransactionRequestMessage.CustomerEmailAddress,
                                                                                          saleTransactionRequestMessage.ContractId,
                                                                                          saleTransactionRequestMessage.ProductId,

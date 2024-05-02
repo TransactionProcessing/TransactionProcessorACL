@@ -39,7 +39,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                          TestData.TransactionDateTime,
                                                                                          TestData.TransactionNumber,
                                                                                          TestData.DeviceIdentifier,
-                                                                                         TestData.OperatorIdentifier,
+                                                                                         TestData.OperatorId,
                                                                                          TestData.CustomerEmailAddress,
                                                                                          TestData.ContractId,
                                                                                          TestData.ProductId,
@@ -50,7 +50,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             request.TransactionDateTime.ShouldBe(TestData.TransactionDateTime);
             request.TransactionNumber.ShouldBe(TestData.TransactionNumber);
             request.DeviceIdentifier.ShouldBe(TestData.DeviceIdentifier);
-            request.OperatorIdentifier.ShouldBe(TestData.OperatorIdentifier);
+            request.OperatorId.ShouldBe(TestData.OperatorId);
             request.CustomerEmailAddress.ShouldBe(TestData.CustomerEmailAddress);
             request.ContractId.ShouldBe(TestData.ContractId);
             request.ProductId.ShouldBe(TestData.ProductId);

@@ -55,7 +55,7 @@ namespace TransactionProcessorACL.Common.Examples
         /// <summary>
         /// The operator identifier
         /// </summary>
-        internal static String OperatorIdentifier = "Safaricom";
+        internal static Guid OperatorId = Guid.Parse("45198B46-3D3C-4117-9A90-4D08728DB2DB");
         /// <summary>
         /// The product identifier
         /// </summary>

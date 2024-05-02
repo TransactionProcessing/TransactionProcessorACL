@@ -47,7 +47,7 @@
                                        TransactionNumber = ExampleData.TransactionNumber,
                                        ContractId = ExampleData.ContractId,
                                        CustomerEmailAddress = ExampleData.CustomerEmailAddress,
-                                       OperatorIdentifier = ExampleData.OperatorIdentifier,
+                                       OperatorId = ExampleData.OperatorId,
                                        ProductId = ExampleData.ProductId
                                    }
                        },
@@ -66,7 +66,7 @@
                                                             new OperatorTotalRequest
                                                             {
                                                                 ContractId = ExampleData.ContractId,
-                                                                OperatorIdentifier = ExampleData.OperatorIdentifier,
+                                                                OperatorId = ExampleData.OperatorId,
                                                                 TransactionCount = ExampleData.TransactionCount,
                                                                 TransactionValue = ExampleData.TransactionValue
                                                             }

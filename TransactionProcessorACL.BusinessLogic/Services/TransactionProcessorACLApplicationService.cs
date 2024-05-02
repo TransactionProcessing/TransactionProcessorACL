@@ -171,7 +171,7 @@
                                                                                    DateTime transactionDateTime,
                                                                                    String transactionNumber,
                                                                                    String deviceIdentifier,
-                                                                                   String operatorIdentifier,
+                                                                                   Guid operatorId,
                                                                                    String customerEmailAddress,
                                                                                    Guid contractId,
                                                                                    Guid productId,
@@ -189,7 +189,7 @@
             saleTransactionRequest.DeviceIdentifier = deviceIdentifier;
             saleTransactionRequest.TransactionDateTime = transactionDateTime;
             saleTransactionRequest.TransactionType = "SALE";
-            saleTransactionRequest.OperatorIdentifier = operatorIdentifier;
+            saleTransactionRequest.OperatorId = operatorId;
             saleTransactionRequest.CustomerEmailAddress = customerEmailAddress;
             saleTransactionRequest.TransactionSource = 1; // Online sale
 

@@ -73,7 +73,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                       It.IsAny<DateTime>(),
                                                       It.IsAny<String>(),
                                                       It.IsAny<String>(),
-                                                      It.IsAny<String>(),
+                                                      It.IsAny<Guid>(),
                                                       It.IsAny<String>(),
                                                       It.IsAny<Guid>(),
                                                       It.IsAny<Guid>(),

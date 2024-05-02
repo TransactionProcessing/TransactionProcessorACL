@@ -80,7 +80,7 @@ public static class ReqnrollExtensions
                                                                           AdditionalRequestMetaData = saleRequest.AdditionalTransactionMetadata,
                                                                           ContractId = saleRequest.ContractId,
                                                                           CustomerEmailAddress = saleRequest.CustomerEmailAddress,
-                                                                          OperatorIdentifier = saleRequest.OperatorIdentifier,
+                                                                          OperatorId = saleRequest.OperatorId,
                                                                           ProductId = saleRequest.ProductId,
                                                                       };
             }
@@ -102,7 +102,7 @@ public static class ReqnrollExtensions
 
                                                                                                                                   {
                                                                                                                                       ContractId = o.ContractId,
-                                                                                                                                      OperatorIdentifier = o.OperatorIdentifier,
+                                                                                                                                      OperatorId = o.OperatorId,
                                                                                                                                       TransactionCount = o.TransactionCount,
                                                                                                                                       TransactionValue = o.TransactionValue,
                                                                                                                                   }).ToList();
