@@ -140,7 +140,7 @@
                                                                                 })
                                                                         };
 
-        public static String OperatorIdentifier = "Operator1";
+        public static Guid OperatorId = Guid.Parse("02238578-30F1-409C-BC73-1CC0220A0A0D");
 
         public static Decimal SaleAmount = 1000.00m;
 
@@ -163,7 +163,7 @@
             TestData.TransactionDateTime,
             TestData.TransactionNumber,
             TestData.DeviceIdentifier,
-            TestData.CustomerAccountNumber,
+            TestData.OperatorId,
             TestData.CustomerEmailAddress,
             TestData.ContractId,
             TestData.ProductId,

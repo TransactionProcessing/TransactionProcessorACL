@@ -49,7 +49,7 @@
                                                                         request.TransactionDateTime,
                                                                         request.TransactionNumber,
                                                                         request.DeviceIdentifier,
-                                                                        request.OperatorIdentifier,
+                                                                        request.OperatorId,
                                                                         request.CustomerEmailAddress,
                                                                         request.ContractId,
                                                                         request.ProductId,

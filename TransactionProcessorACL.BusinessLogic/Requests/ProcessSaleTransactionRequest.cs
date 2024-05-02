@@ -37,7 +37,7 @@
                                               DateTime transactionDateTime,
                                               String transactionNumber,
                                               String deviceIdentifier,
-                                              String operatorIdentifier,
+                                              Guid operatorId,
                                               String customerEmailAddress,
                                               Guid contractId,
                                               Guid productId,
@@ -46,7 +46,7 @@
             this.EstateId = estateId;
             this.MerchantId = merchantId;
             this.DeviceIdentifier = deviceIdentifier;
-            this.OperatorIdentifier = operatorIdentifier;
+            this.OperatorId = operatorId;
             this.CustomerEmailAddress = customerEmailAddress;
             this.ContractId = contractId;
             this.ProductId = productId;
@@ -121,7 +121,7 @@
         /// <value>
         /// The operator identifier.
         /// </value>
-        public String OperatorIdentifier { get; }
+        public Guid OperatorId { get; }
 
         /// <summary>
         /// Gets the transaction date time.
@@ -162,7 +162,7 @@
                                                            DateTime transactionDateTime,
                                                            String transactionNumber,
                                                            String deviceIdentifier,
-                                                           String operatorIdentifier,
+                                                           Guid operatorId,
                                                            String customerEmailAddress,
                                                            Guid contractId,
                                                            Guid productId,
@@ -173,7 +173,7 @@
                                                      transactionDateTime,
                                                      transactionNumber,
                                                      deviceIdentifier,
-                                                     operatorIdentifier,
+                                                     operatorId,
                                                      customerEmailAddress,
                                                      contractId,
                                                      productId,

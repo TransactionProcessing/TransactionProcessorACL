@@ -26,7 +26,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                       DateTime transactionDateTime,
                                                                       String transactionNumber,
                                                                       String deviceIdentifier,
-                                                                      String operatorIdentifier,
+                                                                      Guid operatorId,
                                                                       String customerEmailAddress,
                                                                       Guid contractId,
                                                                       Guid productId,
