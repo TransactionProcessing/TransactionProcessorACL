@@ -89,6 +89,12 @@ namespace TransactionProcessorACL
 
             if (env.IsDevelopment())
             {
+                var developmentNlogConfigFilename = "nlog.development.config";
+                if (File.Exists(Path.Combine(env.ContentRootPath, developmentNlogConfigFilename)))
+                {
+                    nlogConfigFilename = developmentNlogConfigFilename;
+                }
+
                 app.UseDeveloperExceptionPage();
             }
 
@@ -98,12 +104,8 @@ namespace TransactionProcessorACL
             ILogger logger = loggerFactory.CreateLogger("TransactionProcessor");
 
             Logger.Initialise(logger);
-
-            Action<String> loggerAction = message =>
-                                          {
-                                              Logger.LogInformation(message);
-                                          };
-            Startup.Configuration.LogConfiguration(loggerAction);
+            
+            Startup.Configuration.LogConfiguration(Logger.LogWarning);
 
             app.AddRequestLogging();
             app.AddResponseLogging();
