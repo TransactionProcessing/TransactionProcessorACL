@@ -56,7 +56,7 @@ jobs:
          zip -r ../transactionprocessoracl.zip ./*
 
     - name: Upload the artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4.4.0
       with:
         name: transactionprocessoracl
         path: transactionprocessoracl.zip    
@@ -108,7 +108,7 @@ jobs:
     
     steps:
       - name: Download the artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.8
         with:
           name: transactionprocessoracl
 
