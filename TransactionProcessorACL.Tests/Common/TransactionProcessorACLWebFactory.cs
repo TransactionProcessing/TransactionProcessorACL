@@ -47,7 +47,7 @@ namespace TransactionProcessorACL.Tests.Common
         {
             Mock<IMediator> mediatorMock = new Mock<IMediator>(MockBehavior.Strict);
 
-            mediatorMock.Setup(c => c.Send(It.IsAny<ProcessLogonTransactionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new ProcessLogonTransactionResponse
+            mediatorMock.Setup(c => c.Send(It.IsAny<TransactionCommands.ProcessLogonTransactionCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(new ProcessLogonTransactionResponse
                                                                                                                                     {
                 ResponseCode = "0000",
                 ResponseMessage = "SUCCESS"

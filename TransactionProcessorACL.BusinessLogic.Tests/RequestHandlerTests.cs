@@ -1,3 +1,5 @@
+using SimpleResults;
+
 namespace TransactionProcessorACL.BusinesssLogic.Tests
 {
     using System;
@@ -15,6 +17,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using Shouldly;
     using Testing;
     using Xunit;
+    using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
     /// <summary>
     /// 
@@ -51,16 +54,17 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                       It.IsAny<String>(),
                                                       It.IsAny<String>(),
                                                       It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessLogonTransactionResponse);
-            ProcessLogonTransactionRequestHandler requestHandler = new ProcessLogonTransactionRequestHandler(applicationService.Object);
+            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Object);
 
-            ProcessLogonTransactionRequest request = TestData.ProcessLogonTransactionRequest;
-            ProcessLogonTransactionResponse response = await requestHandler.Handle(request, CancellationToken.None);
+            TransactionCommands.ProcessLogonTransactionCommand command = TestData.ProcessLogonTransactionCommand;
+            Result<ProcessLogonTransactionResponse> result = await requestHandler.Handle(command, CancellationToken.None);
 
-            response.ShouldNotBeNull();
-            response.ResponseCode.ShouldBe(TestData.ResponseCode);
-            response.ResponseMessage.ShouldBe(TestData.ResponseMessage);
-            response.EstateId.ShouldBe(TestData.EstateId);
-            response.MerchantId.ShouldBe(TestData.MerchantId);
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
+            result.Data.ResponseCode.ShouldBe(TestData.ResponseCode);
+            result.Data.ResponseMessage.ShouldBe(TestData.ResponseMessage);
+            result.Data.EstateId.ShouldBe(TestData.EstateId);
+            result.Data.MerchantId.ShouldBe(TestData.MerchantId);
         }
 
         [Fact]
@@ -80,14 +84,15 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                       It.IsAny<Dictionary<String,String>>(),
                                                       It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessSaleTransactionResponse);
 
-            ProcessSaleTransactionRequestHandler requestHandler = new ProcessSaleTransactionRequestHandler(applicationService.Object);
+            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Object);
 
-            ProcessSaleTransactionRequest request = TestData.ProcessSaleTransactionRequest;
-            ProcessSaleTransactionResponse response = await requestHandler.Handle(request, CancellationToken.None);
+            TransactionCommands.ProcessSaleTransactionCommand command = TestData.ProcessSaleTransactionCommand;
+            Result<ProcessSaleTransactionResponse> result = await requestHandler.Handle(command, CancellationToken.None);
 
-            response.ShouldNotBeNull();
-            response.ResponseCode.ShouldBe(TestData.ResponseCode);
-            response.ResponseMessage.ShouldBe(TestData.ResponseMessage);
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
+            result.Data.ResponseCode.ShouldBe(TestData.ResponseCode);
+            result.Data.ResponseMessage.ShouldBe(TestData.ResponseMessage);
         }
 
         [Fact]
@@ -102,16 +107,17 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                       It.IsAny<Int32>(),
                                                       It.IsAny<Decimal>(),
                                                       It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessReconciliationResponse);
-            ProcessReconciliationRequestHandler requestHandler = new ProcessReconciliationRequestHandler(applicationService.Object);
+            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Object);
 
-            ProcessReconciliationRequest request = TestData.ProcessReconciliationRequest;
-            ProcessReconciliationResponse response = await requestHandler.Handle(request, CancellationToken.None);
+            TransactionCommands.ProcessReconciliationCommand command = TestData.ProcessReconciliationCommand;
+            Result<ProcessReconciliationResponse> result = await requestHandler.Handle(command, CancellationToken.None);
 
-            response.ShouldNotBeNull();
-            response.ResponseCode.ShouldBe(TestData.ResponseCode);
-            response.ResponseMessage.ShouldBe(TestData.ResponseMessage);
-            response.EstateId.ShouldBe(TestData.EstateId);
-            response.MerchantId.ShouldBe(TestData.MerchantId);
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
+            result.Data.ResponseCode.ShouldBe(TestData.ResponseCode);
+            result.Data.ResponseMessage.ShouldBe(TestData.ResponseMessage);
+            result.Data.EstateId.ShouldBe(TestData.EstateId);
+            result.Data.MerchantId.ShouldBe(TestData.MerchantId);
         }
 
         [Fact]
@@ -119,35 +125,30 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
             
-            VersionCheckRequest request = TestData.VersionCheckRequest;
-            Should.NotThrow(async () =>
-                            {
-                                await requestHandler.Handle(request, CancellationToken.None);
-                            });
+            VersionCheckCommands.VersionCheckCommand command = TestData.VersionCheckCommand;
+            var result = await requestHandler.Handle(command, CancellationToken.None);
+            result.IsSuccess.ShouldBeTrue();
         }
 
         [Fact]
         public async Task VersionCheckRequestHandler_Handle_OldVersion_ErrorThrown()
         {
             VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
-            
-            VersionCheckRequest request = VersionCheckRequest.Create(TestData.OldApplicationVersion);
-            Should.Throw<VersionIncompatibleException>(async () =>
-                            {
-                                await requestHandler.Handle(request, CancellationToken.None);
-                            });
+
+            VersionCheckCommands.VersionCheckCommand command = new(TestData.OldApplicationVersion);
+            var result = await requestHandler.Handle(command, CancellationToken.None);
+            result.IsFailed.ShouldBeTrue();
+            result.Status.ShouldBe(ResultStatus.Conflict);
         }
 
         [Fact]
         public async Task VersionCheckRequestHandler_Handle_NewerVersionBuildNumber_RequestIsHandled()
         {
             VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
-            
-            VersionCheckRequest request = VersionCheckRequest.Create(TestData.NewerApplicationVersion);
-            Should.NotThrow(async () =>
-                            {
-                                await requestHandler.Handle(request, CancellationToken.None);
-                            });
+
+            VersionCheckCommands.VersionCheckCommand command = new(TestData.NewerApplicationVersion);
+            var result = await requestHandler.Handle(command, CancellationToken.None);
+            result.IsSuccess.ShouldBeTrue(); ;
         }
 
         [Fact]
@@ -158,7 +159,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
 
             Should.NotThrow(async () =>
                             {
-                                await requestHandler.Handle(TestData.GetVoucherRequest, CancellationToken.None);
+                                await requestHandler.Handle(TestData.GetVoucherQuery, CancellationToken.None);
                             });
         }
 
@@ -170,7 +171,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
 
             Should.NotThrow(async () =>
                             {
-                                await requestHandler.Handle(TestData.RedeemVoucherRequest, CancellationToken.None);
+                                await requestHandler.Handle(TestData.RedeemVoucherCommand, CancellationToken.None);
                             });
         }
 

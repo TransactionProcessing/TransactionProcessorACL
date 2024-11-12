@@ -10,7 +10,6 @@
     using TransactionProcessorACL.BusinessLogic.Requests;
     using TransactionProcessorACL.DataTransferObjects;
     using GetVoucherResponse = TransactionProcessor.DataTransferObjects.GetVoucherResponse;
-    using RedeemVoucherRequest = BusinessLogic.Requests.RedeemVoucherRequest;
     using RedeemVoucherResponse = TransactionProcessor.DataTransferObjects.RedeemVoucherResponse;
 
     /// <summary>
@@ -58,8 +57,8 @@
         /// <summary>
         /// The process logon transaction request
         /// </summary>
-        public static ProcessLogonTransactionRequest ProcessLogonTransactionRequest =
-            ProcessLogonTransactionRequest.Create(TestData.EstateId,
+        public static TransactionCommands.ProcessLogonTransactionCommand ProcessLogonTransactionCommand =
+            new(TestData.EstateId,
                                                   TestData.MerchantId,
                                                   TestData.TransactionDateTime,
                                                   TestData.TransactionNumber,
@@ -158,7 +157,7 @@
                                                                                  {"CustomerAccountNumber", TestData.CustomerAccountNumber}
                                                                              };
 
-        public static ProcessSaleTransactionRequest ProcessSaleTransactionRequest = ProcessSaleTransactionRequest.Create(TestData.EstateId,
+        public static TransactionCommands.ProcessSaleTransactionCommand ProcessSaleTransactionCommand = new(TestData.EstateId,
             TestData.MerchantId,
             TestData.TransactionDateTime,
             TestData.TransactionNumber,
@@ -173,7 +172,7 @@
 
         public static Decimal ReconciliationTransactionValue = 100.00m;
 
-        public static ProcessReconciliationRequest ProcessReconciliationRequest= ProcessReconciliationRequest.Create(TestData.EstateId,
+        public static TransactionCommands.ProcessReconciliationCommand ProcessReconciliationCommand = new(TestData.EstateId,
              TestData.MerchantId,
              TestData.TransactionDateTime,
              TestData.DeviceIdentifier,
@@ -225,9 +224,9 @@
         public static String NewerApplicationVersion = "1.0.5.1";
         public static String ApplicationVersion = "1.0.5";
 
-        public static VersionCheckRequest VersionCheckRequest = VersionCheckRequest.Create(TestData.ApplicationVersion);
-        public static RedeemVoucherRequest RedeemVoucherRequest = RedeemVoucherRequest.Create(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
-        public static GetVoucherRequest GetVoucherRequest = GetVoucherRequest.Create(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
+        public static VersionCheckCommands.VersionCheckCommand VersionCheckCommand = new(TestData.ApplicationVersion);
+        public static VoucherCommands.RedeemVoucherCommand RedeemVoucherCommand => new(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
+        public static VoucherQueries.GetVoucherQuery GetVoucherQuery => new(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
 
         public static String VoucherCode = "1231231234";
         public static DateTime ExpiryDate = new DateTime(2021, 1, 11);

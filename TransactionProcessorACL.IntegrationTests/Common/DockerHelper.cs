@@ -109,7 +109,7 @@
 
                                               };
             HttpClient httpClient = new HttpClient(clientHandler);
-            this.EstateClient = new EstateClient(EstateManagementBaseAddressResolver, httpClient);
+            this.EstateClient = new EstateClient(EstateManagementBaseAddressResolver, httpClient, 2);
             this.SecurityServiceClient = new SecurityServiceClient(SecurityServiceBaseAddressResolver, httpClient);
             this.TransactionProcessorClient = new TransactionProcessorClient(TransactionProcessorBaseAddressResolver, httpClient);
             this.TestHostHttpClient = new HttpClient(clientHandler);

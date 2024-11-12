@@ -138,6 +138,11 @@
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, CreateContractRequest)> requests = table.Rows.ToCreateContractRequests(estates);
             List<ContractResponse> responses = await this.EstateManagementSteps.GivenICreateAContractWithTheFollowingValues(this.TestingContext.AccessToken, requests);
+            foreach (ContractResponse contractResponse in responses)
+            {
+                var estate = this.TestingContext.Estates.Single(e => e.EstateDetails.EstateId == contractResponse.EstateId);
+                estate.EstateDetails.AddContract(contractResponse.ContractId, contractResponse.Description, contractResponse.OperatorId);
+            }
         }
 
         [Given(@"I create the following api scopes")]

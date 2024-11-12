@@ -1,4 +1,6 @@
-﻿namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
+﻿using SimpleResults;
+
+namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
 {
     using System;
     using System.Net;
@@ -18,22 +20,15 @@
     /// 
     /// </summary>
     /// <seealso cref="VersionCheckRequest" />
-    public class VersionCheckRequestHandler : IRequestHandler<VersionCheckRequest>
+    public class VersionCheckRequestHandler : IRequestHandler<VersionCheckCommands.VersionCheckCommand, Result>
     {
         #region Methods
 
-        /// <summary>
-        /// Handles the specified request.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="NotSupportedException">Version number [{requestVersion}] is less than the Minimum Supported version [{minimumVersion}]</exception>
-        public async Task Handle(VersionCheckRequest request,
-                                       CancellationToken cancellationToken) {
+        public async Task<Result> Handle(VersionCheckCommands.VersionCheckCommand command,
+                                         CancellationToken cancellationToken) {
             if (Environment.GetEnvironmentVariable("AppSettings:SkipVersionCheck") != null) {
                 if (Boolean.TryParse(ConfigurationReader.GetValue("AppSettings","SkipVersionCheck"), out Boolean skipVersionCheck) && skipVersionCheck) {
-                    return;
+                    return Result.Success();
                 }
             }
 
@@ -43,13 +38,15 @@
             // Convert to an assembly version
             Version minimumVersion = Version.Parse(versionFromConfig);
 
-            Version.TryParse(request.VersionNumber, out Version requestVersion);
+            Version.TryParse(command.VersionNumber, out Version requestVersion);
 
             if (requestVersion == null || requestVersion.CompareTo(minimumVersion) < 0)
             {
                 // This is not compatible
-                throw new VersionIncompatibleException($"Version Mistmatch - Version number [{requestVersion}] is less than the Minimum Supported version [{minimumVersion}]");
+                return Result.Conflict(
+                    $"Version Mistmatch - Version number [{requestVersion}] is less than the Minimum Supported version [{minimumVersion}]");
             }
+            return Result.Success();
         }
 
         #endregion

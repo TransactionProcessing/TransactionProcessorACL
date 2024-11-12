@@ -1,4 +1,6 @@
-﻿namespace TransactionProcessorACL.Bootstrapper
+﻿using SimpleResults;
+
+namespace TransactionProcessorACL.Bootstrapper
 {
     using BusinessLogic.RequestHandlers;
     using BusinessLogic.Requests;
@@ -7,8 +9,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Models;
     using System.Diagnostics.CodeAnalysis;
-    using RedeemVoucherRequest = BusinessLogic.Requests.RedeemVoucherRequest;
-
+    
     /// <summary>
     /// 
     /// </summary>
@@ -25,17 +26,14 @@
         {
             this.AddTransient<IMediator, Mediator>();
             
-            this.AddSingleton<IRequestHandler<VersionCheckRequest>, VersionCheckRequestHandler>();
+            this.AddSingleton<IRequestHandler<VersionCheckCommands.VersionCheckCommand, Result>, VersionCheckRequestHandler>();
             
-            this.AddSingleton<IRequestHandler<ProcessLogonTransactionRequest, ProcessLogonTransactionResponse>, ProcessLogonTransactionRequestHandler>();
-            this.AddSingleton<IRequestHandler<ProcessSaleTransactionRequest, ProcessSaleTransactionResponse>, ProcessSaleTransactionRequestHandler>();
-            this.AddSingleton<IRequestHandler<ProcessReconciliationRequest, ProcessReconciliationResponse>, ProcessReconciliationRequestHandler>();
-            this.AddSingleton<IRequest<ProcessLogonTransactionResponse>, ProcessLogonTransactionRequest>();
-            this.AddSingleton<IRequest<ProcessSaleTransactionResponse>, ProcessSaleTransactionRequest>();
-            this.AddSingleton<IRequest<ProcessReconciliationResponse>, ProcessReconciliationRequest>();
-
-            this.AddSingleton<IRequestHandler<GetVoucherRequest, GetVoucherResponse>, VoucherRequestHandler>();
-            this.AddSingleton<IRequestHandler<RedeemVoucherRequest, RedeemVoucherResponse>, VoucherRequestHandler>();
+            this.AddSingleton<IRequestHandler<TransactionCommands.ProcessLogonTransactionCommand, Result<ProcessLogonTransactionResponse>>, TransactionRequestHandler>();
+            this.AddSingleton<IRequestHandler<TransactionCommands.ProcessSaleTransactionCommand, Result<ProcessSaleTransactionResponse>>, TransactionRequestHandler>();
+            this.AddSingleton<IRequestHandler<TransactionCommands.ProcessReconciliationCommand, Result<ProcessReconciliationResponse>>, TransactionRequestHandler>();
+            
+            this.AddSingleton<IRequestHandler<VoucherQueries.GetVoucherQuery, Result<GetVoucherResponse>>, VoucherRequestHandler>();
+            this.AddSingleton<IRequestHandler<VoucherCommands.RedeemVoucherCommand, Result<RedeemVoucherResponse>>, VoucherRequestHandler>();
         }
 
         #endregion

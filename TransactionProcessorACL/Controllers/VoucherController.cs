@@ -6,6 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using EstateManagement.Client;
+using JasperFx.Core;
+using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Common;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.Factories;
@@ -16,7 +19,8 @@ namespace TransactionProcessorACL.Controllers
     using Models;
     using Shared.General;
     using Shared.Logger;
-    using RedeemVoucherRequest = BusinessLogic.Requests.RedeemVoucherRequest;
+    using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+    using static TransactionProcessorACL.BusinessLogic.Requests.VersionCheckCommands;
 
     [ExcludeFromCodeCoverage]
     [Route(VoucherController.ControllerRoute)]
@@ -77,26 +81,22 @@ namespace TransactionProcessorACL.Controllers
             }
 
             // Do the software version check
-            try
-            {
-                VersionCheckRequest versionCheckRequest = VersionCheckRequest.Create(applicationVersion);
-                await this.Mediator.Send(versionCheckRequest, cancellationToken);
-            }
-            catch (VersionIncompatibleException vex)
-            {
-                Logger.LogError(vex);
+            VersionCheckCommand versionCheckCommand = new(applicationVersion);
+            var versionCheckResult = await this.Mediator.Send(versionCheckCommand, cancellationToken);
+            if (versionCheckResult.IsFailed)
                 return this.StatusCode(505);
-            }
 
-            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "estateId").Value);
-            Guid contractId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "contractId").Value);
+            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "estateId").Data.Value);
+            Guid contractId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "contractId").Data.Value);
 
             // Now do the GET
-            GetVoucherRequest request = GetVoucherRequest.Create(estateId, contractId, voucherCode);
+            VoucherQueries.GetVoucherQuery query = new(estateId, contractId, voucherCode);
 
-            GetVoucherResponse response = await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(query, cancellationToken);
+            if (result.IsFailed)
+                return ResultHelpers.CreateFailure(result).ToActionResultX();
 
-            return this.Ok(this.ModelFactory.ConvertFrom(response));
+            return Result.Success(this.ModelFactory.ConvertFrom(result.Data)).ToActionResultX();
         }
 
         /// <summary>
@@ -120,26 +120,22 @@ namespace TransactionProcessorACL.Controllers
             }
 
             // Do the software version check
-            try
-            {
-                VersionCheckRequest versionCheckRequest = VersionCheckRequest.Create(applicationVersion);
-                await this.Mediator.Send(versionCheckRequest, cancellationToken);
-            }
-            catch (VersionIncompatibleException vex)
-            {
-                Logger.LogError(vex);
+            VersionCheckCommand versionCheckCommand = new(applicationVersion);
+            var versionCheckResult = await this.Mediator.Send(versionCheckCommand, cancellationToken);
+            if (versionCheckResult.IsFailed)
                 return this.StatusCode(505);
-            }
 
-            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "estateId").Value);
-            Guid contractId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "contractId").Value);
+            Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "estateId").Data.Value);
+            Guid contractId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "contractId").Data.Value);
 
             // Now do the GET
-            RedeemVoucherRequest request = RedeemVoucherRequest.Create(estateId, contractId, voucherCode);
+            VoucherCommands.RedeemVoucherCommand comamnd = new(estateId, contractId, voucherCode);
 
-            RedeemVoucherResponse response = await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(comamnd, cancellationToken);
+            if (result.IsFailed)
+                return ResultHelpers.CreateFailure(result).ToActionResultX();
 
-            return this.Ok(this.ModelFactory.ConvertFrom(response));
+            return Result.Success(this.ModelFactory.ConvertFrom(result.Data)).ToActionResultX();
         }
 
 
