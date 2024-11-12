@@ -6,9 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TransactionProcessor.Client" Version="2024.6.2" />
-    <PackageReference Include="TransactionProcessor.Float.DomainEvents" Version="2024.6.2" />
-    <PackageReference Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2024.6.2" />
+    <PackageReference Include="TransactionProcessor.Client" Version="2024.8.2-build118" />
+    <PackageReference Include="TransactionProcessor.Float.DomainEvents" Version="2024.8.2-build118" />
+    <PackageReference Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2024.8.2-build118" />
   </ItemGroup>
 
   <ItemGroup>

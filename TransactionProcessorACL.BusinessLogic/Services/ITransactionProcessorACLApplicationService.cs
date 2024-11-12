@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SimpleResults;
 
 namespace TransactionProcessorACL.BusinessLogic.Services
 {
@@ -14,14 +15,14 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
     public interface ITransactionProcessorACLApplicationService
     {
-        Task<ProcessLogonTransactionResponse> ProcessLogonTransaction(Guid estateId,
+        Task<Result<ProcessLogonTransactionResponse>> ProcessLogonTransaction(Guid estateId,
                                                                       Guid merchantId,
                                                                       DateTime transactionDateTime,
                                                                       String transactionNumber,
                                                                       String deviceIdentifier,
                                                                       CancellationToken cancellationToken);
         
-        Task<ProcessSaleTransactionResponse> ProcessSaleTransaction(Guid estateId,
+        Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction(Guid estateId,
                                                                       Guid merchantId,
                                                                       DateTime transactionDateTime,
                                                                       String transactionNumber,
@@ -33,7 +34,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                       Dictionary<String,String> additionalRequestMetadata,
                                                                       CancellationToken cancellationToken);
 
-       Task<ProcessReconciliationResponse> ProcessReconciliation(Guid estateId,
+       Task<Result<ProcessReconciliationResponse>> ProcessReconciliation(Guid estateId,
                                                                   Guid merchantId,
                                                                   DateTime transactionDateTime,
                                                                   String deviceIdentifier,

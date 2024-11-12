@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SimpleResults;
 using TransactionProcessorACL.Testing;
 using Xunit;
 
@@ -26,12 +27,12 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
 
         public MediatorTests()
         {
-            this.Requests.Add(TestData.ProcessLogonTransactionRequest);
-            this.Requests.Add(TestData.ProcessReconciliationRequest);
-            this.Requests.Add(TestData.ProcessSaleTransactionRequest);
-            this.Requests.Add(TestData.VersionCheckRequest);
-            this.Requests.Add(TestData.GetVoucherRequest);
-            this.Requests.Add(TestData.RedeemVoucherRequest);
+            this.Requests.Add(TestData.ProcessLogonTransactionCommand);
+            this.Requests.Add(TestData.ProcessReconciliationCommand);
+            this.Requests.Add(TestData.ProcessSaleTransactionCommand);
+            this.Requests.Add(TestData.VersionCheckCommand);
+            this.Requests.Add(TestData.GetVoucherQuery);
+            this.Requests.Add(TestData.RedeemVoucherCommand);
         }
 
         [Fact]
@@ -99,38 +100,32 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
 
     public class DummyTransactionProcessorACLApplicationService : ITransactionProcessorACLApplicationService
     {
-        public async Task<ProcessLogonTransactionResponse> ProcessLogonTransaction(Guid estateId,
-                                                                                   Guid merchantId,
-                                                                                   DateTime transactionDateTime,
-                                                                                   String transactionNumber,
-                                                                                   String deviceIdentifier,
-                                                                                   CancellationToken cancellationToken) {
-            return new ProcessLogonTransactionResponse();
-        }
+        public async Task<Result<ProcessLogonTransactionResponse>> ProcessLogonTransaction(Guid estateId,
+                                                                                           Guid merchantId,
+                                                                                           DateTime transactionDateTime,
+                                                                                           String transactionNumber,
+                                                                                           String deviceIdentifier,
+                                                                                           CancellationToken cancellationToken) => Result.Success(new ProcessLogonTransactionResponse());
+        
+        public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction(Guid estateId,
+                                                                                         Guid merchantId,
+                                                                                         DateTime transactionDateTime,
+                                                                                         String transactionNumber,
+                                                                                         String deviceIdentifier,
+                                                                                         Guid operatorId,
+                                                                                         String customerEmailAddress,
+                                                                                         Guid contractId,
+                                                                                         Guid productId,
+                                                                                         Dictionary<String, String> additionalRequestMetadata,
+                                                                                         CancellationToken cancellationToken) => Result.Success(new ProcessSaleTransactionResponse());
 
-        public async Task<ProcessSaleTransactionResponse> ProcessSaleTransaction(Guid estateId,
-                                                                                 Guid merchantId,
-                                                                                 DateTime transactionDateTime,
-                                                                                 String transactionNumber,
-                                                                                 String deviceIdentifier,
-                                                                                 Guid operatorId,
-                                                                                 String customerEmailAddress,
-                                                                                 Guid contractId,
-                                                                                 Guid productId,
-                                                                                 Dictionary<String, String> additionalRequestMetadata,
-                                                                                 CancellationToken cancellationToken) {
-            return new ProcessSaleTransactionResponse();
-        }
-
-        public async Task<ProcessReconciliationResponse> ProcessReconciliation(Guid estateId,
-                                                                               Guid merchantId,
-                                                                               DateTime transactionDateTime,
-                                                                               String deviceIdentifier,
-                                                                               Int32 transactionCount,
-                                                                               Decimal transactionValue,
-                                                                               CancellationToken cancellationToken) {
-            return new ProcessReconciliationResponse();
-        }
+        public async Task<Result<ProcessReconciliationResponse>> ProcessReconciliation(Guid estateId,
+                                                                                       Guid merchantId,
+                                                                                       DateTime transactionDateTime,
+                                                                                       String deviceIdentifier,
+                                                                                       Int32 transactionCount,
+                                                                                       Decimal transactionValue,
+                                                                                       CancellationToken cancellationToken) => Result.Success(new ProcessReconciliationResponse());
 
         public async Task<GetVoucherResponse> GetVoucher(Guid estateId,
                                                          Guid contractId,

@@ -5,15 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
 
 namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
 {
     using Models;
     using Services;
-    using RedeemVoucherRequest = Requests.RedeemVoucherRequest;
 
-    public class VoucherRequestHandler : IRequestHandler<GetVoucherRequest, GetVoucherResponse>, IRequestHandler<RedeemVoucherRequest, RedeemVoucherResponse>
+    public class VoucherRequestHandler : IRequestHandler<VoucherQueries.GetVoucherQuery, Result<GetVoucherResponse>>, 
+                                         IRequestHandler<VoucherCommands.RedeemVoucherCommand, Result<RedeemVoucherResponse>>
     {
         #region Fields
         
@@ -36,31 +37,15 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
 
         #region Methods
 
-        /// <summary>
-        /// Handles a request
-        /// </summary>
-        /// <param name="request">The request</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>
-        /// Response from the request
-        /// </returns>
-        public async Task<GetVoucherResponse> Handle(GetVoucherRequest request,
-                                                     CancellationToken cancellationToken)
+        public async Task<Result<GetVoucherResponse>> Handle(VoucherQueries.GetVoucherQuery query,
+                                                             CancellationToken cancellationToken)
         {
-            return await this.ApplicationService.GetVoucher(request.EstateId, request.ContractId, request.VoucherCode, cancellationToken);
+            return await this.ApplicationService.GetVoucher(query.EstateId, query.ContractId, query.VoucherCode, cancellationToken);
         }
 
-        /// <summary>
-        /// Handles a request
-        /// </summary>
-        /// <param name="request">The request</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>
-        /// Response from the request
-        /// </returns>
-        public async Task<RedeemVoucherResponse> Handle(RedeemVoucherRequest request,
-                                                        CancellationToken cancellationToken){
-            return await this.ApplicationService.RedeemVoucher(request.EstateId, request.ContractId, request.VoucherCode, cancellationToken);
+        public async Task<Result<RedeemVoucherResponse>> Handle(VoucherCommands.RedeemVoucherCommand command,
+                                                                CancellationToken cancellationToken){
+            return await this.ApplicationService.RedeemVoucher(command.EstateId, command.ContractId, command.VoucherCode, cancellationToken);
         }
 
         #endregion

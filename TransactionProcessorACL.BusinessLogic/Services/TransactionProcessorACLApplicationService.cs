@@ -1,4 +1,6 @@
-﻿namespace TransactionProcessorACL.BusinessLogic.Services
+﻿using SimpleResults;
+
+namespace TransactionProcessorACL.BusinessLogic.Services
 {
     using System;
     using System.Collections.Generic;
@@ -64,12 +66,12 @@
         /// <param name="deviceIdentifier">The device identifier.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task<ProcessLogonTransactionResponse> ProcessLogonTransaction(Guid estateId,
-                                                                                   Guid merchantId,
-                                                                                   DateTime transactionDateTime,
-                                                                                   String transactionNumber,
-                                                                                   String deviceIdentifier,
-                                                                                   CancellationToken cancellationToken)
+        public async Task<Result<ProcessLogonTransactionResponse>> ProcessLogonTransaction(Guid estateId,
+                                                                                           Guid merchantId,
+                                                                                           DateTime transactionDateTime,
+                                                                                           String transactionNumber,
+                                                                                           String deviceIdentifier,
+                                                                                           CancellationToken cancellationToken)
         {
             // Get a client token to call the Transaction Processor
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
@@ -148,7 +150,7 @@
                 }
             }
 
-            return response;
+            return Result.Success(response);
         }
 
         /// <summary>
@@ -166,17 +168,17 @@
         /// <param name="additionalRequestMetadata">The additional request metadata.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task<ProcessSaleTransactionResponse> ProcessSaleTransaction(Guid estateId,
-                                                                                   Guid merchantId,
-                                                                                   DateTime transactionDateTime,
-                                                                                   String transactionNumber,
-                                                                                   String deviceIdentifier,
-                                                                                   Guid operatorId,
-                                                                                   String customerEmailAddress,
-                                                                                   Guid contractId,
-                                                                                   Guid productId,
-                                                                                   Dictionary<String, String> additionalRequestMetadata,
-                                                                                   CancellationToken cancellationToken)
+        public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction(Guid estateId,
+                                                                                         Guid merchantId,
+                                                                                         DateTime transactionDateTime,
+                                                                                         String transactionNumber,
+                                                                                         String deviceIdentifier,
+                                                                                         Guid operatorId,
+                                                                                         String customerEmailAddress,
+                                                                                         Guid contractId,
+                                                                                         Guid productId,
+                                                                                         Dictionary<String, String> additionalRequestMetadata,
+                                                                                         CancellationToken cancellationToken)
         {
             // Get a client token to call the Transaction Processor
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
@@ -264,16 +266,16 @@
                 }
             }
 
-            return response;
+            return Result.Success(response);
         }
 
-        public async Task<ProcessReconciliationResponse> ProcessReconciliation(Guid estateId,
-                                                                               Guid merchantId,
-                                                                               DateTime transactionDateTime,
-                                                                               String deviceIdentifier,
-                                                                               Int32 transactionCount,
-                                                                               Decimal transactionValue,
-                                                                               CancellationToken cancellationToken)
+        public async Task<Result<ProcessReconciliationResponse>> ProcessReconciliation(Guid estateId,
+                                                                                       Guid merchantId,
+                                                                                       DateTime transactionDateTime,
+                                                                                       String deviceIdentifier,
+                                                                                       Int32 transactionCount,
+                                                                                       Decimal transactionValue,
+                                                                                       CancellationToken cancellationToken)
         {
             // Get a client token to call the Transaction Processor
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
@@ -342,7 +344,7 @@
                 }
             }
 
-            return response;
+            return Result.Success(response);
         }
 
         public async Task<GetVoucherResponse> GetVoucher(Guid estateId,

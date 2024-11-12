@@ -1,4 +1,6 @@
-﻿namespace TransactionProcessorACL.Controllers
+﻿using SimpleResults;
+
+namespace TransactionProcessorACL.Controllers
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -19,6 +21,7 @@
     using Shared.Logger;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;
+    using static TransactionProcessorACL.BusinessLogic.Requests.VersionCheckCommands;
 
     /// <summary>
     /// 
@@ -83,38 +86,40 @@
             }
 
             // Do the software version check
-            try
-            {
-                VersionCheckRequest versionCheckRequest = VersionCheckRequest.Create(transactionRequest.ApplicationVersion);
-                await this.Mediator.Send(versionCheckRequest, cancellationToken);
-            }
-            catch(VersionIncompatibleException vex)
-            {
-                Logger.LogError(vex);
+            VersionCheckCommand versionCheckCommand = new(transactionRequest.ApplicationVersion);
+            var versionCheckResult = await this.Mediator.Send(versionCheckCommand, cancellationToken);
+            if (versionCheckResult.IsFailed)
                 return this.StatusCode(505);
-            }
 
             // Now do the transaction
             TransactionResponseMessage dto = null;
             switch (transactionRequest){
                 case SaleTransactionRequestMessage msg:
-                    ProcessSaleTransactionRequest saleRequest = this.CreateCommandFromRequest(msg);
-                    ProcessSaleTransactionResponse saleResponse = await this.Mediator.Send(saleRequest, cancellationToken);
+                    TransactionCommands.ProcessSaleTransactionCommand saleCommand = this.CreateCommandFromRequest(msg);
+                    Result<ProcessSaleTransactionResponse> saleResponse = await this.Mediator.Send(saleCommand, cancellationToken);
+                    // TODO: Handle the result
+                    if (saleResponse.IsFailed)
+                        return saleResponse.ToActionResultX();
                     dto = this.ModelFactory.ConvertFrom(saleResponse);
                     break;
                 case LogonTransactionRequestMessage msg:
-                    ProcessLogonTransactionRequest logonRequest = this.CreateCommandFromRequest(msg);
-                    ProcessLogonTransactionResponse logonResponse = await this.Mediator.Send(logonRequest, cancellationToken);
+                    TransactionCommands.ProcessLogonTransactionCommand logonCommand= this.CreateCommandFromRequest(msg);
+                    Result<ProcessLogonTransactionResponse> logonResponse = await this.Mediator.Send(logonCommand, cancellationToken);
+                    if (logonResponse.IsFailed)
+                        return logonResponse.ToActionResultX();
                     dto = this.ModelFactory.ConvertFrom(logonResponse);
                     break;
                 case ReconciliationRequestMessage msg:
-                    ProcessReconciliationRequest reconciliationRequest = this.CreateCommandFromRequest(msg);
-                    ProcessReconciliationResponse reconciliationResponse = await this.Mediator.Send(reconciliationRequest, cancellationToken);
+                    TransactionCommands.ProcessReconciliationCommand reconciliationCommand = this.CreateCommandFromRequest(msg);
+                    Result<ProcessReconciliationResponse> reconciliationResponse = await this.Mediator.Send(reconciliationCommand, cancellationToken);
+                    if (reconciliationResponse.IsFailed)
+                        return reconciliationResponse.ToActionResultX();
                     dto = this.ModelFactory.ConvertFrom(reconciliationResponse);
                     break;
             }
 
-            return this.Ok(dto);
+
+            return Result.Success(dto).ToActionResultX();
         }
 
         /// <summary>
@@ -122,18 +127,18 @@
         /// </summary>
         /// <param name="logonTransactionRequestMessage">The logon transaction request message.</param>
         /// <returns></returns>
-        private ProcessLogonTransactionRequest CreateCommandFromRequest(LogonTransactionRequestMessage logonTransactionRequestMessage)
+        private TransactionCommands.ProcessLogonTransactionCommand  CreateCommandFromRequest(LogonTransactionRequestMessage logonTransactionRequestMessage)
         {
             Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "estateId").Value);
             Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "merchantId").Value);
 
-            ProcessLogonTransactionRequest request = ProcessLogonTransactionRequest.Create(estateId,
+            TransactionCommands.ProcessLogonTransactionCommand command = new(estateId,
                                                                                            merchantId,
                                                                                            logonTransactionRequestMessage.TransactionDateTime,
                                                                                            logonTransactionRequestMessage.TransactionNumber,
                                                                                            logonTransactionRequestMessage.DeviceIdentifier);
 
-            return request;
+            return command;
         }
 
         /// <summary>
@@ -141,12 +146,12 @@
         /// </summary>
         /// <param name="saleTransactionRequestMessage">The sale transaction request message.</param>
         /// <returns></returns>
-        private ProcessSaleTransactionRequest CreateCommandFromRequest(SaleTransactionRequestMessage saleTransactionRequestMessage)
+        private TransactionCommands.ProcessSaleTransactionCommand CreateCommandFromRequest(SaleTransactionRequestMessage saleTransactionRequestMessage)
         {
             Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "estateId").Value);
             Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "merchantId").Value);
 
-            ProcessSaleTransactionRequest request = ProcessSaleTransactionRequest.Create(estateId,
+            TransactionCommands.ProcessSaleTransactionCommand command = new(estateId,
                                                                                          merchantId,
                                                                                          saleTransactionRequestMessage.TransactionDateTime,
                                                                                          saleTransactionRequestMessage.TransactionNumber,
@@ -157,7 +162,7 @@
                                                                                          saleTransactionRequestMessage.ProductId,
                                                                                          saleTransactionRequestMessage.AdditionalRequestMetaData);
 
-            return request;
+            return command;
         }
 
         /// <summary>
@@ -165,19 +170,19 @@
         /// </summary>
         /// <param name="reconciliationRequestMessage">The reconciliation request message.</param>
         /// <returns></returns>
-        private ProcessReconciliationRequest CreateCommandFromRequest(ReconciliationRequestMessage reconciliationRequestMessage)
+        private TransactionCommands.ProcessReconciliationCommand CreateCommandFromRequest(ReconciliationRequestMessage reconciliationRequestMessage)
         {
             Guid estateId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "estateId").Value);
             Guid merchantId = Guid.Parse(ClaimsHelper.GetUserClaim(this.User, "merchantId").Value);
 
-            ProcessReconciliationRequest request = ProcessReconciliationRequest.Create(estateId,
+            TransactionCommands.ProcessReconciliationCommand command = new(estateId,
                                                                                        merchantId,
                                                                                        reconciliationRequestMessage.TransactionDateTime,
                                                                                        reconciliationRequestMessage.DeviceIdentifier,
                                                                                        reconciliationRequestMessage.TransactionCount,
                                                                                        reconciliationRequestMessage.TransactionValue);
 
-            return request;
+            return command;
         }
 
         #endregion

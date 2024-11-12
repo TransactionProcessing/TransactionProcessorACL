@@ -27,6 +27,11 @@ public class ACLSteps{
         this.TransactionProcessorClient = transactionProcessorClient;
     }
 
+    internal class ResponseData<T>
+    {
+        public T Data { get; set; }
+    }
+
     public async Task SendAclRequestMessage((EstateDetails, String, Guid, String, TransactionRequestMessage) requestMessage, CancellationToken cancellationToken){
         String uri = "api/transactions";
 
@@ -47,8 +52,13 @@ public class ACLSteps{
         String responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
         responseContent.ShouldNotBeNullOrEmpty("No response message received");
+        
+        ResponseData<TransactionResponseMessage> responseData =
+            JsonConvert.DeserializeObject<ResponseData<TransactionResponseMessage>>(responseContent);
 
-        requestMessage.Item1.AddTransactionResponse(requestMessage.Item3, requestMessage.Item4, responseContent);
+        String responseMessage = JsonConvert.SerializeObject(responseData.Data);
+
+        requestMessage.Item1.AddTransactionResponse(requestMessage.Item3, requestMessage.Item4, responseMessage);
     }
 
     public void ThenTheLogonTransactionResponseShouldContainTheFollowingInformation(List<ReqnrollExtensions.ExpectedTransactionResponse> expectedResponses, List<EstateDetails1> estateDetailsList)
