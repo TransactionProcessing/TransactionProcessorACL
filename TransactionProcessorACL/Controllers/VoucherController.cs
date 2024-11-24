@@ -8,6 +8,7 @@ using System.Threading;
 using System;
 using EstateManagement.Client;
 using JasperFx.Core;
+using Shared.Results;
 using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Common;
 using TransactionProcessorACL.BusinessLogic.Requests;
