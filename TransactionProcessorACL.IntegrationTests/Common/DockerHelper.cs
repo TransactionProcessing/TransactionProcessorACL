@@ -1,4 +1,6 @@
-﻿namespace TransactionProcessor.IntegrationTests.Common
+﻿using System.Linq;
+
+namespace TransactionProcessor.IntegrationTests.Common
 {
     using System;
     using System.Collections.Generic;
@@ -7,6 +9,7 @@
     using System.Threading.Tasks;
     using Client;
     using Ductus.FluentDocker.Builders;
+    using Ductus.FluentDocker.Executors;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
     using EstateManagement.Client;
@@ -88,9 +91,23 @@
         /// <param name="scenarioName">Name of the scenario.</param>
         public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
         {
-            await base.StartContainersForScenarioRun(scenarioName, dockerServices);
+            try {
+                await base.StartContainersForScenarioRun(scenarioName, dockerServices);
+            }
+            catch (Exception ex) {
+                var contaner = this.Containers.SingleOrDefault(c => c.Item1 == DockerServices.TransactionProcessorAcl);
+                if (contaner.Item2 != null) {
+                    var logs = contaner.Item2.Logs();
+                    String line;
+                    while ((line = logs.Read()) != null)
+                    {
+                        Console.WriteLine(line);
+                    }
 
-            
+                }
+            }
+
+
             // Setup the base address resolvers
             String EstateManagementBaseAddressResolver(String api) => $"http://127.0.0.1:{this.EstateManagementPort}";
             String SecurityServiceBaseAddressResolver(String api) => $"https://127.0.0.1:{this.SecurityServicePort}";
@@ -119,9 +136,11 @@
             this.HttpClient.BaseAddress = new Uri(TransactionProcessorAclBaseAddressResolver(string.Empty));
 
             this.ProjectionManagementClient = new EventStoreProjectionManagementClient(ConfigureEventStoreSettings());
-
+            
         }
         
         #endregion
     }
+
+
 }
