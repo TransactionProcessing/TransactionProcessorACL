@@ -26,10 +26,8 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
 
         public async Task<Result> Handle(VersionCheckCommands.VersionCheckCommand command,
                                          CancellationToken cancellationToken) {
-            if (Environment.GetEnvironmentVariable("AppSettings:SkipVersionCheck") != null) {
-                if (Boolean.TryParse(ConfigurationReader.GetValue("AppSettings","SkipVersionCheck"), out Boolean skipVersionCheck) && skipVersionCheck) {
-                    return Result.Success();
-                }
+            if (Boolean.TryParse(ConfigurationReader.GetValueOrDefault("AppSettings", "SkipVersionCheck", "false"), out Boolean skipVersionCheck) && skipVersionCheck) {
+                return Result.Success();
             }
 
             // Get the minimum version from the config
@@ -39,14 +37,13 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
             Version minimumVersion = Version.Parse(versionFromConfig);
 
             Version.TryParse(command.VersionNumber, out Version requestVersion);
-
-            if (requestVersion == null || requestVersion.CompareTo(minimumVersion) < 0)
-            {
-                // This is not compatible
-                return Result.Conflict(
-                    $"Version Mistmatch - Version number [{requestVersion}] is less than the Minimum Supported version [{minimumVersion}]");
-            }
-            return Result.Success();
+            
+            Result result = requestVersion switch {
+                null => Result.Conflict($"Version Mismatch - Version number was not provided"),
+                _ when requestVersion.CompareTo(minimumVersion) < 0 => Result.Conflict($"Version Mismatch - Version number [{requestVersion}] is less than the Minimum Supported version [{minimumVersion}]"),
+                _ => Result.Success()
+            };
+            return result;
         }
 
         #endregion
