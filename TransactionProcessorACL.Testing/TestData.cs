@@ -220,6 +220,19 @@
                 ["EventStoreSettings:ConnectionString"] = "https://127.0.0.1:2113"
             };
 
+        public static IReadOnlyDictionary<String, String> DefaultAppSettingsSkipVersionCheck =>
+            new Dictionary<String, String>
+            {
+                ["AppSettings:MinimumSupportedApplicationVersion"] = "1.0.5",
+                ["AppSettings:SecurityService"] = "http://192.168.1.133:5001",
+                ["AppSettings:TransactionProcessorApi"] = "http://192.168.1.133:5002",
+                ["AppSettings:ClientId"] = "ClientId",
+                ["AppSettings:ClientSecret"] = "secret",
+                ["SecurityConfiguration:Authority"] = "https://127.0.0.1",
+                ["EventStoreSettings:ConnectionString"] = "https://127.0.0.1:2113",
+                ["AppSettings:SkipVersionCheck"] = "true"
+            };
+
         public static String OldApplicationVersion = "1.0.4";
         public static String NewerApplicationVersion = "1.0.5.1";
         public static String ApplicationVersion = "1.0.5";

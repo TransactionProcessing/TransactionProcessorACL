@@ -33,11 +33,11 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
 
         private void SetupMemoryConfiguration()
         {
-            if (ConfigurationReader.IsInitialised == false)
-            {
+            //if (ConfigurationReader.IsInitialised == false)
+            //{
                 IConfigurationRoot configuration = new ConfigurationBuilder().AddInMemoryCollection(TestData.DefaultAppSettings).Build();
                 ConfigurationReader.Initialise(configuration);
-            }
+            //}
         }
 
         /// <summary>
@@ -148,7 +148,31 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
 
             VersionCheckCommands.VersionCheckCommand command = new(TestData.NewerApplicationVersion);
             var result = await requestHandler.Handle(command, CancellationToken.None);
+            result.IsSuccess.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task VersionCheckRequestHandler_Handle_SkipVersionCheck_RequestIsHandled()
+        {
+            IConfigurationRoot configuration = new ConfigurationBuilder().AddInMemoryCollection(TestData.DefaultAppSettingsSkipVersionCheck).Build();
+            ConfigurationReader.Initialise(configuration);
+
+            VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
+
+            VersionCheckCommands.VersionCheckCommand command = new(TestData.NewerApplicationVersion);
+            var result = await requestHandler.Handle(command, CancellationToken.None);
             result.IsSuccess.ShouldBeTrue(); ;
+        }
+
+        [Fact]
+        public async Task VersionCheckRequestHandler_Handle_NullVersionInRequest_RequestIsHandled()
+        {
+            VersionCheckRequestHandler requestHandler = new VersionCheckRequestHandler();
+
+            VersionCheckCommands.VersionCheckCommand command = new(null);
+            var result = await requestHandler.Handle(command, CancellationToken.None);
+            result.IsFailed.ShouldBeTrue();
+            result.Status.ShouldBe(ResultStatus.Conflict);
         }
 
         [Fact]
