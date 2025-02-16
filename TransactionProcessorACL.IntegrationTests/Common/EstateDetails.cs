@@ -1,10 +1,11 @@
-﻿namespace TransactionProcessor.IntegrationTests.Common
+﻿using TransactionProcessor.IntegrationTesting.Helpers;
+
+namespace TransactionProcessor.IntegrationTests.Common
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using EstateManagement.IntegrationTesting.Helpers;
-
+    
     public class EstateDetails1{
         public readonly EstateDetails EstateDetails;
 

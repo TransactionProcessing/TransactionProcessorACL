@@ -12,8 +12,6 @@ namespace TransactionProcessor.IntegrationTests.Common
     using Ductus.FluentDocker.Executors;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
-    using EstateManagement.Client;
-    using EstateManagement.Database.Contexts;
     using EventStore.Client;
     using global::Shared.IntegrationTesting;
     using SecurityService.Client;
@@ -25,11 +23,6 @@ namespace TransactionProcessor.IntegrationTests.Common
     public class DockerHelper : global::Shared.IntegrationTesting.DockerHelper
     {
         #region Fields
-
-        /// <summary>
-        /// The estate client
-        /// </summary>
-        public IEstateClient EstateClient;
 
         /// <summary>
         /// The HTTP client
@@ -74,7 +67,6 @@ namespace TransactionProcessor.IntegrationTests.Common
         public override async Task CreateSubscriptions(){
             List<(String streamName, String groupName, Int32 maxRetries)> subscriptions = new List<(String streamName, String groupName, Int32 maxRetries)>();
             subscriptions.AddRange(MessagingService.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
-            subscriptions.AddRange(EstateManagement.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
             subscriptions.AddRange(TransactionProcessor.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
 
             foreach ((String streamName, String groupName, Int32 maxRetries) subscription in subscriptions)
@@ -106,10 +98,8 @@ namespace TransactionProcessor.IntegrationTests.Common
 
                 }
             }
-
-
+            
             // Setup the base address resolvers
-            String EstateManagementBaseAddressResolver(String api) => $"http://127.0.0.1:{this.EstateManagementPort}";
             String SecurityServiceBaseAddressResolver(String api) => $"https://127.0.0.1:{this.SecurityServicePort}";
             String TransactionProcessorBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorPort}";
             String TransactionProcessorAclBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorAclPort}";
@@ -126,7 +116,6 @@ namespace TransactionProcessor.IntegrationTests.Common
 
                                               };
             HttpClient httpClient = new HttpClient(clientHandler);
-            this.EstateClient = new EstateClient(EstateManagementBaseAddressResolver, httpClient, 2);
             this.SecurityServiceClient = new SecurityServiceClient(SecurityServiceBaseAddressResolver, httpClient);
             this.TransactionProcessorClient = new TransactionProcessorClient(TransactionProcessorBaseAddressResolver, httpClient);
             this.TestHostHttpClient = new HttpClient(clientHandler);

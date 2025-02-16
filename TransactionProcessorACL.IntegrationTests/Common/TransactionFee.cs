@@ -1,8 +1,8 @@
-﻿namespace TransactionProcessor.IntegrationTests.Common
+﻿using TransactionProcessor.DataTransferObjects.Responses.Contract;
+
+namespace TransactionProcessor.IntegrationTests.Common
 {
     using System;
-    using EstateManagement.DataTransferObjects;
-    using EstateManagement.DataTransferObjects.Responses.Contract;
 
     public class TransactionFee
     {
