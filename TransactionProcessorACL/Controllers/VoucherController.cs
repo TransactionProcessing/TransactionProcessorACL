@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
-using EstateManagement.Client;
 using JasperFx.Core;
 using Shared.Results;
 using SimpleResults;

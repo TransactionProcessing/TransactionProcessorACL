@@ -1,10 +1,11 @@
-﻿namespace TransactionProcessorACL.IntegrationTests.Shared;
+﻿using TransactionProcessor.IntegrationTesting.Helpers;
+
+namespace TransactionProcessorACL.IntegrationTests.Shared;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using DataTransferObjects;
-using EstateManagement.IntegrationTesting.Helpers;
 using global::Shared.IntegrationTesting;
 using Newtonsoft.Json;
 using Reqnroll;

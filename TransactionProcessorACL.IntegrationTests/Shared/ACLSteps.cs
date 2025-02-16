@@ -1,4 +1,6 @@
-﻿namespace TransactionProcessorACL.IntegrationTests.Shared;
+﻿using TransactionProcessor.IntegrationTesting.Helpers;
+
+namespace TransactionProcessorACL.IntegrationTests.Shared;
 
 using System;
 using System.Collections.Generic;
@@ -10,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DataTransferObjects;
 using DataTransferObjects.Responses;
-using EstateManagement.IntegrationTesting.Helpers;
 using Newtonsoft.Json;
 using Shouldly;
 using TransactionProcessor.Client;
