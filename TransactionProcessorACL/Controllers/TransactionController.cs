@@ -94,33 +94,31 @@ namespace TransactionProcessorACL.Controllers
             if (versionCheckResult.IsFailed)
                 return this.StatusCode(505);
 
-            // Now do the transaction
-            TransactionResponseMessage dto = null;
-            switch (transactionRequest){
+            Result<(Guid estateId, Guid merchantId)> claimsResult = TransactionController.GetRequiredClaims(this.User);
+            if (claimsResult.IsFailed)
+                return this.Forbid();
+
+            TransactionResponseMessage dto = new TransactionResponseMessage();
+            switch (transactionRequest)
+            {
                 case SaleTransactionRequestMessage msg:
-                    Result<TransactionCommands.ProcessSaleTransactionCommand> saleCommandResult = this.CreateCommandFromRequest(msg);
-                    if (saleCommandResult.IsFailed)
-                        return this.Forbid();
-                    Result<ProcessSaleTransactionResponse> saleResponse = await this.Mediator.Send(saleCommandResult.Data, cancellationToken);
+                    TransactionCommands.ProcessSaleTransactionCommand saleCommand = this.CreateCommandFromRequest(claimsResult.Data.estateId, claimsResult.Data.merchantId, msg);
+                    Result<ProcessSaleTransactionResponse> saleResponse = await this.Mediator.Send(saleCommand, cancellationToken);
                     // TODO: Handle the result
                     if (saleResponse.IsFailed)
                         return saleResponse.ToActionResultX();
                     dto = this.ModelFactory.ConvertFrom(saleResponse);
                     break;
                 case LogonTransactionRequestMessage msg:
-                    Result<TransactionCommands.ProcessLogonTransactionCommand> logonCommandResult= this.CreateCommandFromRequest(msg);
-                    if (logonCommandResult.IsFailed)
-                        return this.Forbid();
-                    Result<ProcessLogonTransactionResponse> logonResponse = await this.Mediator.Send(logonCommandResult.Data, cancellationToken);
+                    TransactionCommands.ProcessLogonTransactionCommand logonCommand= this.CreateCommandFromRequest(claimsResult.Data.estateId, claimsResult.Data.merchantId, msg);
+                    Result<ProcessLogonTransactionResponse> logonResponse = await this.Mediator.Send(logonCommand, cancellationToken);
                     if (logonResponse.IsFailed)
                         return logonResponse.ToActionResultX();
                     dto = this.ModelFactory.ConvertFrom(logonResponse);
                     break;
-                case ReconciliationRequestMessage msg:
-                    var reconciliationCommandResult = this.CreateCommandFromRequest(msg);
-                    if (reconciliationCommandResult.IsFailed)
-                        return this.Forbid();
-                    Result<ProcessReconciliationResponse> reconciliationResponse = await this.Mediator.Send(reconciliationCommandResult.Data, cancellationToken);
+                case ReconciliationRequestMessage msg: 
+                    TransactionCommands.ProcessReconciliationCommand reconciliationCommand = this.CreateCommandFromRequest(claimsResult.Data.estateId, claimsResult.Data.merchantId, msg);
+                    Result<ProcessReconciliationResponse> reconciliationResponse = await this.Mediator.Send(reconciliationCommand, cancellationToken);
                     if (reconciliationResponse.IsFailed)
                         return reconciliationResponse.ToActionResultX();
                     dto = this.ModelFactory.ConvertFrom(reconciliationResponse);
@@ -136,23 +134,19 @@ namespace TransactionProcessorACL.Controllers
         /// </summary>
         /// <param name="logonTransactionRequestMessage">The logon transaction request message.</param>
         /// <returns></returns>
-        private Result<TransactionCommands.ProcessLogonTransactionCommand>  CreateCommandFromRequest(LogonTransactionRequestMessage logonTransactionRequestMessage)
+        private TransactionCommands.ProcessLogonTransactionCommand  CreateCommandFromRequest(Guid estateId, Guid merchantId, LogonTransactionRequestMessage logonTransactionRequestMessage)
         {
-            Result<(Guid estateId, Guid merchantId)> claimsResult = this.GetRequiredClaims();
-            if (claimsResult.IsFailed)
-                return Result.Failure(claimsResult.Message);
-
-            TransactionCommands.ProcessLogonTransactionCommand command = new(claimsResult.Data.estateId, claimsResult.Data.merchantId, logonTransactionRequestMessage.TransactionDateTime, logonTransactionRequestMessage.TransactionNumber, logonTransactionRequestMessage.DeviceIdentifier);
+            TransactionCommands.ProcessLogonTransactionCommand command = new(estateId, merchantId, logonTransactionRequestMessage.TransactionDateTime, logonTransactionRequestMessage.TransactionNumber, logonTransactionRequestMessage.DeviceIdentifier);
 
             return Result.Success(command);
         }
 
-        private Result<(Guid estateId, Guid merchantId)> GetRequiredClaims() {
-            Result<Claim> estateIdResult = ClaimsHelper.GetUserClaim(this.User, "estateId");
+        public static Result<(Guid estateId, Guid merchantId)> GetRequiredClaims(ClaimsPrincipal user) {
+            Result<Claim> estateIdResult = ClaimsHelper.GetUserClaim(user, "estateId");
             if (estateIdResult.IsFailed)
                 return Result.Failure("No Claim found for Estate Id");
             
-            Result<Claim> merchantIdResult = ClaimsHelper.GetUserClaim(this.User, "merchantId");
+            Result<Claim> merchantIdResult = ClaimsHelper.GetUserClaim(user, "merchantId");
             if (merchantIdResult.IsFailed)
                 return Result.Failure("No Claim found for Merchant Id");
 
@@ -167,13 +161,10 @@ namespace TransactionProcessorACL.Controllers
         /// </summary>
         /// <param name="saleTransactionRequestMessage">The sale transaction request message.</param>
         /// <returns></returns>
-        private Result<TransactionCommands.ProcessSaleTransactionCommand> CreateCommandFromRequest(SaleTransactionRequestMessage saleTransactionRequestMessage)
+        private TransactionCommands.ProcessSaleTransactionCommand CreateCommandFromRequest(Guid estateId, Guid merchantId, SaleTransactionRequestMessage saleTransactionRequestMessage)
         {
-            Result<(Guid estateId, Guid merchantId)> claimsResult = this.GetRequiredClaims();
-            if (claimsResult.IsFailed)
-                return Result.Failure(claimsResult.Message);
 
-            TransactionCommands.ProcessSaleTransactionCommand command = new(claimsResult.Data.estateId, claimsResult.Data.merchantId,
+            TransactionCommands.ProcessSaleTransactionCommand command = new(estateId, merchantId,
                                                                                          saleTransactionRequestMessage.TransactionDateTime,
                                                                                          saleTransactionRequestMessage.TransactionNumber,
                                                                                          saleTransactionRequestMessage.DeviceIdentifier,
@@ -191,13 +182,9 @@ namespace TransactionProcessorACL.Controllers
         /// </summary>
         /// <param name="reconciliationRequestMessage">The reconciliation request message.</param>
         /// <returns></returns>
-        private Result<TransactionCommands.ProcessReconciliationCommand> CreateCommandFromRequest(ReconciliationRequestMessage reconciliationRequestMessage)
+        private TransactionCommands.ProcessReconciliationCommand CreateCommandFromRequest(Guid estateId, Guid merchantId, ReconciliationRequestMessage reconciliationRequestMessage)
         {
-            Result<(Guid estateId, Guid merchantId)> claimsResult = this.GetRequiredClaims();
-            if (claimsResult.IsFailed)
-                return Result.Failure(claimsResult.Message);
-
-            TransactionCommands.ProcessReconciliationCommand command = new(claimsResult.Data.estateId, claimsResult.Data.merchantId,
+            TransactionCommands.ProcessReconciliationCommand command = new(estateId, merchantId,
                                                                                        reconciliationRequestMessage.TransactionDateTime,
                                                                                        reconciliationRequestMessage.DeviceIdentifier,
                                                                                        reconciliationRequestMessage.TransactionCount,

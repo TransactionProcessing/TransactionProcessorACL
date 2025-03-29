@@ -1,4 +1,5 @@
-﻿using SimpleResults;
+﻿using System.Collections.Generic;
+using SimpleResults;
 
 namespace TransactionProcessorACL.Bootstrapper
 {
@@ -34,6 +35,8 @@ namespace TransactionProcessorACL.Bootstrapper
             
             this.AddSingleton<IRequestHandler<VoucherQueries.GetVoucherQuery, Result<GetVoucherResponse>>, VoucherRequestHandler>();
             this.AddSingleton<IRequestHandler<VoucherCommands.RedeemVoucherCommand, Result<RedeemVoucherResponse>>, VoucherRequestHandler>();
+
+            this.AddSingleton<IRequestHandler<MerchantQueries.GetMerchantContractsQuery, Result<List<ContractResponse>>>, MerchantRequestHandler>();
         }
 
         #endregion

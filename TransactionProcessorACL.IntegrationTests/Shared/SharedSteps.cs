@@ -132,8 +132,8 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         public async Task GivenICreateAContractWithTheFollowingValues(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, CreateContractRequest)> requests = table.Rows.ToCreateContractRequests(estates);
-            List<ContractResponse> responses = await this.TransactionProcessorSteps.GivenICreateAContractWithTheFollowingValues(this.TestingContext.AccessToken, requests);
-            foreach (ContractResponse contractResponse in responses)
+            List<TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse> responses = await this.TransactionProcessorSteps.GivenICreateAContractWithTheFollowingValues(this.TestingContext.AccessToken, requests);
+            foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse contractResponse in responses)
             {
                 var estate = this.TestingContext.Estates.Single(e => e.EstateDetails.EstateId == contractResponse.EstateId);
                 estate.EstateDetails.AddContract(contractResponse.ContractId, contractResponse.Description, contractResponse.OperatorId);

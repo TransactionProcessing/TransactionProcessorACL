@@ -36,3 +36,9 @@ public record TransactionCommands {
                                                Decimal TransactionValue)
         : IRequest<Result<ProcessReconciliationResponse>>;
 }
+
+[ExcludeFromCodeCoverage]
+public record MerchantQueries {
+    public record GetMerchantContractsQuery(Guid EstateId,Guid MerchantId) : IRequest<Result<List<ContractResponse>>>;
+
+}

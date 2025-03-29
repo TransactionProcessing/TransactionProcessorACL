@@ -1,4 +1,5 @@
 ﻿using SimpleResults;
+using TransactionProcessor.DataTransferObjects.Responses.Contract;
 
 namespace TransactionProcessorACL.BusinessLogic.Services
 {
@@ -474,6 +475,79 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
 
             return response;
+        }
+
+        public async Task<Result<List<Models.ContractResponse>>> GetMerchantContracts(Guid estateId,
+                                                                                      Guid merchantId,
+                                                                                      CancellationToken cancellationToken) {
+            // Get a client token to call the Transaction Processor
+            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
+            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
+
+            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+
+            ProcessLogonTransactionResponse response = null;
+
+            Result<List<TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse>> result = await this.TransactionProcessorClient.GetMerchantContracts(accessToken.AccessToken, estateId, merchantId, cancellationToken);
+
+            if (result.IsFailed)
+                return Result.Failure($"Error getting merchant contracts {result.Message}");
+
+            List<Models.ContractResponse> models = new();
+
+            foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse contractResponse in result.Data) {
+                var contractModel = new ContractResponse {
+                    ContractId = contractResponse.ContractId,
+                    ContractReportingId = contractResponse.ContractReportingId,
+                    Description = contractResponse.Description,
+                    EstateId = contractResponse.EstateId,
+                    EstateReportingId = contractResponse.EstateReportingId,
+                    OperatorId = contractResponse.OperatorId,
+                    OperatorName = contractResponse.OperatorName,
+                    Products = new()
+                };
+
+                foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractProduct contractResponseProduct in contractResponse.Products) {
+                    var productModel = new ContractProduct {
+                        Value = contractResponseProduct.Value,
+                        DisplayText = contractResponseProduct.DisplayText,
+                        Name = contractResponseProduct.Name,
+                        ProductId = contractResponseProduct.ProductId,
+                        ProductReportingId = contractResponseProduct.ProductReportingId,
+                        ProductType = contractResponseProduct.ProductType switch {
+                            TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType.BillPayment => ProductType.BillPayment,
+                            TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType.MobileTopup => ProductType.MobileTopup,
+                            TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType.Voucher => ProductType.Voucher,
+                            _ => ProductType.NotSet
+                        },
+                        TransactionFees = new()
+                    };
+
+                    foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractProductTransactionFee contractProductTransactionFee in contractResponseProduct.TransactionFees) {
+                        var transactionFeeModel = new ContractProductTransactionFee {
+                            Value = contractProductTransactionFee.Value,
+                            Description = contractProductTransactionFee.Description,
+                            CalculationType = contractProductTransactionFee.CalculationType switch {
+                                TransactionProcessor.DataTransferObjects.Responses.Contract.CalculationType.Fixed => CalculationType.Fixed,
+                                _ => CalculationType.Percentage,
+                            },
+                            FeeType = contractProductTransactionFee.FeeType switch {
+                                TransactionProcessor.DataTransferObjects.Responses.Contract.FeeType.Merchant => FeeType.Merchant,
+                                _ => FeeType.ServiceProvider,
+                            },
+                            TransactionFeeId = contractProductTransactionFee.TransactionFeeId,
+                            TransactionFeeReportingId = contractProductTransactionFee.TransactionFeeReportingId
+                        };
+                        productModel.TransactionFees.Add(transactionFeeModel);
+                    }
+
+                    contractModel.Products.Add(productModel);
+                }
+
+                models.Add(contractModel);
+            }
+
+            return Result.Success(models);
         }
 
         #endregion
