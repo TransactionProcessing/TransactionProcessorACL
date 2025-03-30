@@ -1,7 +1,7 @@
 ﻿namespace TransactionProcessorACL.DataTransferObjects.Responses{
+    using Newtonsoft.Json;
     using System;
     using System.Diagnostics.CodeAnalysis;
-    using Newtonsoft.Json;
 
     [ExcludeFromCodeCoverage]
     public class GetVoucherResponseMessage{

@@ -51,5 +51,9 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                  Guid contractId,
                                                  String voucherCode,
                                                  CancellationToken cancellationToken);
+
+       Task<Result<List<Models.ContractResponse>>> GetMerchantContracts(Guid estateId,
+                                                                        Guid merchantId,
+                                                                        CancellationToken cancellationToken);
     }
 }
