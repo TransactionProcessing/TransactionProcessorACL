@@ -132,6 +132,113 @@ namespace TransactionProcessorACL.Controllers
             return Result.Success(responses).ToActionResultX();
         }
 
+        [HttpGet]
+        [Route("")]
+        public async Task<IActionResult> GetMerchant([FromQuery] String applicationVersion,
+                                                              CancellationToken cancellationToken)
+        {
+            if (ClaimsHelper.IsPasswordToken(this.User) == false)
+            {
+                return this.Forbid();
+            }
+
+            // Do the software version check
+            VersionCheckCommand versionCheckCommand = new(applicationVersion);
+            Result versionCheckResult = await this.Mediator.Send(versionCheckCommand, cancellationToken);
+            if (versionCheckResult.IsFailed)
+                return this.StatusCode(505);
+
+            Result<(Guid estateId, Guid merchantId)> claimsResult = TransactionController.GetRequiredClaims(this.User);
+            if (claimsResult.IsFailed)
+                return this.Forbid();
+
+            MerchantQueries.GetMerchantQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
+            Result<MerchantResponse> result = await this.Mediator.Send(query, cancellationToken);
+
+            if (result.IsFailed)
+                return ResultHelpers.CreateFailure(result).ToActionResultX();
+
+            // Now need to convert to the DTO type for returning to the caller
+            DataTransferObjects.Responses.MerchantResponse response = new() {
+                EstateId = result.Data.EstateId,
+                MerchantId = result.Data.MerchantId,
+                EstateReportingId = result.Data.EstateReportingId,
+                MerchantName = result.Data.MerchantName,
+                MerchantReference = result.Data.MerchantReference,
+                MerchantReportingId = result.Data.MerchantReportingId,
+                NextStatementDate = result.Data.NextStatementDate,
+                SettlementSchedule = result.Data.SettlementSchedule switch
+                {
+                    SettlementSchedule.Weekly => DataTransferObjects.Responses.SettlementSchedule.Weekly,
+                    SettlementSchedule.Monthly => DataTransferObjects.Responses.SettlementSchedule.Monthly,
+                    _ => DataTransferObjects.Responses.SettlementSchedule.NotSet
+                },
+                Addresses = new(),
+                Contacts = new(),
+                Contracts = new(),
+                Devices = new(),
+                Operators = new()
+            };
+
+            foreach (AddressResponse addressModel in result.Data.Addresses)
+            {
+                DataTransferObjects.Responses.AddressResponse addressResponse = new()
+                {
+                    AddressId = addressModel.AddressId,
+                    AddressLine1 = addressModel.AddressLine1,
+                    AddressLine2 = addressModel.AddressLine2,
+                    AddressLine3 = addressModel.AddressLine3,
+                    AddressLine4 = addressModel.AddressLine4,
+                    Country = addressModel.Country,
+                    PostalCode = addressModel.PostalCode,
+                    Region = addressModel.Region,
+                    Town = addressModel.Town
+                };
+                response.Addresses.Add(addressResponse);
+            }
+
+            foreach (ContactResponse contactResponse in result.Data.Contacts) {
+                response.Contacts.Add(new DataTransferObjects.Responses.ContactResponse
+                {
+                    ContactId = contactResponse.ContactId,
+                    ContactName = contactResponse.ContactName,
+                    ContactPhoneNumber = contactResponse.ContactPhoneNumber,
+                    ContactEmailAddress = contactResponse.ContactEmailAddress
+                });
+            }
+
+            foreach (MerchantContractResponse merchantContractResponse in result.Data.Contracts) {
+                var contract = new DataTransferObjects.Responses.MerchantContractResponse
+                {
+                    ContractId = merchantContractResponse.ContractId,
+                    IsDeleted = merchantContractResponse.IsDeleted,
+                    ContractProducts = new()
+                };
+                foreach (Guid contractProduct in merchantContractResponse.ContractProducts) {
+                    contract.ContractProducts.Add(contractProduct);
+                }
+                response.Contracts.Add(contract);
+            }
+
+            foreach (KeyValuePair<Guid, string> device in result.Data.Devices)
+            {
+                response.Devices.Add(device.Key, device.Value);
+            }
+
+            foreach (MerchantOperatorResponse merchantOperatorResponse in result.Data.Operators) {
+                response.Operators.Add(new DataTransferObjects.Responses.MerchantOperatorResponse
+                {
+                    OperatorId = merchantOperatorResponse.OperatorId,
+                    IsDeleted = merchantOperatorResponse.IsDeleted,
+                    MerchantNumber = merchantOperatorResponse.MerchantNumber,
+                    Name = merchantOperatorResponse.Name,
+                    TerminalNumber = merchantOperatorResponse.TerminalNumber
+                });
+            }
+
+            return Result.Success(response).ToActionResultX();
+        }
+
         #region Others
 
         /// <summary>

@@ -496,7 +496,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             List<Models.ContractResponse> models = new();
 
             foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse contractResponse in result.Data) {
-                var contractModel = new ContractResponse {
+                ContractResponse contractModel = new ContractResponse {
                     ContractId = contractResponse.ContractId,
                     ContractReportingId = contractResponse.ContractReportingId,
                     Description = contractResponse.Description,
@@ -508,7 +508,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 };
 
                 foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractProduct contractResponseProduct in contractResponse.Products) {
-                    var productModel = new ContractProduct {
+                    ContractProduct productModel = new ContractProduct {
                         Value = contractResponseProduct.Value,
                         DisplayText = contractResponseProduct.DisplayText,
                         Name = contractResponseProduct.Name,
@@ -524,7 +524,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                     };
 
                     foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractProductTransactionFee contractProductTransactionFee in contractResponseProduct.TransactionFees) {
-                        var transactionFeeModel = new ContractProductTransactionFee {
+                        ContractProductTransactionFee transactionFeeModel = new ContractProductTransactionFee {
                             Value = contractProductTransactionFee.Value,
                             Description = contractProductTransactionFee.Description,
                             CalculationType = contractProductTransactionFee.CalculationType switch {
@@ -548,6 +548,103 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
 
             return Result.Success(models);
+        }
+
+        public async Task<Result<MerchantResponse>> GetMerchant(Guid estateId,
+                                                                Guid merchantId,
+                                                                CancellationToken cancellationToken) {
+            // Get a client token to call the Transaction Processor
+            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
+            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
+
+            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+
+            ProcessLogonTransactionResponse response = null;
+
+            Result<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> result = await this.TransactionProcessorClient.GetMerchant(accessToken.AccessToken, estateId, merchantId, cancellationToken);
+
+            if (result.IsFailed)
+                return Result.Failure($"Error getting merchant contracts {result.Message}");
+            MerchantResponse merchantResponse = new();
+            merchantResponse.MerchantId = result.Data.MerchantId;
+            merchantResponse.EstateId = result.Data.EstateId;
+            merchantResponse.MerchantName = result.Data.MerchantName;
+            merchantResponse.EstateReportingId = result.Data.EstateReportingId;
+            merchantResponse.MerchantReference = result.Data.MerchantReference;
+            merchantResponse.NextStatementDate = result.Data.NextStatementDate;
+            merchantResponse.SettlementSchedule = result.Data.SettlementSchedule switch {
+                TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Immediate => Models.SettlementSchedule.Immediate,
+                TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Weekly => SettlementSchedule.Weekly,
+                TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Monthly => SettlementSchedule.Monthly,
+                _ => SettlementSchedule.NotSet
+            };
+            merchantResponse.Contracts = new();
+            merchantResponse.Contacts = new();
+            merchantResponse.Addresses = new();
+            merchantResponse.Devices = new();
+            merchantResponse.Operators = new();
+
+            foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.AddressResponse address in result.Data.Addresses)
+            {
+                AddressResponse addressResponse = new()
+                {
+                    AddressId = address.AddressId,
+                    AddressLine1 = address.AddressLine1,
+                    AddressLine2 = address.AddressLine2,
+                    AddressLine3 = address.AddressLine3,
+                    AddressLine4 = address.AddressLine4,
+                    Country = address.Country,
+                    PostalCode = address.PostalCode,
+                    Region = address.Region,
+                    Town = address.Town
+                };
+                merchantResponse.Addresses.Add(addressResponse);
+            }
+
+            foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse contact in result.Data.Contacts)
+            {
+                merchantResponse.Contacts.Add(new ContactResponse
+                {
+                    ContactId = contact.ContactId,
+                    ContactName = contact.ContactName,
+                    ContactPhoneNumber = contact.ContactPhoneNumber,
+                    ContactEmailAddress = contact.ContactEmailAddress
+                });
+            }
+
+            foreach (var merchantContract in result.Data.Contracts)
+            {
+                var contract = new MerchantContractResponse
+                {
+                    ContractId = merchantContract.ContractId,
+                    IsDeleted = merchantContract.IsDeleted,
+                    ContractProducts = new()
+                };
+                foreach (Guid contractProduct in merchantContract.ContractProducts)
+                {
+                    contract.ContractProducts.Add(contractProduct);
+                }
+                merchantResponse.Contracts.Add(contract);
+            }
+
+            foreach (KeyValuePair<Guid, string> device in result.Data.Devices)
+            {
+                merchantResponse.Devices.Add(device.Key, device.Value);
+            }
+
+            foreach (var merchantOperator in result.Data.Operators)
+            {
+                merchantResponse.Operators.Add(new MerchantOperatorResponse
+                {
+                    OperatorId = merchantOperator.OperatorId,
+                    IsDeleted = merchantOperator.IsDeleted,
+                    MerchantNumber = merchantOperator.MerchantNumber,
+                    Name = merchantOperator.Name,
+                    TerminalNumber = merchantOperator.TerminalNumber
+                });
+            }
+
+            return merchantResponse;
         }
 
         #endregion

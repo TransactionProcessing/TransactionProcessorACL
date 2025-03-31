@@ -37,6 +37,7 @@ namespace TransactionProcessorACL.Bootstrapper
             this.AddSingleton<IRequestHandler<VoucherCommands.RedeemVoucherCommand, Result<RedeemVoucherResponse>>, VoucherRequestHandler>();
 
             this.AddSingleton<IRequestHandler<MerchantQueries.GetMerchantContractsQuery, Result<List<ContractResponse>>>, MerchantRequestHandler>();
+            this.AddSingleton<IRequestHandler<MerchantQueries.GetMerchantQuery, Result<MerchantResponse>>, MerchantRequestHandler>();
         }
 
         #endregion
