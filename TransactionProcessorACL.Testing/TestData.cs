@@ -240,6 +240,7 @@
         public static VersionCheckCommands.VersionCheckCommand VersionCheckCommand = new(TestData.ApplicationVersion);
         public static VoucherCommands.RedeemVoucherCommand RedeemVoucherCommand => new(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
         public static MerchantQueries.GetMerchantContractsQuery GetMerchantContractsQuery => new(EstateId,MerchantId);
+        public static MerchantQueries.GetMerchantQuery GetMerchantQuery => new(EstateId, MerchantId);
 
         public static VoucherQueries.GetVoucherQuery GetVoucherQuery => new(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
 

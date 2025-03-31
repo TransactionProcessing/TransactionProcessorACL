@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -49,22 +48,5 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
         }
 
         #endregion
-    }
-
-    public class MerchantRequestHandler : IRequestHandler<MerchantQueries.GetMerchantContractsQuery, Result<List<ContractResponse>>> {
-        #region Fields
-
-        private readonly ITransactionProcessorACLApplicationService ApplicationService;
-
-        #endregion
-
-        public MerchantRequestHandler(ITransactionProcessorACLApplicationService applicationService) {
-            this.ApplicationService = applicationService;
-        }
-
-        public async Task<Result<List<ContractResponse>>> Handle(MerchantQueries.GetMerchantContractsQuery request,
-                                         CancellationToken cancellationToken) {
-            return await this.ApplicationService.GetMerchantContracts(request.EstateId, request.MerchantId, cancellationToken);
-        }
     }
 }

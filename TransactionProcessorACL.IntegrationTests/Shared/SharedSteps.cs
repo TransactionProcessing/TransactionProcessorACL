@@ -155,8 +155,8 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, AddMerchantDeviceRequest)> requests = table.Rows.ToAddMerchantDeviceRequests(estates);
 
-            List<(EstateDetails, MerchantResponse, String)> results = await this.TransactionProcessorSteps.GivenIHaveAssignedTheFollowingDevicesToTheMerchants(this.TestingContext.AccessToken, requests);
-            foreach ((EstateDetails, MerchantResponse, String) result in results){
+            List<(EstateDetails, TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse, String)> results = await this.TransactionProcessorSteps.GivenIHaveAssignedTheFollowingDevicesToTheMerchants(this.TestingContext.AccessToken, requests);
+            foreach ((EstateDetails, TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse, String) result in results){
                 this.TestingContext.Logger.LogInformation($"Device {result.Item3} assigned to Merchant {result.Item2.MerchantName} Estate {result.Item1.EstateName}");
             }
         }
@@ -291,9 +291,9 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, AssignOperatorRequest)> requests = table.Rows.ToAssignOperatorRequests(estates);
 
-            List<(EstateDetails, MerchantOperatorResponse)> results = await this.TransactionProcessorSteps.WhenIAssignTheFollowingOperatorToTheMerchants(this.TestingContext.AccessToken, requests);
+            List<(EstateDetails, TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantOperatorResponse)> results = await this.TransactionProcessorSteps.WhenIAssignTheFollowingOperatorToTheMerchants(this.TestingContext.AccessToken, requests);
 
-            foreach ((EstateDetails, MerchantOperatorResponse) result in results){
+            foreach ((EstateDetails, TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantOperatorResponse) result in results){
                 this.TestingContext.Logger.LogInformation($"Operator {result.Item2.Name} assigned to Estate {result.Item1.EstateName}");
             }
         }
@@ -322,12 +322,12 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         [Given("I create the following merchants")]
         [When(@"I create the following merchants")]
         public async Task WhenICreateTheFollowingMerchants(DataTable table){
-            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails estate, CreateMerchantRequest)> requests = table.Rows.ToCreateMerchantRequests(estates);
 
-            List<MerchantResponse> verifiedMerchants = await this.TransactionProcessorSteps.WhenICreateTheFollowingMerchants(this.TestingContext.AccessToken, requests);
+            List<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> verifiedMerchants = await this.TransactionProcessorSteps.WhenICreateTheFollowingMerchants(this.TestingContext.AccessToken, requests);
 
-            foreach (MerchantResponse verifiedMerchant in verifiedMerchants){
+            foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse verifiedMerchant in verifiedMerchants){
                 EstateDetails1 estateDetails = this.TestingContext.GetEstateDetails(verifiedMerchant.EstateId);
                 estateDetails.EstateDetails.AddMerchant(verifiedMerchant);
                 this.TestingContext.Logger.LogInformation($"Merchant {verifiedMerchant.MerchantName} created with Id {verifiedMerchant.MerchantId} for Estate {estateDetails.EstateDetails.EstateName}");
