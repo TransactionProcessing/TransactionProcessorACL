@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using Shared.Logger;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.Factories;
 using TransactionProcessorACL.Models;
@@ -49,28 +50,36 @@ namespace TransactionProcessorACL.Controllers
         [Route("contracts")]
         public async Task<IActionResult> GetMerchantContracts([FromQuery] String applicationVersion,
                                                               CancellationToken cancellationToken) {
+            Logger.LogInformation($"Application version {applicationVersion}");
+            
             if (ClaimsHelper.IsPasswordToken(this.User) == false) {
                 return this.Forbid();
             }
-
+            Logger.LogInformation($"user is nto null");
             // Do the software version check
             VersionCheckCommand versionCheckCommand = new(applicationVersion);
             Result versionCheckResult = await this.Mediator.Send(versionCheckCommand, cancellationToken);
             if (versionCheckResult.IsFailed)
                 return this.StatusCode(505);
 
+            Logger.LogInformation($"version check ok");
             Result<(Guid estateId, Guid merchantId)> claimsResult = TransactionController.GetRequiredClaims(this.User);
             if (claimsResult.IsFailed)
                 return this.Forbid();
 
+            Logger.LogInformation($"got claims ok");
+            Logger.LogInformation($"estate id {claimsResult.Data.estateId}");
+            Logger.LogInformation($"merchant id {claimsResult.Data.merchantId}");
+
             MerchantQueries.GetMerchantContractsQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
             Result<List<ContractResponse>> result = await this.Mediator.Send(query, cancellationToken);
-
+            Logger.LogInformation($"request sent");
             if (result.IsFailed)
                 return ResultHelpers.CreateFailure(result).ToActionResultX();
-
+            Logger.LogInformation($"result was not failed");
             List<DataTransferObjects.Responses.ContractResponse> responses = new();
             // Now need to convert to the DTO type for returning to the caller
+            Logger.LogInformation($"record count is {result.Data.Count}");
             foreach (ContractResponse contractModel in result.Data)
             {
                 DataTransferObjects.Responses.ContractResponse contractResponse = new() {
