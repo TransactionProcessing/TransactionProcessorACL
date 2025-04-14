@@ -480,22 +480,29 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         public async Task<Result<List<Models.ContractResponse>>> GetMerchantContracts(Guid estateId,
                                                                                       Guid merchantId,
                                                                                       CancellationToken cancellationToken) {
+            Logger.LogInformation($"GetMerchantContracts: {estateId} {merchantId}");
             // Get a client token to call the Transaction Processor
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
             String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
 
             TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
-
-            ProcessLogonTransactionResponse response = null;
+            if (accessToken == null) {
+                Logger.LogInformation($"token is null");
+                return Result.Failure("Error getting access token");
+            }
+            Logger.LogInformation($"{JsonConvert.SerializeObject(accessToken)}");
 
             Result<List<TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse>> result = await this.TransactionProcessorClient.GetMerchantContracts(accessToken.AccessToken, estateId, merchantId, cancellationToken);
 
             if (result.IsFailed)
                 return Result.Failure($"Error getting merchant contracts {result.Message}");
 
+            Logger.LogInformation($"Got the merchant contracts {result.Data.Count}");
             List<Models.ContractResponse> models = new();
 
             foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse contractResponse in result.Data) {
+                Logger.LogInformation($"Processing contract {contractResponse.OperatorName}");
+
                 ContractResponse contractModel = new ContractResponse {
                     ContractId = contractResponse.ContractId,
                     ContractReportingId = contractResponse.ContractReportingId,
@@ -508,6 +515,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 };
 
                 foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractProduct contractResponseProduct in contractResponse.Products) {
+                    Logger.LogInformation($"Processing contract product {contractResponseProduct.DisplayText}");
                     ContractProduct productModel = new ContractProduct {
                         Value = contractResponseProduct.Value,
                         DisplayText = contractResponseProduct.DisplayText,
@@ -523,23 +531,25 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                         TransactionFees = new()
                     };
 
-                    foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractProductTransactionFee contractProductTransactionFee in contractResponseProduct.TransactionFees) {
-                        ContractProductTransactionFee transactionFeeModel = new ContractProductTransactionFee {
-                            Value = contractProductTransactionFee.Value,
-                            Description = contractProductTransactionFee.Description,
-                            CalculationType = contractProductTransactionFee.CalculationType switch {
-                                TransactionProcessor.DataTransferObjects.Responses.Contract.CalculationType.Fixed => CalculationType.Fixed,
-                                _ => CalculationType.Percentage,
-                            },
-                            FeeType = contractProductTransactionFee.FeeType switch {
-                                TransactionProcessor.DataTransferObjects.Responses.Contract.FeeType.Merchant => FeeType.Merchant,
-                                _ => FeeType.ServiceProvider,
-                            },
-                            TransactionFeeId = contractProductTransactionFee.TransactionFeeId,
-                            TransactionFeeReportingId = contractProductTransactionFee.TransactionFeeReportingId
-                        };
-                        productModel.TransactionFees.Add(transactionFeeModel);
-                    }
+                    // Leave here but not used atm
+                    //foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractProductTransactionFee contractProductTransactionFee in contractResponseProduct.TransactionFees) {
+                    //    Logger.LogInformation($"Processing contract product fee {contractProductTransactionFee.Description}");
+                    //    ContractProductTransactionFee transactionFeeModel = new ContractProductTransactionFee {
+                    //        Value = contractProductTransactionFee.Value,
+                    //        Description = contractProductTransactionFee.Description,
+                    //        CalculationType = contractProductTransactionFee.CalculationType switch {
+                    //            TransactionProcessor.DataTransferObjects.Responses.Contract.CalculationType.Fixed => CalculationType.Fixed,
+                    //            _ => CalculationType.Percentage,
+                    //        },
+                    //        FeeType = contractProductTransactionFee.FeeType switch {
+                    //            TransactionProcessor.DataTransferObjects.Responses.Contract.FeeType.Merchant => FeeType.Merchant,
+                    //            _ => FeeType.ServiceProvider,
+                    //        },
+                    //        TransactionFeeId = contractProductTransactionFee.TransactionFeeId,
+                    //        TransactionFeeReportingId = contractProductTransactionFee.TransactionFeeReportingId
+                    //    };
+                    //    productModel.TransactionFees.Add(transactionFeeModel);
+                    //}
 
                     contractModel.Products.Add(productModel);
                 }
