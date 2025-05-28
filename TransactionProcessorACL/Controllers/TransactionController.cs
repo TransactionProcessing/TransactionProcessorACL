@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Shared.General;
 using Shared.Results;
+using Shared.Results.Web;
 using SimpleResults;
 
 namespace TransactionProcessorACL.Controllers
@@ -107,21 +108,21 @@ namespace TransactionProcessorACL.Controllers
                     // TODO: Handle the result
                     if (saleResponse.IsFailed)
                         return saleResponse.ToActionResultX();
-                    dto = this.ModelFactory.ConvertFrom(saleResponse);
+                    dto = this.ModelFactory.ConvertFrom(saleResponse.Data);
                     break;
                 case LogonTransactionRequestMessage msg:
                     TransactionCommands.ProcessLogonTransactionCommand logonCommand= this.CreateCommandFromRequest(claimsResult.Data.estateId, claimsResult.Data.merchantId, msg);
                     Result<ProcessLogonTransactionResponse> logonResponse = await this.Mediator.Send(logonCommand, cancellationToken);
                     if (logonResponse.IsFailed)
                         return logonResponse.ToActionResultX();
-                    dto = this.ModelFactory.ConvertFrom(logonResponse);
+                    dto = this.ModelFactory.ConvertFrom(logonResponse.Data);
                     break;
                 case ReconciliationRequestMessage msg: 
                     TransactionCommands.ProcessReconciliationCommand reconciliationCommand = this.CreateCommandFromRequest(claimsResult.Data.estateId, claimsResult.Data.merchantId, msg);
                     Result<ProcessReconciliationResponse> reconciliationResponse = await this.Mediator.Send(reconciliationCommand, cancellationToken);
                     if (reconciliationResponse.IsFailed)
                         return reconciliationResponse.ToActionResultX();
-                    dto = this.ModelFactory.ConvertFrom(reconciliationResponse);
+                    dto = this.ModelFactory.ConvertFrom(reconciliationResponse.Data);
                     break;
             }
 
@@ -138,7 +139,7 @@ namespace TransactionProcessorACL.Controllers
         {
             TransactionCommands.ProcessLogonTransactionCommand command = new(estateId, merchantId, logonTransactionRequestMessage.TransactionDateTime, logonTransactionRequestMessage.TransactionNumber, logonTransactionRequestMessage.DeviceIdentifier);
 
-            return Result.Success(command);
+            return command;
         }
 
         public static Result<(Guid estateId, Guid merchantId)> GetRequiredClaims(ClaimsPrincipal user) {

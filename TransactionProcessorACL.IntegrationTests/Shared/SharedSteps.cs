@@ -1,4 +1,5 @@
-﻿using TransactionProcessor.DataTransferObjects.Requests.Contract;
+﻿using SimpleResults;
+using TransactionProcessor.DataTransferObjects.Requests.Contract;
 using TransactionProcessor.DataTransferObjects.Requests.Estate;
 using TransactionProcessor.DataTransferObjects.Requests.Merchant;
 using TransactionProcessor.DataTransferObjects.Requests.Operator;
@@ -8,12 +9,6 @@ using TransactionProcessor.DataTransferObjects.Responses.Merchant;
 using AssignOperatorRequest = TransactionProcessor.DataTransferObjects.Requests.Merchant.AssignOperatorRequest;
 
 namespace TransactionProcessorACL.IntegrationTests.Shared{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text.Json;
-    using System.Threading;
-    using System.Threading.Tasks;
     using DataTransferObjects;
     using DataTransferObjects.Responses;
     using Newtonsoft.Json.Linq;
@@ -23,9 +18,16 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
     using SecurityService.DataTransferObjects.Responses;
     using SecurityService.IntegrationTesting.Helpers;
     using Shouldly;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.Json;
+    using System.Threading;
+    using System.Threading.Tasks;
     using TransactionProcessor.DataTransferObjects;
     using TransactionProcessor.IntegrationTesting.Helpers;
     using TransactionProcessor.IntegrationTests.Common;
+    using static TransactionProcessorACL.IntegrationTests.Shared.ReqnrollExtensions;
     using ClientDetails = TransactionProcessor.IntegrationTests.Common.ClientDetails;
     
     /// <summary>
@@ -79,10 +81,10 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             EstateDetails1 estateDetails = this.TestingContext.GetEstateDetails(estateName);
             ClientDetails clientDetails = this.TestingContext.GetClientDetails(clientId);
 
-            TokenResponse tokenResponse = await this.TestingContext.DockerHelper.SecurityServiceClient
+            Result<TokenResponse> tokenResponseResult = await this.TestingContext.DockerHelper.SecurityServiceClient
                                                     .GetToken(username, password, clientId, clientDetails.ClientSecret, CancellationToken.None).ConfigureAwait(false);
-
-            estateDetails.AddVoucherRedemptionUserToken("Voucher", username, tokenResponse.AccessToken);
+            tokenResponseResult.IsSuccess.ShouldBeTrue();
+            estateDetails.AddVoucherRedemptionUserToken("Voucher", username, tokenResponseResult.Data.AccessToken);
         }
 
         [Given(@"I am logged in as ""([^""]*)"" with password ""([^""]*)"" for Merchant ""([^""]*)"" for Estate ""([^""]*)"" with client ""([^""]*)""")]
@@ -95,10 +97,10 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             Guid merchantId = estateDetails.EstateDetails.GetMerchantId(merchantName);
             ClientDetails clientDetails = this.TestingContext.GetClientDetails(clientId);
 
-            TokenResponse tokenResponse = await this.TestingContext.DockerHelper.SecurityServiceClient
+            Result<TokenResponse> tokenResponseResult = await this.TestingContext.DockerHelper.SecurityServiceClient
                                                     .GetToken(username, password, clientId, clientDetails.ClientSecret, CancellationToken.None).ConfigureAwait(false);
-
-            estateDetails.AddMerchantUserToken(merchantId, username, tokenResponse.AccessToken);
+            tokenResponseResult.IsSuccess.ShouldBeTrue();
+            estateDetails.AddMerchantUserToken(merchantId, username, tokenResponseResult.Data.AccessToken);
         }
         /// <summary>
         /// Givens the i am logged in as with password for merchant for estate with client.
@@ -428,7 +430,33 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         public async Task WhenIRedeemTheVoucherForEstateAndMerchantTransactionNumberTheVoucherBalanceWillBe(String estateName, String merchantName, Int32 transactionNumber, Int32 balance){
             await this.AclSteps.WhenIRedeemTheVoucherForEstateAndMerchantTransactionNumberTheVoucherBalanceWillBe(this.TestingContext.AccessToken, estateName, merchantName, transactionNumber, balance, this.TestingContext.Estates);
         }
-        
+        [When("I get the merchant information for Merchant {string} for Estate {string} the response should contain the following information")]
+        //[When("I get the merchant information for Merchant '([^']*)' for Estate '([^']*)' the response should contain the following information")]
+        public async Task WhenIGetTheMerchantInformationForMerchantForEstateTheResponseShouldContainTheFollowingInformation(string merchantName,
+                                                                                                                            string estateName,
+                                                                                                                            DataTable dataTable) {
+            ReqnrollExtensions.ExpectedMerchantResponse expectedMerchantResponse = dataTable.Rows[0].ToExpectedMerchantResponse();
+
+            await this.AclSteps.WhenIGetTheMerchantInformationForMerchantForEstateTheResponseShouldContainTheFollowingInformation(estateName, merchantName, this.TestingContext.Estates, expectedMerchantResponse);
+        }
+
+        [When("I get the merchant contract information for Merchant {string} for Estate {string} the response should contain the following information")]
+        public async Task WhenIGetTheMerchantContractInformationForMerchantForEstateTheResponseShouldContainTheFollowingInformation(string merchantName,
+                                                                                                                              string estateName,
+                                                                                                                              DataTable dataTable)
+        {
+            List<ReqnrollExtensions.ExpectedMerchantContractResponse> expectedMerchantContractResponses = new List<ReqnrollExtensions.ExpectedMerchantContractResponse>();
+            foreach (DataTableRow dataTableRow in dataTable.Rows)
+            {
+                ExpectedMerchantContractResponse expectedMerchantContractResponse = dataTableRow.ToExpectedMerchantContractResponse();
+                expectedMerchantContractResponses.Add(expectedMerchantContractResponse);
+            }
+
+            await this.AclSteps.WhenIGetTheMerchantContractInformationForMerchantForEstateTheResponseShouldContainTheFollowingInformation(estateName, merchantName, this.TestingContext.Estates, expectedMerchantContractResponses);
+        }
+
+
+
         #endregion
 
         #region Others

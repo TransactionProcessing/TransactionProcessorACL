@@ -162,6 +162,17 @@ public static class ReqnrollExtensions
         return expectedReconciliationResponses;
     }
 
+    public static ExpectedMerchantResponse ToExpectedMerchantResponse(this DataTableRow tableRow) {
+        ExpectedMerchantResponse expectedMerchantResponse = new ExpectedMerchantResponse(ReqnrollTableHelper.GetStringRowValue(tableRow, "MerchantName"), ReqnrollTableHelper.GetStringRowValue(tableRow, "AddressLine1"), ReqnrollTableHelper.GetStringRowValue(tableRow, "Town"), ReqnrollTableHelper.GetStringRowValue(tableRow, "Region"), ReqnrollTableHelper.GetStringRowValue(tableRow, "Country"), ReqnrollTableHelper.GetStringRowValue(tableRow, "ContactName"), ReqnrollTableHelper.GetStringRowValue(tableRow, "EmailAddress"));
+        return expectedMerchantResponse;
+    }
+
+    public static ExpectedMerchantContractResponse ToExpectedMerchantContractResponse(this DataTableRow tableRow)
+    {
+        ExpectedMerchantContractResponse expectedMerchantContractResponse = new (ReqnrollTableHelper.GetStringRowValue(tableRow, "MerchantName"), ReqnrollTableHelper.GetStringRowValue(tableRow, "ContractDescription"));
+        return expectedMerchantContractResponse;
+    }
+
     public class ExpectedTransactionResponse{
         public String ResponseCode{ get; set; }
         public String ResponseMessage { get; set; }
@@ -181,4 +192,7 @@ public static class ReqnrollExtensions
         public String MerchantName { get; set; }
         public String TransactionNumber { get; set; }
     }
+
+    public record ExpectedMerchantResponse(String MerchantName, String AddressLine1, String Town, String Region, String Country, String ContactName, String EmailAddress);
+    public record ExpectedMerchantContractResponse(String MerchantName, String ContractName);
 }

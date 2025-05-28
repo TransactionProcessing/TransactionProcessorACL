@@ -1,7 +1,13 @@
-﻿using TransactionProcessor.IntegrationTesting.Helpers;
+﻿using System.Diagnostics;
+using SimpleResults;
+using TransactionProcessor.IntegrationTesting.Helpers;
 
 namespace TransactionProcessorACL.IntegrationTests.Shared;
 
+using DataTransferObjects;
+using DataTransferObjects.Responses;
+using Newtonsoft.Json;
+using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +16,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DataTransferObjects;
-using DataTransferObjects.Responses;
-using Newtonsoft.Json;
-using Shouldly;
 using TransactionProcessor.Client;
 using TransactionProcessor.DataTransferObjects;
 using TransactionProcessor.IntegrationTests.Common;
+using static TransactionProcessorACL.IntegrationTests.Shared.ReqnrollExtensions;
 
 public class ACLSteps{
     private readonly HttpClient HttpClient;
@@ -115,10 +118,12 @@ public class ACLSteps{
         GetVoucherResponse voucher = null;
         await Retry.For(async () => {
 
-                            voucher = await this.TransactionProcessorClient.GetVoucherByTransactionId(accessToken,
+                            Result<GetVoucherResponse> voucherResult = await this.TransactionProcessorClient.GetVoucherByTransactionId(accessToken,
                                                                                                       es1.EstateDetails.EstateId,
                                                                                                       transactionResponse.TransactionId,
                                                                                                       CancellationToken.None);
+                            voucherResult.IsSuccess.ShouldBeTrue("Failed to retrieve voucher by transaction id");
+                            voucher = voucherResult.Data;
                             voucher.ShouldNotBeNull();
                         });
                 
@@ -138,5 +143,76 @@ public class ACLSteps{
         RedeemVoucherResponseMessage redeemVoucherResponse = JsonConvert.DeserializeObject<RedeemVoucherResponseMessage>(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
 
         redeemVoucherResponse.Balance.ShouldBe(balance);
+    }
+
+    public async Task WhenIGetTheMerchantInformationForMerchantForEstateTheResponseShouldContainTheFollowingInformation(String estateName,
+                                                                                                                        String merchantName, List<EstateDetails1> estateDetailsList,
+                                                                                                                        ExpectedMerchantResponse expectedMerchantResponse) {
+        EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateName == estateName);
+        es1.ShouldNotBeNull();
+        Guid merchantId = es1.EstateDetails.GetMerchantId(merchantName);
+
+        // Build URI 
+        String uri = $"api/merchants?applicationVersion=1.0.5";
+
+        String userAccessToken = es1.GetMerchantUserToken(merchantId);
+        
+        this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAccessToken);
+
+        HttpResponseMessage response = await this.HttpClient.GetAsync(uri, CancellationToken.None);
+
+        response.IsSuccessStatusCode.ShouldBeTrue();
+        String responseContent = await response.Content.ReadAsStringAsync();
+        
+
+        Result<MerchantResponse> merchantResponseResult = JsonConvert.DeserializeObject<Result<MerchantResponse>>(responseContent);
+        merchantResponseResult.IsSuccess.ShouldBeTrue("Failed to retrieve merchant information");
+        MerchantResponse merchantResponse = merchantResponseResult.Data;
+        merchantResponse.ShouldNotBeNull();
+        merchantResponse.MerchantId.ShouldBe(merchantId);
+        merchantResponse.MerchantName.ShouldBe(expectedMerchantResponse.MerchantName);
+        merchantResponse.Addresses.ShouldNotBeNull();
+        merchantResponse.Addresses.Count.ShouldBe(1);
+        merchantResponse.Addresses[0].AddressLine1.ShouldBe(expectedMerchantResponse.AddressLine1);
+        merchantResponse.Addresses[0].Town.ShouldBe(expectedMerchantResponse.Town);
+        merchantResponse.Addresses[0].Region.ShouldBe(expectedMerchantResponse.Region);
+        merchantResponse.Addresses[0].Country.ShouldBe(expectedMerchantResponse.Country);
+        merchantResponse.Contacts.ShouldNotBeNull();
+        merchantResponse.Contacts.Count.ShouldBe(1);
+        merchantResponse.Contacts[0].ContactName.ShouldBe(expectedMerchantResponse.ContactName);
+        merchantResponse.Contacts[0].ContactEmailAddress.ShouldBe(expectedMerchantResponse.EmailAddress);
+
+
+    }
+
+    public async Task WhenIGetTheMerchantContractInformationForMerchantForEstateTheResponseShouldContainTheFollowingInformation(String estateName,
+                                                                                                                                String merchantName,
+                                                                                                                                List<EstateDetails1> estateDetailsList,
+                                                                                                                                List<ExpectedMerchantContractResponse> expectedMerchantContractResponses) {
+        EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateName == estateName);
+        es1.ShouldNotBeNull();
+        Guid merchantId = es1.EstateDetails.GetMerchantId(merchantName);
+
+        // Build URI 
+        String uri = $"api/merchants/contracts?applicationVersion=1.0.5";
+
+        String userAccessToken = es1.GetMerchantUserToken(merchantId);
+
+        this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAccessToken);
+
+        await Retry.For(async () => {
+            HttpResponseMessage response = await this.HttpClient.GetAsync(uri, CancellationToken.None);
+            response.IsSuccessStatusCode.ShouldBeTrue();
+
+            String responseContent = await response.Content.ReadAsStringAsync();
+
+            Result<List<ContractResponse>> merchantContractResponseResult = JsonConvert.DeserializeObject<Result<List<ContractResponse>>>(responseContent);
+            merchantContractResponseResult.IsSuccess.ShouldBeTrue("Failed to retrieve merchant contract information");
+
+            foreach (ExpectedMerchantContractResponse expectedMerchantContractResponse in expectedMerchantContractResponses) {
+                ContractResponse contractResponse = merchantContractResponseResult.Data.SingleOrDefault(c => c.Description == expectedMerchantContractResponse.ContractName);
+                contractResponse.ShouldNotBeNull($"Failed to find contract {expectedMerchantContractResponse.ContractName} in response");
+            }
+        });
     }
 }

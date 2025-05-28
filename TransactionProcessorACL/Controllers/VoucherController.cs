@@ -8,6 +8,7 @@ using System.Threading;
 using System;
 using JasperFx.Core;
 using Shared.Results;
+using Shared.Results.Web;
 using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Common;
 using TransactionProcessorACL.BusinessLogic.Requests;

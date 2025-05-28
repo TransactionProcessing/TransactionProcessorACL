@@ -12,6 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Shared.Logger;
+using Shared.Results.Web;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.Factories;
 using TransactionProcessorACL.Models;
@@ -144,29 +145,30 @@ namespace TransactionProcessorACL.Controllers
         [HttpGet]
         [Route("")]
         public async Task<IActionResult> GetMerchant([FromQuery] String applicationVersion,
-                                                              CancellationToken cancellationToken)
-        {
-            if (ClaimsHelper.IsPasswordToken(this.User) == false)
-            {
+                                                     CancellationToken cancellationToken) {
+            if (ClaimsHelper.IsPasswordToken(this.User) == false) {
                 return this.Forbid();
             }
 
+            Logger.LogWarning("Here 1");
             // Do the software version check
             VersionCheckCommand versionCheckCommand = new(applicationVersion);
             Result versionCheckResult = await this.Mediator.Send(versionCheckCommand, cancellationToken);
             if (versionCheckResult.IsFailed)
                 return this.StatusCode(505);
-
+            Logger.LogWarning("Here 2");
             Result<(Guid estateId, Guid merchantId)> claimsResult = TransactionController.GetRequiredClaims(this.User);
             if (claimsResult.IsFailed)
                 return this.Forbid();
-
+            Logger.LogWarning("Here 3");
+            Logger.LogWarning($"estateId is {claimsResult.Data.estateId}");
+            Logger.LogWarning($"merchantId is {claimsResult.Data.merchantId}");
             MerchantQueries.GetMerchantQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
             Result<MerchantResponse> result = await this.Mediator.Send(query, cancellationToken);
 
             if (result.IsFailed)
                 return ResultHelpers.CreateFailure(result).ToActionResultX();
-
+            Logger.LogWarning("Here 4");
             // Now need to convert to the DTO type for returning to the caller
             DataTransferObjects.Responses.MerchantResponse response = new() {
                 EstateId = result.Data.EstateId,
@@ -176,8 +178,7 @@ namespace TransactionProcessorACL.Controllers
                 MerchantReference = result.Data.MerchantReference,
                 MerchantReportingId = result.Data.MerchantReportingId,
                 NextStatementDate = result.Data.NextStatementDate,
-                SettlementSchedule = result.Data.SettlementSchedule switch
-                {
+                SettlementSchedule = result.Data.SettlementSchedule switch {
                     SettlementSchedule.Weekly => DataTransferObjects.Responses.SettlementSchedule.Weekly,
                     SettlementSchedule.Monthly => DataTransferObjects.Responses.SettlementSchedule.Monthly,
                     _ => DataTransferObjects.Responses.SettlementSchedule.NotSet
@@ -188,11 +189,9 @@ namespace TransactionProcessorACL.Controllers
                 Devices = new(),
                 Operators = new()
             };
-
-            foreach (AddressResponse addressModel in result.Data.Addresses)
-            {
-                DataTransferObjects.Responses.AddressResponse addressResponse = new()
-                {
+            Logger.LogWarning("Here 5");
+            foreach (AddressResponse addressModel in result.Data.Addresses) {
+                DataTransferObjects.Responses.AddressResponse addressResponse = new() {
                     AddressId = addressModel.AddressId,
                     AddressLine1 = addressModel.AddressLine1,
                     AddressLine2 = addressModel.AddressLine2,
@@ -207,36 +206,24 @@ namespace TransactionProcessorACL.Controllers
             }
 
             foreach (ContactResponse contactResponse in result.Data.Contacts) {
-                response.Contacts.Add(new DataTransferObjects.Responses.ContactResponse
-                {
-                    ContactId = contactResponse.ContactId,
-                    ContactName = contactResponse.ContactName,
-                    ContactPhoneNumber = contactResponse.ContactPhoneNumber,
-                    ContactEmailAddress = contactResponse.ContactEmailAddress
-                });
+                response.Contacts.Add(new DataTransferObjects.Responses.ContactResponse { ContactId = contactResponse.ContactId, ContactName = contactResponse.ContactName, ContactPhoneNumber = contactResponse.ContactPhoneNumber, ContactEmailAddress = contactResponse.ContactEmailAddress });
             }
 
             foreach (MerchantContractResponse merchantContractResponse in result.Data.Contracts) {
-                var contract = new DataTransferObjects.Responses.MerchantContractResponse
-                {
-                    ContractId = merchantContractResponse.ContractId,
-                    IsDeleted = merchantContractResponse.IsDeleted,
-                    ContractProducts = new()
-                };
+                var contract = new DataTransferObjects.Responses.MerchantContractResponse { ContractId = merchantContractResponse.ContractId, IsDeleted = merchantContractResponse.IsDeleted, ContractProducts = new() };
                 foreach (Guid contractProduct in merchantContractResponse.ContractProducts) {
                     contract.ContractProducts.Add(contractProduct);
                 }
+
                 response.Contracts.Add(contract);
             }
 
-            foreach (KeyValuePair<Guid, string> device in result.Data.Devices)
-            {
+            foreach (KeyValuePair<Guid, string> device in result.Data.Devices) {
                 response.Devices.Add(device.Key, device.Value);
             }
 
             foreach (MerchantOperatorResponse merchantOperatorResponse in result.Data.Operators) {
-                response.Operators.Add(new DataTransferObjects.Responses.MerchantOperatorResponse
-                {
+                response.Operators.Add(new DataTransferObjects.Responses.MerchantOperatorResponse {
                     OperatorId = merchantOperatorResponse.OperatorId,
                     IsDeleted = merchantOperatorResponse.IsDeleted,
                     MerchantNumber = merchantOperatorResponse.MerchantNumber,
