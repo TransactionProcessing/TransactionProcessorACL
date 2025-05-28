@@ -58,13 +58,14 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ReturnsAsync(TestData.SerialisedMessageResponseLogon);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync( Result.Success(TestData.TokenResponse));
 
-            ProcessLogonTransactionResponse logonResponse = await applicationService.ProcessLogonTransaction(TestData.EstateId,
+            Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.EstateId,
                                                                                                              TestData.MerchantId,
                                                                                                              TestData.TransactionDateTime,
                                                                                                              TestData.TransactionNumber,
                                                                                                              TestData.DeviceIdentifier,
                                                                                                              CancellationToken.None);
-
+            result.IsSuccess.ShouldBeTrue();
+            ProcessLogonTransactionResponse logonResponse = result.Data;
             logonResponse.ShouldNotBeNull();
             logonResponse.ResponseMessage.ShouldBe(TestData.ResponseMessage);
             logonResponse.ResponseCode.ShouldBe(TestData.ResponseCode);
@@ -77,13 +78,14 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error", new InvalidOperationException(TestData.InvalidOperationErrorResponseMessage)));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
             
-            ProcessLogonTransactionResponse logonResponse = await applicationService.ProcessLogonTransaction(TestData.EstateId,
+            Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.EstateId,
                                                                                                              TestData.MerchantId,
                                                                                                              TestData.TransactionDateTime,
                                                                                                              TestData.TransactionNumber,
                                                                                                              TestData.DeviceIdentifier,
                                                                                                              CancellationToken.None);
-
+            result.IsSuccess.ShouldBeTrue();
+            ProcessLogonTransactionResponse logonResponse = result.Data;
             logonResponse.ShouldNotBeNull();
             logonResponse.ResponseMessage.ShouldBe(TestData.InvalidOperationErrorResponseMessage);
             logonResponse.ResponseCode.ShouldBe(TestData.InvalidOperationErrorResponseCode);
@@ -96,13 +98,14 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error", new HttpRequestException(TestData.HttpRequestErrorResponseMessage)));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            ProcessLogonTransactionResponse logonResponse = await applicationService.ProcessLogonTransaction(TestData.EstateId,
+            Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.EstateId,
                                                                                                              TestData.MerchantId,
                                                                                                              TestData.TransactionDateTime,
                                                                                                              TestData.TransactionNumber,
                                                                                                              TestData.DeviceIdentifier,
                                                                                                              CancellationToken.None);
-
+            result.IsSuccess.ShouldBeTrue();
+            ProcessLogonTransactionResponse logonResponse =result.Data;
             logonResponse.ShouldNotBeNull();
             logonResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
             logonResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
@@ -115,12 +118,14 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error", new Exception(TestData.GeneralErrorResponseMessage)));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            ProcessLogonTransactionResponse logonResponse = await applicationService.ProcessLogonTransaction(TestData.EstateId,
-                                                                                                             TestData.MerchantId,
-                                                                                                             TestData.TransactionDateTime,
-                                                                                                             TestData.TransactionNumber,
-                                                                                                             TestData.DeviceIdentifier,
-                                                                                                             CancellationToken.None);
+            Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.EstateId,
+                TestData.MerchantId,
+                TestData.TransactionDateTime,
+                TestData.TransactionNumber,
+                TestData.DeviceIdentifier,
+                CancellationToken.None);
+            result.IsSuccess.ShouldBeTrue();
+            ProcessLogonTransactionResponse logonResponse = result.Data;
 
             logonResponse.ShouldNotBeNull();
             logonResponse.ResponseMessage.ShouldBe(TestData.GeneralErrorResponseMessage);
@@ -134,7 +139,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ReturnsAsync(TestData.SerialisedMessageResponseSale);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            ProcessSaleTransactionResponse saleResponse = await applicationService.ProcessSaleTransaction(TestData.EstateId,
+            var result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
                                                                                                              TestData.MerchantId,
                                                                                                              TestData.TransactionDateTime,
                                                                                                              TestData.TransactionNumber,
@@ -146,6 +151,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                              TestData.AdditionalRequestMetadata,
                                                                                                              CancellationToken.None);
 
+            result.IsSuccess.ShouldBeTrue();
+            ProcessSaleTransactionResponse saleResponse = result.Data;
             saleResponse.ShouldNotBeNull();
             saleResponse.ResponseMessage.ShouldBe(TestData.ResponseMessage);
             saleResponse.ResponseCode.ShouldBe(TestData.ResponseCode);
@@ -158,7 +165,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error", new InvalidOperationException(TestData.InvalidOperationErrorResponseMessage)));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            ProcessSaleTransactionResponse saleResponse = await applicationService.ProcessSaleTransaction(TestData.EstateId,
+            var result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
                                                                                                           TestData.MerchantId,
                                                                                                           TestData.TransactionDateTime,
                                                                                                           TestData.TransactionNumber,
@@ -169,7 +176,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                           TestData.ProductId,
                                                                                                           TestData.AdditionalRequestMetadata,
                                                                                                           CancellationToken.None);
-
+            result.IsSuccess.ShouldBeTrue();
+            ProcessSaleTransactionResponse saleResponse = result.Data;
             saleResponse.ShouldNotBeNull();
             saleResponse.ResponseMessage.ShouldBe(TestData.InvalidOperationErrorResponseMessage);
             saleResponse.ResponseCode.ShouldBe(TestData.InvalidOperationErrorResponseCode);
@@ -182,7 +190,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error", new HttpRequestException(TestData.HttpRequestErrorResponseMessage)));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            ProcessSaleTransactionResponse saleResponse = await applicationService.ProcessSaleTransaction(TestData.EstateId,
+            var result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
                                                                                                           TestData.MerchantId,
                                                                                                           TestData.TransactionDateTime,
                                                                                                           TestData.TransactionNumber,
@@ -194,6 +202,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                           TestData.AdditionalRequestMetadata,
                                                                                                           CancellationToken.None);
 
+            result.IsSuccess.ShouldBeTrue();
+            ProcessSaleTransactionResponse saleResponse = result.Data;
             saleResponse.ShouldNotBeNull();
             saleResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
             saleResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
@@ -206,7 +216,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error", new Exception(TestData.GeneralErrorResponseMessage)));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            ProcessSaleTransactionResponse saleResponse = await applicationService.ProcessSaleTransaction(TestData.EstateId,
+            var result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
                                                                                                           TestData.MerchantId,
                                                                                                           TestData.TransactionDateTime,
                                                                                                           TestData.TransactionNumber,
@@ -218,6 +228,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                           TestData.AdditionalRequestMetadata,
                                                                                                           CancellationToken.None);
 
+            result.IsSuccess.ShouldBeTrue();
+            ProcessSaleTransactionResponse saleResponse = result.Data;
             saleResponse.ShouldNotBeNull();
             saleResponse.ResponseMessage.ShouldBe(TestData.GeneralErrorResponseMessage);
             saleResponse.ResponseCode.ShouldBe(TestData.GeneralErrorResponseCode);
@@ -230,7 +242,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ReturnsAsync(TestData.SerialisedMessageResponseReconciliation);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            ProcessReconciliationResponse reconciliationResponse = await applicationService.ProcessReconciliation(TestData.EstateId,
+            Result<ProcessReconciliationResponse> result = await applicationService.ProcessReconciliation(TestData.EstateId,
                 TestData.MerchantId,
                 TestData.TransactionDateTime,
                 TestData.DeviceIdentifier,
@@ -238,6 +250,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 TestData.ReconciliationTransactionValue,
                 CancellationToken.None);
 
+            result.IsSuccess.ShouldBeTrue();
+            ProcessReconciliationResponse reconciliationResponse = result.Data;
             reconciliationResponse.ShouldNotBeNull();
             reconciliationResponse.ResponseMessage.ShouldBe(TestData.ResponseMessage);
             reconciliationResponse.ResponseCode.ShouldBe(TestData.ResponseCode);
@@ -250,7 +264,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error", new InvalidOperationException(TestData.InvalidOperationErrorResponseMessage)));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            ProcessReconciliationResponse reconciliationResponse = await applicationService.ProcessReconciliation(TestData.EstateId,
+            Result<ProcessReconciliationResponse> result= await applicationService.ProcessReconciliation(TestData.EstateId,
                 TestData.MerchantId,
                 TestData.TransactionDateTime,
                 TestData.DeviceIdentifier,
@@ -258,6 +272,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 TestData.ReconciliationTransactionValue,
                 CancellationToken.None);
 
+            result.IsSuccess.ShouldBeTrue();
+            ProcessReconciliationResponse reconciliationResponse = result.Data;
             reconciliationResponse.ShouldNotBeNull();
             reconciliationResponse.ResponseMessage.ShouldBe(TestData.InvalidOperationErrorResponseMessage);
             reconciliationResponse.ResponseCode.ShouldBe(TestData.InvalidOperationErrorResponseCode);
@@ -270,7 +286,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error", new HttpRequestException(TestData.HttpRequestErrorResponseMessage)));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            ProcessReconciliationResponse reconciliationResponse = await applicationService.ProcessReconciliation(TestData.EstateId,
+            Result<ProcessReconciliationResponse> result = await applicationService.ProcessReconciliation(TestData.EstateId,
                 TestData.MerchantId,
                 TestData.TransactionDateTime,
                 TestData.DeviceIdentifier,
@@ -278,6 +294,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 TestData.ReconciliationTransactionValue,
                 CancellationToken.None);
 
+            result.IsSuccess.ShouldBeTrue();
+            ProcessReconciliationResponse reconciliationResponse = result.Data;
             reconciliationResponse.ShouldNotBeNull();
             reconciliationResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
             reconciliationResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
@@ -290,7 +308,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error", new Exception(TestData.GeneralErrorResponseMessage)));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            ProcessReconciliationResponse reconciliationResponse = await applicationService.ProcessReconciliation(TestData.EstateId,
+            Result<ProcessReconciliationResponse> result = await applicationService.ProcessReconciliation(TestData.EstateId,
                                                                                                            TestData.MerchantId,
                                                                                                            TestData.TransactionDateTime,
                                                                                                            TestData.DeviceIdentifier,
@@ -298,6 +316,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                            TestData.ReconciliationTransactionValue,
                                                                                                            CancellationToken.None);
 
+            result.IsSuccess.ShouldBeTrue();
+            ProcessReconciliationResponse reconciliationResponse = result.Data;
             reconciliationResponse.ShouldNotBeNull();
             reconciliationResponse.ResponseMessage.ShouldBe(TestData.GeneralErrorResponseMessage);
             reconciliationResponse.ResponseCode.ShouldBe(TestData.GeneralErrorResponseCode);

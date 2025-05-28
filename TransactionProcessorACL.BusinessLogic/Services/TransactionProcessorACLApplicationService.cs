@@ -1,4 +1,5 @@
-﻿using SimpleResults;
+﻿using Shared.Results;
+using SimpleResults;
 using TransactionProcessor.DataTransferObjects.Responses.Contract;
 
 namespace TransactionProcessorACL.BusinessLogic.Services
@@ -78,8 +79,11 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
             String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
 
-            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
-
+            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            if (accessTokenResult.IsFailed) {
+                return ResultHelpers.CreateFailure(accessTokenResult);
+            }
+            TokenResponse accessToken = accessTokenResult.Data;
             LogonTransactionRequest logonTransactionRequest = new LogonTransactionRequest();
             logonTransactionRequest.TransactionNumber = transactionNumber;
             logonTransactionRequest.DeviceIdentifier = deviceIdentifier;
@@ -99,8 +103,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             try
             {
-                SerialisedMessage responseSerialisedMessage =
+                Result<SerialisedMessage> transactionResult = 
                     await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
+
+                if (transactionResult.IsFailed)
+                    return ResultHelpers.CreateFailure(transactionResult);
+                SerialisedMessage responseSerialisedMessage = transactionResult.Data;
 
                 LogonTransactionResponse logonTransactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponse>(responseSerialisedMessage.SerialisedData);
 
@@ -185,7 +193,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
             String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
 
-            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            if (accessTokenResult.IsFailed)
+            {
+                return ResultHelpers.CreateFailure(accessTokenResult);
+            }
+            TokenResponse accessToken = accessTokenResult.Data;
 
             SaleTransactionRequest saleTransactionRequest = new SaleTransactionRequest();
             saleTransactionRequest.TransactionNumber = transactionNumber;
@@ -216,8 +229,11 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             try
             {
-                SerialisedMessage responseSerialisedMessage =
+                Result<SerialisedMessage> transactionResult = 
                     await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
+                if (transactionResult.IsFailed)
+                    return ResultHelpers.CreateFailure(transactionResult);
+                SerialisedMessage responseSerialisedMessage = transactionResult.Data;
 
                 SaleTransactionResponse saleTransactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponse>(responseSerialisedMessage.SerialisedData);
 
@@ -282,8 +298,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
             String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
 
-            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            if (accessTokenResult.IsFailed) {
+                return ResultHelpers.CreateFailure(accessTokenResult);
+            }
 
+            TokenResponse accessToken = accessTokenResult.Data;
             ReconciliationRequest reconciliationRequest = new ReconciliationRequest();
             reconciliationRequest.DeviceIdentifier = deviceIdentifier;
             reconciliationRequest.TransactionDateTime = transactionDateTime;
@@ -303,9 +323,11 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             try
             {
-                SerialisedMessage responseSerialisedMessage =
+                Result<SerialisedMessage> transactionResult = 
                     await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
-
+                if (transactionResult.IsFailed)
+                    return ResultHelpers.CreateFailure(transactionResult);
+                SerialisedMessage responseSerialisedMessage = transactionResult.Data;
                 ReconciliationResponse reconciliationResponse = JsonConvert.DeserializeObject<ReconciliationResponse>(responseSerialisedMessage.SerialisedData);
 
                 response = new ProcessReconciliationResponse
@@ -357,14 +379,29 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
             String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
 
-            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            if (accessTokenResult.IsFailed) {
+                return new GetVoucherResponse {
+                    ResponseCode = "0004", // Token error
+                    ResponseMessage = "Token Error",
+                };
+            }
+            TokenResponse accessToken = accessTokenResult.Data;
 
             GetVoucherResponse response = null;
 
             try
             {
-                TransactionProcessor.DataTransferObjects.GetVoucherResponse getVoucherResponse = await this.TransactionProcessorClient.GetVoucherByCode(accessToken.AccessToken, estateId, voucherCode, cancellationToken);
-
+                Result<TransactionProcessor.DataTransferObjects.GetVoucherResponse> getVoucherResult = await this.TransactionProcessorClient.GetVoucherByCode(accessToken.AccessToken, estateId, voucherCode, cancellationToken);
+                if (getVoucherResult.IsFailed)
+                {
+                    return new GetVoucherResponse
+                    {
+                        ResponseCode = "0005", // Voucher not found
+                        ResponseMessage = getVoucherResult.Message,
+                    };
+                }
+                TransactionProcessor.DataTransferObjects.GetVoucherResponse getVoucherResponse = getVoucherResult.Data;
                 response = new GetVoucherResponse
                 {
                     ResponseCode = "0000", // Success
@@ -419,7 +456,14 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
             String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
 
-            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            if (accessTokenResult.IsFailed) {
+                return new RedeemVoucherResponse {
+                    ResponseCode = "0004", // Token error
+                    ResponseMessage = "Token Error",
+                };
+            }
+            TokenResponse accessToken = accessTokenResult.Data;
 
             RedeemVoucherResponse response = null;
 
@@ -431,8 +475,17 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                     VoucherCode = voucherCode
                 };
 
-                TransactionProcessor.DataTransferObjects.RedeemVoucherResponse redeemVoucherResponse = await this.TransactionProcessorClient.RedeemVoucher(accessToken.AccessToken, redeemVoucherRequest, cancellationToken);
+                Result<TransactionProcessor.DataTransferObjects.RedeemVoucherResponse> redeemVoucherResponseResult = await this.TransactionProcessorClient.RedeemVoucher(accessToken.AccessToken, redeemVoucherRequest, cancellationToken);
 
+                if (redeemVoucherResponseResult.IsFailed)
+                {
+                    return new RedeemVoucherResponse
+                    {
+                        ResponseCode = "0005", // Voucher not found or already redeemed
+                        ResponseMessage = redeemVoucherResponseResult.Message,
+                    };
+                }
+                TransactionProcessor.DataTransferObjects.RedeemVoucherResponse redeemVoucherResponse = redeemVoucherResponseResult.Data;
                 response = new RedeemVoucherResponse
                 {
                     ResponseCode = "0000", // Success
@@ -485,12 +538,11 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
             String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
 
-            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
-            if (accessToken == null) {
-                Logger.LogInformation($"token is null");
-                return Result.Failure("Error getting access token");
+            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            if (accessTokenResult.IsFailed) {
+                ResultHelpers.CreateFailure(accessTokenResult);
             }
-            Logger.LogInformation($"{JsonConvert.SerializeObject(accessToken)}");
+            TokenResponse accessToken = accessTokenResult.Data;
 
             Result<List<TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse>> result = await this.TransactionProcessorClient.GetMerchantContracts(accessToken.AccessToken, estateId, merchantId, cancellationToken);
 
@@ -563,18 +615,28 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         public async Task<Result<MerchantResponse>> GetMerchant(Guid estateId,
                                                                 Guid merchantId,
                                                                 CancellationToken cancellationToken) {
+            Logger.LogWarning("in GetMerchant");
             // Get a client token to call the Transaction Processor
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
             String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
 
-            TokenResponse accessToken = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            if (accessTokenResult.IsFailed) {
+                return ResultHelpers.CreateFailure(accessTokenResult);
+            }
+            Logger.LogWarning("in GetMerchant - Got Token");
+            TokenResponse accessToken = accessTokenResult.Data;
 
             ProcessLogonTransactionResponse response = null;
 
             Result<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> result = await this.TransactionProcessorClient.GetMerchant(accessToken.AccessToken, estateId, merchantId, cancellationToken);
 
             if (result.IsFailed)
-                return Result.Failure($"Error getting merchant contracts {result.Message}");
+                return Result.Failure($"Error getting merchant {result.Message}");
+            Logger.LogWarning("in GetMerchant - Got Merchant");
+
+            Logger.LogWarning($"in GetMerchant - {JsonConvert.SerializeObject(result.Data)}");
+
             MerchantResponse merchantResponse = new();
             merchantResponse.MerchantId = result.Data.MerchantId;
             merchantResponse.EstateId = result.Data.EstateId;
@@ -594,64 +656,58 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             merchantResponse.Devices = new();
             merchantResponse.Operators = new();
 
-            foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.AddressResponse address in result.Data.Addresses)
-            {
-                AddressResponse addressResponse = new()
-                {
-                    AddressId = address.AddressId,
-                    AddressLine1 = address.AddressLine1,
-                    AddressLine2 = address.AddressLine2,
-                    AddressLine3 = address.AddressLine3,
-                    AddressLine4 = address.AddressLine4,
-                    Country = address.Country,
-                    PostalCode = address.PostalCode,
-                    Region = address.Region,
-                    Town = address.Town
-                };
-                merchantResponse.Addresses.Add(addressResponse);
-            }
-
-            foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse contact in result.Data.Contacts)
-            {
-                merchantResponse.Contacts.Add(new ContactResponse
-                {
-                    ContactId = contact.ContactId,
-                    ContactName = contact.ContactName,
-                    ContactPhoneNumber = contact.ContactPhoneNumber,
-                    ContactEmailAddress = contact.ContactEmailAddress
-                });
-            }
-
-            foreach (var merchantContract in result.Data.Contracts)
-            {
-                var contract = new MerchantContractResponse
-                {
-                    ContractId = merchantContract.ContractId,
-                    IsDeleted = merchantContract.IsDeleted,
-                    ContractProducts = new()
-                };
-                foreach (Guid contractProduct in merchantContract.ContractProducts)
-                {
-                    contract.ContractProducts.Add(contractProduct);
+            if (result.Data.Addresses != null) {
+                foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.AddressResponse address in result.Data.Addresses) {
+                    AddressResponse addressResponse = new() {
+                        AddressId = address.AddressId,
+                        AddressLine1 = address.AddressLine1,
+                        AddressLine2 = address.AddressLine2,
+                        AddressLine3 = address.AddressLine3,
+                        AddressLine4 = address.AddressLine4,
+                        Country = address.Country,
+                        PostalCode = address.PostalCode,
+                        Region = address.Region,
+                        Town = address.Town
+                    };
+                    merchantResponse.Addresses.Add(addressResponse);
                 }
-                merchantResponse.Contracts.Add(contract);
             }
 
-            foreach (KeyValuePair<Guid, string> device in result.Data.Devices)
-            {
-                merchantResponse.Devices.Add(device.Key, device.Value);
+            if (result.Data.Contacts != null) {
+                foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse contact in result.Data.Contacts) {
+                    merchantResponse.Contacts.Add(new ContactResponse { ContactId = contact.ContactId, ContactName = contact.ContactName, ContactPhoneNumber = contact.ContactPhoneNumber, ContactEmailAddress = contact.ContactEmailAddress });
+                }
             }
 
-            foreach (var merchantOperator in result.Data.Operators)
-            {
-                merchantResponse.Operators.Add(new MerchantOperatorResponse
-                {
-                    OperatorId = merchantOperator.OperatorId,
-                    IsDeleted = merchantOperator.IsDeleted,
-                    MerchantNumber = merchantOperator.MerchantNumber,
-                    Name = merchantOperator.Name,
-                    TerminalNumber = merchantOperator.TerminalNumber
-                });
+            if (result.Data.Contracts != null) {
+
+                foreach (var merchantContract in result.Data.Contracts) {
+                    var contract = new MerchantContractResponse { ContractId = merchantContract.ContractId, IsDeleted = merchantContract.IsDeleted, ContractProducts = new() };
+                    foreach (Guid contractProduct in merchantContract.ContractProducts) {
+                        contract.ContractProducts.Add(contractProduct);
+                    }
+
+                    merchantResponse.Contracts.Add(contract);
+                }
+            }
+
+            if (result.Data.Contracts != null) {
+                foreach (KeyValuePair<Guid, string> device in result.Data.Devices) {
+                    merchantResponse.Devices.Add(device.Key, device.Value);
+                }
+            }
+
+            if (result.Data.Operators != null) {
+
+                foreach (var merchantOperator in result.Data.Operators) {
+                    merchantResponse.Operators.Add(new MerchantOperatorResponse {
+                        OperatorId = merchantOperator.OperatorId,
+                        IsDeleted = merchantOperator.IsDeleted,
+                        MerchantNumber = merchantOperator.MerchantNumber,
+                        Name = merchantOperator.Name,
+                        TerminalNumber = merchantOperator.TerminalNumber
+                    });
+                }
             }
 
             return merchantResponse;
