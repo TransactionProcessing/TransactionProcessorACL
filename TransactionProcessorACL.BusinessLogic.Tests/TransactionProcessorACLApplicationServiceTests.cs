@@ -72,30 +72,41 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_InvalidOperationExceptionErrorInLogon_TransactionIsNotSuccessful()
+        public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_GetTokenFailed_ResultFailed()
         {
-            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new InvalidOperationException(TestData.InvalidOperationErrorResponseMessage)));
-            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
-            
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
+
             Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.EstateId,
-                                                                                                             TestData.MerchantId,
-                                                                                                             TestData.TransactionDateTime,
-                                                                                                             TestData.TransactionNumber,
-                                                                                                             TestData.DeviceIdentifier,
-                                                                                                             CancellationToken.None);
-            result.IsSuccess.ShouldBeTrue();
-            ProcessLogonTransactionResponse logonResponse = result.Data;
-            logonResponse.ShouldNotBeNull();
-            logonResponse.ResponseMessage.ShouldBe(TestData.InvalidOperationErrorResponseMessage);
-            logonResponse.ResponseCode.ShouldBe(TestData.InvalidOperationErrorResponseCode);
+                TestData.MerchantId,
+                TestData.TransactionDateTime,
+                TestData.TransactionNumber,
+                TestData.DeviceIdentifier,
+                CancellationToken.None);
+
+            result.IsFailed.ShouldBeTrue();
         }
 
         [Fact]
-        public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_HttpRequestExceptionErrorInLogon_TransactionIsNotSuccessful()
+        public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_PerformTransactionFailed_ResultFailed()
+        {
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Failure());
+            Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.EstateId,
+                TestData.MerchantId,
+                TestData.TransactionDateTime,
+                TestData.TransactionNumber,
+                TestData.DeviceIdentifier,
+                CancellationToken.None);
+
+            result.IsFailed.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_ExceptionErrorInLogon_TransactionIsNotSuccessful()
         {
             transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new HttpRequestException(TestData.HttpRequestErrorResponseMessage)));
+                                      .ThrowsAsync(new Exception("Error"));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.EstateId,
@@ -107,31 +118,10 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             result.IsSuccess.ShouldBeTrue();
             ProcessLogonTransactionResponse logonResponse =result.Data;
             logonResponse.ShouldNotBeNull();
-            logonResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
-            logonResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
+            logonResponse.ResponseMessage.ShouldContain(TestData.LogonExceptionResponseMessage);
+            logonResponse.ResponseCode.ShouldBe(TestData.ExceptionErrorResponseCode);
         }
-
-        [Fact]
-        public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_OtherExceptionErrorInLogon_TransactionIsNotSuccessful()
-        {
-            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new Exception(TestData.GeneralErrorResponseMessage)));
-            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
-
-            Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.EstateId,
-                TestData.MerchantId,
-                TestData.TransactionDateTime,
-                TestData.TransactionNumber,
-                TestData.DeviceIdentifier,
-                CancellationToken.None);
-            result.IsSuccess.ShouldBeTrue();
-            ProcessLogonTransactionResponse logonResponse = result.Data;
-
-            logonResponse.ShouldNotBeNull();
-            logonResponse.ResponseMessage.ShouldBe(TestData.GeneralErrorResponseMessage);
-            logonResponse.ResponseCode.ShouldBe(TestData.GeneralErrorResponseCode);
-        }
-
+        
         [Fact]
         public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_TransactionIsSuccessful()
         {
@@ -139,7 +129,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ReturnsAsync(TestData.SerialisedMessageResponseSale);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            var result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
+            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
                                                                                                              TestData.MerchantId,
                                                                                                              TestData.TransactionDateTime,
                                                                                                              TestData.TransactionNumber,
@@ -159,64 +149,55 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_InvalidOperationExceptionErrorInSale_TransactionIsNotSuccessful()
+        public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_GetTokenFailed_ResultFailed()
         {
-            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new InvalidOperationException(TestData.InvalidOperationErrorResponseMessage)));
-            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
 
-            var result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
-                                                                                                          TestData.MerchantId,
-                                                                                                          TestData.TransactionDateTime,
-                                                                                                          TestData.TransactionNumber,
-                                                                                                          TestData.DeviceIdentifier,
-                                                                                                          TestData.OperatorId,
-                                                                                                          TestData.CustomerEmailAddress,
-                                                                                                          TestData.ContractId,
-                                                                                                          TestData.ProductId,
-                                                                                                          TestData.AdditionalRequestMetadata,
-                                                                                                          CancellationToken.None);
-            result.IsSuccess.ShouldBeTrue();
-            ProcessSaleTransactionResponse saleResponse = result.Data;
-            saleResponse.ShouldNotBeNull();
-            saleResponse.ResponseMessage.ShouldBe(TestData.InvalidOperationErrorResponseMessage);
-            saleResponse.ResponseCode.ShouldBe(TestData.InvalidOperationErrorResponseCode);
+            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
+                                                                                                             TestData.MerchantId,
+                                                                                                             TestData.TransactionDateTime,
+                                                                                                             TestData.TransactionNumber,
+                                                                                                             TestData.DeviceIdentifier,
+                                                                                                             TestData.OperatorId,
+                                                                                                             TestData.CustomerEmailAddress,
+                                                                                                             TestData.ContractId,
+                                                                                                             TestData.ProductId,
+                                                                                                             TestData.AdditionalRequestMetadata,
+                                                                                                             CancellationToken.None);
+
+            result.IsFailed.ShouldBeTrue();
         }
 
         [Fact]
-        public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_HttpRequestExceptionErrorInSale_TransactionIsNotSuccessful()
+        public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_PerformTransactionFailed_ResultFailed()
         {
             transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new HttpRequestException(TestData.HttpRequestErrorResponseMessage)));
+                                      .ReturnsAsync(Result.Failure());
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            var result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
-                                                                                                          TestData.MerchantId,
-                                                                                                          TestData.TransactionDateTime,
-                                                                                                          TestData.TransactionNumber,
-                                                                                                          TestData.DeviceIdentifier,
-                                                                                                          TestData.OperatorId,
-                                                                                                          TestData.CustomerEmailAddress,
-                                                                                                          TestData.ContractId,
-                                                                                                          TestData.ProductId,
-                                                                                                          TestData.AdditionalRequestMetadata,
-                                                                                                          CancellationToken.None);
+            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
+                TestData.MerchantId,
+                TestData.TransactionDateTime,
+                TestData.TransactionNumber,
+                TestData.DeviceIdentifier,
+                TestData.OperatorId,
+                TestData.CustomerEmailAddress,
+                TestData.ContractId,
+                TestData.ProductId,
+                TestData.AdditionalRequestMetadata,
+                CancellationToken.None);
 
-            result.IsSuccess.ShouldBeTrue();
-            ProcessSaleTransactionResponse saleResponse = result.Data;
-            saleResponse.ShouldNotBeNull();
-            saleResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
-            saleResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
+            result.IsFailed.ShouldBeTrue();
         }
 
         [Fact]
-        public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_OtherExceptionErrorInSale_TransactionIsNotSuccessful()
+        public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_ExceptionErrorInSale_TransactionIsNotSuccessful()
         {
             transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new Exception(TestData.GeneralErrorResponseMessage)));
+                                      .ThrowsAsync(new Exception("Error"));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            var result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
+            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
                                                                                                           TestData.MerchantId,
                                                                                                           TestData.TransactionDateTime,
                                                                                                           TestData.TransactionNumber,
@@ -227,12 +208,11 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                                                                           TestData.ProductId,
                                                                                                           TestData.AdditionalRequestMetadata,
                                                                                                           CancellationToken.None);
-
             result.IsSuccess.ShouldBeTrue();
             ProcessSaleTransactionResponse saleResponse = result.Data;
             saleResponse.ShouldNotBeNull();
-            saleResponse.ResponseMessage.ShouldBe(TestData.GeneralErrorResponseMessage);
-            saleResponse.ResponseCode.ShouldBe(TestData.GeneralErrorResponseCode);
+            saleResponse.ResponseMessage.ShouldBe(TestData.SaleExceptionResponseMessage);
+            saleResponse.ResponseCode.ShouldBe(TestData.ExceptionErrorResponseCode);
         }
 
         [Fact]
@@ -258,10 +238,44 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_InvalidOperationExceptionErrorInReconciliation_TransactionIsNotSuccessful()
+        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_GetTokenFailed_ResultFailed()
+        {
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
+
+            Result<ProcessReconciliationResponse> result = await applicationService.ProcessReconciliation(TestData.EstateId,
+                TestData.MerchantId,
+                TestData.TransactionDateTime,
+                TestData.DeviceIdentifier,
+                TestData.ReconciliationTransactionCount,
+                TestData.ReconciliationTransactionValue,
+                CancellationToken.None);
+
+            result.IsFailed.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_PerformTransactionFailed_ResultFailed()
+        {
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Failure());
+
+            Result<ProcessReconciliationResponse> result = await applicationService.ProcessReconciliation(TestData.EstateId,
+                TestData.MerchantId,
+                TestData.TransactionDateTime,
+                TestData.DeviceIdentifier,
+                TestData.ReconciliationTransactionCount,
+                TestData.ReconciliationTransactionValue,
+                CancellationToken.None);
+
+            result.IsFailed.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_ExceptionErrorInReconciliation_TransactionIsNotSuccessful()
         {
             transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new InvalidOperationException(TestData.InvalidOperationErrorResponseMessage)));
+                                      .ThrowsAsync(new Exception("Error"));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<ProcessReconciliationResponse> result= await applicationService.ProcessReconciliation(TestData.EstateId,
@@ -275,52 +289,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             result.IsSuccess.ShouldBeTrue();
             ProcessReconciliationResponse reconciliationResponse = result.Data;
             reconciliationResponse.ShouldNotBeNull();
-            reconciliationResponse.ResponseMessage.ShouldBe(TestData.InvalidOperationErrorResponseMessage);
-            reconciliationResponse.ResponseCode.ShouldBe(TestData.InvalidOperationErrorResponseCode);
-        }
-
-        [Fact]
-        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_HttpRequestExceptionErrorInReconciliation_TransactionIsNotSuccessful()
-        {
-            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new HttpRequestException(TestData.HttpRequestErrorResponseMessage)));
-            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
-
-            Result<ProcessReconciliationResponse> result = await applicationService.ProcessReconciliation(TestData.EstateId,
-                TestData.MerchantId,
-                TestData.TransactionDateTime,
-                TestData.DeviceIdentifier,
-                TestData.ReconciliationTransactionCount,
-                TestData.ReconciliationTransactionValue,
-                CancellationToken.None);
-
-            result.IsSuccess.ShouldBeTrue();
-            ProcessReconciliationResponse reconciliationResponse = result.Data;
-            reconciliationResponse.ShouldNotBeNull();
-            reconciliationResponse.ResponseMessage.ShouldContain(TestData.HttpRequestErrorResponseMessage);
-            reconciliationResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
-        }
-
-        [Fact]
-        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_OtherExceptionErrorInReconciliation_TransactionIsNotSuccessful()
-        {
-            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new Exception(TestData.GeneralErrorResponseMessage)));
-            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
-
-            Result<ProcessReconciliationResponse> result = await applicationService.ProcessReconciliation(TestData.EstateId,
-                                                                                                           TestData.MerchantId,
-                                                                                                           TestData.TransactionDateTime,
-                                                                                                           TestData.DeviceIdentifier,
-                                                                                                           TestData.ReconciliationTransactionCount,
-                                                                                                           TestData.ReconciliationTransactionValue,
-                                                                                                           CancellationToken.None);
-
-            result.IsSuccess.ShouldBeTrue();
-            ProcessReconciliationResponse reconciliationResponse = result.Data;
-            reconciliationResponse.ShouldNotBeNull();
-            reconciliationResponse.ResponseMessage.ShouldBe(TestData.GeneralErrorResponseMessage);
-            reconciliationResponse.ResponseCode.ShouldBe(TestData.GeneralErrorResponseCode);
+            reconciliationResponse.ResponseMessage.ShouldBe(TestData.ReconciliationExceptionResponseMessage);
+            reconciliationResponse.ResponseCode.ShouldBe(TestData.ExceptionErrorResponseCode);
         }
 
         [Fact]
@@ -342,45 +312,41 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetVoucher_InvalidOperationExceptionErrorInGetVoucher_GetVoucherIsNotSuccessful()
+        public async Task VoucherManagementACLApplicationService_GetVoucher_GetTokenFailed_ResultIsFailed()
         {
-            transactionProcessorClient.Setup(v => v.GetVoucherByCode(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new InvalidOperationException(TestData.InvalidOperationErrorResponseMessage)));
-            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
 
             GetVoucherResponse voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
             voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseMessage.ShouldBe(TestData.InvalidOperationErrorResponseMessage);
-            voucherResponse.ResponseCode.ShouldBe(TestData.InvalidOperationErrorResponseCode);
+            voucherResponse.ResponseCode.ShouldBe("0004");
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetVoucher_HttpRequestExceptionErrorInGetVoucher_GetVoucherNotSuccessful()
+        public async Task VoucherManagementACLApplicationService_GetVoucher_GetVoucherFailed_ResultIsFailed()
         {
-            transactionProcessorClient.Setup(v => v.GetVoucherByCode(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new HttpRequestException(TestData.HttpRequestErrorResponseMessage)));
+            this.transactionProcessorClient.Setup(v => v.GetVoucherByCode(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Failure());
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             GetVoucherResponse voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
             voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseMessage.ShouldBe(TestData.HttpRequestErrorResponseMessage);
-            voucherResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
+            voucherResponse.ResponseCode.ShouldBe("0005");
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetVoucher_OtherExceptionErrorInInGetVoucher_GetVoucherNotSuccessful()
+        public async Task VoucherManagementACLApplicationService_GetVoucher_ExceptionErrorInGetVoucher_GetVoucherIsNotSuccessful()
         {
             transactionProcessorClient.Setup(v => v.GetVoucherByCode(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new Exception(TestData.GeneralErrorResponseMessage)));
+                                      .ThrowsAsync(new Exception("Error"));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             GetVoucherResponse voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
             voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseMessage.ShouldBe(TestData.GeneralErrorResponseMessage);
-            voucherResponse.ResponseCode.ShouldBe(TestData.GeneralErrorResponseCode);
+            voucherResponse.ResponseMessage.ShouldBe(TestData.VoucherExceptionResponseMessage);
+            voucherResponse.ResponseCode.ShouldBe(TestData.ExceptionErrorResponseCode);
         }
 
         [Fact]
@@ -401,46 +367,114 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_RedeemVoucher_InvalidOperationExceptionErrorInGetVoucher_GetVoucherIsNotSuccessful()
+        public async Task VoucherManagementACLApplicationService_RedeemVoucher_GetTokenFailed_ResultIsFailed()
+        {
+            transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(TestData.RedeemVoucherResponse);
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
+
+            RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+
+            voucherResponse.ShouldNotBeNull();
+            voucherResponse.ResponseCode.ShouldBe("0004");
+        }
+
+        [Fact]
+        public async Task VoucherManagementACLApplicationService_RedeemVoucher_RedeemVoucherFailed_ResultIsFailed()
+        {
+            transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Failure());
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+
+            voucherResponse.ShouldNotBeNull();
+            voucherResponse.ResponseCode.ShouldBe("0005");
+        }
+
+        [Fact]
+        public async Task VoucherManagementACLApplicationService_RedeemVoucher_ExceptionErrorInGetVoucher_GetVoucherIsNotSuccessful()
         {
              transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new InvalidOperationException(TestData.InvalidOperationErrorResponseMessage)));
+                                      .ThrowsAsync(new Exception("Error"));
             
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
             voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseMessage.ShouldBe(TestData.InvalidOperationErrorResponseMessage);
-            voucherResponse.ResponseCode.ShouldBe(TestData.InvalidOperationErrorResponseCode);
+            voucherResponse.ResponseMessage.ShouldBe(TestData.RedeemVoucherExceptionResponseMessage);
+            voucherResponse.ResponseCode.ShouldBe(TestData.ExceptionErrorResponseCode);
+        }
+
+        [Theory]
+        [InlineData(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Immediate)]
+        [InlineData(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Weekly)]
+        [InlineData(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Monthly)]
+        public async Task VoucherManagementACLApplicationService_GetMerchant_MerchantReturned(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule settlementSchedule)
+        {
+            transactionProcessorClient.Setup(v => v.GetMerchant(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                                      .ReturnsAsync(Result.Success(TestData.MerchantResponse(settlementSchedule)));
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            Result<MerchantResponse> merchantResponse = await applicationService.GetMerchant(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
+            merchantResponse.IsSuccess.ShouldBeTrue();
+            merchantResponse.Data.ShouldNotBeNull();
+            merchantResponse.Data.MerchantId.ShouldBe(TestData.MerchantId);
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_RedeemVoucher_HttpRequestExceptionErrorInGetVoucher_GetVoucherNotSuccessful()
+        public async Task VoucherManagementACLApplicationService_GetMerchant_GetTokenFailed_ResultIsFailed()
         {
-            transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new HttpRequestException(TestData.HttpRequestErrorResponseMessage)));
-            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
 
-            RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
-
-            voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseMessage.ShouldBe(TestData.HttpRequestErrorResponseMessage);
-            voucherResponse.ResponseCode.ShouldBe(TestData.HttpRequestErrorResponseCode);
+            Result<MerchantResponse> merchantResponse = await applicationService.GetMerchant(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
+            merchantResponse.IsFailed.ShouldBeTrue();
+            
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_RedeemVoucher_OtherExceptionErrorInInGetVoucher_GetVoucherNotSuccessful()
+        public async Task VoucherManagementACLApplicationService_GetMerchant_GetMerchantFailed_ResultIsFailed()
         {
-            transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
-                                      .ThrowsAsync(new Exception("Error", new Exception(TestData.GeneralErrorResponseMessage)));
+            transactionProcessorClient.Setup(v => v.GetMerchant(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Failure());
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+            Result<MerchantResponse> merchantResponse = await applicationService.GetMerchant(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
+            merchantResponse.IsFailed.ShouldBeTrue();
+        }
 
-            voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseMessage.ShouldBe(TestData.GeneralErrorResponseMessage);
-            voucherResponse.ResponseCode.ShouldBe(TestData.GeneralErrorResponseCode);
+        [Theory]
+        [InlineData(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType.Voucher)]
+        [InlineData(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType.BillPayment)]
+        [InlineData(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType.MobileTopup)]
+        public async Task VoucherManagementACLApplicationService_GetMerchantContracts_MerchantContractsReturned(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType productType) {
+            transactionProcessorClient.Setup(v => v.GetMerchantContracts(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Success(TestData.MerchantContractResponses(productType)));
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            var merchantContractsResponse = await applicationService.GetMerchantContracts(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
+            merchantContractsResponse.IsSuccess.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task VoucherManagementACLApplicationService_GetMerchantContracts_GetTokenFailed_ResultIsFailed()
+        {
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
+
+            var merchantContractsResponse = await applicationService.GetMerchantContracts(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
+            merchantContractsResponse.IsFailed.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task VoucherManagementACLApplicationService_GetMerchantContracts_GetMerchantContractsFailed_ResultIsFailed()
+        {
+            transactionProcessorClient.Setup(v => v.GetMerchantContracts(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Failure());
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            var merchantContractsResponse = await applicationService.GetMerchantContracts(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
+            merchantContractsResponse.IsFailed.ShouldBeTrue();
         }
     }
 }

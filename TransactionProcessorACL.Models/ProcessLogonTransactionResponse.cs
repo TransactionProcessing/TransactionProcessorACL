@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TransactionProcessorACL.Models
 {
@@ -40,5 +41,7 @@ namespace TransactionProcessorACL.Models
         public Guid MerchantId { get; set; }
 
         public Guid TransactionId { get; set; }
+
+        public List<String> ErrorMessages { get; set; }
     }
 }

@@ -65,14 +65,14 @@
                                                   TestData.DeviceIdentifier);
 
         public static String ResponseCode = "0000";
-        public static String InvalidOperationErrorResponseCode = "0001";
-        public static String HttpRequestErrorResponseCode = "0002";
-        public static String GeneralErrorResponseCode = "0003";
+        public static String ExceptionErrorResponseCode = "0001";
 
         public static String ResponseMessage = "SUCCESS";
-        public static String InvalidOperationErrorResponseMessage = "ERROR";
-        public static String HttpRequestErrorResponseMessage = "Error Sending Request Message";
-        public static String GeneralErrorResponseMessage = "General Error";
+        public static String LogonExceptionResponseMessage = "Process Logon Failed";
+        public static String SaleExceptionResponseMessage = "Process Sale Failed";
+        public static String ReconciliationExceptionResponseMessage = "Process Reconciliation Failed";
+        public static String VoucherExceptionResponseMessage = "Get Voucher Failed";
+        public static String RedeemVoucherExceptionResponseMessage = "Redeem Voucher Failed";
 
         public static ProcessLogonTransactionResponse ProcessLogonTransactionResponse = new ProcessLogonTransactionResponse
                                                                                         {
@@ -313,6 +313,87 @@
         public static DateTime RedeemedDateTime = new DateTime();
 
         public static Guid TransactionId = Guid.Parse("793ACA88-B501-435E-BF08-1E5F639A7885");
+        public static String MerchantName = "Test Merchant Name";
+        public static Guid DeviceId = Guid.Parse("840F32FF-8B74-467C-8078-F5D9297FED56");
+        public static String MerchantNumber = "12345678";
+        public static String AddressLine1 = "AddressLine1";
+        public static String AddressLine2 = "AddressLine2";
+        public static String AddressLine3 = "AddressLine3";
+        public static String AddressLine4 = "AddressLine4";
+        public static String Country = "Country";
+        public static String PostCode = "PostCode";
+        public static String Region = "Region";
+        public static String Town = "Town";
+        public static TransactionProcessor.DataTransferObjects.Responses.Merchant.AddressResponse Address =>
+            new TransactionProcessor.DataTransferObjects.Responses.Merchant.AddressResponse
+            {
+                AddressLine1 = TestData.AddressLine1,
+                AddressLine2 = TestData.AddressLine2,
+                AddressLine3 = TestData.AddressLine3,
+                AddressLine4 = TestData.AddressLine4,
+                Country = TestData.Country,
+                PostalCode = TestData.PostCode,
+                Region = TestData.Region,
+                Town = TestData.Town
+            };
 
+        public static String ContactName = "Test Contact";
+        public static String ContactPhone = "123456789";
+        public static String ContactEmail = "testcontact1@testmerchant1.co.uk";
+        public static TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse Contact =>
+            new ()
+            {
+                ContactName = TestData.ContactName,
+                ContactEmailAddress = TestData.ContactEmail,
+                ContactPhoneNumber = TestData.ContactPhone
+            };
+        public static String TerminalNumber = "00000001";
+        public static TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse MerchantResponse(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule  settlementSchedule) =>
+            new()
+            {
+                EstateId = TestData.EstateId,
+                MerchantId = TestData.MerchantId,
+                MerchantName = TestData.MerchantName,
+                Devices = new Dictionary<Guid, String>
+                {
+                    {TestData.DeviceId, TestData.DeviceIdentifier}
+                },
+                Operators = new()
+                {
+                    new()
+                    {
+                        OperatorId = TestData.OperatorId,
+                        MerchantNumber = TestData.MerchantNumber,
+                        TerminalNumber = TestData.TerminalNumber
+                    }
+                },
+                Contracts = new(){
+                    new (){
+                        ContractId = TestData.ContractId,
+                        ContractProducts = new List<Guid>(){
+                            TestData.ProductId
+                        }
+                    }
+                },
+                SettlementSchedule = settlementSchedule,
+                Addresses = new (){
+                    Address
+                },
+                Contacts = new (){
+                    Contact
+                },
+            };
+        public static List<TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse> MerchantContractResponses(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType productType) =>
+            new() {
+                new() {
+                    ContractId = TestData.ContractId,
+                    Products = new() {
+                        new () {
+                            ProductId = TestData.ProductId,
+                            ProductType = productType
+                        }
+                    }
+                }
+            };
     }
 }
