@@ -1,6 +1,7 @@
 ﻿namespace TransactionProcessorACL.Models;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 [ExcludeFromCodeCoverage]
@@ -21,6 +22,9 @@ public class RedeemVoucherResponse
     public Decimal Balance { get; set; }
 
     public String VoucherCode { get; set; }
+
+
+    public List<String> ErrorMessages { get; set; }
 
     #endregion
 }

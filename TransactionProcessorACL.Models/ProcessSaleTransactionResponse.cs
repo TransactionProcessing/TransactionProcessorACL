@@ -18,5 +18,8 @@
         public Dictionary<String, String> AdditionalTransactionMetadata { get; set; }
 
         public Guid TransactionId { get; set; }
+
+        public List<String> ErrorMessages { get; set; }
+
     }
 }

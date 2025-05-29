@@ -2,6 +2,7 @@
 
 namespace TransactionProcessorACL.Models
 {
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
     [ExcludeFromCodeCoverage]
@@ -40,5 +41,7 @@ namespace TransactionProcessorACL.Models
         public Guid MerchantId { get; set; }
 
         public Guid TransactionId { get; set; }
+
+        public List<String> ErrorMessages { get; set; }
     }
 }

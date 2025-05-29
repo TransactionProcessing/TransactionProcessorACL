@@ -1,4 +1,5 @@
-﻿using Shared.Results;
+﻿using Shared.Exceptions;
+using Shared.Results;
 using SimpleResults;
 using TransactionProcessor.DataTransferObjects.Responses.Contract;
 
@@ -101,10 +102,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             ProcessLogonTransactionResponse response = null;
 
-            try
-            {
-                Result<SerialisedMessage> transactionResult = 
-                    await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
+            try {
+                Result<SerialisedMessage> transactionResult = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
 
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
@@ -112,51 +111,22 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
                 LogonTransactionResponse logonTransactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponse>(responseSerialisedMessage.SerialisedData);
 
-                response = new ProcessLogonTransactionResponse
-                           {
-                               ResponseCode = logonTransactionResponse.ResponseCode,
-                               ResponseMessage = logonTransactionResponse.ResponseMessage,
-                               EstateId = estateId,
-                               MerchantId = merchantId,
-                               TransactionId = logonTransactionResponse.TransactionId,
+                response = new ProcessLogonTransactionResponse {
+                    ResponseCode = logonTransactionResponse.ResponseCode,
+                    ResponseMessage = logonTransactionResponse.ResponseMessage,
+                    EstateId = estateId,
+                    MerchantId = merchantId,
+                    TransactionId = logonTransactionResponse.TransactionId,
                 };
             }
-            catch(Exception ex)
-            {
-                if (ex.InnerException is InvalidOperationException)
-                {
-                    // This means there is an error in the request
-                    response = new ProcessLogonTransactionResponse
-                               {
-                                   ResponseCode = "0001", // Request Message error
-                                   ResponseMessage = ex.InnerException.Message,
-                                   EstateId = estateId,
-                                   MerchantId = merchantId
-                    };
-                }
-                else if (ex.InnerException is HttpRequestException)
-                {
-                    Logger.LogError(ex.InnerException);
-
-                    // Request Send Exception
-                    response = new ProcessLogonTransactionResponse
-                    {
-                                   ResponseCode = "0002", // Request Message error
-                                   ResponseMessage = $"Error Sending Request Message [{ex.InnerException.Message}]",
-                                   EstateId = estateId,
-                                   MerchantId = merchantId
-                    };
-                }
-                else
-                {
-                    response = new ProcessLogonTransactionResponse
-                    {
-                                   ResponseCode = "0003", // General error
-                                   ResponseMessage = "General Error",
-                                   EstateId = estateId,
-                                   MerchantId = merchantId
-                    };
-                }
+            catch (Exception ex) {
+                response = new ProcessLogonTransactionResponse {
+                    ResponseCode = "0001", // Request Message error
+                    ResponseMessage = "Process Logon Failed",
+                    EstateId = estateId,
+                    MerchantId = merchantId,
+                    ErrorMessages = ex.GetExceptionMessages()
+                };
             }
 
             return Result.Success(response);
@@ -249,38 +219,14 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
             catch (Exception ex)
             {
-                if (ex.InnerException is InvalidOperationException)
+                response = new ProcessSaleTransactionResponse
                 {
-                    // This means there is an error in the request
-                    response = new ProcessSaleTransactionResponse
-                    {
-                        ResponseCode = "0001", // Request Message error
-                        ResponseMessage = ex.InnerException.Message,
-                        EstateId = estateId,
-                        MerchantId = merchantId
-                    };
-                }
-                else if (ex.InnerException is HttpRequestException) 
-                {
-                    // Request Send Exception
-                    response = new ProcessSaleTransactionResponse
-                               {
-                                   ResponseCode = "0002", // Request Message error
-                                   ResponseMessage = "Error Sending Request Message",
-                                   EstateId = estateId,
-                                   MerchantId = merchantId
-                    };
-                }
-                else
-                {
-                    response = new ProcessSaleTransactionResponse
-                               {
-                                   ResponseCode = "0003", // General error
-                                   ResponseMessage = "General Error",
-                                   EstateId = estateId,
-                                   MerchantId = merchantId
-                    };
-                }
+                    ResponseCode = "0001", // Request Message error
+                    ResponseMessage = "Process Sale Failed",
+                    EstateId = estateId,
+                    MerchantId = merchantId,
+                    ErrorMessages = ex.GetExceptionMessages()
+                };
             }
 
             return Result.Success(response);
@@ -339,32 +285,14 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
             catch (Exception ex)
             {
-                if (ex.InnerException is InvalidOperationException)
+                response = new ProcessReconciliationResponse
                 {
-                    // This means there is an error in the request
-                    response = new ProcessReconciliationResponse
-                    {
-                        ResponseCode = "0001", // Request Message error
-                        ResponseMessage = ex.InnerException.Message
-                    };
-                }
-                else if (ex.InnerException is HttpRequestException)
-                {
-                    // Request Send Exception
-                    response = new ProcessReconciliationResponse
-                    {
-                        ResponseCode = "0002", // Request Message error
-                        ResponseMessage = "Error Sending Request Message"
-                    };
-                }
-                else
-                {
-                    response = new ProcessReconciliationResponse
-                    {
-                        ResponseCode = "0003", // General error
-                        ResponseMessage = "General Error"
-                    };
-                }
+                    ResponseCode = "0001", // Request Message error
+                    ResponseMessage = "Process Reconciliation Failed",
+                    EstateId = estateId,
+                    MerchantId = merchantId,
+                    ErrorMessages = ex.GetExceptionMessages()
+                };
             }
 
             return Result.Success(response);
@@ -416,32 +344,13 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
             catch (Exception ex)
             {
-                if (ex.InnerException is InvalidOperationException)
+                // This means there is an error in the request
+                response = new GetVoucherResponse
                 {
-                    // This means there is an error in the request
-                    response = new GetVoucherResponse
-                    {
-                        ResponseCode = "0001", // Request Message error
-                        ResponseMessage = ex.InnerException.Message,
-                    };
-                }
-                else if (ex.InnerException is HttpRequestException)
-                {
-                    // Request Send Exception
-                    response = new GetVoucherResponse
-                    {
-                        ResponseCode = "0002", // Request Message error
-                        ResponseMessage = "Error Sending Request Message",
-                    };
-                }
-                else
-                {
-                    response = new GetVoucherResponse
-                    {
-                        ResponseCode = "0003", // General error
-                        ResponseMessage = "General Error",
-                    };
-                }
+                    ResponseCode = "0001", // Request Message error
+                    ResponseMessage = "Get Voucher Failed",
+                    ErrorMessages = ex.GetExceptionMessages()
+                };
             }
 
             return response;
@@ -499,34 +408,15 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
             catch (Exception ex)
             {
-                if (ex.InnerException is InvalidOperationException)
+                // This means there is an error in the request
+                response = new RedeemVoucherResponse
                 {
-                    // This means there is an error in the request
-                    response = new RedeemVoucherResponse
-                    {
-                        ResponseCode = "0001", // Request Message error
-                        ResponseMessage = ex.InnerException.Message,
-                    };
-                }
-                else if (ex.InnerException is HttpRequestException)
-                {
-                    // Request Send Exception
-                    response = new RedeemVoucherResponse
-                    {
-                        ResponseCode = "0002", // Request Message error
-                        ResponseMessage = "Error Sending Request Message",
-                    };
-                }
-                else
-                {
-                    response = new RedeemVoucherResponse
-                    {
-                        ResponseCode = "0003", // General error
-                        ResponseMessage = "General Error",
-                    };
-                }
+                    ResponseCode = "0001", // Request Message error
+                    ResponseMessage = "Redeem Voucher Failed",
+                    ErrorMessages = ex.GetExceptionMessages()
+                };
             }
-
+        
             return response;
         }
 
@@ -540,7 +430,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
             if (accessTokenResult.IsFailed) {
-                ResultHelpers.CreateFailure(accessTokenResult);
+                return ResultHelpers.CreateFailure(accessTokenResult);
             }
             TokenResponse accessToken = accessTokenResult.Data;
 
