@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -9,13 +5,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace TransactionProcessorACL
 {
-    using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Net.Http;
-    using System.Reflection;
     using Bootstrapper;
     using BusinessLogic.RequestHandlers;
     using BusinessLogic.Requests;
@@ -41,8 +37,13 @@ namespace TransactionProcessorACL
     using Shared.Extensions;
     using Shared.General;
     using Shared.Logger;
+    using Shared.Middleware;
     using Swashbuckle.AspNetCore.Filters;
     using Swashbuckle.AspNetCore.SwaggerGen;
+    using System.Diagnostics.CodeAnalysis;
+    using System.IO;
+    using System.Net.Http;
+    using System.Reflection;
     using TransactionProcessor.Client;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -85,28 +86,17 @@ namespace TransactionProcessorACL
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            String nlogConfigFilename = "nlog.config";
-
             if (env.IsDevelopment())
-            {
-                var developmentNlogConfigFilename = "nlog.development.config";
-                if (File.Exists(Path.Combine(env.ContentRootPath, developmentNlogConfigFilename)))
-                {
-                    nlogConfigFilename = developmentNlogConfigFilename;
-                }
-
+            {   
                 app.UseDeveloperExceptionPage();
             }
-
-            loggerFactory.ConfigureNLog(Path.Combine(env.ContentRootPath, nlogConfigFilename));
-            loggerFactory.AddNLog();
-
+            
             ILogger logger = loggerFactory.CreateLogger("TransactionProcessor");
 
             Logger.Initialise(logger);
             
             Startup.Configuration.LogConfiguration(Logger.LogWarning);
-
+            app.UseMiddleware<TenantMiddleware>();
             app.AddRequestLogging();
             app.AddResponseLogging();
             app.AddExceptionHandler();
