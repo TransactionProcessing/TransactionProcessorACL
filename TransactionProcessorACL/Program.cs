@@ -1,17 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Shared.Logger;
+using Shared.Middleware;
 
 namespace TransactionProcessorACL
 {
+    using Lamar.Microsoft.DependencyInjection;
+    using NLog;
+    using NLog.Extensions.Logging;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
-    using Lamar.Microsoft.DependencyInjection;
 
     [ExcludeFromCodeCoverage]
     public class Program
@@ -31,9 +35,29 @@ namespace TransactionProcessorACL
                                                                   .AddJsonFile("hosting.development.json", optional: true)
                                                                   .AddEnvironmentVariables().Build();
 
+            String contentRoot = Directory.GetCurrentDirectory();
+            String nlogConfigPath = Path.Combine(contentRoot, "nlog.config");
+
+            LogManager.Setup(b =>
+            {
+                b.SetupLogFactory(setup =>
+                {
+                    setup.AddCallSiteHiddenAssembly(typeof(NlogLogger).Assembly);
+                    setup.AddCallSiteHiddenAssembly(typeof(Shared.Logger.Logger).Assembly);
+                    setup.AddCallSiteHiddenAssembly(typeof(TenantMiddleware).Assembly);
+                });
+                b.LoadConfigurationFromFile(nlogConfigPath);
+            });
+
+
             IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args);
             hostBuilder.UseWindowsService();
             hostBuilder.UseLamar();
+            hostBuilder.ConfigureLogging(logging => {
+                logging.AddConsole();
+                logging.AddNLog();
+
+            });
             hostBuilder.ConfigureWebHostDefaults(webBuilder =>
                                                  {
                                                      webBuilder.UseStartup<Startup>();
