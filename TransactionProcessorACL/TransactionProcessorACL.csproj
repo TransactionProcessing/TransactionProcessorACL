@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="ClientProxyBase" Version="2025.7.13" />
 	  <PackageReference Include="Lamar" Version="15.0.0" />
 	  <PackageReference Include="MediatR" Version="12.5.0" />
 	  <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="15.0.0" />
@@ -26,8 +27,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.5.0" />
-    <PackageReference Include="Shared" Version="2025.7.10" />
-    <PackageReference Include="Shared.Results.Web" Version="2025.7.10" />
+    <PackageReference Include="Shared" Version="2025.7.13" />
+    <PackageReference Include="Shared.Results.Web" Version="2025.7.13" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.4" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="8.1.4" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.3" />
@@ -40,6 +41,12 @@
   <ItemGroup>
     <ProjectReference Include="..\TransactionProcessorACL.BusinessLogic\TransactionProcessorACL.BusinessLogic.csproj" />
     <ProjectReference Include="..\TransactionProcessorACL.DataTransferObjects\TransactionProcessorACL.DataTransferObjects.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
