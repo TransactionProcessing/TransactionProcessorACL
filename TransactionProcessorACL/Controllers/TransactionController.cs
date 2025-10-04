@@ -105,7 +105,7 @@ namespace TransactionProcessorACL.Controllers
                 case SaleTransactionRequestMessage msg:
                     TransactionCommands.ProcessSaleTransactionCommand saleCommand = this.CreateCommandFromRequest(claimsResult.Data.estateId, claimsResult.Data.merchantId, msg);
                     Result<ProcessSaleTransactionResponse> saleResponse = await this.Mediator.Send(saleCommand, cancellationToken);
-                    // TODO: Handle the result
+                    
                     if (saleResponse.IsFailed)
                         return saleResponse.ToActionResultX();
                     dto = this.ModelFactory.ConvertFrom(saleResponse.Data);
@@ -201,7 +201,7 @@ namespace TransactionProcessorACL.Controllers
         /// <summary>
         /// The controller name
         /// </summary>
-        public const String ControllerName = "transactions";
+        private const String ControllerName = "transactions";
 
         /// <summary>
         /// The controller route

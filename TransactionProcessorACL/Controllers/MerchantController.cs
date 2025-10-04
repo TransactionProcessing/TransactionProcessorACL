@@ -240,7 +240,7 @@ namespace TransactionProcessorACL.Controllers
         /// <summary>
         /// The controller name
         /// </summary>
-        public const String ControllerName = "merchants";
+        private const String ControllerName = "merchants";
 
         /// <summary>
         /// The controller route
