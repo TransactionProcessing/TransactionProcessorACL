@@ -516,9 +516,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
             Logger.LogWarning("in GetMerchant - Got Token");
             TokenResponse accessToken = accessTokenResult.Data;
-
-            ProcessLogonTransactionResponse response = null;
-
+            
             Result<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> result = await this.TransactionProcessorClient.GetMerchant(accessToken.AccessToken, estateId, merchantId, cancellationToken);
 
             if (result.IsFailed)
@@ -581,7 +579,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 }
             }
 
-            if (result.Data.Contracts != null) {
+            if (result.Data.Devices != null) {
                 foreach (KeyValuePair<Guid, string> device in result.Data.Devices) {
                     merchantResponse.Devices.Add(device.Key, device.Value);
                 }

@@ -147,7 +147,7 @@ namespace TransactionProcessorACL.Controllers
         /// <summary>
         /// The controller name
         /// </summary>
-        public const String ControllerName = "vouchers";
+        private const String ControllerName = "vouchers";
 
         /// <summary>
         /// The controller route
