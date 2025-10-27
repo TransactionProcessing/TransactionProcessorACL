@@ -124,6 +124,8 @@ namespace TransactionProcessorACL.Controllers
                         return reconciliationResponse.ToActionResultX();
                     dto = this.ModelFactory.ConvertFrom(reconciliationResponse.Data);
                     break;
+                default:
+                    return Result.Invalid("Invalid Request Type").ToActionResultX();
             }
 
 
