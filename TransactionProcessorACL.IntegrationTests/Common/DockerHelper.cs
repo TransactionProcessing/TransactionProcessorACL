@@ -20,7 +20,7 @@ namespace TransactionProcessor.IntegrationTests.Common
     /// 
     /// </summary>
     /// <seealso cref="Shared.IntegrationTesting.DockerHelper" />
-    public class DockerHelper : global::Shared.IntegrationTesting.DockerHelper
+    public class DockerHelper : global::Shared.IntegrationTesting.TestContainers.DockerHelper
     {
         #region Fields
 
@@ -83,22 +83,8 @@ namespace TransactionProcessor.IntegrationTests.Common
         /// <param name="scenarioName">Name of the scenario.</param>
         public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
         {
-            try {
-                await base.StartContainersForScenarioRun(scenarioName, dockerServices);
-            }
-            catch (Exception ex) {
-                var contaner = this.Containers.SingleOrDefault(c => c.Item1 == DockerServices.TransactionProcessorAcl);
-                if (contaner.Item2 != null) {
-                    var logs = contaner.Item2.Logs();
-                    String line;
-                    while ((line = logs.Read()) != null)
-                    {
-                        Console.WriteLine(line);
-                    }
-
-                }
-            }
-            
+            await base.StartContainersForScenarioRun(scenarioName, dockerServices);
+        
             // Setup the base address resolvers
             String SecurityServiceBaseAddressResolver(String api) => $"https://127.0.0.1:{this.SecurityServicePort}";
             String TransactionProcessorBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorPort}";

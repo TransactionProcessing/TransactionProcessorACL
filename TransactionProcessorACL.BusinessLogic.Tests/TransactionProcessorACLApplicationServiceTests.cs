@@ -353,24 +353,21 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task VoucherManagementACLApplicationService_RedeemVoucher_VoucherRedeemed()
         {
             transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
-                                      .ReturnsAsync(TestData.RedeemVoucherResponse);
+                                      .ReturnsAsync(Result.Success);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
             voucherResponse.ShouldNotBeNull();
-            voucherResponse.VoucherCode.ShouldBe(TestData.RedeemVoucherResponse.VoucherCode);
             voucherResponse.ContractId.ShouldBe(TestData.ContractId);
             voucherResponse.EstateId.ShouldBe(TestData.EstateId);
-            voucherResponse.ExpiryDate.ShouldBe(TestData.RedeemVoucherResponse.ExpiryDate);
-            voucherResponse.Balance.ShouldBe(TestData.RedeemVoucherResponse.RemainingBalance);
         }
 
         [Fact]
         public async Task VoucherManagementACLApplicationService_RedeemVoucher_GetTokenFailed_ResultIsFailed()
         {
             transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(TestData.RedeemVoucherResponse);
+                .ReturnsAsync(Result.Failure);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
 
             RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);

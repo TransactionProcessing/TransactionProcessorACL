@@ -374,17 +374,16 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
             TokenResponse accessToken = accessTokenResult.Data;
 
-            RedeemVoucherResponse response = null;
+            RedeemVoucherResponse response;
 
             try
             {
-                RedeemVoucherRequest redeemVoucherRequest = new RedeemVoucherRequest
-                {
+                RedeemVoucherRequest redeemVoucherRequest = new() {
                     EstateId = estateId,
                     VoucherCode = voucherCode
                 };
 
-                Result<TransactionProcessor.DataTransferObjects.RedeemVoucherResponse> redeemVoucherResponseResult = await this.TransactionProcessorClient.RedeemVoucher(accessToken.AccessToken, redeemVoucherRequest, cancellationToken);
+                Result redeemVoucherResponseResult = await this.TransactionProcessorClient.RedeemVoucher(accessToken.AccessToken, redeemVoucherRequest, cancellationToken);
 
                 if (redeemVoucherResponseResult.IsFailed)
                 {
@@ -394,16 +393,13 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                         ResponseMessage = redeemVoucherResponseResult.Message,
                     };
                 }
-                TransactionProcessor.DataTransferObjects.RedeemVoucherResponse redeemVoucherResponse = redeemVoucherResponseResult.Data;
+
                 response = new RedeemVoucherResponse
                 {
                     ResponseCode = "0000", // Success
                     ResponseMessage = "SUCCESS",
                     ContractId = contractId,
-                    EstateId = estateId,
-                    ExpiryDate = redeemVoucherResponse.ExpiryDate,
-                    Balance = redeemVoucherResponse.RemainingBalance,
-                    VoucherCode = redeemVoucherResponse.VoucherCode
+                    EstateId = estateId
                 };
             }
             catch (Exception ex)

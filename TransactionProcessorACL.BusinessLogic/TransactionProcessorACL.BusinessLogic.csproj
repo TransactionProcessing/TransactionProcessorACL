@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClientProxyBase" Version="2025.10.2" />
+    <PackageReference Include="ClientProxyBase" Version="2025.11.11" />
     <PackageReference Include="MediatR" Version="13.1.0" />
-    <PackageReference Include="SecurityService.Client" Version="2025.8.1" />
-    <PackageReference Include="Shared" Version="2025.10.2" />
-    <PackageReference Include="TransactionProcessor.Client" Version="2025.9.1" />
+    <PackageReference Include="SecurityService.Client" Version="2025.10.1" />
+    <PackageReference Include="Shared" Version="2025.11.11" />
+    <PackageReference Include="TransactionProcessor.Client" Version="2025.10.2-build261" />
   </ItemGroup>
 
   <ItemGroup>
