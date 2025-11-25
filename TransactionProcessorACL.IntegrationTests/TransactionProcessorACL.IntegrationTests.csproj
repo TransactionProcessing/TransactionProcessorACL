@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClientProxyBase" Version="2025.10.2" />
+    <PackageReference Include="ClientProxyBase" Version="2025.11.11" />
     <PackageReference Include="Ductus.FluentDocker" Version="2.85.0" />
     <PackageReference Include="EventStoreProjections" Version="2023.12.3" />
-    <PackageReference Include="MessagingService.IntegrationTesting.Helpers" Version="2025.8.1" />
+    <PackageReference Include="MessagingService.IntegrationTesting.Helpers" Version="2025.10.2-build106" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.10" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
@@ -19,12 +19,12 @@
     <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
     <PackageReference Include="Reqnroll" Version="3.2.0" />
     <PackageReference Include="Reqnroll.NUnit" Version="3.2.0" />
-	<PackageReference Include="SecurityService.Client" Version="2025.8.1" />
-	<PackageReference Include="SecurityService.IntegrationTesting.Helpers" Version="2025.8.1" />
-    <PackageReference Include="Shared.IntegrationTesting" Version="2025.10.2" />
+	<PackageReference Include="SecurityService.Client" Version="2025.10.1" />
+	<PackageReference Include="SecurityService.IntegrationTesting.Helpers" Version="2025.10.1" />
+    <PackageReference Include="Shared.IntegrationTesting" Version="2025.11.11" />
     <PackageReference Include="Shouldly" Version="4.3.0" />
-    <PackageReference Include="TransactionProcessor.Client" Version="2025.9.1" />
-    <PackageReference Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2025.9.1" />
+    <PackageReference Include="TransactionProcessor.Client" Version="2025.10.2-build261" />
+    <PackageReference Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2025.10.2-build261" />
     
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>

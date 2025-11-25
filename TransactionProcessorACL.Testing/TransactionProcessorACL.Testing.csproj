@@ -6,9 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClientProxyBase" Version="2025.10.2" />
-    <PackageReference Include="TransactionProcessor.Client" Version="2025.9.1" />
-    <PackageReference Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2025.9.1" />
+    <PackageReference Include="ClientProxyBase" Version="2025.11.11" />
+    <PackageReference Include="TransactionProcessor.Client" Version="2025.10.2-build261" />
+    <PackageReference Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2025.10.2-build261" />
   </ItemGroup>
 
   <ItemGroup>
