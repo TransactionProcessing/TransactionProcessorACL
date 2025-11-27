@@ -110,7 +110,8 @@ namespace TransactionProcessorACL.Bootstrapper
                 options.SerializerOptions.PropertyNameCaseInsensitive = true; // optional, but safer
             });
 
-            //this.AddControllers().AddNewtonsoftJson(options =>
+            this.AddControllers();
+            //.AddNewtonsoftJson(options =>
             //                                        {
             //                                            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             //                                            options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
