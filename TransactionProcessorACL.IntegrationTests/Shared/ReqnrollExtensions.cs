@@ -49,8 +49,8 @@ public static class ReqnrollExtensions
         return requests;
     }
 
-    public static List<(EstateDetails,String, Guid, String, TransactionRequestMessage)> ToACLSerialisedMessages(String applicationVersion, List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages, List<EstateDetails1> estateDetailsList){
-        List<(EstateDetails,String, Guid, String,TransactionRequestMessage)> aclRequestMessages = new List<(EstateDetails,String, Guid, String, TransactionRequestMessage)>();
+    public static List<(EstateDetails,String, Guid, String, T)> ToACLSerialisedMessages<T>(String applicationVersion, List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages, List<EstateDetails1> estateDetailsList) where T : TransactionRequestMessage {
+        List<(EstateDetails,String, Guid, String,T)> aclRequestMessages = new();
         foreach ((EstateDetails, Guid, String, SerialisedMessage) sm in serialisedMessages){
             EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateId == sm.Item1.EstateId);
             es1.ShouldNotBeNull();
@@ -78,7 +78,7 @@ public static class ReqnrollExtensions
                                                                           ApplicationVersion = applicationVersion,
                                                                           DeviceIdentifier = saleRequest.DeviceIdentifier,
                                                                           TransactionDateTime = saleRequest.TransactionDateTime,
-                                                                          AdditionalRequestMetaData = saleRequest.AdditionalTransactionMetadata,
+                                                                          AdditionalRequestMetadata = saleRequest.AdditionalTransactionMetadata,
                                                                           ContractId = saleRequest.ContractId,
                                                                           CustomerEmailAddress = saleRequest.CustomerEmailAddress,
                                                                           OperatorId = saleRequest.OperatorId,
@@ -112,7 +112,8 @@ public static class ReqnrollExtensions
 
             }
 
-            aclRequestMessages.Add((es1.EstateDetails, merchantToken, sm.Item2, sm.Item3, transactionRequest));
+            T d = transactionRequest as T;
+            aclRequestMessages.Add((es1.EstateDetails, merchantToken, sm.Item2, sm.Item3, d));
 
         }
 

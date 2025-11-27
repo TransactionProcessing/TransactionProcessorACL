@@ -381,7 +381,7 @@ await this.FeatureBackgroundAsync();
                             "123456789",
                             "Test Estate 1"});
 #line 67
- await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table12, "When ");
+ await testRunner.WhenAsync("I perform the following logon transactions", ((string)(null)), table12, "When ");
 #line hidden
 #line 71
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant2.co.uk\" with password \"123456\" for M" +
@@ -403,7 +403,7 @@ await this.FeatureBackgroundAsync();
                             "123456789",
                             "Test Estate 1"});
 #line 72
- await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table13, "When ");
+ await testRunner.WhenAsync("I perform the following logon transactions", ((string)(null)), table13, "When ");
 #line hidden
 #line 76
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant3.co.uk\" with password \"123456\" for M" +
@@ -425,7 +425,7 @@ await this.FeatureBackgroundAsync();
                             "123456789",
                             "Test Estate 2"});
 #line 77
- await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table14, "When ");
+ await testRunner.WhenAsync("I perform the following logon transactions", ((string)(null)), table14, "When ");
 #line hidden
                 global::Reqnroll.Table table15 = new global::Reqnroll.Table(new string[] {
                             "EstateName",

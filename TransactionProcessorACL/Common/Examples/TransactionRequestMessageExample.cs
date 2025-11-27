@@ -28,7 +28,7 @@
                            Name = "Logon Transaction",
                            Value = new LogonTransactionRequestMessage
                                    {
-                                       AdditionalRequestMetaData = new Dictionary<String, String>(),
+                                       AdditionalRequestMetadata = new Dictionary<String, String>(),
                                        ApplicationVersion = ExampleData.ApplicationVersion,
                                        DeviceIdentifier = ExampleData.DeviceIdentifier,
                                        TransactionDateTime = ExampleData.TransactionDateTime,
@@ -40,7 +40,7 @@
                            Name = "Sale Transaction",
                            Value = new SaleTransactionRequestMessage
                                    {
-                                       AdditionalRequestMetaData = new Dictionary<String, String>(),
+                                       AdditionalRequestMetadata = new Dictionary<String, String>(),
                                        ApplicationVersion = ExampleData.ApplicationVersion,
                                        DeviceIdentifier = ExampleData.DeviceIdentifier,
                                        TransactionDateTime = ExampleData.TransactionDateTime,
@@ -56,7 +56,7 @@
                            Name = "Reconciliation Transaction",
                            Value = new ReconciliationRequestMessage
                                    {
-                                       AdditionalRequestMetaData = new Dictionary<String, String>(),
+                                       AdditionalRequestMetadata = new Dictionary<String, String>(),
                                        ApplicationVersion = ExampleData.ApplicationVersion,
                                        DeviceIdentifier = ExampleData.DeviceIdentifier,
                                        TransactionDateTime = ExampleData.TransactionDateTime,

@@ -1,16 +1,13 @@
-﻿namespace TransactionProcessorACL.Bootstrapper
+﻿using Shared.Authorisation;
+
+namespace TransactionProcessorACL.Bootstrapper
 {
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Linq;
-    using System.Net.Http;
-    using System.Reflection;
     using Common;
     using DataTransferObjects;
     using DataTransferObjects.Responses;
     using Lamar;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.OpenApi.Models;
     using Newtonsoft.Json;
@@ -18,6 +15,12 @@
     using Shared.Extensions;
     using Shared.General;
     using Swashbuckle.AspNetCore.Filters;
+    using System;
+    using System.Diagnostics.CodeAnalysis;
+    using System.IO;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Reflection;
 
     /// <summary>
     /// 
@@ -98,14 +101,23 @@
                                   options.IncludeErrorDetails = true;
                               });
 
-            this.AddControllers().AddNewtonsoftJson(options =>
-                                                    {
-                                                        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                                                        options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-                                                        options.SerializerSettings.Formatting = Formatting.Indented;
-                                                        options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                                                        options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                                                    });
+            this.AddPasswordTokenPolicy();
+            this.AddPasswordTokenHandler();
+
+            this.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                options.SerializerOptions.PropertyNameCaseInsensitive = true; // optional, but safer
+            });
+
+            //this.AddControllers().AddNewtonsoftJson(options =>
+            //                                        {
+            //                                            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //                                            options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+            //                                            options.SerializerSettings.Formatting = Formatting.Indented;
+            //                                            options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+            //                                            options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            //                                        });
 
             Assembly assembly = this.GetType().GetTypeInfo().Assembly;
             this.AddMvcCore().AddApplicationPart(assembly).AddControllersAsServices();

@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using SimpleResults;
+﻿using SimpleResults;
+using System.Diagnostics;
 using TransactionProcessor.IntegrationTesting.Helpers;
 
 namespace TransactionProcessorACL.IntegrationTests.Shared;
@@ -7,6 +7,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared;
 using DataTransferObjects;
 using DataTransferObjects.Responses;
 using Newtonsoft.Json;
+using Renci.SshNet.Messages.Authentication;
 using Shouldly;
 using System;
 using System.Collections.Generic;
@@ -36,18 +37,46 @@ public class ACLSteps{
         public T Data { get; set; }
     }
 
-    public async Task SendAclRequestMessage((EstateDetails, String, Guid, String, TransactionRequestMessage) requestMessage, CancellationToken cancellationToken){
-        String uri = "api/transactions";
+    public async Task SendAclSaleRequestMessage((EstateDetails, String, Guid, String, SaleTransactionRequestMessage) requestMessage,
+                                                CancellationToken cancellationToken) {
+        String uri = "api/saletransactions";
 
-        StringContent content = new StringContent(JsonConvert.SerializeObject(requestMessage.Item5,
-                                                                              new JsonSerializerSettings
-                                                                              {
-                                                                                  TypeNameHandling = TypeNameHandling.All
-                                                                              }),
-                                                  Encoding.UTF8,
-                                                  "application/json");
+        String requestJson = JsonConvert.SerializeObject(requestMessage.Item5, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
 
-        this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requestMessage.Item2);
+        await this.SendAclRequestMessage(uri, requestJson, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
+    }
+
+    public async Task SendAclLogonRequestMessage((EstateDetails, String, Guid, String, LogonTransactionRequestMessage) requestMessage,
+                                                CancellationToken cancellationToken)
+    {
+        String uri = "api/logontransactions";
+
+        String requestJson = JsonConvert.SerializeObject(requestMessage.Item5, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+
+        await this.SendAclRequestMessage(uri, requestJson, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
+    }
+
+    public async Task SendAclReconciliationRequestMessage((EstateDetails, String, Guid, String, ReconciliationRequestMessage) requestMessage,
+                                                 CancellationToken cancellationToken)
+    {
+        String uri = "api/reconciliationtransactions";
+
+        String requestJson = JsonConvert.SerializeObject(requestMessage.Item5, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+
+        await this.SendAclRequestMessage(uri, requestJson, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
+    }
+
+    private async Task SendAclRequestMessage(String uri, 
+                                            String requestJson,
+                                            String accessToken,
+                                            Guid merchantId,
+                                            EstateDetails estateDetails,
+                                            String transactionNumber,
+                                            CancellationToken cancellationToken) {
+        StringContent content = new StringContent(requestJson,
+            Encoding.UTF8,
+            "application/json");
+        this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
 
@@ -56,15 +85,10 @@ public class ACLSteps{
         String responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
         responseContent.ShouldNotBeNullOrEmpty("No response message received");
-        
-        ResponseData<TransactionResponseMessage> responseData =
-            JsonConvert.DeserializeObject<ResponseData<TransactionResponseMessage>>(responseContent);
 
-        String responseMessage = JsonConvert.SerializeObject(responseData.Data);
-
-        requestMessage.Item1.AddTransactionResponse(requestMessage.Item3, requestMessage.Item4, responseMessage);
+        estateDetails.AddTransactionResponse(merchantId, transactionNumber, responseContent);
     }
-
+    
     public void ThenTheLogonTransactionResponseShouldContainTheFollowingInformation(List<ReqnrollExtensions.ExpectedTransactionResponse> expectedResponses, List<EstateDetails1> estateDetailsList)
     {
         foreach (ReqnrollExtensions.ExpectedTransactionResponse expectedTransactionResponse in expectedResponses){
