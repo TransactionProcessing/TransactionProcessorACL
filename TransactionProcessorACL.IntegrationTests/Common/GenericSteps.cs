@@ -52,8 +52,6 @@ namespace TransactionProcessor.IntegrationTests.Common
             this.TestingContext.DockerHelper.SqlCredentials = Setup.SqlCredentials;
             this.TestingContext.DockerHelper.SqlServerContainerName = "sharedsqlserver";
 
-            this.TestingContext.DockerHelper.SetImageDetails(ContainerType.TransactionProcessor, ("transactionprocessor", false));
-
             this.TestingContext.DockerHelper.SetImageDetails(ContainerType.TransactionProcessorAcl, ("transactionprocessoracl", false));
 
             this.TestingContext.Logger = logger;
