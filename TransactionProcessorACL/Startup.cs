@@ -1,14 +1,16 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SimpleResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TransactionProcessorACL.Endpoints;
 
 namespace TransactionProcessorACL
 {
@@ -25,6 +27,7 @@ namespace TransactionProcessorACL
     using MediatR;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Options;
@@ -44,6 +47,9 @@ namespace TransactionProcessorACL
     using System.IO;
     using System.Net.Http;
     using System.Reflection;
+    using System.Text;
+    using System.Text.Json;
+    using System.Threading;
     using TransactionProcessor.Client;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -101,6 +107,68 @@ namespace TransactionProcessorACL
             app.AddResponseLogging();
             app.AddExceptionHandler();
 
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path.StartsWithSegments("/health"))
+                {
+                    await next();
+                    return;
+                }
+
+                // Enable buffering so we can read the body multiple times
+                context.Request.EnableBuffering();
+
+                string? applicationVersion = null;
+
+                // Only read the body if it's JSON (optional safety check)
+                if (context.Request.ContentType?.Contains("application/json") == true)
+                {
+                    using var reader = new StreamReader(
+                        context.Request.Body,
+                        encoding: Encoding.UTF8,
+                        detectEncodingFromByteOrderMarks: false,
+                        bufferSize: 1024,
+                        leaveOpen: true);
+
+                    string body = await reader.ReadToEndAsync();
+
+                    // Reset the request body stream position so the endpoint can read it
+                    context.Request.Body.Position = 0;
+
+                    // Parse JSON (use System.Text.Json)
+                    try
+                    {
+                        var json = JsonDocument.Parse(body);
+                        if (json.RootElement.TryGetProperty("application_version", out JsonElement versionProp))
+                        {
+                            applicationVersion = versionProp.GetString();
+                        }
+                    }
+                    catch
+                    {
+                        // Ignore JSON parse errors — allow request to continue
+                    }
+                }
+
+                // Fallback to querystring if needed
+                applicationVersion ??= context.Request.Query["applicationVersion"];
+
+                // TODO: move to middleware class
+                CancellationToken cancellationToken = context.RequestAborted;
+                var mediator = context.RequestServices.GetRequiredService<IMediator>();
+                
+                VersionCheckCommands.VersionCheckCommand versionCheckCommand = new(applicationVersion); 
+                Result versionCheckResult = await mediator.Send(versionCheckCommand, cancellationToken);
+                if(versionCheckResult.IsFailed)
+                {
+                    context.Response.StatusCode = 505;
+                    return; // stop the pipeline
+                }
+                
+                await next(); // Call the next middleware / endpoint
+
+            });
+
             app.UseRouting();
 
             app.UseAuthentication();
@@ -108,7 +176,10 @@ namespace TransactionProcessorACL
 
             app.UseEndpoints(endpoints =>
                              {
-                                 endpoints.MapControllers();
+                                 endpoints.MapMerchantEndpoints();
+                                 endpoints.MapTransactionEndpoints();
+                                 endpoints.MapVoucherEndpoints();
+
                                  endpoints.MapHealthChecks("health", new HealthCheckOptions()
                                                                      {
                                                                          Predicate = _ => true,

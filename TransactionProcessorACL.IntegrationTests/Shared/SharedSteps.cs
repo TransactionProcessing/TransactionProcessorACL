@@ -400,12 +400,12 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         public async Task WhenIPerformTheFollowingReconciliations(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages = table.Rows.ToSerialisedMessages(estates);
-            List<(EstateDetails, String, Guid, String, TransactionRequestMessage)> requestMessages = ReqnrollExtensions.ToACLSerialisedMessages(SharedSteps.ApplicationVersion,
+            List<(EstateDetails, String, Guid, String, ReconciliationRequestMessage)> requestMessages = ReqnrollExtensions.ToACLSerialisedMessages<ReconciliationRequestMessage>(SharedSteps.ApplicationVersion,
                                                                                                                                                 serialisedMessages,
                                                                                                                                                 this.TestingContext.Estates);
 
-            foreach ((EstateDetails, String, Guid, String, TransactionRequestMessage) transactionRequestMessage in requestMessages){
-                await this.AclSteps.SendAclRequestMessage(transactionRequestMessage, CancellationToken.None);
+            foreach ((EstateDetails, String, Guid, String, ReconciliationRequestMessage) transactionRequestMessage in requestMessages){
+                await this.AclSteps.SendAclReconciliationRequestMessage(transactionRequestMessage, CancellationToken.None);
             }
         }
 
@@ -417,12 +417,29 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         public async Task WhenIPerformTheFollowingTransactions(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages = table.Rows.ToSerialisedMessages(estates);
-            List<(EstateDetails, String, Guid, String, TransactionRequestMessage)> requestMessages = ReqnrollExtensions.ToACLSerialisedMessages(SharedSteps.ApplicationVersion,
+
+            List<(EstateDetails, String, Guid, String, SaleTransactionRequestMessage)> requestMessages = ReqnrollExtensions.ToACLSerialisedMessages<SaleTransactionRequestMessage>(SharedSteps.ApplicationVersion,
                                                                                                                                                 serialisedMessages,
                                                                                                                                                 this.TestingContext.Estates);
 
-            foreach ((EstateDetails, String, Guid, String, TransactionRequestMessage) transactionRequestMessage in requestMessages){
-                await this.AclSteps.SendAclRequestMessage(transactionRequestMessage, CancellationToken.None);
+            foreach ((EstateDetails, String, Guid, String, SaleTransactionRequestMessage) transactionRequestMessage in requestMessages){
+                await this.AclSteps.SendAclSaleRequestMessage(transactionRequestMessage, CancellationToken.None);
+            }
+        }
+
+        [When(@"I perform the following logon transactions")]
+        public async Task WhenIPerformTheFollowingLogonTransactions(DataTable table)
+        {
+            var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
+            List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages = table.Rows.ToSerialisedMessages(estates);
+
+            List<(EstateDetails, String, Guid, String, LogonTransactionRequestMessage)> requestMessages = ReqnrollExtensions.ToACLSerialisedMessages<LogonTransactionRequestMessage>(SharedSteps.ApplicationVersion,
+                serialisedMessages,
+                this.TestingContext.Estates);
+
+            foreach ((EstateDetails, String, Guid, String, LogonTransactionRequestMessage) transactionRequestMessage in requestMessages)
+            {
+                await this.AclSteps.SendAclLogonRequestMessage(transactionRequestMessage, CancellationToken.None);
             }
         }
 

@@ -56,7 +56,7 @@
         /// The additional request meta data.
         /// </value>
         [JsonProperty("additional_request_metadata")]
-        public Dictionary<String,String> AdditionalRequestMetaData { get; set; }
+        public Dictionary<String,String> AdditionalRequestMetadata { get; set; }
 
         #endregion
     }
