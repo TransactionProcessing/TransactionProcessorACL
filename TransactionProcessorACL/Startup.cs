@@ -1,56 +1,30 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SimpleResults;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TransactionProcessorACL.Endpoints;
 
 namespace TransactionProcessorACL
 {
     using Bootstrapper;
-    using BusinessLogic.RequestHandlers;
     using BusinessLogic.Requests;
-    using BusinessLogic.Services;
-    using Common;
-    using DataTransferObjects;
-    using DataTransferObjects.Responses;
-    using Factories;
     using HealthChecks.UI.Client;
     using Lamar;
     using MediatR;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.CodeAnalysis.CSharp.Syntax;
-    using Microsoft.Extensions.Diagnostics.HealthChecks;
-    using Microsoft.Extensions.Options;
-    using Microsoft.OpenApi.Models;
-    using Models;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
-    using NLog.Extensions.Logging;
-    using SecurityService.Client;
     using Shared.Extensions;
     using Shared.General;
     using Shared.Logger;
     using Shared.Middleware;
-    using Swashbuckle.AspNetCore.Filters;
-    using Swashbuckle.AspNetCore.SwaggerGen;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
-    using System.Net.Http;
-    using System.Reflection;
     using System.Text;
     using System.Text.Json;
     using System.Threading;
-    using TransactionProcessor.Client;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
 
     [ExcludeFromCodeCoverage]

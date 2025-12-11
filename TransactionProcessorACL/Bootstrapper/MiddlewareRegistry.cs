@@ -1,4 +1,5 @@
-﻿using Shared.Authorisation;
+﻿using Microsoft.OpenApi;
+using Shared.Authorisation;
 
 namespace TransactionProcessorACL.Bootstrapper
 {
@@ -7,11 +8,7 @@ namespace TransactionProcessorACL.Bootstrapper
     using DataTransferObjects.Responses;
     using Lamar;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.OpenApi.Models;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
     using Shared.Extensions;
     using Shared.General;
     using Swashbuckle.AspNetCore.Filters;
