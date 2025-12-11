@@ -1,7 +1,7 @@
 FROM stuartferguson/txnprocbase:latest AS base
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["TransactionProcessorACL/NuGet.Config", "."]
 COPY ["TransactionProcessorACL/TransactionProcessorACL.csproj", "TransactionProcessorACL/"]
