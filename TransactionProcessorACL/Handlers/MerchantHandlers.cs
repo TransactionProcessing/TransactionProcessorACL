@@ -88,6 +88,8 @@ namespace TransactionProcessorACL.Handlers
 
         public static async Task<IResult> GetMerchant(IMediator mediator, ClaimsPrincipal user, string applicationVersion, CancellationToken cancellationToken)
         {
+            Logger.LogWarning("In GetMerchant Handler");
+
             Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
             if (claimsResult.IsFailed)
                 return ResponseFactory.FromResult(Result.Forbidden());
@@ -144,7 +146,7 @@ namespace TransactionProcessorACL.Handlers
 
                     merchantResponse.Contracts.Add(contract);
                 }
-
+                
                 foreach (KeyValuePair<Guid, string> device in result.Data.Devices) {
                     response.Devices.Add(device.Key, device.Value);
                 }
