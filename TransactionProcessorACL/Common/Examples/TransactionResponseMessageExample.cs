@@ -28,7 +28,7 @@
                            Name = "Logon Transaction",
                            Value = new LogonTransactionResponseMessage
                                    {
-                                       AdditionalResponseMetaData = new Dictionary<String, String>(),
+                                       AdditionalResponseMetadata = new Dictionary<String, String>(),
                                        EstateId = ExampleData.EstateId,
                                        MerchantId = ExampleData.MerchantId,
                                        RequiresApplicationUpdate = ExampleData.RequiresApplicationUpdate,
@@ -41,7 +41,7 @@
                            Name = "Sale Transaction",
                            Value = new SaleTransactionResponseMessage
                                    {
-                                       AdditionalResponseMetaData = new Dictionary<String, String>(),
+                                       AdditionalResponseMetadata = new Dictionary<String, String>(),
                                        EstateId = ExampleData.EstateId,
                                        MerchantId = ExampleData.MerchantId,
                                        RequiresApplicationUpdate = ExampleData.RequiresApplicationUpdate,
@@ -54,7 +54,7 @@
                            Name = "Reconciliation Transaction",
                            Value = new ReconciliationResponseMessage
                                    {
-                                       AdditionalResponseMetaData = new Dictionary<String, String>(),
+                                       AdditionalResponseMetadata = new Dictionary<String, String>(),
                                        EstateId = ExampleData.EstateId,
                                        MerchantId = ExampleData.MerchantId,
                                        RequiresApplicationUpdate = ExampleData.RequiresApplicationUpdate,

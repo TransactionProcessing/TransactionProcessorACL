@@ -43,7 +43,7 @@
             saleTransactionResponseMessage.MerchantId = processSaleTransactionResponse.MerchantId;
             saleTransactionResponseMessage.EstateId = processSaleTransactionResponse.EstateId;
             saleTransactionResponseMessage.TransactionId = processSaleTransactionResponse.TransactionId;
-            saleTransactionResponseMessage.AdditionalResponseMetaData = processSaleTransactionResponse.AdditionalTransactionMetadata;
+            saleTransactionResponseMessage.AdditionalResponseMetadata = processSaleTransactionResponse.AdditionalTransactionMetadata;
             
 
             return saleTransactionResponseMessage;

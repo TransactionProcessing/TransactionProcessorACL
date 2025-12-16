@@ -35,7 +35,7 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         /// The additional response meta data.
         /// </value>
         [JsonProperty("additional_response_metadata")]
-        public Dictionary<String, String> AdditionalResponseMetaData { get; set; }
+        public Dictionary<String, String> AdditionalResponseMetadata { get; set; }
 
         /// <summary>
         /// Gets or sets the estate identifier.
