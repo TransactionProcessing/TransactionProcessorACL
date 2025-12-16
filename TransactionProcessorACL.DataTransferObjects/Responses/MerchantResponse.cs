@@ -54,16 +54,16 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses {
         [JsonProperty("address_id")]
         public Guid AddressId { get; set; }
 
-        [JsonProperty("address_line_1")]
+        [JsonProperty("address_line1")]
         public string AddressLine1 { get; set; }
 
-        [JsonProperty("address_line_2")]
+        [JsonProperty("address_line2")]
         public string AddressLine2 { get; set; }
 
-        [JsonProperty("address_line_3")]
+        [JsonProperty("address_line3")]
         public string AddressLine3 { get; set; }
 
-        [JsonProperty("address_line_4")]
+        [JsonProperty("address_line4")]
         public string AddressLine4 { get; set; }
 
         [JsonProperty("country")]
