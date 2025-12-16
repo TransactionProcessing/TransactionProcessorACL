@@ -577,6 +577,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             if (result.Data.Devices != null) {
                 foreach (KeyValuePair<Guid, string> device in result.Data.Devices) {
+
+                    Logger.LogWarning($"Adding device {device.Key} - AppService");
                     merchantResponse.Devices.Add(device.Key, device.Value);
                 }
             }
