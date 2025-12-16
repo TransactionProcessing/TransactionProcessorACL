@@ -148,8 +148,7 @@ namespace TransactionProcessorACL.Handlers
                 }
                 
                 foreach (KeyValuePair<Guid, string> device in result.Data.Devices) {
-                    Logger.LogWarning($"Adding device {device.Key} - Handler");
-                    response.Devices.Add(device.Key, device.Value);
+                    merchantResponse.Devices.Add(device.Key, device.Value);
                 }
 
                 foreach (MerchantOperatorResponse merchantOperatorResponse in result.Data.Operators) {
