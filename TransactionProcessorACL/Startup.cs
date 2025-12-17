@@ -83,7 +83,11 @@ namespace TransactionProcessorACL
 
             app.Use(async (context, next) =>
             {
-                if (context.Request.Path.StartsWithSegments("/health"))
+                //if (context.Request.Path.StartsWithSegments("/health"))
+                var path = context.Request.Path;
+
+                if (path.StartsWithSegments("/health") ||
+                    path.StartsWithSegments("/healthui"))
                 {
                     await next();
                     return;
