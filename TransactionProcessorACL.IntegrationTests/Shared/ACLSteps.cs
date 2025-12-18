@@ -189,9 +189,7 @@ public class ACLSteps{
         String responseContent = await response.Content.ReadAsStringAsync();
         
 
-        Result<MerchantResponse> merchantResponseResult = JsonConvert.DeserializeObject<Result<MerchantResponse>>(responseContent);
-        merchantResponseResult.IsSuccess.ShouldBeTrue("Failed to retrieve merchant information");
-        MerchantResponse merchantResponse = merchantResponseResult.Data;
+        MerchantResponse merchantResponse = JsonConvert.DeserializeObject<MerchantResponse>(responseContent);
         merchantResponse.ShouldNotBeNull();
         merchantResponse.MerchantId.ShouldBe(merchantId);
         merchantResponse.MerchantName.ShouldBe(expectedMerchantResponse.MerchantName);
@@ -230,11 +228,10 @@ public class ACLSteps{
 
             String responseContent = await response.Content.ReadAsStringAsync();
 
-            Result<List<ContractResponse>> merchantContractResponseResult = JsonConvert.DeserializeObject<Result<List<ContractResponse>>>(responseContent);
-            merchantContractResponseResult.IsSuccess.ShouldBeTrue("Failed to retrieve merchant contract information");
+            List<ContractResponse> merchantContractResponseResult = JsonConvert.DeserializeObject<List<ContractResponse>>(responseContent);
 
             foreach (ExpectedMerchantContractResponse expectedMerchantContractResponse in expectedMerchantContractResponses) {
-                ContractResponse contractResponse = merchantContractResponseResult.Data.SingleOrDefault(c => c.Description == expectedMerchantContractResponse.ContractName);
+                ContractResponse contractResponse = merchantContractResponseResult.SingleOrDefault(c => c.Description == expectedMerchantContractResponse.ContractName);
                 contractResponse.ShouldNotBeNull($"Failed to find contract {expectedMerchantContractResponse.ContractName} in response");
             }
         });
