@@ -113,5 +113,36 @@ namespace TransactionProcessorACL.Tests.General
             context.Response.StatusCode.ShouldBe(200);
             mediatorMock.Verify(m => m.Send(It.IsAny<VersionCheckCommands.VersionCheckCommand>(), It.IsAny<CancellationToken>()), Times.Never);
         }
+
+        [Fact]
+        public async Task InvokeAsync_WhenNoBody_AndVersionInQueryString_UsesQueryValue()
+        {
+            // Arrange
+            var context = new DefaultHttpContext();
+            context.Request.Path = "/api/transactions";
+            context.Request.QueryString = new QueryString("?applicationVersion=9.9.9");
+
+            bool nextCalled = false;
+            RequestDelegate next = ctx =>
+            {
+                nextCalled = true;
+                ctx.Response.StatusCode = 200;
+                return Task.CompletedTask;
+            };
+
+            var mediatorMock = new Mock<IMediator>(MockBehavior.Strict);
+            mediatorMock
+                .Setup(m => m.Send(It.Is<VersionCheckCommands.VersionCheckCommand>(cmd => cmd.VersionNumber == "9.9.9"), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Success);
+
+            var middleware = new VersionCheckMiddleware(next);
+
+            // Act
+            await middleware.InvokeAsync(context, mediatorMock.Object);
+
+            // Assert
+            nextCalled.ShouldBeTrue();
+            mediatorMock.Verify(m => m.Send(It.IsAny<VersionCheckCommands.VersionCheckCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
     }
 }
