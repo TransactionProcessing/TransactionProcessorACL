@@ -25,17 +25,34 @@ jobs:
     - name: Run Unit Tests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "TransactionProcessorACL.Tests\TransactionProcessorACL.Tests.csproj"
-        dotnet test "TransactionProcessorACL.BusinessLogic.Tests\TransactionProcessorACL.BusinessLogic.Tests.csproj"
+        dotnet test "TransactionProcessorACL.Tests\TransactionProcessorACL.Tests.csproj" --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=acl-test-results.trx"
+        dotnet test "TransactionProcessorACL.BusinessLogic.Tests\TransactionProcessorACL.BusinessLogic.Tests.csproj" --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=bl-test-results.trx"
 
     - name: Build Docker Image
       run: docker build . --file TransactionProcessorACL/Dockerfile --tag transactionprocessoracl:latest
 
     - name: Run Integration Tests
-      run: dotnet test "TransactionProcessorACL.IntegrationTests\TransactionProcessorACL.IntegrationTests.csproj" --filter Category=PRTest
+      run: dotnet test "TransactionProcessorACL.IntegrationTests\TransactionProcessorACL.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=integration-test-results.trx"
 
     - uses: actions/upload-artifact@v4.4.0
       if: ${{ failure() }}
       with:
         name: tracelogs
         path: /home/txnproc/trace/   
+
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+          name: Unit Test Results
+          path: '**/TestResults/*.trx'
+          reporter: dotnet-trx
+          fail-on-error: true
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+          name: test-results
+          path: '**/TestResults/*.trx'
+          retention-days: 30
