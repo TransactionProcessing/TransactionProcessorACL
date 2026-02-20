@@ -25,6 +25,7 @@ namespace TransactionProcessorACL
     using System.Text;
     using System.Text.Json;
     using System.Threading;
+    using TransactionProcessorACL.Middleware;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
 
     [ExcludeFromCodeCoverage]
@@ -80,72 +81,7 @@ namespace TransactionProcessorACL
             app.AddRequestLogging();
             app.AddResponseLogging();
             app.AddExceptionHandler();
-
-            app.Use(async (context, next) =>
-            {
-                //if (context.Request.Path.StartsWithSegments("/health"))
-                var path = context.Request.Path;
-
-                if (path.StartsWithSegments("/health") ||
-                    path.StartsWithSegments("/healthui"))
-                {
-                    await next();
-                    return;
-                }
-
-                // Enable buffering so we can read the body multiple times
-                context.Request.EnableBuffering();
-
-                string? applicationVersion = null;
-
-                // Only read the body if it's JSON (optional safety check)
-                if (context.Request.ContentType?.Contains("application/json") == true)
-                {
-                    using var reader = new StreamReader(
-                        context.Request.Body,
-                        encoding: Encoding.UTF8,
-                        detectEncodingFromByteOrderMarks: false,
-                        bufferSize: 1024,
-                        leaveOpen: true);
-
-                    string body = await reader.ReadToEndAsync();
-
-                    // Reset the request body stream position so the endpoint can read it
-                    context.Request.Body.Position = 0;
-
-                    // Parse JSON (use System.Text.Json)
-                    try
-                    {
-                        var json = JsonDocument.Parse(body);
-                        if (json.RootElement.TryGetProperty("application_version", out JsonElement versionProp))
-                        {
-                            applicationVersion = versionProp.GetString();
-                        }
-                    }
-                    catch
-                    {
-                        // Ignore JSON parse errors — allow request to continue
-                    }
-                }
-
-                // Fallback to querystring if needed
-                applicationVersion ??= context.Request.Query["applicationVersion"];
-
-                // TODO: move to middleware class
-                CancellationToken cancellationToken = context.RequestAborted;
-                var mediator = context.RequestServices.GetRequiredService<IMediator>();
-                
-                VersionCheckCommands.VersionCheckCommand versionCheckCommand = new(applicationVersion); 
-                Result versionCheckResult = await mediator.Send(versionCheckCommand, cancellationToken);
-                if(versionCheckResult.IsFailed)
-                {
-                    context.Response.StatusCode = 505;
-                    return; // stop the pipeline
-                }
-                
-                await next(); // Call the next middleware / endpoint
-
-            });
+            app.UseMiddleware<VersionCheckMiddleware>();
 
             app.UseRouting();
 
