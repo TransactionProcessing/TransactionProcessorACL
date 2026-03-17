@@ -31,8 +31,98 @@ namespace TransactionProcessorACL.Bootstrapper
         /// </summary>
         public MiddlewareRegistry()
         {
-            this.AddHealthChecks().AddSecurityService(this.ApiEndpointHttpHandler).AddTransactionProcessorService();
+            this.ConfigureHealthChecks();
+            this.ConfigureSwagger();
+            this.ConfigureAuthentication();
+            this.ConfigurePasswordTokenHandling();
+            this.ConfigureJsonOptions();
+            this.ConfigureControllers();
+        }
 
+        /// <summary>
+        /// APIs the endpoint HTTP handler.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <returns></returns>
+        private HttpClientHandler ApiEndpointHttpHandler(IServiceProvider serviceProvider)
+        {
+            return new HttpClientHandler
+                   {
+                       ServerCertificateCustomValidationCallback = (message,
+                                                                    cert,
+                                                                    chain,
+                                                                    errors) =>
+                                                                    {
+                                                                        return true;
+                                                                    }
+                   };
+        }
+
+        private void ConfigureAuthentication()
+        {
+            this.AddAuthentication(options =>
+                                   {
+                                       options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                                       options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                                       options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                                   })
+                .AddJwtBearer(options =>
+                              {
+                                  options.BackchannelHttpHandler = new HttpClientHandler
+                                                                   {
+                                                                       ServerCertificateCustomValidationCallback =
+                                                                           (message, certificate, chain, sslPolicyErrors) => true
+                                                                   };
+                                  options.Authority = ConfigurationReader.GetValue("SecurityConfiguration", "Authority");
+                                  options.Audience = ConfigurationReader.GetValue("SecurityConfiguration", "ApiName");
+                                  options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                                                                      {
+                                                                          ValidateAudience = false,
+                                                                          ValidAudience = ConfigurationReader.GetValue("SecurityConfiguration", "ApiName"),
+                                                                          ValidIssuer = ConfigurationReader.GetValue("SecurityConfiguration", "Authority"),
+                                                                      };
+                                  options.IncludeErrorDetails = true;
+                              });
+        }
+
+        private void ConfigureControllers()
+        {
+            this.AddControllers();
+            //.AddNewtonsoftJson(options =>
+            //                                        {
+            //                                            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //                                            options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+            //                                            options.SerializerSettings.Formatting = Formatting.Indented;
+            //                                            options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+            //                                            options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            //                                        });
+
+            Assembly assembly = this.GetType().GetTypeInfo().Assembly;
+            this.AddMvcCore().AddApplicationPart(assembly).AddControllersAsServices();
+        }
+
+        private void ConfigureHealthChecks()
+        {
+            this.AddHealthChecks().AddSecurityService(this.ApiEndpointHttpHandler).AddTransactionProcessorService();
+        }
+
+        private void ConfigureJsonOptions()
+        {
+            this.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                options.SerializerOptions.PropertyNameCaseInsensitive = true; // optional, but safer
+            });
+        }
+
+        private void ConfigurePasswordTokenHandling()
+        {
+            this.AddPasswordTokenPolicy();
+            this.AddPasswordTokenHandler();
+        }
+
+        private void ConfigureSwagger()
+        {
             this.AddSwaggerGen(c =>
                                {
                                    c.SwaggerDoc("v1", new OpenApiInfo
@@ -51,7 +141,6 @@ namespace TransactionProcessorACL.Bootstrapper
                                                          {
                                                              return typeof(TransactionRequestMessage).Assembly.GetTypes().Where(type => type.IsSubclassOf(baseType));
                                                          });
-
                                    c.SelectSubTypesUsing(baseType =>
                                                          {
                                                              return typeof(TransactionResponseMessage).Assembly.GetTypes().Where(type => type.IsSubclassOf(baseType));
@@ -70,74 +159,7 @@ namespace TransactionProcessorACL.Bootstrapper
                                        c.IncludeXmlComments(fileInfo.FullName);
                                    }
                                });
-
             this.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
-
-            this.AddAuthentication(options =>
-                                   {
-                                       options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                                       options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                                       options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                                   })
-                .AddJwtBearer(options =>
-                              {
-                                  options.BackchannelHttpHandler = new HttpClientHandler
-                                                                   {
-                                                                       ServerCertificateCustomValidationCallback =
-                                                                           (message, certificate, chain, sslPolicyErrors) => true
-                                                                   };
-                                  options.Authority = ConfigurationReader.GetValue("SecurityConfiguration", "Authority");
-                                  options.Audience = ConfigurationReader.GetValue("SecurityConfiguration", "ApiName");
-
-                                  options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
-                                                                      {
-                                                                          ValidateAudience = false,
-                                                                          ValidAudience = ConfigurationReader.GetValue("SecurityConfiguration", "ApiName"),
-                                                                          ValidIssuer = ConfigurationReader.GetValue("SecurityConfiguration", "Authority"),
-                                                                      };
-                                  options.IncludeErrorDetails = true;
-                              });
-
-            this.AddPasswordTokenPolicy();
-            this.AddPasswordTokenHandler();
-
-            this.ConfigureHttpJsonOptions(options =>
-            {
-                options.SerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
-                options.SerializerOptions.PropertyNameCaseInsensitive = true; // optional, but safer
-            });
-
-            this.AddControllers();
-            //.AddNewtonsoftJson(options =>
-            //                                        {
-            //                                            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            //                                            options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-            //                                            options.SerializerSettings.Formatting = Formatting.Indented;
-            //                                            options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-            //                                            options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            //                                        });
-
-            Assembly assembly = this.GetType().GetTypeInfo().Assembly;
-            this.AddMvcCore().AddApplicationPart(assembly).AddControllersAsServices();
-        }
-
-        /// <summary>
-        /// APIs the endpoint HTTP handler.
-        /// </summary>
-        /// <param name="serviceProvider">The service provider.</param>
-        /// <returns></returns>
-        private HttpClientHandler ApiEndpointHttpHandler(IServiceProvider serviceProvider)
-        {
-            return new HttpClientHandler
-                   {
-                       ServerCertificateCustomValidationCallback = (message,
-                                                                    cert,
-                                                                    chain,
-                                                                    errors) =>
-                                                                   {
-                                                                       return true;
-                                                                   }
-                   };
         }
     }
 }
