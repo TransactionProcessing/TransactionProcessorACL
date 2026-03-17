@@ -16,6 +16,7 @@ namespace TransactionProcessorACL
     using MediatR;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Routing;
     using Shared.Extensions;
     using Shared.General;
     using Shared.Logger;
@@ -67,47 +68,63 @@ namespace TransactionProcessorACL
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            Startup.UseDevelopmentExceptionPage(app, env);
+            Startup.InitialiseLogger(loggerFactory);
+            Startup.ConfigureMiddleware(app);
+            Startup.ConfigureEndpoints(app);
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        private static void UseDevelopmentExceptionPage(IApplicationBuilder app,
+                                                        IWebHostEnvironment env)
+        {
             if (env.IsDevelopment())
-            {   
+            {
                 app.UseDeveloperExceptionPage();
             }
-            
+        }
+
+        private static void InitialiseLogger(ILoggerFactory loggerFactory)
+        {
             ILogger logger = loggerFactory.CreateLogger("TransactionProcessor");
 
             Logger.Initialise(logger);
-            
             Startup.Configuration.LogConfiguration(Logger.LogWarning);
+        }
+
+        private static void ConfigureMiddleware(IApplicationBuilder app)
+        {
             app.UseMiddleware<TenantMiddleware>();
             app.AddRequestResponseLogging();
             app.AddExceptionHandler();
             app.UseMiddleware<VersionCheckMiddleware>();
-
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
+        }
 
-            app.UseEndpoints(endpoints =>
-                             {
-                                 endpoints.MapMerchantEndpoints();
-                                 endpoints.MapTransactionEndpoints();
-                                 endpoints.MapVoucherEndpoints();
+        private static void ConfigureEndpoints(IApplicationBuilder app)
+        {
+            app.UseEndpoints(Startup.MapEndpoints);
+        }
 
-                                 endpoints.MapHealthChecks("health", new HealthCheckOptions()
-                                                                     {
-                                                                         Predicate = _ => true,
-                                                                         ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse
-                                                                     });
-                                 endpoints.MapHealthChecks("healthui", new HealthCheckOptions()
-                                                                     {
-                                                                         Predicate = _ => true,
-                                                                         ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                                                                     });
-                             });
+        private static void MapEndpoints(IEndpointRouteBuilder endpoints)
+        {
+            endpoints.MapMerchantEndpoints();
+            endpoints.MapTransactionEndpoints();
+            endpoints.MapVoucherEndpoints();
+            endpoints.MapHealthChecks("health", Startup.CreateHealthCheckOptions(Shared.HealthChecks.HealthCheckMiddleware.WriteResponse));
+            endpoints.MapHealthChecks("healthui", Startup.CreateHealthCheckOptions(UIResponseWriter.WriteHealthCheckUIResponse));
+        }
 
-            app.UseSwagger();
-
-            app.UseSwaggerUI();
+        private static HealthCheckOptions CreateHealthCheckOptions(Func<HttpContext, HealthReport, CancellationToken, Task> responseWriter)
+        {
+            return new HealthCheckOptions
+            {
+                Predicate = _ => true,
+                ResponseWriter = responseWriter
+            };
         }
     }
 }
