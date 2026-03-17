@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using TransactionProcessorACL.BusinessLogic.Models;
+using TransactionProcessorACL.Models;
 using ContractContactResponse = TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse;
-using ModelContactResponse = TransactionProcessorACL.BusinessLogic.Models.ContactResponse;
+using ModelContactResponse = TransactionProcessorACL.Models.ContactResponse;
 
 namespace TransactionProcessorACL.BusinessLogic.Services
 {
