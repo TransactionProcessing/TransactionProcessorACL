@@ -96,13 +96,15 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             EstateDetails1 estateDetails = this.TestingContext.GetEstateDetails(estateName);
             Guid merchantId = estateDetails.EstateDetails.GetMerchantId(merchantName);
             ClientDetails clientDetails = this.TestingContext.GetClientDetails(clientId);
-            Result<TokenResponse> tokenResponseResult = null;
+            string? accessToken = null;
             await Retry.For(async () => {
-                tokenResponseResult = await this.TestingContext.DockerHelper.SecurityServiceClient
-                                                               .GetToken(username, password, clientId, clientDetails.ClientSecret, CancellationToken.None).ConfigureAwait(false);
-                tokenResponseResult.IsSuccess.ShouldBeTrue();
-                            });
-            estateDetails.AddMerchantUserToken(merchantId, username, tokenResponseResult.Data.AccessToken);
+                Result<TokenResponse> tokenResponseResult = await this.TestingContext.DockerHelper.SecurityServiceClient
+                                                                                    .GetToken(username, password, clientId, clientDetails.ClientSecret, CancellationToken.None).ConfigureAwait(false);
+                tokenResponseResult.IsSuccess.ShouldBeTrue($"Failed to get merchant user token for '{username}' using client '{clientId}': {tokenResponseResult.Message}");
+                accessToken = tokenResponseResult.Data.AccessToken;
+            });
+            accessToken.ShouldNotBeNull();
+            estateDetails.AddMerchantUserToken(merchantId, username, accessToken);
         }
         /// <summary>
         /// Givens the i am logged in as with password for merchant for estate with client.
