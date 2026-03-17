@@ -418,6 +418,19 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             merchantResponse.IsSuccess.ShouldBeTrue();
             merchantResponse.Data.ShouldNotBeNull();
             merchantResponse.Data.MerchantId.ShouldBe(TestData.MerchantId);
+            merchantResponse.Data.Addresses.Count.ShouldBe(1);
+            merchantResponse.Data.Addresses[0].AddressLine1.ShouldBe(TestData.AddressLine1);
+            merchantResponse.Data.Addresses[0].Town.ShouldBe(TestData.Town);
+            merchantResponse.Data.Contacts.Count.ShouldBe(1);
+            merchantResponse.Data.Contacts[0].ContactName.ShouldBe(TestData.ContactName);
+            merchantResponse.Data.Contacts[0].ContactEmailAddress.ShouldBe(TestData.ContactEmail);
+            merchantResponse.Data.Contracts.Count.ShouldBe(1);
+            merchantResponse.Data.Contracts[0].ContractId.ShouldBe(TestData.ContractId);
+            merchantResponse.Data.Contracts[0].ContractProducts.ShouldContain(TestData.ProductId);
+            merchantResponse.Data.Devices[TestData.DeviceId].ShouldBe(TestData.DeviceIdentifier);
+            merchantResponse.Data.Operators.Count.ShouldBe(1);
+            merchantResponse.Data.Operators[0].MerchantNumber.ShouldBe(TestData.MerchantNumber);
+            merchantResponse.Data.Operators[0].TerminalNumber.ShouldBe(TestData.TerminalNumber);
         }
 
         [Fact]
