@@ -182,8 +182,8 @@ namespace TransactionProcessorACL.Bootstrapper
                 }
             }
 
-            return Startup.WebHostEnvironment != null &&
-                   String.Equals(Startup.WebHostEnvironment.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase);
+            return String.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"), "Development", StringComparison.OrdinalIgnoreCase) ||
+                   String.Equals(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"), "Development", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
