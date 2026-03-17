@@ -68,12 +68,11 @@ namespace TransactionProcessorACL
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            Startup.UseDevelopmentExceptionPage(app, env);
-            Startup.InitialiseLogger(loggerFactory);
-            Startup.ConfigureMiddleware(app);
-            Startup.ConfigureEndpoints(app);
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            UseDevelopmentExceptionPage(app, env);
+            InitializeLogger(loggerFactory);
+            ConfigureMiddleware(app);
+            ConfigureEndpoints(app);
+            ConfigureSwagger(app);
         }
 
         private static void UseDevelopmentExceptionPage(IApplicationBuilder app,
@@ -85,7 +84,7 @@ namespace TransactionProcessorACL
             }
         }
 
-        private static void InitialiseLogger(ILoggerFactory loggerFactory)
+        private static void InitializeLogger(ILoggerFactory loggerFactory)
         {
             ILogger logger = loggerFactory.CreateLogger("TransactionProcessor");
 
@@ -106,7 +105,13 @@ namespace TransactionProcessorACL
 
         private static void ConfigureEndpoints(IApplicationBuilder app)
         {
-            app.UseEndpoints(Startup.MapEndpoints);
+            app.UseEndpoints(MapEndpoints);
+        }
+
+        private static void ConfigureSwagger(IApplicationBuilder app)
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
 
         private static void MapEndpoints(IEndpointRouteBuilder endpoints)
@@ -114,8 +119,8 @@ namespace TransactionProcessorACL
             endpoints.MapMerchantEndpoints();
             endpoints.MapTransactionEndpoints();
             endpoints.MapVoucherEndpoints();
-            endpoints.MapHealthChecks("health", Startup.CreateHealthCheckOptions(Shared.HealthChecks.HealthCheckMiddleware.WriteResponse));
-            endpoints.MapHealthChecks("healthui", Startup.CreateHealthCheckOptions(UIResponseWriter.WriteHealthCheckUIResponse));
+            endpoints.MapHealthChecks("health", CreateHealthCheckOptions(Shared.HealthChecks.HealthCheckMiddleware.WriteResponse));
+            endpoints.MapHealthChecks("healthui", CreateHealthCheckOptions(UIResponseWriter.WriteHealthCheckUIResponse));
         }
 
         private static HealthCheckOptions CreateHealthCheckOptions(Func<HttpContext, HealthReport, CancellationToken, Task> responseWriter)
