@@ -601,22 +601,23 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
 
             foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantContractResponse merchantContract in contracts) {
-                MerchantContractResponse contract = new() { ContractId = merchantContract.ContractId, IsDeleted = merchantContract.IsDeleted, ContractProducts = new() };
-                foreach (Guid contractProduct in merchantContract.ContractProducts) {
-                    contract.ContractProducts.Add(contractProduct);
-                }
+                MerchantContractResponse contract = new() {
+                    ContractId = merchantContract.ContractId,
+                    IsDeleted = merchantContract.IsDeleted,
+                    ContractProducts = merchantContract.ContractProducts == null ? new List<Guid>() : new List<Guid>(merchantContract.ContractProducts)
+                };
 
                 merchantResponse.Contracts.Add(contract);
             }
         }
 
-        private void PopulateMerchantDevices(Dictionary<Guid, String> devices,
+        private void PopulateMerchantDevices(Dictionary<Guid, string> devices,
                                              MerchantResponse merchantResponse) {
             if (devices == null) {
                 return;
             }
 
-            foreach (KeyValuePair<Guid, String> device in devices) {
+            foreach (KeyValuePair<Guid, string> device in devices) {
                 merchantResponse.Devices.Add(device.Key, device.Value);
             }
         }
