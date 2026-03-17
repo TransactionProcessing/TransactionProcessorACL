@@ -17,15 +17,18 @@ namespace TransactionProcessorACL
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Routing;
+    using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Shared.Extensions;
     using Shared.General;
     using Shared.Logger;
     using Shared.Middleware;
+    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Text;
     using System.Text.Json;
     using System.Threading;
+    using System.Threading.Tasks;
     using TransactionProcessorACL.Middleware;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
 
