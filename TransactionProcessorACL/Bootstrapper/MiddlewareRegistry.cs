@@ -46,16 +46,20 @@ namespace TransactionProcessorACL.Bootstrapper
         /// <returns></returns>
         private HttpClientHandler ApiEndpointHttpHandler(IServiceProvider serviceProvider)
         {
-            return new HttpClientHandler
-                   {
-                       ServerCertificateCustomValidationCallback = (message,
-                                                                    cert,
-                                                                    chain,
-                                                                    errors) =>
-                                                                    {
-                                                                        return true;
-                                                                    }
-                   };
+            HttpClientHandler httpClientHandler = new HttpClientHandler();
+
+            if (this.AllowInvalidServerCertificates(serviceProvider))
+            {
+                httpClientHandler.ServerCertificateCustomValidationCallback = (message,
+                                                                               cert,
+                                                                               chain,
+                                                                               errors) =>
+                                                                              {
+                                                                                  return true;
+                                                                              };
+            }
+
+            return httpClientHandler;
         }
 
         private void ConfigureAuthentication()
@@ -68,11 +72,15 @@ namespace TransactionProcessorACL.Bootstrapper
                                    })
                 .AddJwtBearer(options =>
                               {
-                                  options.BackchannelHttpHandler = new HttpClientHandler
-                                                                   {
-                                                                       ServerCertificateCustomValidationCallback =
-                                                                           (message, certificate, chain, sslPolicyErrors) => true
-                                                                   };
+                                  if (this.AllowInvalidServerCertificates())
+                                  {
+                                      options.BackchannelHttpHandler = new HttpClientHandler
+                                                                       {
+                                                                           ServerCertificateCustomValidationCallback =
+                                                                               (message, certificate, chain, sslPolicyErrors) => true
+                                                                       };
+                                  }
+
                                   options.Authority = ConfigurationReader.GetValue("SecurityConfiguration", "Authority");
                                   options.Audience = ConfigurationReader.GetValue("SecurityConfiguration", "ApiName");
                                   options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
@@ -160,6 +168,22 @@ namespace TransactionProcessorACL.Bootstrapper
                                    }
                                });
             this.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
+        }
+
+        private Boolean AllowInvalidServerCertificates(IServiceProvider serviceProvider = null)
+        {
+            if (serviceProvider != null)
+            {
+                var webHostEnvironment = serviceProvider.GetService<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>();
+
+                if (webHostEnvironment != null)
+                {
+                    return String.Equals(webHostEnvironment.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+
+            return Startup.WebHostEnvironment != null &&
+                   String.Equals(Startup.WebHostEnvironment.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
