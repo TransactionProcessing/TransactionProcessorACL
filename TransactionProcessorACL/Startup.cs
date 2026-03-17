@@ -27,7 +27,6 @@ namespace TransactionProcessorACL
     using System.IO;
     using System.Text;
     using System.Text.Json;
-    using System.Threading;
     using System.Threading.Tasks;
     using TransactionProcessorACL.Middleware;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -126,7 +125,7 @@ namespace TransactionProcessorACL
             endpoints.MapHealthChecks("healthui", CreateHealthCheckOptions(UIResponseWriter.WriteHealthCheckUIResponse));
         }
 
-        private static HealthCheckOptions CreateHealthCheckOptions(Func<HttpContext, HealthReport, CancellationToken, Task> responseWriter)
+        private static HealthCheckOptions CreateHealthCheckOptions(Func<HttpContext, HealthReport, Task> responseWriter)
         {
             return new HealthCheckOptions
             {
