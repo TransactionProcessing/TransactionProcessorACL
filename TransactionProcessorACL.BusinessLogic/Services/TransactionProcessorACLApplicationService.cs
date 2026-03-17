@@ -521,80 +521,121 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             Logger.LogWarning($"in GetMerchant - {JsonConvert.SerializeObject(result.Data)}");
 
-            MerchantResponse merchantResponse = new();
-            merchantResponse.MerchantId = result.Data.MerchantId;
-            merchantResponse.EstateId = result.Data.EstateId;
-            merchantResponse.MerchantName = result.Data.MerchantName;
-            merchantResponse.EstateReportingId = result.Data.EstateReportingId;
-            merchantResponse.MerchantReference = result.Data.MerchantReference;
-            merchantResponse.NextStatementDate = result.Data.NextStatementDate;
-            merchantResponse.SettlementSchedule = result.Data.SettlementSchedule switch {
-                TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Immediate => Models.SettlementSchedule.Immediate,
-                TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Weekly => SettlementSchedule.Weekly,
-                TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Monthly => SettlementSchedule.Monthly,
-                _ => SettlementSchedule.NotSet
-            };
-            merchantResponse.Contracts = new();
-            merchantResponse.Contacts = new();
-            merchantResponse.Addresses = new();
-            merchantResponse.Devices = new();
-            merchantResponse.Operators = new();
-
-            if (result.Data.Addresses != null) {
-                foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.AddressResponse address in result.Data.Addresses) {
-                    AddressResponse addressResponse = new() {
-                        AddressId = address.AddressId,
-                        AddressLine1 = address.AddressLine1,
-                        AddressLine2 = address.AddressLine2,
-                        AddressLine3 = address.AddressLine3,
-                        AddressLine4 = address.AddressLine4,
-                        Country = address.Country,
-                        PostalCode = address.PostalCode,
-                        Region = address.Region,
-                        Town = address.Town
-                    };
-                    merchantResponse.Addresses.Add(addressResponse);
-                }
-            }
-
-            if (result.Data.Contacts != null) {
-                foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse contact in result.Data.Contacts) {
-                    merchantResponse.Contacts.Add(new ContactResponse { ContactId = contact.ContactId, ContactName = contact.ContactName, ContactPhoneNumber = contact.ContactPhoneNumber, ContactEmailAddress = contact.ContactEmailAddress });
-                }
-            }
-
-            if (result.Data.Contracts != null) {
-
-                foreach (var merchantContract in result.Data.Contracts) {
-                    var contract = new MerchantContractResponse { ContractId = merchantContract.ContractId, IsDeleted = merchantContract.IsDeleted, ContractProducts = new() };
-                    foreach (Guid contractProduct in merchantContract.ContractProducts) {
-                        contract.ContractProducts.Add(contractProduct);
-                    }
-
-                    merchantResponse.Contracts.Add(contract);
-                }
-            }
-
-            if (result.Data.Devices != null) {
-                foreach (KeyValuePair<Guid, string> device in result.Data.Devices) {
-                    merchantResponse.Devices.Add(device.Key, device.Value);
-                }
-            }
-
-            if (result.Data.Operators != null) {
-
-                foreach (var merchantOperator in result.Data.Operators) {
-                    merchantResponse.Operators.Add(new MerchantOperatorResponse {
-                        OperatorId = merchantOperator.OperatorId,
-                        IsDeleted = merchantOperator.IsDeleted,
-                        MerchantNumber = merchantOperator.MerchantNumber,
-                        Name = merchantOperator.Name,
-                        TerminalNumber = merchantOperator.TerminalNumber
-                    });
-                }
-            }
+            MerchantResponse merchantResponse = this.BuildMerchantResponse(result.Data);
 
             return merchantResponse;
+        }
+
+        private MerchantResponse BuildMerchantResponse(TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse merchant) {
+            MerchantResponse merchantResponse = new() {
+                MerchantId = merchant.MerchantId,
+                EstateId = merchant.EstateId,
+                MerchantName = merchant.MerchantName,
+                EstateReportingId = merchant.EstateReportingId,
+                MerchantReference = merchant.MerchantReference,
+                NextStatementDate = merchant.NextStatementDate,
+                SettlementSchedule = merchant.SettlementSchedule switch {
+                    TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Immediate => Models.SettlementSchedule.Immediate,
+                    TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Weekly => SettlementSchedule.Weekly,
+                    TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Monthly => SettlementSchedule.Monthly,
+                    _ => SettlementSchedule.NotSet
+                },
+                Contracts = new(),
+                Contacts = new(),
+                Addresses = new(),
+                Devices = new(),
+                Operators = new()
+            };
+
+            this.PopulateMerchantAddresses(merchant.Addresses, merchantResponse);
+            this.PopulateMerchantContacts(merchant.Contacts, merchantResponse);
+            this.PopulateMerchantContracts(merchant.Contracts, merchantResponse);
+            this.PopulateMerchantDevices(merchant.Devices, merchantResponse);
+            this.PopulateMerchantOperators(merchant.Operators, merchantResponse);
+
+            return merchantResponse;
+        }
+
+        private void PopulateMerchantAddresses(List<TransactionProcessor.DataTransferObjects.Responses.Merchant.AddressResponse> addresses,
+                                               MerchantResponse merchantResponse) {
+            if (addresses == null) {
+                return;
+            }
+
+            foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.AddressResponse address in addresses) {
+                AddressResponse addressResponse = new() {
+                    AddressId = address.AddressId,
+                    AddressLine1 = address.AddressLine1,
+                    AddressLine2 = address.AddressLine2,
+                    AddressLine3 = address.AddressLine3,
+                    AddressLine4 = address.AddressLine4,
+                    Country = address.Country,
+                    PostalCode = address.PostalCode,
+                    Region = address.Region,
+                    Town = address.Town
+                };
+                merchantResponse.Addresses.Add(addressResponse);
+            }
+        }
+
+        private void PopulateMerchantContacts(List<TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse> contacts,
+                                              MerchantResponse merchantResponse) {
+            if (contacts == null) {
+                return;
+            }
+
+            foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse contact in contacts) {
+                merchantResponse.Contacts.Add(new ContactResponse {
+                    ContactId = contact.ContactId,
+                    ContactName = contact.ContactName,
+                    ContactPhoneNumber = contact.ContactPhoneNumber,
+                    ContactEmailAddress = contact.ContactEmailAddress
+                });
+            }
+        }
+
+        private void PopulateMerchantContracts(List<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantContractResponse> contracts,
+                                               MerchantResponse merchantResponse) {
+            if (contracts == null) {
+                return;
+            }
+
+            foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantContractResponse merchantContract in contracts) {
+                MerchantContractResponse contract = new() { ContractId = merchantContract.ContractId, IsDeleted = merchantContract.IsDeleted, ContractProducts = new() };
+                foreach (Guid contractProduct in merchantContract.ContractProducts) {
+                    contract.ContractProducts.Add(contractProduct);
+                }
+
+                merchantResponse.Contracts.Add(contract);
+            }
+        }
+
+        private void PopulateMerchantDevices(Dictionary<Guid, String> devices,
+                                             MerchantResponse merchantResponse) {
+            if (devices == null) {
+                return;
+            }
+
+            foreach (KeyValuePair<Guid, String> device in devices) {
+                merchantResponse.Devices.Add(device.Key, device.Value);
+            }
+        }
+
+        private void PopulateMerchantOperators(List<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantOperatorResponse> operators,
+                                               MerchantResponse merchantResponse) {
+            if (operators == null) {
+                return;
+            }
+
+            foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantOperatorResponse merchantOperator in operators) {
+                merchantResponse.Operators.Add(new MerchantOperatorResponse {
+                    OperatorId = merchantOperator.OperatorId,
+                    IsDeleted = merchantOperator.IsDeleted,
+                    MerchantNumber = merchantOperator.MerchantNumber,
+                    Name = merchantOperator.Name,
+                    TerminalNumber = merchantOperator.TerminalNumber
+                });
+            }
         }
 
         #endregion
