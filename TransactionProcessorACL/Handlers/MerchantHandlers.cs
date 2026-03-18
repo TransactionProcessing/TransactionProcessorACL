@@ -108,13 +108,13 @@ namespace TransactionProcessorACL.Handlers
         };
     }
 
-    public class PasswordTokenRequirement : IAuthorizationRequirement { }
+    public class ClaimsIdentityRequirement : IAuthorizationRequirement { }
 
-    public class PasswordTokenHandler : AuthorizationHandler<PasswordTokenRequirement>
+    public class ClaimsIdentityHandler : AuthorizationHandler<ClaimsIdentityRequirement>
     {
         protected override Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
-            PasswordTokenRequirement requirement)
+            ClaimsIdentityRequirement requirement)
         {
             var hasClaim = context.User.Claims
                 .Any(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
