@@ -18,7 +18,11 @@ namespace TransactionProcessorACL.Handlers
 {
     public static class MerchantHandlers
     {
-        public static async Task<IResult> GetMerchantContracts(IMediator mediator, ClaimsPrincipal user, string applicationVersion, CancellationToken cancellationToken)
+        public static async Task<IResult> GetMerchantContracts(IMediator mediator,
+                                                               IModelFactory modelFactory,
+                                                               ClaimsPrincipal user,
+                                                               string applicationVersion,
+                                                               CancellationToken cancellationToken)
         {
             Logger.LogInformation($"Application version {applicationVersion}");
 
@@ -29,55 +33,8 @@ namespace TransactionProcessorACL.Handlers
             MerchantQueries.GetMerchantContractsQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
             Result<List<ContractResponse>> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, list => MapContractResponses(list));
+            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
         }
-
-        private static List<DataTransferObjects.Responses.ContractResponse> MapContractResponses(List<ContractResponse> contractResponses) =>
-            contractResponses.Select(MapContractResponse).ToList();
-
-        private static DataTransferObjects.Responses.ContractResponse MapContractResponse(ContractResponse contractModel) =>
-            new() {
-                ContractId = contractModel.ContractId,
-                ContractReportingId = contractModel.ContractReportingId,
-                Description = contractModel.Description,
-                EstateId = contractModel.EstateId,
-                EstateReportingId = contractModel.EstateReportingId,
-                OperatorId = contractModel.OperatorId,
-                OperatorName = contractModel.OperatorName,
-                Products = contractModel.Products.Select(MapContractProductResponse).ToList()
-            };
-
-        private static DataTransferObjects.Responses.ContractProduct MapContractProductResponse(ContractProduct contractModelProduct) =>
-            new() {
-                Value = contractModelProduct.Value,
-                DisplayText = contractModelProduct.DisplayText,
-                Name = contractModelProduct.Name,
-                ProductId = contractModelProduct.ProductId,
-                ProductReportingId = contractModelProduct.ProductReportingId,
-                ProductType = contractModelProduct.ProductType switch {
-                    ProductType.BillPayment => DataTransferObjects.Responses.ProductType.BillPayment,
-                    ProductType.MobileTopup => DataTransferObjects.Responses.ProductType.MobileTopup,
-                    ProductType.Voucher => DataTransferObjects.Responses.ProductType.Voucher,
-                    _ => DataTransferObjects.Responses.ProductType.NotSet
-                },
-                TransactionFees = contractModelProduct.TransactionFees.Select(MapContractProductTransactionFeeResponse).ToList()
-            };
-
-        private static DataTransferObjects.Responses.ContractProductTransactionFee MapContractProductTransactionFeeResponse(ContractProductTransactionFee contractProductTransactionFeeModel) =>
-            new() {
-                Value = contractProductTransactionFeeModel.Value,
-                Description = contractProductTransactionFeeModel.Description,
-                CalculationType = contractProductTransactionFeeModel.CalculationType switch {
-                    CalculationType.Fixed => DataTransferObjects.Responses.CalculationType.Fixed,
-                    _ => DataTransferObjects.Responses.CalculationType.Percentage,
-                },
-                FeeType = contractProductTransactionFeeModel.FeeType switch {
-                    FeeType.Merchant => DataTransferObjects.Responses.FeeType.Merchant,
-                    _ => DataTransferObjects.Responses.FeeType.ServiceProvider,
-                },
-                TransactionFeeId = contractProductTransactionFeeModel.TransactionFeeId,
-                TransactionFeeReportingId = contractProductTransactionFeeModel.TransactionFeeReportingId
-            };
 
         public static async Task<IResult> GetMerchant(IMediator mediator,
                                                       IModelFactory modelFactory,
@@ -94,8 +51,61 @@ namespace TransactionProcessorACL.Handlers
             MerchantQueries.GetMerchantQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
             Result<MerchantResponse> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, MapMerchantResponse);
         }
+
+        private static DataTransferObjects.Responses.MerchantResponse MapMerchantResponse(MerchantResponse merchantResponse) => new() {
+            EstateId = merchantResponse.EstateId,
+            MerchantId = merchantResponse.MerchantId,
+            EstateReportingId = merchantResponse.EstateReportingId,
+            MerchantName = merchantResponse.MerchantName,
+            MerchantReference = merchantResponse.MerchantReference,
+            MerchantReportingId = merchantResponse.MerchantReportingId,
+            NextStatementDate = merchantResponse.NextStatementDate,
+            SettlementSchedule = merchantResponse.SettlementSchedule switch {
+                SettlementSchedule.Weekly => DataTransferObjects.Responses.SettlementSchedule.Weekly,
+                SettlementSchedule.Monthly => DataTransferObjects.Responses.SettlementSchedule.Monthly,
+                _ => DataTransferObjects.Responses.SettlementSchedule.NotSet
+            },
+            Addresses = merchantResponse.Addresses.Select(MapAddress).ToList(),
+            Contacts = merchantResponse.Contacts.Select(MapContact).ToList(),
+            Contracts = merchantResponse.Contracts.Select(MapContract).ToList(),
+            Devices = new Dictionary<Guid, string>(merchantResponse.Devices),
+            Operators = merchantResponse.Operators.Select(MapOperator).ToList()
+        };
+
+        private static DataTransferObjects.Responses.AddressResponse MapAddress(AddressResponse addressResponse) => new() {
+            AddressId = addressResponse.AddressId,
+            AddressLine1 = addressResponse.AddressLine1,
+            AddressLine2 = addressResponse.AddressLine2,
+            AddressLine3 = addressResponse.AddressLine3,
+            AddressLine4 = addressResponse.AddressLine4,
+            Country = addressResponse.Country,
+            PostalCode = addressResponse.PostalCode,
+            Region = addressResponse.Region,
+            Town = addressResponse.Town
+        };
+
+        private static DataTransferObjects.Responses.ContactResponse MapContact(ContactResponse contactResponse) => new() {
+            ContactId = contactResponse.ContactId,
+            ContactName = contactResponse.ContactName,
+            ContactPhoneNumber = contactResponse.ContactPhoneNumber,
+            ContactEmailAddress = contactResponse.ContactEmailAddress
+        };
+
+        private static DataTransferObjects.Responses.MerchantContractResponse MapContract(MerchantContractResponse contractResponse) => new() {
+            ContractId = contractResponse.ContractId,
+            IsDeleted = contractResponse.IsDeleted,
+            ContractProducts = contractResponse.ContractProducts.ToList()
+        };
+
+        private static DataTransferObjects.Responses.MerchantOperatorResponse MapOperator(MerchantOperatorResponse operatorResponse) => new() {
+            OperatorId = operatorResponse.OperatorId,
+            IsDeleted = operatorResponse.IsDeleted,
+            MerchantNumber = operatorResponse.MerchantNumber,
+            Name = operatorResponse.Name,
+            TerminalNumber = operatorResponse.TerminalNumber
+        };
     }
 
     public class ClaimsIdentityRequirement : IAuthorizationRequirement { }

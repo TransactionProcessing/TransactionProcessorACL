@@ -13,6 +13,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using Microsoft.Extensions.Configuration;
     using Models;
     using Moq;
+    using Newtonsoft.Json;
     using SecurityService.Client;
     using Shared.General;
     using Shared.Logger;
@@ -70,6 +71,40 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             logonResponse.ShouldNotBeNull();
             logonResponse.ResponseMessage.ShouldBe(TestData.ResponseMessage);
             logonResponse.ResponseCode.ShouldBe(TestData.ResponseCode);
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_RequestIsSerialisedCorrectly()
+        {
+            SerialisedMessage capturedMessage = null;
+
+            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
+                                      .Callback<String, SerialisedMessage, CancellationToken>((_, message, _) => capturedMessage = message)
+                                      .ReturnsAsync(TestData.SerialisedMessageResponseLogon);
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
+                                 .ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            await applicationService.ProcessLogonTransaction(TestData.EstateId,
+                                                             TestData.MerchantId,
+                                                             TestData.TransactionDateTime,
+                                                             TestData.TransactionNumber,
+                                                             TestData.DeviceIdentifier,
+                                                             CancellationToken.None);
+
+            capturedMessage.ShouldNotBeNull();
+            capturedMessage.Metadata[MetadataContants.KeyNameEstateId].ShouldBe(TestData.EstateId.ToString());
+            capturedMessage.Metadata[MetadataContants.KeyNameMerchantId].ShouldBe(TestData.MerchantId.ToString());
+
+            LogonTransactionRequest logonTransactionRequest = JsonConvert.DeserializeObject<LogonTransactionRequest>(capturedMessage.SerialisedData,
+                new JsonSerializerSettings {
+                    TypeNameHandling = TypeNameHandling.All
+                });
+
+            logonTransactionRequest.ShouldNotBeNull();
+            logonTransactionRequest.TransactionNumber.ShouldBe(TestData.TransactionNumber);
+            logonTransactionRequest.DeviceIdentifier.ShouldBe(TestData.DeviceIdentifier);
+            logonTransactionRequest.TransactionDateTime.ShouldBe(TestData.TransactionDateTime);
+            logonTransactionRequest.TransactionType.ShouldBe("LOGON");
         }
 
         [Fact]
@@ -147,6 +182,52 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             saleResponse.ShouldNotBeNull();
             saleResponse.ResponseMessage.ShouldBe(TestData.ResponseMessage);
             saleResponse.ResponseCode.ShouldBe(TestData.ResponseCode);
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_RequestContainsExpectedSaleData()
+        {
+            SerialisedMessage capturedRequest = null;
+            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
+                                      .Callback<String, SerialisedMessage, CancellationToken>((accessToken, request, cancellationToken) => capturedRequest = request)
+                                      .ReturnsAsync(TestData.SerialisedMessageResponseSale);
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
+                                                                                                             TestData.MerchantId,
+                                                                                                             TestData.TransactionDateTime,
+                                                                                                             TestData.TransactionNumber,
+                                                                                                             TestData.DeviceIdentifier,
+                                                                                                             TestData.OperatorId,
+                                                                                                             TestData.CustomerEmailAddress,
+                                                                                                             TestData.ContractId,
+                                                                                                             TestData.ProductId,
+                                                                                                             TestData.AdditionalRequestMetadata,
+                                                                                                             CancellationToken.None);
+
+            result.IsSuccess.ShouldBeTrue();
+            capturedRequest.ShouldNotBeNull();
+            capturedRequest.Metadata[MetadataContants.KeyNameEstateId].ShouldBe(TestData.EstateId.ToString());
+            capturedRequest.Metadata[MetadataContants.KeyNameMerchantId].ShouldBe(TestData.MerchantId.ToString());
+
+            SaleTransactionRequest request = JsonConvert.DeserializeObject<SaleTransactionRequest>(capturedRequest.SerialisedData,
+                                                                                                   new JsonSerializerSettings
+                                                                                                   {
+                                                                                                       TypeNameHandling = TypeNameHandling.All
+                                                                                                   });
+
+            request.ShouldNotBeNull();
+            request.TransactionNumber.ShouldBe(TestData.TransactionNumber);
+            request.DeviceIdentifier.ShouldBe(TestData.DeviceIdentifier);
+            request.TransactionDateTime.ShouldBe(TestData.TransactionDateTime);
+            request.TransactionType.ShouldBe("SALE");
+            request.OperatorId.ShouldBe(TestData.OperatorId);
+            request.CustomerEmailAddress.ShouldBe(TestData.CustomerEmailAddress);
+            request.TransactionSource.ShouldBe(1);
+            request.ContractId.ShouldBe(TestData.ContractId);
+            request.ProductId.ShouldBe(TestData.ProductId);
+            request.AdditionalTransactionMetadata["Amount"].ShouldBe(TestData.AdditionalRequestMetadata["Amount"]);
+            request.AdditionalTransactionMetadata["CustomerAccountNumber"].ShouldBe(TestData.AdditionalRequestMetadata["CustomerAccountNumber"]);
         }
 
         [Fact]

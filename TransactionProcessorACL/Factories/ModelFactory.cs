@@ -180,6 +180,79 @@ namespace TransactionProcessorACL.Factories
             return merchantResponse;
         }
 
+        public List<DataTransferObjects.Responses.ContractResponse> ConvertFrom(List<Models.ContractResponse> model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            List<DataTransferObjects.Responses.ContractResponse> responses = new();
+
+            foreach (Models.ContractResponse contractModel in model)
+            {
+                DataTransferObjects.Responses.ContractResponse contractResponse = new()
+                {
+                    ContractId = contractModel.ContractId,
+                    ContractReportingId = contractModel.ContractReportingId,
+                    Description = contractModel.Description,
+                    EstateId = contractModel.EstateId,
+                    EstateReportingId = contractModel.EstateReportingId,
+                    OperatorId = contractModel.OperatorId,
+                    OperatorName = contractModel.OperatorName,
+                    Products = new()
+                };
+
+                foreach (Models.ContractProduct contractModelProduct in contractModel.Products)
+                {
+                    DataTransferObjects.Responses.ContractProduct contractProductResponse = new()
+                    {
+                        Value = contractModelProduct.Value,
+                        DisplayText = contractModelProduct.DisplayText,
+                        Name = contractModelProduct.Name,
+                        ProductId = contractModelProduct.ProductId,
+                        ProductReportingId = contractModelProduct.ProductReportingId,
+                        ProductType = contractModelProduct.ProductType switch
+                        {
+                            Models.ProductType.NotSet => DataTransferObjects.Responses.ProductType.NotSet,
+                            Models.ProductType.BillPayment => DataTransferObjects.Responses.ProductType.BillPayment,
+                            Models.ProductType.MobileTopup => DataTransferObjects.Responses.ProductType.MobileTopup,
+                            Models.ProductType.Voucher => DataTransferObjects.Responses.ProductType.Voucher,
+                            _ => DataTransferObjects.Responses.ProductType.NotSet
+                        },
+                        TransactionFees = new()
+                    };
+
+                    foreach (Models.ContractProductTransactionFee contractProductTransactionFeeModel in contractModelProduct.TransactionFees)
+                    {
+                        contractProductResponse.TransactionFees.Add(new DataTransferObjects.Responses.ContractProductTransactionFee
+                        {
+                            Value = contractProductTransactionFeeModel.Value,
+                            Description = contractProductTransactionFeeModel.Description,
+                            CalculationType = contractProductTransactionFeeModel.CalculationType switch
+                            {
+                                Models.CalculationType.Fixed => DataTransferObjects.Responses.CalculationType.Fixed,
+                                _ => DataTransferObjects.Responses.CalculationType.Percentage,
+                            },
+                            FeeType = contractProductTransactionFeeModel.FeeType switch
+                            {
+                                Models.FeeType.Merchant => DataTransferObjects.Responses.FeeType.Merchant,
+                                _ => DataTransferObjects.Responses.FeeType.ServiceProvider,
+                            },
+                            TransactionFeeId = contractProductTransactionFeeModel.TransactionFeeId,
+                            TransactionFeeReportingId = contractProductTransactionFeeModel.TransactionFeeReportingId
+                        });
+                    }
+
+                    contractResponse.Products.Add(contractProductResponse);
+                }
+
+                responses.Add(contractResponse);
+            }
+
+            return responses;
+        }
+
         public RedeemVoucherResponseMessage ConvertFrom(RedeemVoucherResponse model)
         {
             if (model == null)
