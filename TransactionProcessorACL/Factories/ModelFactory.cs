@@ -1,5 +1,7 @@
-﻿namespace TransactionProcessorACL.Factories
+namespace TransactionProcessorACL.Factories
 {
+    using System;
+    using System.Collections.Generic;
     using DataTransferObjects.Responses;
     using Models;
 
@@ -88,6 +90,99 @@
             };
 
             return responseMessage;
+        }
+
+        public MerchantResponse ConvertFrom(Models.MerchantResponse model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            MerchantResponse merchantResponse = new MerchantResponse
+            {
+                EstateId = model.EstateId,
+                MerchantId = model.MerchantId,
+                EstateReportingId = model.EstateReportingId,
+                MerchantName = model.MerchantName,
+                MerchantReference = model.MerchantReference,
+                MerchantReportingId = model.MerchantReportingId,
+                NextStatementDate = model.NextStatementDate,
+                SettlementSchedule = model.SettlementSchedule switch
+                {
+                    Models.SettlementSchedule.Weekly => SettlementSchedule.Weekly,
+                    Models.SettlementSchedule.Monthly => SettlementSchedule.Monthly,
+                    _ => SettlementSchedule.NotSet
+                },
+                Addresses = new List<AddressResponse>(),
+                Contacts = new List<ContactResponse>(),
+                Contracts = new List<MerchantContractResponse>(),
+                Devices = new Dictionary<Guid, string>(),
+                Operators = new List<MerchantOperatorResponse>()
+            };
+
+            foreach (Models.AddressResponse addressModel in model.Addresses)
+            {
+                merchantResponse.Addresses.Add(new AddressResponse
+                {
+                    AddressId = addressModel.AddressId,
+                    AddressLine1 = addressModel.AddressLine1,
+                    AddressLine2 = addressModel.AddressLine2,
+                    AddressLine3 = addressModel.AddressLine3,
+                    AddressLine4 = addressModel.AddressLine4,
+                    Country = addressModel.Country,
+                    PostalCode = addressModel.PostalCode,
+                    Region = addressModel.Region,
+                    Town = addressModel.Town
+                });
+            }
+
+            foreach (Models.ContactResponse contactModel in model.Contacts)
+            {
+                merchantResponse.Contacts.Add(new ContactResponse
+                {
+                    ContactId = contactModel.ContactId,
+                    ContactName = contactModel.ContactName,
+                    ContactPhoneNumber = contactModel.ContactPhoneNumber,
+                    ContactEmailAddress = contactModel.ContactEmailAddress
+                });
+            }
+
+            foreach (Models.MerchantContractResponse merchantContractResponse in model.Contracts)
+            {
+                MerchantContractResponse contract = new MerchantContractResponse
+                {
+                    ContractId = merchantContractResponse.ContractId,
+                    IsDeleted = merchantContractResponse.IsDeleted,
+                    ContractProducts = new List<Guid>()
+                };
+
+                foreach (Guid contractProduct in merchantContractResponse.ContractProducts)
+                {
+                    contract.ContractProducts.Add(contractProduct);
+                }
+
+                merchantResponse.Contracts.Add(contract);
+            }
+
+            foreach (KeyValuePair<Guid, string> device in model.Devices)
+            {
+                merchantResponse.Devices.Add(device.Key, device.Value);
+            }
+
+            foreach (Models.MerchantOperatorResponse merchantOperatorResponse in model.Operators)
+            {
+                merchantResponse.Operators.Add(new MerchantOperatorResponse
+                {
+                    OperatorId = merchantOperatorResponse.OperatorId,
+                    IsDeleted = merchantOperatorResponse.IsDeleted,
+                    MerchantNumber = merchantOperatorResponse.MerchantNumber,
+                    Name = merchantOperatorResponse.Name,
+                    TerminalNumber = merchantOperatorResponse.TerminalNumber
+                });
+            }
+
+            return merchantResponse;
         }
 
         public RedeemVoucherResponseMessage ConvertFrom(RedeemVoucherResponse model)
