@@ -335,7 +335,7 @@ namespace TransactionProcessorACL.Tests.General
                 }
             };
 
-            List<ContractResponse> dto = modelFactory.ConvertFrom(model);
+            List<DataTransferObjects.Responses.ContractResponse> dto = modelFactory.ConvertFrom(model);
 
             dto.ShouldNotBeNull();
             dto.Count.ShouldBe(1);
@@ -352,18 +352,18 @@ namespace TransactionProcessorACL.Tests.General
             dto[0].Products[0].ProductId.ShouldBe(productId);
             dto[0].Products[0].ProductReportingId.ShouldBe(3);
             dto[0].Products[0].Value.ShouldBe(12.34m);
-            dto[0].Products[0].ProductType.ShouldBe(ProductType.BillPayment);
+            dto[0].Products[0].ProductType.ShouldBe(DataTransferObjects.Responses.ProductType.BillPayment);
             dto[0].Products[0].TransactionFees.Count.ShouldBe(1);
-            dto[0].Products[0].TransactionFees[0].CalculationType.ShouldBe(CalculationType.Fixed);
-            dto[0].Products[0].TransactionFees[0].FeeType.ShouldBe(FeeType.Merchant);
+            dto[0].Products[0].TransactionFees[0].CalculationType.ShouldBe(DataTransferObjects.Responses.CalculationType.Fixed);
+            dto[0].Products[0].TransactionFees[0].FeeType.ShouldBe(DataTransferObjects.Responses.FeeType.Merchant);
             dto[0].Products[0].TransactionFees[0].Description.ShouldBe("Fee");
             dto[0].Products[0].TransactionFees[0].TransactionFeeId.ShouldBe(transactionFeeId);
             dto[0].Products[0].TransactionFees[0].TransactionFeeReportingId.ShouldBe(4);
             dto[0].Products[0].TransactionFees[0].Value.ShouldBe(1.23m);
-            dto[0].Products[1].ProductType.ShouldBe(ProductType.MobileTopup);
-            dto[0].Products[1].TransactionFees[0].CalculationType.ShouldBe(CalculationType.Percentage);
-            dto[0].Products[1].TransactionFees[0].FeeType.ShouldBe(FeeType.ServiceProvider);
-            dto[0].Products[2].ProductType.ShouldBe(ProductType.Voucher);
+            dto[0].Products[1].ProductType.ShouldBe(DataTransferObjects.Responses.ProductType.MobileTopup);
+            dto[0].Products[1].TransactionFees[0].CalculationType.ShouldBe(DataTransferObjects.Responses.CalculationType.Percentage);
+            dto[0].Products[1].TransactionFees[0].FeeType.ShouldBe(DataTransferObjects.Responses.FeeType.ServiceProvider);
+            dto[0].Products[2].ProductType.ShouldBe(DataTransferObjects.Responses.ProductType.Voucher);
             dto[0].Products[2].TransactionFees.ShouldBeEmpty();
         }
 
@@ -373,7 +373,7 @@ namespace TransactionProcessorACL.Tests.General
             ModelFactory modelFactory = new ModelFactory();
 
             List<Models.ContractResponse> model = null;
-            List<ContractResponse> dto = modelFactory.ConvertFrom(model);
+            List<DataTransferObjects.Responses.ContractResponse> dto = modelFactory.ConvertFrom(model);
 
             dto.ShouldBeNull();
         }
@@ -397,9 +397,9 @@ namespace TransactionProcessorACL.Tests.General
                 }
             };
 
-            List<ContractResponse> dto = modelFactory.ConvertFrom(model);
+            List<DataTransferObjects.Responses.ContractResponse> dto = modelFactory.ConvertFrom(model);
 
-            dto[0].Products[0].ProductType.ShouldBe(ProductType.NotSet);
+            dto[0].Products[0].ProductType.ShouldBe(DataTransferObjects.Responses.ProductType.NotSet);
         }
     }
 }
