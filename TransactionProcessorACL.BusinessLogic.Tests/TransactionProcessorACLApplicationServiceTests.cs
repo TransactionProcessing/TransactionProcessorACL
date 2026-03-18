@@ -73,6 +73,40 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_RequestIsSerialisedCorrectly()
+        {
+            SerialisedMessage capturedMessage = null;
+
+            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
+                                      .Callback<String, SerialisedMessage, CancellationToken>((_, message, _) => capturedMessage = message)
+                                      .ReturnsAsync(TestData.SerialisedMessageResponseLogon);
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
+                                 .ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            await applicationService.ProcessLogonTransaction(TestData.EstateId,
+                                                             TestData.MerchantId,
+                                                             TestData.TransactionDateTime,
+                                                             TestData.TransactionNumber,
+                                                             TestData.DeviceIdentifier,
+                                                             CancellationToken.None);
+
+            capturedMessage.ShouldNotBeNull();
+            capturedMessage.Metadata[MetadataContants.KeyNameEstateId].ShouldBe(TestData.EstateId.ToString());
+            capturedMessage.Metadata[MetadataContants.KeyNameMerchantId].ShouldBe(TestData.MerchantId.ToString());
+
+            LogonTransactionRequest logonTransactionRequest = JsonConvert.DeserializeObject<LogonTransactionRequest>(capturedMessage.SerialisedData,
+                new JsonSerializerSettings {
+                    TypeNameHandling = TypeNameHandling.All
+                });
+
+            logonTransactionRequest.ShouldNotBeNull();
+            logonTransactionRequest.TransactionNumber.ShouldBe(TestData.TransactionNumber);
+            logonTransactionRequest.DeviceIdentifier.ShouldBe(TestData.DeviceIdentifier);
+            logonTransactionRequest.TransactionDateTime.ShouldBe(TestData.TransactionDateTime);
+            logonTransactionRequest.TransactionType.ShouldBe("LOGON");
+        }
+
+        [Fact]
         public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_GetTokenFailed_ResultFailed()
         {
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
