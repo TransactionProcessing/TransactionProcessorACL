@@ -1,5 +1,6 @@
 ﻿namespace TransactionProcessorACL.Factories
 {
+    using System.Collections.Generic;
     using DataTransferObjects.Responses;
     using Models;
 
@@ -19,6 +20,10 @@
         RedeemVoucherResponseMessage ConvertFrom(RedeemVoucherResponse model);
 
         GetVoucherResponseMessage ConvertFrom(GetVoucherResponse model);
+
+        DataTransferObjects.Responses.MerchantResponse ConvertFrom(Models.MerchantResponse model);
+
+        List<DataTransferObjects.Responses.ContractResponse> ConvertFrom(List<Models.ContractResponse> model);
 
         #endregion
     }
