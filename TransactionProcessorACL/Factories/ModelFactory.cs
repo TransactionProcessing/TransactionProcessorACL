@@ -110,20 +110,20 @@ namespace TransactionProcessorACL.Factories
                 NextStatementDate = model.NextStatementDate,
                 SettlementSchedule = model.SettlementSchedule switch
                 {
-                    Models.SettlementSchedule.Weekly => SettlementSchedule.Weekly,
-                    Models.SettlementSchedule.Monthly => SettlementSchedule.Monthly,
-                    _ => SettlementSchedule.NotSet
+                    Models.SettlementSchedule.Weekly => DataTransferObjects.Responses.SettlementSchedule.Weekly,
+                    Models.SettlementSchedule.Monthly => DataTransferObjects.Responses.SettlementSchedule.Monthly,
+                    _ => DataTransferObjects.Responses.SettlementSchedule.NotSet
                 },
-                Addresses = new List<AddressResponse>(),
-                Contacts = new List<ContactResponse>(),
-                Contracts = new List<MerchantContractResponse>(),
+                Addresses = new List<DataTransferObjects.Responses.AddressResponse>(),
+                Contacts = new List<DataTransferObjects.Responses.ContactResponse>(),
+                Contracts = new List<DataTransferObjects.Responses.MerchantContractResponse>(),
                 Devices = new Dictionary<Guid, string>(),
-                Operators = new List<MerchantOperatorResponse>()
+                Operators = new List<DataTransferObjects.Responses.MerchantOperatorResponse>()
             };
 
             foreach (Models.AddressResponse addressModel in model.Addresses)
             {
-                merchantResponse.Addresses.Add(new AddressResponse
+                merchantResponse.Addresses.Add(new DataTransferObjects.Responses.AddressResponse
                 {
                     AddressId = addressModel.AddressId,
                     AddressLine1 = addressModel.AddressLine1,
@@ -139,7 +139,7 @@ namespace TransactionProcessorACL.Factories
 
             foreach (Models.ContactResponse contactModel in model.Contacts)
             {
-                merchantResponse.Contacts.Add(new ContactResponse
+                merchantResponse.Contacts.Add(new DataTransferObjects.Responses.ContactResponse
                 {
                     ContactId = contactModel.ContactId,
                     ContactName = contactModel.ContactName,
@@ -150,7 +150,7 @@ namespace TransactionProcessorACL.Factories
 
             foreach (Models.MerchantContractResponse merchantContractResponse in model.Contracts)
             {
-                MerchantContractResponse contract = new MerchantContractResponse
+                DataTransferObjects.Responses.MerchantContractResponse contract = new DataTransferObjects.Responses.MerchantContractResponse
                 {
                     ContractId = merchantContractResponse.ContractId,
                     IsDeleted = merchantContractResponse.IsDeleted,
@@ -167,7 +167,7 @@ namespace TransactionProcessorACL.Factories
 
             foreach (Models.MerchantOperatorResponse merchantOperatorResponse in model.Operators)
             {
-                merchantResponse.Operators.Add(new MerchantOperatorResponse
+                merchantResponse.Operators.Add(new DataTransferObjects.Responses.MerchantOperatorResponse
                 {
                     OperatorId = merchantOperatorResponse.OperatorId,
                     IsDeleted = merchantOperatorResponse.IsDeleted,
