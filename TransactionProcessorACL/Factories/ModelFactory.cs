@@ -154,13 +154,8 @@ namespace TransactionProcessorACL.Factories
                 {
                     ContractId = merchantContractResponse.ContractId,
                     IsDeleted = merchantContractResponse.IsDeleted,
-                    ContractProducts = new List<Guid>()
+                    ContractProducts = new List<Guid>(merchantContractResponse.ContractProducts)
                 };
-
-                foreach (Guid contractProduct in merchantContractResponse.ContractProducts)
-                {
-                    contract.ContractProducts.Add(contractProduct);
-                }
 
                 merchantResponse.Contracts.Add(contract);
             }
