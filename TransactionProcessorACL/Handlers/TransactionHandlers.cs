@@ -98,7 +98,7 @@ namespace TransactionProcessorACL.Handlers
         }
     }
 
-    public class Helpers {
+    public static class Helpers {
         public static Result<(Guid estateId, Guid merchantId)> GetRequiredClaims(ClaimsPrincipal user)
         {
             Result<Claim> estateIdResult = ClaimsHelper.GetUserClaim(user, "estateId");
