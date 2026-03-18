@@ -20,6 +20,8 @@
 
         GetVoucherResponseMessage ConvertFrom(GetVoucherResponse model);
 
+        List<ContractResponse> ConvertFrom(List<Models.ContractResponse> model);
+
         #endregion
     }
 }

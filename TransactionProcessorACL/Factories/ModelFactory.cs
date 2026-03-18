@@ -1,7 +1,8 @@
-﻿namespace TransactionProcessorACL.Factories
+namespace TransactionProcessorACL.Factories
 {
     using DataTransferObjects.Responses;
     using Models;
+    using System.Collections.Generic;
 
     /// <summary>
     /// 
@@ -88,6 +89,78 @@
             };
 
             return responseMessage;
+        }
+
+        public List<ContractResponse> ConvertFrom(List<Models.ContractResponse> model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            List<ContractResponse> responses = new();
+
+            foreach (Models.ContractResponse contractModel in model)
+            {
+                ContractResponse contractResponse = new()
+                {
+                    ContractId = contractModel.ContractId,
+                    ContractReportingId = contractModel.ContractReportingId,
+                    Description = contractModel.Description,
+                    EstateId = contractModel.EstateId,
+                    EstateReportingId = contractModel.EstateReportingId,
+                    OperatorId = contractModel.OperatorId,
+                    OperatorName = contractModel.OperatorName,
+                    Products = new()
+                };
+
+                foreach (ContractProduct contractModelProduct in contractModel.Products)
+                {
+                    ContractProduct productResponse = new()
+                    {
+                        Value = contractModelProduct.Value,
+                        DisplayText = contractModelProduct.DisplayText,
+                        Name = contractModelProduct.Name,
+                        ProductId = contractModelProduct.ProductId,
+                        ProductReportingId = contractModelProduct.ProductReportingId,
+                        ProductType = contractModelProduct.ProductType switch
+                        {
+                            ProductType.BillPayment => DataTransferObjects.Responses.ProductType.BillPayment,
+                            ProductType.MobileTopup => DataTransferObjects.Responses.ProductType.MobileTopup,
+                            ProductType.Voucher => DataTransferObjects.Responses.ProductType.Voucher,
+                            _ => DataTransferObjects.Responses.ProductType.NotSet
+                        },
+                        TransactionFees = new()
+                    };
+
+                    foreach (ContractProductTransactionFee contractProductTransactionFeeModel in contractModelProduct.TransactionFees)
+                    {
+                        productResponse.TransactionFees.Add(new DataTransferObjects.Responses.ContractProductTransactionFee
+                        {
+                            Value = contractProductTransactionFeeModel.Value,
+                            Description = contractProductTransactionFeeModel.Description,
+                            CalculationType = contractProductTransactionFeeModel.CalculationType switch
+                            {
+                                CalculationType.Fixed => DataTransferObjects.Responses.CalculationType.Fixed,
+                                _ => DataTransferObjects.Responses.CalculationType.Percentage,
+                            },
+                            FeeType = contractProductTransactionFeeModel.FeeType switch
+                            {
+                                FeeType.Merchant => DataTransferObjects.Responses.FeeType.Merchant,
+                                _ => DataTransferObjects.Responses.FeeType.ServiceProvider,
+                            },
+                            TransactionFeeId = contractProductTransactionFeeModel.TransactionFeeId,
+                            TransactionFeeReportingId = contractProductTransactionFeeModel.TransactionFeeReportingId
+                        });
+                    }
+
+                    contractResponse.Products.Add(productResponse);
+                }
+
+                responses.Add(contractResponse);
+            }
+
+            return responses;
         }
 
         public RedeemVoucherResponseMessage ConvertFrom(RedeemVoucherResponse model)

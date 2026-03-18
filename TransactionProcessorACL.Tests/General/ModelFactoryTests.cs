@@ -156,5 +156,91 @@ namespace TransactionProcessorACL.Tests.General
 
             dto.ShouldBeNull();
         }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ContractResponses_IsConverted()
+        {
+            ModelFactory modelFactory = new ModelFactory();
+
+            Guid contractId = Guid.NewGuid();
+            Guid estateId = Guid.NewGuid();
+            Guid operatorId = Guid.NewGuid();
+            Guid productId = Guid.NewGuid();
+            Guid transactionFeeId = Guid.NewGuid();
+            List<Models.ContractResponse> model = new()
+            {
+                new Models.ContractResponse
+                {
+                    ContractId = contractId,
+                    ContractReportingId = 1,
+                    Description = "Contract 1",
+                    EstateId = estateId,
+                    EstateReportingId = 2,
+                    OperatorId = operatorId,
+                    OperatorName = "Operator 1",
+                    Products = new List<Models.ContractProduct>
+                    {
+                        new Models.ContractProduct
+                        {
+                            DisplayText = "Display",
+                            Name = "Product",
+                            ProductId = productId,
+                            ProductReportingId = 3,
+                            Value = 12.34m,
+                            ProductType = Models.ProductType.BillPayment,
+                            TransactionFees = new List<Models.ContractProductTransactionFee>
+                            {
+                                new Models.ContractProductTransactionFee
+                                {
+                                    CalculationType = Models.CalculationType.Fixed,
+                                    FeeType = Models.FeeType.Merchant,
+                                    Description = "Fee",
+                                    TransactionFeeId = transactionFeeId,
+                                    TransactionFeeReportingId = 4,
+                                    Value = 1.23m
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            List<ContractResponse> dto = modelFactory.ConvertFrom(model);
+
+            dto.ShouldNotBeNull();
+            dto.Count.ShouldBe(1);
+            dto[0].ContractId.ShouldBe(contractId);
+            dto[0].ContractReportingId.ShouldBe(1);
+            dto[0].Description.ShouldBe("Contract 1");
+            dto[0].EstateId.ShouldBe(estateId);
+            dto[0].EstateReportingId.ShouldBe(2);
+            dto[0].OperatorId.ShouldBe(operatorId);
+            dto[0].OperatorName.ShouldBe("Operator 1");
+            dto[0].Products.Count.ShouldBe(1);
+            dto[0].Products[0].DisplayText.ShouldBe("Display");
+            dto[0].Products[0].Name.ShouldBe("Product");
+            dto[0].Products[0].ProductId.ShouldBe(productId);
+            dto[0].Products[0].ProductReportingId.ShouldBe(3);
+            dto[0].Products[0].Value.ShouldBe(12.34m);
+            dto[0].Products[0].ProductType.ShouldBe(ProductType.BillPayment);
+            dto[0].Products[0].TransactionFees.Count.ShouldBe(1);
+            dto[0].Products[0].TransactionFees[0].CalculationType.ShouldBe(CalculationType.Fixed);
+            dto[0].Products[0].TransactionFees[0].FeeType.ShouldBe(FeeType.Merchant);
+            dto[0].Products[0].TransactionFees[0].Description.ShouldBe("Fee");
+            dto[0].Products[0].TransactionFees[0].TransactionFeeId.ShouldBe(transactionFeeId);
+            dto[0].Products[0].TransactionFees[0].TransactionFeeReportingId.ShouldBe(4);
+            dto[0].Products[0].TransactionFees[0].Value.ShouldBe(1.23m);
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ContractResponses_NullValue_IsConverted()
+        {
+            ModelFactory modelFactory = new ModelFactory();
+
+            List<Models.ContractResponse> model = null;
+            List<ContractResponse> dto = modelFactory.ConvertFrom(model);
+
+            dto.ShouldBeNull();
+        }
     }
 }
