@@ -92,14 +92,14 @@ namespace TransactionProcessorACL.Factories
             return responseMessage;
         }
 
-        public MerchantResponse ConvertFrom(Models.MerchantResponse model)
+        public DataTransferObjects.Responses.MerchantResponse ConvertFrom(Models.MerchantResponse model)
         {
             if (model == null)
             {
                 return null;
             }
 
-            MerchantResponse merchantResponse = new MerchantResponse
+            DataTransferObjects.Responses.MerchantResponse merchantResponse = new DataTransferObjects.Responses.MerchantResponse
             {
                 EstateId = model.EstateId,
                 MerchantId = model.MerchantId,
