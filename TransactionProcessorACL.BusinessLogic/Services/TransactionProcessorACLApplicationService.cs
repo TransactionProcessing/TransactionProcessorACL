@@ -507,7 +507,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             return new GetVoucherResponse
             {
                 ResponseCode = "0005", // Voucher not found
-                ResponseMessage = responseMessage,
+                ResponseMessage = responseMessage
             };
         }
 
