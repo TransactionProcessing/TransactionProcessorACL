@@ -214,10 +214,10 @@ namespace TransactionProcessorACL.Factories
                         ProductReportingId = contractModelProduct.ProductReportingId,
                         ProductType = contractModelProduct.ProductType switch
                         {
-                            ProductType.NotSet => DataTransferObjects.Responses.ProductType.NotSet,
-                            ProductType.BillPayment => DataTransferObjects.Responses.ProductType.BillPayment,
-                            ProductType.MobileTopup => DataTransferObjects.Responses.ProductType.MobileTopup,
-                            ProductType.Voucher => DataTransferObjects.Responses.ProductType.Voucher,
+                            Models.ProductType.NotSet => DataTransferObjects.Responses.ProductType.NotSet,
+                            Models.ProductType.BillPayment => DataTransferObjects.Responses.ProductType.BillPayment,
+                            Models.ProductType.MobileTopup => DataTransferObjects.Responses.ProductType.MobileTopup,
+                            Models.ProductType.Voucher => DataTransferObjects.Responses.ProductType.Voucher,
                             _ => DataTransferObjects.Responses.ProductType.NotSet
                         },
                         TransactionFees = new()
@@ -231,12 +231,12 @@ namespace TransactionProcessorACL.Factories
                             Description = contractProductTransactionFeeModel.Description,
                             CalculationType = contractProductTransactionFeeModel.CalculationType switch
                             {
-                                CalculationType.Fixed => DataTransferObjects.Responses.CalculationType.Fixed,
+                                Models.CalculationType.Fixed => DataTransferObjects.Responses.CalculationType.Fixed,
                                 _ => DataTransferObjects.Responses.CalculationType.Percentage,
                             },
                             FeeType = contractProductTransactionFeeModel.FeeType switch
                             {
-                                FeeType.Merchant => DataTransferObjects.Responses.FeeType.Merchant,
+                                Models.FeeType.Merchant => DataTransferObjects.Responses.FeeType.Merchant,
                                 _ => DataTransferObjects.Responses.FeeType.ServiceProvider,
                             },
                             TransactionFeeId = contractProductTransactionFeeModel.TransactionFeeId,
