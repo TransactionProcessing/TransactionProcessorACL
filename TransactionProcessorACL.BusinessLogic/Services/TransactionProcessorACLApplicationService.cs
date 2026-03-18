@@ -84,52 +84,21 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             if (accessTokenResult.IsFailed) {
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
+
             TokenResponse accessToken = accessTokenResult.Data;
-            LogonTransactionRequest logonTransactionRequest = new LogonTransactionRequest();
-            logonTransactionRequest.TransactionNumber = transactionNumber;
-            logonTransactionRequest.DeviceIdentifier = deviceIdentifier;
-            logonTransactionRequest.TransactionDateTime = transactionDateTime;
-            logonTransactionRequest.TransactionType = "LOGON";
-
-            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
-            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(logonTransactionRequest,
-                                                                                  new JsonSerializerSettings
-                                                                                  {
-                                                                                      TypeNameHandling = TypeNameHandling.All
-                                                                                  });
-
-            ProcessLogonTransactionResponse response = null;
+            SerialisedMessage requestSerialisedMessage = CreateLogonRequestMessage(estateId, merchantId, transactionDateTime, transactionNumber, deviceIdentifier);
 
             try {
                 Result<SerialisedMessage> transactionResult = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
 
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
-                SerialisedMessage responseSerialisedMessage = transactionResult.Data;
-
-                LogonTransactionResponse logonTransactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponse>(responseSerialisedMessage.SerialisedData);
-
-                response = new ProcessLogonTransactionResponse {
-                    ResponseCode = logonTransactionResponse.ResponseCode,
-                    ResponseMessage = logonTransactionResponse.ResponseMessage,
-                    EstateId = estateId,
-                    MerchantId = merchantId,
-                    TransactionId = logonTransactionResponse.TransactionId,
-                };
+                
+                return Result.Success(CreateProcessLogonTransactionResponse(estateId, merchantId, transactionResult.Data));
             }
             catch (Exception ex) {
-                response = new ProcessLogonTransactionResponse {
-                    ResponseCode = "0001", // Request Message error
-                    ResponseMessage = "Process Logon Failed",
-                    EstateId = estateId,
-                    MerchantId = merchantId,
-                    ErrorMessages = ex.GetExceptionMessages()
-                };
+                return Result.Success(CreateLogonErrorResponse(estateId, merchantId, ex));
             }
-
-            return Result.Success(response);
         }
 
         /// <summary>
@@ -604,6 +573,62 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
             requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
             requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(reconciliationRequest,
+                                                                                  new JsonSerializerSettings
+                                                                                  {
+                                                                                      TypeNameHandling = TypeNameHandling.All
+                                                                                  });
+
+            return requestSerialisedMessage;
+        }
+
+        private static ProcessLogonTransactionResponse CreateProcessLogonTransactionResponse(Guid estateId,
+                                                                                             Guid merchantId,
+                                                                                             SerialisedMessage responseSerialisedMessage)
+        {
+            LogonTransactionResponse logonTransactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponse>(responseSerialisedMessage.SerialisedData);
+
+            return new ProcessLogonTransactionResponse
+            {
+                ResponseCode = logonTransactionResponse.ResponseCode,
+                ResponseMessage = logonTransactionResponse.ResponseMessage,
+                EstateId = estateId,
+                MerchantId = merchantId,
+                TransactionId = logonTransactionResponse.TransactionId,
+            };
+        }
+
+        private static ProcessLogonTransactionResponse CreateLogonErrorResponse(Guid estateId,
+                                                                                Guid merchantId,
+                                                                                Exception ex)
+        {
+            return new ProcessLogonTransactionResponse
+            {
+                ResponseCode = "0001", // Request Message error
+                ResponseMessage = "Process Logon Failed",
+                EstateId = estateId,
+                MerchantId = merchantId,
+                ErrorMessages = ex.GetExceptionMessages()
+            };
+        }
+
+        private static SerialisedMessage CreateLogonRequestMessage(Guid estateId,
+                                                                   Guid merchantId,
+                                                                   DateTime transactionDateTime,
+                                                                   String transactionNumber,
+                                                                   String deviceIdentifier)
+        {
+            LogonTransactionRequest logonTransactionRequest = new LogonTransactionRequest
+            {
+                TransactionNumber = transactionNumber,
+                DeviceIdentifier = deviceIdentifier,
+                TransactionDateTime = transactionDateTime,
+                TransactionType = "LOGON"
+            };
+
+            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
+            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
+            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
+            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(logonTransactionRequest,
                                                                                   new JsonSerializerSettings
                                                                                   {
                                                                                       TypeNameHandling = TypeNameHandling.All
