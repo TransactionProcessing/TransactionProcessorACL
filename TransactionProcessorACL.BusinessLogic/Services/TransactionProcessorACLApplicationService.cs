@@ -282,51 +282,25 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
             if (accessTokenResult.IsFailed) {
-                return new GetVoucherResponse {
-                    ResponseCode = "0004", // Token error
-                    ResponseMessage = "Token Error",
-                };
+                return CreateGetVoucherTokenErrorResponse();
             }
-            TokenResponse accessToken = accessTokenResult.Data;
 
-            GetVoucherResponse response = null;
+            TokenResponse accessToken = accessTokenResult.Data;
 
             try
             {
                 Result<TransactionProcessor.DataTransferObjects.GetVoucherResponse> getVoucherResult = await this.TransactionProcessorClient.GetVoucherByCode(accessToken.AccessToken, estateId, voucherCode, cancellationToken);
                 if (getVoucherResult.IsFailed)
                 {
-                    return new GetVoucherResponse
-                    {
-                        ResponseCode = "0005", // Voucher not found
-                        ResponseMessage = getVoucherResult.Message,
-                    };
+                    return CreateGetVoucherFailureResponse(getVoucherResult.Message);
                 }
-                TransactionProcessor.DataTransferObjects.GetVoucherResponse getVoucherResponse = getVoucherResult.Data;
-                response = new GetVoucherResponse
-                {
-                    ResponseCode = "0000", // Success
-                    ContractId = contractId,
-                    EstateId = estateId,
-                    ExpiryDate = getVoucherResponse.ExpiryDate,
-                    Value = getVoucherResponse.Value,
-                    VoucherCode = getVoucherResponse.VoucherCode,
-                    VoucherId = getVoucherResponse.VoucherId,
-                    Balance = getVoucherResponse.Balance
-                };
+
+                return CreateGetVoucherSuccessResponse(estateId, contractId, getVoucherResult.Data);
             }
             catch (Exception ex)
             {
-                // This means there is an error in the request
-                response = new GetVoucherResponse
-                {
-                    ResponseCode = "0001", // Request Message error
-                    ResponseMessage = "Get Voucher Failed",
-                    ErrorMessages = ex.GetExceptionMessages()
-                };
+                return CreateGetVoucherErrorResponse(ex);
             }
-
-            return response;
         }
 
         public async Task<RedeemVoucherResponse> RedeemVoucher(Guid estateId,
@@ -508,6 +482,51 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 ResponseCode = reconciliationResponse.ResponseCode,
                 ResponseMessage = reconciliationResponse.ResponseMessage,
                 TransactionId = reconciliationResponse.TransactionId,
+            };
+        }
+
+        private static GetVoucherResponse CreateGetVoucherSuccessResponse(Guid estateId,
+                                                                          Guid contractId,
+                                                                          TransactionProcessor.DataTransferObjects.GetVoucherResponse getVoucherResponse)
+        {
+            return new GetVoucherResponse
+            {
+                ResponseCode = "0000", // Success
+                ContractId = contractId,
+                EstateId = estateId,
+                ExpiryDate = getVoucherResponse.ExpiryDate,
+                Value = getVoucherResponse.Value,
+                VoucherCode = getVoucherResponse.VoucherCode,
+                VoucherId = getVoucherResponse.VoucherId,
+                Balance = getVoucherResponse.Balance
+            };
+        }
+
+        private static GetVoucherResponse CreateGetVoucherFailureResponse(String responseMessage)
+        {
+            return new GetVoucherResponse
+            {
+                ResponseCode = "0005", // Voucher not found
+                ResponseMessage = responseMessage,
+            };
+        }
+
+        private static GetVoucherResponse CreateGetVoucherTokenErrorResponse()
+        {
+            return new GetVoucherResponse
+            {
+                ResponseCode = "0004", // Token error
+                ResponseMessage = "Token Error",
+            };
+        }
+
+        private static GetVoucherResponse CreateGetVoucherErrorResponse(Exception ex)
+        {
+            return new GetVoucherResponse
+            {
+                ResponseCode = "0001", // Request Message error
+                ResponseMessage = "Get Voucher Failed",
+                ErrorMessages = ex.GetExceptionMessages()
             };
         }
 
