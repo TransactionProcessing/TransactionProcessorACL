@@ -18,7 +18,11 @@ namespace TransactionProcessorACL.Handlers
 {
     public static class MerchantHandlers
     {
-        public static async Task<IResult> GetMerchantContracts(IMediator mediator, IModelFactory modelFactory, ClaimsPrincipal user, string applicationVersion, CancellationToken cancellationToken)
+        public static async Task<IResult> GetMerchantContracts(IMediator mediator,
+                                                               IModelFactory modelFactory,
+                                                               ClaimsPrincipal user,
+                                                               string applicationVersion,
+                                                               CancellationToken cancellationToken)
         {
             Logger.LogInformation($"Application version {applicationVersion}");
 
