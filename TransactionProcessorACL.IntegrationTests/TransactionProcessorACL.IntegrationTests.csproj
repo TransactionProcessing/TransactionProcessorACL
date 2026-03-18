@@ -37,12 +37,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Reconciliation\Reconciliation.feature.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="projections\continuous\CallbackHandlerEnricher.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
