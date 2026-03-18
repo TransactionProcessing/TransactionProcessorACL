@@ -162,7 +162,7 @@ namespace TransactionProcessorACL.Tests.General
         {
             ModelFactory modelFactory = new ModelFactory();
 
-            MerchantResponse model = new MerchantResponse
+            Models.MerchantResponse model = new Models.MerchantResponse
             {
                 EstateId = TestData.EstateId,
                 MerchantId = TestData.MerchantId,
@@ -171,7 +171,7 @@ namespace TransactionProcessorACL.Tests.General
                 MerchantName = TestData.MerchantName,
                 MerchantReference = "Reference",
                 NextStatementDate = TestData.GeneratedDateTime,
-                SettlementSchedule = SettlementSchedule.Monthly,
+                SettlementSchedule = Models.SettlementSchedule.Monthly,
                 Addresses = new List<Models.AddressResponse>
                 {
                     new Models.AddressResponse
@@ -250,7 +250,7 @@ namespace TransactionProcessorACL.Tests.General
         {
             ModelFactory modelFactory = new ModelFactory();
 
-            MerchantResponse model = null;
+            Models.MerchantResponse model = null;
             DataTransferObjects.Responses.MerchantResponse dto = modelFactory.ConvertFrom(model);
 
             dto.ShouldBeNull();
