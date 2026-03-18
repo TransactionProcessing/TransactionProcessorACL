@@ -125,6 +125,7 @@ namespace TransactionProcessorACL.Factories
                         ProductReportingId = contractModelProduct.ProductReportingId,
                         ProductType = contractModelProduct.ProductType switch
                         {
+                            ProductType.NotSet => DataTransferObjects.Responses.ProductType.NotSet,
                             ProductType.BillPayment => DataTransferObjects.Responses.ProductType.BillPayment,
                             ProductType.MobileTopup => DataTransferObjects.Responses.ProductType.MobileTopup,
                             ProductType.Voucher => DataTransferObjects.Responses.ProductType.Voucher,

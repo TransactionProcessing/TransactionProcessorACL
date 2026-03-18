@@ -278,5 +278,29 @@ namespace TransactionProcessorACL.Tests.General
 
             dto.ShouldBeNull();
         }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ContractResponses_UnknownProductType_IsMappedToNotSet()
+        {
+            ModelFactory modelFactory = new ModelFactory();
+            List<Models.ContractResponse> model = new()
+            {
+                new Models.ContractResponse
+                {
+                    Products = new List<Models.ContractProduct>
+                    {
+                        new Models.ContractProduct
+                        {
+                            ProductType = (Models.ProductType)999,
+                            TransactionFees = new List<Models.ContractProductTransactionFee>()
+                        }
+                    }
+                }
+            };
+
+            List<ContractResponse> dto = modelFactory.ConvertFrom(model);
+
+            dto[0].Products[0].ProductType.ShouldBe(ProductType.NotSet);
+        }
     }
 }
