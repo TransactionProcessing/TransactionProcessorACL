@@ -20,6 +20,8 @@
 
         GetVoucherResponseMessage ConvertFrom(GetVoucherResponse model);
 
+        DataTransferObjects.Responses.MerchantResponse ConvertFrom(Models.MerchantResponse model);
+
         #endregion
     }
 }
