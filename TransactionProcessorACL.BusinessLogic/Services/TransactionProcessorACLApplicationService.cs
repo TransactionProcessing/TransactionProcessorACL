@@ -250,22 +250,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
 
             TokenResponse accessToken = accessTokenResult.Data;
-            ReconciliationRequest reconciliationRequest = new ReconciliationRequest();
-            reconciliationRequest.DeviceIdentifier = deviceIdentifier;
-            reconciliationRequest.TransactionDateTime = transactionDateTime;
-            reconciliationRequest.TransactionCount = transactionCount;
-            reconciliationRequest.TransactionValue = transactionValue;
-
-            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
-            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(reconciliationRequest,
-                                                                                  new JsonSerializerSettings
-                                                                                  {
-                                                                                      TypeNameHandling = TypeNameHandling.All
-                                                                                  });
-
-            ProcessReconciliationResponse response = null;
+            SerialisedMessage requestSerialisedMessage = CreateReconciliationRequestMessage(estateId,
+                                                                                            merchantId,
+                                                                                            transactionDateTime,
+                                                                                            deviceIdentifier,
+                                                                                            transactionCount,
+                                                                                            transactionValue);
 
             try
             {
@@ -273,29 +263,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                     await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
-                SerialisedMessage responseSerialisedMessage = transactionResult.Data;
-                ReconciliationResponse reconciliationResponse = JsonConvert.DeserializeObject<ReconciliationResponse>(responseSerialisedMessage.SerialisedData);
-
-                response = new ProcessReconciliationResponse
-                {
-                    ResponseCode = reconciliationResponse.ResponseCode,
-                    ResponseMessage = reconciliationResponse.ResponseMessage,
-                    TransactionId = reconciliationResponse.TransactionId,
-                };
+                return Result.Success(CreateProcessReconciliationResponse(transactionResult.Data));
             }
             catch (Exception ex)
             {
-                response = new ProcessReconciliationResponse
-                {
-                    ResponseCode = "0001", // Request Message error
-                    ResponseMessage = "Process Reconciliation Failed",
-                    EstateId = estateId,
-                    MerchantId = merchantId,
-                    ErrorMessages = ex.GetExceptionMessages()
-                };
+                return Result.Success(CreateReconciliationErrorResponse(estateId, merchantId, ex));
             }
-
-            return Result.Success(response);
         }
 
         public async Task<GetVoucherResponse> GetVoucher(Guid estateId,
@@ -524,6 +497,59 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             MerchantResponse merchantResponse = ResponseFactory.Build(result.Data);
 
             return merchantResponse;
+        }
+
+        private static ProcessReconciliationResponse CreateProcessReconciliationResponse(SerialisedMessage responseSerialisedMessage)
+        {
+            ReconciliationResponse reconciliationResponse = JsonConvert.DeserializeObject<ReconciliationResponse>(responseSerialisedMessage.SerialisedData);
+
+            return new ProcessReconciliationResponse
+            {
+                ResponseCode = reconciliationResponse.ResponseCode,
+                ResponseMessage = reconciliationResponse.ResponseMessage,
+                TransactionId = reconciliationResponse.TransactionId,
+            };
+        }
+
+        private static ProcessReconciliationResponse CreateReconciliationErrorResponse(Guid estateId,
+                                                                                       Guid merchantId,
+                                                                                       Exception ex)
+        {
+            return new ProcessReconciliationResponse
+            {
+                ResponseCode = "0001", // Request Message error
+                ResponseMessage = "Process Reconciliation Failed",
+                EstateId = estateId,
+                MerchantId = merchantId,
+                ErrorMessages = ex.GetExceptionMessages()
+            };
+        }
+
+        private static SerialisedMessage CreateReconciliationRequestMessage(Guid estateId,
+                                                                            Guid merchantId,
+                                                                            DateTime transactionDateTime,
+                                                                            String deviceIdentifier,
+                                                                            Int32 transactionCount,
+                                                                            Decimal transactionValue)
+        {
+            ReconciliationRequest reconciliationRequest = new ReconciliationRequest
+            {
+                DeviceIdentifier = deviceIdentifier,
+                TransactionDateTime = transactionDateTime,
+                TransactionCount = transactionCount,
+                TransactionValue = transactionValue
+            };
+
+            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
+            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
+            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
+            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(reconciliationRequest,
+                                                                                  new JsonSerializerSettings
+                                                                                  {
+                                                                                      TypeNameHandling = TypeNameHandling.All
+                                                                                  });
+
+            return requestSerialisedMessage;
         }
 
         #endregion
