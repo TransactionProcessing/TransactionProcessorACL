@@ -123,46 +123,26 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                          String deviceIdentifier,
                                                                                          Guid operatorId,
                                                                                          String customerEmailAddress,
-                                                                                         Guid contractId,
-                                                                                         Guid productId,
-                                                                                         Dictionary<String, String> additionalRequestMetadata,
-                                                                                         CancellationToken cancellationToken)
+                                                                                         Guid contractId, Guid productId,
+                                                                                         Dictionary<String, String> additionalRequestMetadata, CancellationToken cancellationToken)
         {
-            // Get a client token to call the Transaction Processor
-            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
-            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
-
-            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed)
             {
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
             TokenResponse accessToken = accessTokenResult.Data;
 
-            SaleTransactionRequest saleTransactionRequest = new SaleTransactionRequest();
-            saleTransactionRequest.TransactionNumber = transactionNumber;
-            saleTransactionRequest.DeviceIdentifier = deviceIdentifier;
-            saleTransactionRequest.TransactionDateTime = transactionDateTime;
-            saleTransactionRequest.TransactionType = "SALE";
-            saleTransactionRequest.OperatorId = operatorId;
-            saleTransactionRequest.CustomerEmailAddress = customerEmailAddress;
-            saleTransactionRequest.TransactionSource = 1; // Online sale
-
-            // Set the product information
-            saleTransactionRequest.ContractId = contractId;
-            saleTransactionRequest.ProductId = productId;
-
-            // Build up the metadata
-            saleTransactionRequest.AdditionalTransactionMetadata = additionalRequestMetadata;
+            SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(transactionNumber,
+                                                                                            deviceIdentifier,
+                                                                                            transactionDateTime,
+                                                                                            operatorId,
+                                                                                            customerEmailAddress,
+                                                                                            contractId,
+                                                                                            productId,
+                                                                                            additionalRequestMetadata);
             
-            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
-            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(saleTransactionRequest,
-                                                                                  new JsonSerializerSettings
-                                                                                  {
-                                                                                      TypeNameHandling = TypeNameHandling.All
-                                                                                  });
+            SerialisedMessage requestSerialisedMessage = this.BuildSaleTransactionSerialisedMessage(estateId, merchantId, saleTransactionRequest);
 
             ProcessSaleTransactionResponse response = null;
 
@@ -176,29 +156,90 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
                 SaleTransactionResponse saleTransactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponse>(responseSerialisedMessage.SerialisedData);
 
-                response = new ProcessSaleTransactionResponse
-                {
-                    ResponseCode = saleTransactionResponse.ResponseCode,
-                    ResponseMessage = saleTransactionResponse.ResponseMessage,
-                    EstateId = estateId,
-                    MerchantId = merchantId,
-                    AdditionalTransactionMetadata = saleTransactionResponse.AdditionalTransactionMetadata,
-                    TransactionId = saleTransactionResponse.TransactionId,
-                };
+                response = this.CreateSaleTransactionResponse(saleTransactionResponse, estateId, merchantId);
             }
             catch (Exception ex)
             {
-                response = new ProcessSaleTransactionResponse
-                {
-                    ResponseCode = "0001", // Request Message error
-                    ResponseMessage = "Process Sale Failed",
-                    EstateId = estateId,
-                    MerchantId = merchantId,
-                    ErrorMessages = ex.GetExceptionMessages()
-                };
+                response = this.CreateSaleTransactionErrorResponse(estateId, merchantId, ex);
             }
 
             return Result.Success(response);
+        }
+
+        private async Task<Result<TokenResponse>> GetAccessToken(CancellationToken cancellationToken)
+        {
+            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
+            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
+
+            return await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+        }
+
+        private SaleTransactionRequest BuildSaleTransactionRequest(String transactionNumber,
+                                                                  String deviceIdentifier,
+                                                                  DateTime transactionDateTime,
+                                                                  Guid operatorId,
+                                                                  String customerEmailAddress,
+                                                                  Guid contractId,
+                                                                  Guid productId,
+                                                                  Dictionary<String, String> additionalRequestMetadata)
+        {
+            return new SaleTransactionRequest
+            {
+                TransactionNumber = transactionNumber,
+                DeviceIdentifier = deviceIdentifier,
+                TransactionDateTime = transactionDateTime,
+                TransactionType = "SALE",
+                OperatorId = operatorId,
+                CustomerEmailAddress = customerEmailAddress,
+                TransactionSource = 1,
+                ContractId = contractId,
+                ProductId = productId,
+                AdditionalTransactionMetadata = additionalRequestMetadata
+            };
+        }
+
+        private SerialisedMessage BuildSaleTransactionSerialisedMessage(Guid estateId,
+                                                                        Guid merchantId,
+                                                                        SaleTransactionRequest request)
+        {
+            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
+            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
+            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
+            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(request,
+                                                                                  new JsonSerializerSettings
+                                                                                  {
+                                                                                      TypeNameHandling = TypeNameHandling.All
+                                                                                  });
+            return requestSerialisedMessage;
+        }
+
+        private ProcessSaleTransactionResponse CreateSaleTransactionResponse(SaleTransactionResponse saleTransactionResponse,
+                                                                             Guid estateId,
+                                                                             Guid merchantId)
+        {
+            return new ProcessSaleTransactionResponse
+            {
+                ResponseCode = saleTransactionResponse.ResponseCode,
+                ResponseMessage = saleTransactionResponse.ResponseMessage,
+                EstateId = estateId,
+                MerchantId = merchantId,
+                AdditionalTransactionMetadata = saleTransactionResponse.AdditionalTransactionMetadata,
+                TransactionId = saleTransactionResponse.TransactionId,
+            };
+        }
+
+        private ProcessSaleTransactionResponse CreateSaleTransactionErrorResponse(Guid estateId,
+                                                                                  Guid merchantId,
+                                                                                  Exception ex)
+        {
+            return new ProcessSaleTransactionResponse
+            {
+                ResponseCode = "0001", // Request Message error
+                ResponseMessage = "Process Sale Failed",
+                EstateId = estateId,
+                MerchantId = merchantId,
+                ErrorMessages = ex.GetExceptionMessages()
+            };
         }
 
         public async Task<Result<ProcessReconciliationResponse>> ProcessReconciliation(Guid estateId,
@@ -251,51 +292,25 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
             if (accessTokenResult.IsFailed) {
-                return new GetVoucherResponse {
-                    ResponseCode = "0004", // Token error
-                    ResponseMessage = "Token Error",
-                };
+                return CreateGetVoucherTokenErrorResponse();
             }
-            TokenResponse accessToken = accessTokenResult.Data;
 
-            GetVoucherResponse response = null;
+            TokenResponse accessToken = accessTokenResult.Data;
 
             try
             {
                 Result<TransactionProcessor.DataTransferObjects.GetVoucherResponse> getVoucherResult = await this.TransactionProcessorClient.GetVoucherByCode(accessToken.AccessToken, estateId, voucherCode, cancellationToken);
                 if (getVoucherResult.IsFailed)
                 {
-                    return new GetVoucherResponse
-                    {
-                        ResponseCode = "0005", // Voucher not found
-                        ResponseMessage = getVoucherResult.Message,
-                    };
+                    return CreateGetVoucherFailureResponse(getVoucherResult.Message);
                 }
-                TransactionProcessor.DataTransferObjects.GetVoucherResponse getVoucherResponse = getVoucherResult.Data;
-                response = new GetVoucherResponse
-                {
-                    ResponseCode = "0000", // Success
-                    ContractId = contractId,
-                    EstateId = estateId,
-                    ExpiryDate = getVoucherResponse.ExpiryDate,
-                    Value = getVoucherResponse.Value,
-                    VoucherCode = getVoucherResponse.VoucherCode,
-                    VoucherId = getVoucherResponse.VoucherId,
-                    Balance = getVoucherResponse.Balance
-                };
+
+                return CreateGetVoucherSuccessResponse(estateId, contractId, getVoucherResult.Data);
             }
             catch (Exception ex)
             {
-                // This means there is an error in the request
-                response = new GetVoucherResponse
-                {
-                    ResponseCode = "0001", // Request Message error
-                    ResponseMessage = "Get Voucher Failed",
-                    ErrorMessages = ex.GetExceptionMessages()
-                };
+                return CreateGetVoucherErrorResponse(ex);
             }
-
-            return response;
         }
 
         public async Task<RedeemVoucherResponse> RedeemVoucher(Guid estateId,
@@ -477,6 +492,51 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 ResponseCode = reconciliationResponse.ResponseCode,
                 ResponseMessage = reconciliationResponse.ResponseMessage,
                 TransactionId = reconciliationResponse.TransactionId,
+            };
+        }
+
+        private static GetVoucherResponse CreateGetVoucherSuccessResponse(Guid estateId,
+                                                                          Guid contractId,
+                                                                          TransactionProcessor.DataTransferObjects.GetVoucherResponse getVoucherResponse)
+        {
+            return new GetVoucherResponse
+            {
+                ResponseCode = "0000", // Success
+                ContractId = contractId,
+                EstateId = estateId,
+                ExpiryDate = getVoucherResponse.ExpiryDate,
+                Value = getVoucherResponse.Value,
+                VoucherCode = getVoucherResponse.VoucherCode,
+                VoucherId = getVoucherResponse.VoucherId,
+                Balance = getVoucherResponse.Balance
+            };
+        }
+
+        private static GetVoucherResponse CreateGetVoucherFailureResponse(String responseMessage)
+        {
+            return new GetVoucherResponse
+            {
+                ResponseCode = "0005", // Voucher not found
+                ResponseMessage = responseMessage
+            };
+        }
+
+        private static GetVoucherResponse CreateGetVoucherTokenErrorResponse()
+        {
+            return new GetVoucherResponse
+            {
+                ResponseCode = "0004", // Token error
+                ResponseMessage = "Token Error",
+            };
+        }
+
+        private static GetVoucherResponse CreateGetVoucherErrorResponse(Exception ex)
+        {
+            return new GetVoucherResponse
+            {
+                ResponseCode = "0001", // Request Message error
+                ResponseMessage = "Get Voucher Failed",
+                ErrorMessages = ex.GetExceptionMessages()
             };
         }
 

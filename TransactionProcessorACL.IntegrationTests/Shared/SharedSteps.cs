@@ -349,8 +349,14 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         public async Task WhenICreateTheFollowingOperators(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails estate, CreateOperatorRequest request)> requests = table.Rows.ToCreateOperatorRequests(estates);
+            List<(EstateDetails estate, CreateOperatorRequest request)> newRequests = new();
+            foreach ((EstateDetails estate, CreateOperatorRequest request) r in requests) {
+                newRequests.Add((r.estate, new CreateOperatorRequest {
+                    OperatorId = Guid.NewGuid(), Name = r.request.Name, RequireCustomMerchantNumber = r.request.RequireCustomMerchantNumber, RequireCustomTerminalNumber = r.request.RequireCustomTerminalNumber,
+                }));
+            }
 
-            List<(Guid, EstateOperatorResponse)> results = await this.TransactionProcessorSteps.WhenICreateTheFollowingOperators(this.TestingContext.AccessToken, requests);
+            List<(Guid, EstateOperatorResponse)> results = await this.TransactionProcessorSteps.WhenICreateTheFollowingOperators(this.TestingContext.AccessToken, newRequests);
 
             foreach ((Guid, EstateOperatorResponse) result in results){
                 this.TestingContext.Logger.LogInformation($"Operator {result.Item2.Name} created with Id {result.Item2.OperatorId} for Estate {result.Item1}");
