@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 using SimpleResults;
 
 namespace TransactionProcessorACL.BusinesssLogic.Tests
@@ -282,6 +283,40 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             reconciliationResponse.ShouldNotBeNull();
             reconciliationResponse.ResponseMessage.ShouldBe(TestData.ResponseMessage);
             reconciliationResponse.ResponseCode.ShouldBe(TestData.ResponseCode);
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_RequestIsSerialisedCorrectly()
+        {
+            SerialisedMessage capturedMessage = null;
+
+            transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
+                                      .Callback<String, SerialisedMessage, CancellationToken>((_, message, _) => capturedMessage = message)
+                                      .ReturnsAsync(TestData.SerialisedMessageResponseReconciliation);
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            await applicationService.ProcessReconciliation(TestData.EstateId,
+                                                           TestData.MerchantId,
+                                                           TestData.TransactionDateTime,
+                                                           TestData.DeviceIdentifier,
+                                                           TestData.ReconciliationTransactionCount,
+                                                           TestData.ReconciliationTransactionValue,
+                                                           CancellationToken.None);
+
+            capturedMessage.ShouldNotBeNull();
+            capturedMessage.Metadata[MetadataContants.KeyNameEstateId].ShouldBe(TestData.EstateId.ToString());
+            capturedMessage.Metadata[MetadataContants.KeyNameMerchantId].ShouldBe(TestData.MerchantId.ToString());
+
+            ReconciliationRequest reconciliationRequest = JsonConvert.DeserializeObject<ReconciliationRequest>(capturedMessage.SerialisedData,
+                new JsonSerializerSettings {
+                    TypeNameHandling = TypeNameHandling.All
+                });
+
+            reconciliationRequest.ShouldNotBeNull();
+            reconciliationRequest.DeviceIdentifier.ShouldBe(TestData.DeviceIdentifier);
+            reconciliationRequest.TransactionDateTime.ShouldBe(TestData.TransactionDateTime);
+            reconciliationRequest.TransactionCount.ShouldBe(TestData.ReconciliationTransactionCount);
+            reconciliationRequest.TransactionValue.ShouldBe(TestData.ReconciliationTransactionValue);
         }
 
         [Fact]
