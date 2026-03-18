@@ -200,6 +200,37 @@ namespace TransactionProcessorACL.Tests.General
                                     Value = 1.23m
                                 }
                             }
+                        },
+                        new Models.ContractProduct
+                        {
+                            DisplayText = "Display 2",
+                            Name = "Product 2",
+                            ProductId = Guid.NewGuid(),
+                            ProductReportingId = 5,
+                            Value = 23.45m,
+                            ProductType = Models.ProductType.MobileTopup,
+                            TransactionFees = new List<Models.ContractProductTransactionFee>
+                            {
+                                new Models.ContractProductTransactionFee
+                                {
+                                    CalculationType = Models.CalculationType.Percentage,
+                                    FeeType = Models.FeeType.ServiceProvider,
+                                    Description = "Fee 2",
+                                    TransactionFeeId = Guid.NewGuid(),
+                                    TransactionFeeReportingId = 6,
+                                    Value = 2.34m
+                                }
+                            }
+                        },
+                        new Models.ContractProduct
+                        {
+                            DisplayText = "Display 3",
+                            Name = "Product 3",
+                            ProductId = Guid.NewGuid(),
+                            ProductReportingId = 7,
+                            Value = 34.56m,
+                            ProductType = Models.ProductType.Voucher,
+                            TransactionFees = new List<Models.ContractProductTransactionFee>()
                         }
                     }
                 }
@@ -216,7 +247,7 @@ namespace TransactionProcessorACL.Tests.General
             dto[0].EstateReportingId.ShouldBe(2);
             dto[0].OperatorId.ShouldBe(operatorId);
             dto[0].OperatorName.ShouldBe("Operator 1");
-            dto[0].Products.Count.ShouldBe(1);
+            dto[0].Products.Count.ShouldBe(3);
             dto[0].Products[0].DisplayText.ShouldBe("Display");
             dto[0].Products[0].Name.ShouldBe("Product");
             dto[0].Products[0].ProductId.ShouldBe(productId);
@@ -230,6 +261,11 @@ namespace TransactionProcessorACL.Tests.General
             dto[0].Products[0].TransactionFees[0].TransactionFeeId.ShouldBe(transactionFeeId);
             dto[0].Products[0].TransactionFees[0].TransactionFeeReportingId.ShouldBe(4);
             dto[0].Products[0].TransactionFees[0].Value.ShouldBe(1.23m);
+            dto[0].Products[1].ProductType.ShouldBe(ProductType.MobileTopup);
+            dto[0].Products[1].TransactionFees[0].CalculationType.ShouldBe(CalculationType.Percentage);
+            dto[0].Products[1].TransactionFees[0].FeeType.ShouldBe(FeeType.ServiceProvider);
+            dto[0].Products[2].ProductType.ShouldBe(ProductType.Voucher);
+            dto[0].Products[2].TransactionFees.ShouldBeEmpty();
         }
 
         [Fact]

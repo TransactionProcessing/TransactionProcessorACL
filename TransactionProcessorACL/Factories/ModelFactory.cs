@@ -116,7 +116,7 @@ namespace TransactionProcessorACL.Factories
 
                 foreach (ContractProduct contractModelProduct in contractModel.Products)
                 {
-                    ContractProduct productResponse = new()
+                    ContractProduct contractProductResponse = new()
                     {
                         Value = contractModelProduct.Value,
                         DisplayText = contractModelProduct.DisplayText,
@@ -135,7 +135,7 @@ namespace TransactionProcessorACL.Factories
 
                     foreach (ContractProductTransactionFee contractProductTransactionFeeModel in contractModelProduct.TransactionFees)
                     {
-                        productResponse.TransactionFees.Add(new DataTransferObjects.Responses.ContractProductTransactionFee
+                        contractProductResponse.TransactionFees.Add(new DataTransferObjects.Responses.ContractProductTransactionFee
                         {
                             Value = contractProductTransactionFeeModel.Value,
                             Description = contractProductTransactionFeeModel.Description,
@@ -154,7 +154,7 @@ namespace TransactionProcessorACL.Factories
                         });
                     }
 
-                    contractResponse.Products.Add(productResponse);
+                    contractResponse.Products.Add(contractProductResponse);
                 }
 
                 responses.Add(contractResponse);
