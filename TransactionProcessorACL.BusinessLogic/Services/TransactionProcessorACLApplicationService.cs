@@ -173,7 +173,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                             productId,
                                                                                             additionalRequestMetadata);
             
-            SerialisedMessage requestSerialisedMessage = this.BuildRequestSerialisedMessage(estateId, merchantId, saleTransactionRequest);
+            SerialisedMessage requestSerialisedMessage = this.BuildSaleTransactionSerialisedMessage(estateId, merchantId, saleTransactionRequest);
 
             ProcessSaleTransactionResponse response = null;
 
@@ -229,9 +229,9 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             };
         }
 
-        private SerialisedMessage BuildRequestSerialisedMessage(Guid estateId,
-                                                                Guid merchantId,
-                                                                Object request)
+        private SerialisedMessage BuildSaleTransactionSerialisedMessage(Guid estateId,
+                                                                        Guid merchantId,
+                                                                        SaleTransactionRequest request)
         {
             SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
             requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());

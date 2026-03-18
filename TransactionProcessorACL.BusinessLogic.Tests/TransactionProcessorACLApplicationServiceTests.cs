@@ -154,7 +154,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             SerialisedMessage capturedRequest = null;
             transactionProcessorClient.Setup(t => t.PerformTransaction(It.IsAny<String>(), It.IsAny<SerialisedMessage>(), It.IsAny<CancellationToken>()))
-                                      .Callback<String, SerialisedMessage, CancellationToken>((_, request, _) => capturedRequest = request)
+                                      .Callback<String, SerialisedMessage, CancellationToken>((accessToken, request, cancellationToken) => capturedRequest = request)
                                       .ReturnsAsync(TestData.SerialisedMessageResponseSale);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
