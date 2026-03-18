@@ -97,73 +97,61 @@ namespace TransactionProcessorACL.Handlers
             MerchantQueries.GetMerchantQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
             Result<MerchantResponse> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, response => {
-
-                DataTransferObjects.Responses.MerchantResponse merchantResponse = new() {
-                    EstateId = result.Data.EstateId,
-                    MerchantId = result.Data.MerchantId,
-                    EstateReportingId = result.Data.EstateReportingId,
-                    MerchantName = result.Data.MerchantName,
-                    MerchantReference = result.Data.MerchantReference,
-                    MerchantReportingId = result.Data.MerchantReportingId,
-                    NextStatementDate = result.Data.NextStatementDate,
-                    SettlementSchedule = result.Data.SettlementSchedule switch {
-                        SettlementSchedule.Weekly => DataTransferObjects.Responses.SettlementSchedule.Weekly,
-                        SettlementSchedule.Monthly => DataTransferObjects.Responses.SettlementSchedule.Monthly,
-                        _ => DataTransferObjects.Responses.SettlementSchedule.NotSet
-                    },
-                    Addresses = new(),
-                    Contacts = new(),
-                    Contracts = new(),
-                    Devices = new(),
-                    Operators = new()
-                };
-
-                foreach (AddressResponse addressModel in result.Data.Addresses) {
-                    DataTransferObjects.Responses.AddressResponse addressResponse = new() {
-                        AddressId = addressModel.AddressId,
-                        AddressLine1 = addressModel.AddressLine1,
-                        AddressLine2 = addressModel.AddressLine2,
-                        AddressLine3 = addressModel.AddressLine3,
-                        AddressLine4 = addressModel.AddressLine4,
-                        Country = addressModel.Country,
-                        PostalCode = addressModel.PostalCode,
-                        Region = addressModel.Region,
-                        Town = addressModel.Town
-                    };
-                    merchantResponse.Addresses.Add(addressResponse);
-                }
-
-                foreach (ContactResponse contactResponse in result.Data.Contacts) {
-                    merchantResponse.Contacts.Add(new DataTransferObjects.Responses.ContactResponse { ContactId = contactResponse.ContactId, ContactName = contactResponse.ContactName, ContactPhoneNumber = contactResponse.ContactPhoneNumber, ContactEmailAddress = contactResponse.ContactEmailAddress });
-                }
-
-                foreach (MerchantContractResponse merchantContractResponse in result.Data.Contracts) {
-                    DataTransferObjects.Responses.MerchantContractResponse contract = new() { ContractId = merchantContractResponse.ContractId, IsDeleted = merchantContractResponse.IsDeleted, ContractProducts = new() };
-                    foreach (Guid contractProduct in merchantContractResponse.ContractProducts) {
-                        contract.ContractProducts.Add(contractProduct);
-                    }
-
-                    merchantResponse.Contracts.Add(contract);
-                }
-                
-                foreach (KeyValuePair<Guid, string> device in result.Data.Devices) {
-                    merchantResponse.Devices.Add(device.Key, device.Value);
-                }
-
-                foreach (MerchantOperatorResponse merchantOperatorResponse in result.Data.Operators) {
-                    merchantResponse.Operators.Add(new DataTransferObjects.Responses.MerchantOperatorResponse {
-                        OperatorId = merchantOperatorResponse.OperatorId,
-                        IsDeleted = merchantOperatorResponse.IsDeleted,
-                        MerchantNumber = merchantOperatorResponse.MerchantNumber,
-                        Name = merchantOperatorResponse.Name,
-                        TerminalNumber = merchantOperatorResponse.TerminalNumber
-                    });
-                }
-
-                return merchantResponse;
-            });
+            return ResponseFactory.FromResult(result, MapMerchantResponse);
         }
+
+        private static DataTransferObjects.Responses.MerchantResponse MapMerchantResponse(MerchantResponse merchantResponse) => new() {
+            EstateId = merchantResponse.EstateId,
+            MerchantId = merchantResponse.MerchantId,
+            EstateReportingId = merchantResponse.EstateReportingId,
+            MerchantName = merchantResponse.MerchantName,
+            MerchantReference = merchantResponse.MerchantReference,
+            MerchantReportingId = merchantResponse.MerchantReportingId,
+            NextStatementDate = merchantResponse.NextStatementDate,
+            SettlementSchedule = merchantResponse.SettlementSchedule switch {
+                SettlementSchedule.Weekly => DataTransferObjects.Responses.SettlementSchedule.Weekly,
+                SettlementSchedule.Monthly => DataTransferObjects.Responses.SettlementSchedule.Monthly,
+                _ => DataTransferObjects.Responses.SettlementSchedule.NotSet
+            },
+            Addresses = merchantResponse.Addresses.Select(MapAddress).ToList(),
+            Contacts = merchantResponse.Contacts.Select(MapContact).ToList(),
+            Contracts = merchantResponse.Contracts.Select(MapContract).ToList(),
+            Devices = new Dictionary<Guid, string>(merchantResponse.Devices),
+            Operators = merchantResponse.Operators.Select(MapOperator).ToList()
+        };
+
+        private static DataTransferObjects.Responses.AddressResponse MapAddress(AddressResponse addressResponse) => new() {
+            AddressId = addressResponse.AddressId,
+            AddressLine1 = addressResponse.AddressLine1,
+            AddressLine2 = addressResponse.AddressLine2,
+            AddressLine3 = addressResponse.AddressLine3,
+            AddressLine4 = addressResponse.AddressLine4,
+            Country = addressResponse.Country,
+            PostalCode = addressResponse.PostalCode,
+            Region = addressResponse.Region,
+            Town = addressResponse.Town
+        };
+
+        private static DataTransferObjects.Responses.ContactResponse MapContact(ContactResponse contactResponse) => new() {
+            ContactId = contactResponse.ContactId,
+            ContactName = contactResponse.ContactName,
+            ContactPhoneNumber = contactResponse.ContactPhoneNumber,
+            ContactEmailAddress = contactResponse.ContactEmailAddress
+        };
+
+        private static DataTransferObjects.Responses.MerchantContractResponse MapContract(MerchantContractResponse contractResponse) => new() {
+            ContractId = contractResponse.ContractId,
+            IsDeleted = contractResponse.IsDeleted,
+            ContractProducts = contractResponse.ContractProducts.ToList()
+        };
+
+        private static DataTransferObjects.Responses.MerchantOperatorResponse MapOperator(MerchantOperatorResponse operatorResponse) => new() {
+            OperatorId = operatorResponse.OperatorId,
+            IsDeleted = operatorResponse.IsDeleted,
+            MerchantNumber = operatorResponse.MerchantNumber,
+            Name = operatorResponse.Name,
+            TerminalNumber = operatorResponse.TerminalNumber
+        };
     }
 
     public class PasswordTokenRequirement : IAuthorizationRequirement { }
