@@ -1,8 +1,9 @@
 namespace TransactionProcessorACL.Factories
 {
+    using System;
+    using System.Collections.Generic;
     using DataTransferObjects.Responses;
     using Models;
-    using System.Collections.Generic;
 
     /// <summary>
     /// 
@@ -89,6 +90,94 @@ namespace TransactionProcessorACL.Factories
             };
 
             return responseMessage;
+        }
+
+        public DataTransferObjects.Responses.MerchantResponse ConvertFrom(Models.MerchantResponse model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            DataTransferObjects.Responses.MerchantResponse merchantResponse = new DataTransferObjects.Responses.MerchantResponse
+            {
+                EstateId = model.EstateId,
+                MerchantId = model.MerchantId,
+                EstateReportingId = model.EstateReportingId,
+                MerchantName = model.MerchantName,
+                MerchantReference = model.MerchantReference,
+                MerchantReportingId = model.MerchantReportingId,
+                NextStatementDate = model.NextStatementDate,
+                SettlementSchedule = model.SettlementSchedule switch
+                {
+                    Models.SettlementSchedule.Weekly => DataTransferObjects.Responses.SettlementSchedule.Weekly,
+                    Models.SettlementSchedule.Monthly => DataTransferObjects.Responses.SettlementSchedule.Monthly,
+                    _ => DataTransferObjects.Responses.SettlementSchedule.NotSet
+                },
+                Addresses = new List<DataTransferObjects.Responses.AddressResponse>(),
+                Contacts = new List<DataTransferObjects.Responses.ContactResponse>(),
+                Contracts = new List<DataTransferObjects.Responses.MerchantContractResponse>(),
+                Devices = new Dictionary<Guid, string>(),
+                Operators = new List<DataTransferObjects.Responses.MerchantOperatorResponse>()
+            };
+
+            foreach (Models.AddressResponse addressModel in model.Addresses)
+            {
+                merchantResponse.Addresses.Add(new DataTransferObjects.Responses.AddressResponse
+                {
+                    AddressId = addressModel.AddressId,
+                    AddressLine1 = addressModel.AddressLine1,
+                    AddressLine2 = addressModel.AddressLine2,
+                    AddressLine3 = addressModel.AddressLine3,
+                    AddressLine4 = addressModel.AddressLine4,
+                    Country = addressModel.Country,
+                    PostalCode = addressModel.PostalCode,
+                    Region = addressModel.Region,
+                    Town = addressModel.Town
+                });
+            }
+
+            foreach (Models.ContactResponse contactModel in model.Contacts)
+            {
+                merchantResponse.Contacts.Add(new DataTransferObjects.Responses.ContactResponse
+                {
+                    ContactId = contactModel.ContactId,
+                    ContactName = contactModel.ContactName,
+                    ContactPhoneNumber = contactModel.ContactPhoneNumber,
+                    ContactEmailAddress = contactModel.ContactEmailAddress
+                });
+            }
+
+            foreach (Models.MerchantContractResponse merchantContractResponse in model.Contracts)
+            {
+                DataTransferObjects.Responses.MerchantContractResponse contract = new DataTransferObjects.Responses.MerchantContractResponse
+                {
+                    ContractId = merchantContractResponse.ContractId,
+                    IsDeleted = merchantContractResponse.IsDeleted,
+                    ContractProducts = new List<Guid>(merchantContractResponse.ContractProducts)
+                };
+
+                merchantResponse.Contracts.Add(contract);
+            }
+
+            foreach (KeyValuePair<Guid, string> device in model.Devices)
+            {
+                merchantResponse.Devices.Add(device.Key, device.Value);
+            }
+
+            foreach (Models.MerchantOperatorResponse merchantOperatorResponse in model.Operators)
+            {
+                merchantResponse.Operators.Add(new DataTransferObjects.Responses.MerchantOperatorResponse
+                {
+                    OperatorId = merchantOperatorResponse.OperatorId,
+                    IsDeleted = merchantOperatorResponse.IsDeleted,
+                    MerchantNumber = merchantOperatorResponse.MerchantNumber,
+                    Name = merchantOperatorResponse.Name,
+                    TerminalNumber = merchantOperatorResponse.TerminalNumber
+                });
+            }
+
+            return merchantResponse;
         }
 
         public List<ContractResponse> ConvertFrom(List<Models.ContractResponse> model)

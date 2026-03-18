@@ -32,7 +32,11 @@ namespace TransactionProcessorACL.Handlers
             return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
         }
 
-        public static async Task<IResult> GetMerchant(IMediator mediator, ClaimsPrincipal user, string applicationVersion, CancellationToken cancellationToken)
+        public static async Task<IResult> GetMerchant(IMediator mediator,
+                                                      IModelFactory modelFactory,
+                                                      ClaimsPrincipal user,
+                                                      string applicationVersion,
+                                                      CancellationToken cancellationToken)
         {
             Logger.LogWarning("In GetMerchant Handler");
 
@@ -43,72 +47,7 @@ namespace TransactionProcessorACL.Handlers
             MerchantQueries.GetMerchantQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
             Result<MerchantResponse> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, response => {
-
-                DataTransferObjects.Responses.MerchantResponse merchantResponse = new() {
-                    EstateId = result.Data.EstateId,
-                    MerchantId = result.Data.MerchantId,
-                    EstateReportingId = result.Data.EstateReportingId,
-                    MerchantName = result.Data.MerchantName,
-                    MerchantReference = result.Data.MerchantReference,
-                    MerchantReportingId = result.Data.MerchantReportingId,
-                    NextStatementDate = result.Data.NextStatementDate,
-                    SettlementSchedule = result.Data.SettlementSchedule switch {
-                        SettlementSchedule.Weekly => DataTransferObjects.Responses.SettlementSchedule.Weekly,
-                        SettlementSchedule.Monthly => DataTransferObjects.Responses.SettlementSchedule.Monthly,
-                        _ => DataTransferObjects.Responses.SettlementSchedule.NotSet
-                    },
-                    Addresses = new(),
-                    Contacts = new(),
-                    Contracts = new(),
-                    Devices = new(),
-                    Operators = new()
-                };
-
-                foreach (AddressResponse addressModel in result.Data.Addresses) {
-                    DataTransferObjects.Responses.AddressResponse addressResponse = new() {
-                        AddressId = addressModel.AddressId,
-                        AddressLine1 = addressModel.AddressLine1,
-                        AddressLine2 = addressModel.AddressLine2,
-                        AddressLine3 = addressModel.AddressLine3,
-                        AddressLine4 = addressModel.AddressLine4,
-                        Country = addressModel.Country,
-                        PostalCode = addressModel.PostalCode,
-                        Region = addressModel.Region,
-                        Town = addressModel.Town
-                    };
-                    merchantResponse.Addresses.Add(addressResponse);
-                }
-
-                foreach (ContactResponse contactResponse in result.Data.Contacts) {
-                    merchantResponse.Contacts.Add(new DataTransferObjects.Responses.ContactResponse { ContactId = contactResponse.ContactId, ContactName = contactResponse.ContactName, ContactPhoneNumber = contactResponse.ContactPhoneNumber, ContactEmailAddress = contactResponse.ContactEmailAddress });
-                }
-
-                foreach (MerchantContractResponse merchantContractResponse in result.Data.Contracts) {
-                    DataTransferObjects.Responses.MerchantContractResponse contract = new() { ContractId = merchantContractResponse.ContractId, IsDeleted = merchantContractResponse.IsDeleted, ContractProducts = new() };
-                    foreach (Guid contractProduct in merchantContractResponse.ContractProducts) {
-                        contract.ContractProducts.Add(contractProduct);
-                    }
-
-                    merchantResponse.Contracts.Add(contract);
-                }
-                
-                foreach (KeyValuePair<Guid, string> device in result.Data.Devices) {
-                    merchantResponse.Devices.Add(device.Key, device.Value);
-                }
-
-                foreach (MerchantOperatorResponse merchantOperatorResponse in result.Data.Operators) {
-                    merchantResponse.Operators.Add(new DataTransferObjects.Responses.MerchantOperatorResponse {
-                        OperatorId = merchantOperatorResponse.OperatorId,
-                        IsDeleted = merchantOperatorResponse.IsDeleted,
-                        MerchantNumber = merchantOperatorResponse.MerchantNumber,
-                        Name = merchantOperatorResponse.Name,
-                        TerminalNumber = merchantOperatorResponse.TerminalNumber
-                    });
-                }
-
-                return merchantResponse;
-            });
+            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
         }
     }
 

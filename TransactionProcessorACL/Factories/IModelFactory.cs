@@ -20,6 +20,8 @@
 
         GetVoucherResponseMessage ConvertFrom(GetVoucherResponse model);
 
+        DataTransferObjects.Responses.MerchantResponse ConvertFrom(Models.MerchantResponse model);
+
         List<ContractResponse> ConvertFrom(List<Models.ContractResponse> model);
 
         #endregion
