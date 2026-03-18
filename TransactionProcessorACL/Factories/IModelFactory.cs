@@ -1,5 +1,6 @@
 ﻿namespace TransactionProcessorACL.Factories
 {
+    using System.Collections.Generic;
     using DataTransferObjects.Responses;
     using Models;
 
@@ -22,7 +23,7 @@
 
         DataTransferObjects.Responses.MerchantResponse ConvertFrom(Models.MerchantResponse model);
 
-        List<ContractResponse> ConvertFrom(List<Models.ContractResponse> model);
+        List<DataTransferObjects.Responses.ContractResponse> ConvertFrom(List<Models.ContractResponse> model);
 
         #endregion
     }

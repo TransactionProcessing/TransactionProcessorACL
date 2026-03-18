@@ -180,18 +180,18 @@ namespace TransactionProcessorACL.Factories
             return merchantResponse;
         }
 
-        public List<ContractResponse> ConvertFrom(List<Models.ContractResponse> model)
+        public List<DataTransferObjects.Responses.ContractResponse> ConvertFrom(List<Models.ContractResponse> model)
         {
             if (model == null)
             {
                 return null;
             }
 
-            List<ContractResponse> responses = new();
+            List<DataTransferObjects.Responses.ContractResponse> responses = new();
 
             foreach (Models.ContractResponse contractModel in model)
             {
-                ContractResponse contractResponse = new()
+                DataTransferObjects.Responses.ContractResponse contractResponse = new()
                 {
                     ContractId = contractModel.ContractId,
                     ContractReportingId = contractModel.ContractReportingId,
@@ -203,9 +203,9 @@ namespace TransactionProcessorACL.Factories
                     Products = new()
                 };
 
-                foreach (ContractProduct contractModelProduct in contractModel.Products)
+                foreach (Models.ContractProduct contractModelProduct in contractModel.Products)
                 {
-                    ContractProduct contractProductResponse = new()
+                    DataTransferObjects.Responses.ContractProduct contractProductResponse = new()
                     {
                         Value = contractModelProduct.Value,
                         DisplayText = contractModelProduct.DisplayText,
@@ -223,7 +223,7 @@ namespace TransactionProcessorACL.Factories
                         TransactionFees = new()
                     };
 
-                    foreach (ContractProductTransactionFee contractProductTransactionFeeModel in contractModelProduct.TransactionFees)
+                    foreach (Models.ContractProductTransactionFee contractProductTransactionFeeModel in contractModelProduct.TransactionFees)
                     {
                         contractProductResponse.TransactionFees.Add(new DataTransferObjects.Responses.ContractProductTransactionFee
                         {
