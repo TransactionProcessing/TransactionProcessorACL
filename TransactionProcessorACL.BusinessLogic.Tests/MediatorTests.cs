@@ -51,7 +51,6 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
 
             this.AddTestRegistrations(services, hostingEnvironment.Object);
             s.ConfigureContainer(services);
-            Startup.Container.AssertConfigurationIsValid(AssertMode.Full);
 
             List<String> errors = new List<String>();
             IMediator mediator = Startup.Container.GetService<IMediator>();

@@ -10,21 +10,17 @@ Background:
 
 	Given I create the following api scopes
 	| Name                 | DisplayName                       | Description                            |
-	| estateManagement     | Estate Managememt REST Scope      | A scope for Estate Managememt REST     |
 	| transactionProcessor | Transaction Processor REST  Scope | A scope for Transaction Processor REST |
 	| transactionProcessorACL | Transaction Processor ACL REST  Scope | A scope for Transaction Processor ACL REST |
-	| voucherManagement | Voucher Management REST  Scope | A scope for Voucher Management REST |
-
+	
 	Given the following api resources exist
 	| Name            | DisplayName                    | Secret  | Scopes                  | UserClaims                 |
-	| estateManagement        | Estate Managememt REST         | Secret1 | estateManagement        | merchantId, estateId, role |
-	| transactionProcessor    | Transaction Processor REST     | Secret1 | transactionProcessor    |                            |
+	| transactionProcessor    | Transaction Processor REST     | Secret1 | transactionProcessor    |    merchantId, estateId, role |
 	| transactionProcessorACL | Transaction Processor ACL REST | Secret1 | transactionProcessorACL | merchantId, estateId, role, contractId |
-	| voucherManagement       | Voucher Management REST        | Secret1 | voucherManagement       |                            |
 
 	Given the following clients exist
 	| ClientId         | ClientName        | Secret  | Scopes                                                                   | GrantTypes  |
-	| serviceClient    | Service Client    | Secret1 | estateManagement,transactionProcessor,transactionProcessorACL,voucherManagement | client_credentials |
+	| serviceClient    | Service Client    | Secret1 | transactionProcessor,transactionProcessorACL | client_credentials |
 	| merchantClient   | Merchant Client   | Secret1 | transactionProcessorACL                                                         | password           |
 	| redemptionClient | Redemption Client | Secret1 | transactionProcessorACL                                                         | password           |
 

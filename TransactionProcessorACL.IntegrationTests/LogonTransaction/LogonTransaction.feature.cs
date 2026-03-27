@@ -123,10 +123,6 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "DisplayName",
                         "Description"});
             table2.AddRow(new string[] {
-                        "estateManagement",
-                        "Estate Managememt REST Scope",
-                        "A scope for Estate Managememt REST"});
-            table2.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST  Scope",
                         "A scope for Transaction Processor REST"});
@@ -144,24 +140,18 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "Scopes",
                         "UserClaims"});
             table3.AddRow(new string[] {
-                        "estateManagement",
-                        "Estate Managememt REST",
-                        "Secret1",
-                        "estateManagement",
-                        "merchantId, estateId, role"});
-            table3.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
                         "Secret1",
                         "transactionProcessor",
-                        ""});
+                        "merchantId, estateId, role"});
             table3.AddRow(new string[] {
                         "transactionProcessorACL",
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorACL",
                         "merchantId, estateId, role"});
-#line 16
+#line 15
  await testRunner.GivenAsync("the following api resources exist", ((string)(null)), table3, "Given ");
 #line hidden
             global::Reqnroll.Table table4 = new global::Reqnroll.Table(new string[] {
@@ -174,7 +164,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "serviceClient",
                         "Service Client",
                         "Secret1",
-                        "estateManagement,transactionProcessor,transactionProcessorACL",
+                        "transactionProcessor,transactionProcessorACL",
                         "client_credentials"});
             table4.AddRow(new string[] {
                         "merchantClient",
@@ -182,14 +172,14 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "Secret1",
                         "transactionProcessorACL",
                         "password"});
-#line 22
+#line 20
  await testRunner.GivenAsync("the following clients exist", ((string)(null)), table4, "Given ");
 #line hidden
             global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
                         "ClientId"});
             table5.AddRow(new string[] {
                         "serviceClient"});
-#line 27
+#line 25
  await testRunner.GivenAsync("I have a token to access the estate management and transaction processor acl reso" +
                     "urces", ((string)(null)), table5, "Given ");
 #line hidden
@@ -199,7 +189,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "Test Estate 1"});
             table6.AddRow(new string[] {
                         "Test Estate 2"});
-#line 31
+#line 29
  await testRunner.GivenAsync("I have created the following estates", ((string)(null)), table6, "Given ");
 #line hidden
             global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
@@ -217,7 +207,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "Test Operator 1",
                         "True",
                         "True"});
-#line 36
+#line 34
  await testRunner.GivenAsync("I have created the following operators", ((string)(null)), table7, "Given ");
 #line hidden
             global::Reqnroll.Table table8 = new global::Reqnroll.Table(new string[] {
@@ -229,7 +219,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
             table8.AddRow(new string[] {
                         "Test Estate 2",
                         "Test Operator 1"});
-#line 41
+#line 39
  await testRunner.AndAsync("I have assigned the following operators to the estates", ((string)(null)), table8, "And ");
 #line hidden
             global::Reqnroll.Table table9 = new global::Reqnroll.Table(new string[] {
@@ -272,7 +262,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "Test Contact 3",
                         "testcontact3@merchant2.co.uk",
                         "Test Estate 2"});
-#line 46
+#line 44
  await testRunner.GivenAsync("I create the following merchants", ((string)(null)), table9, "Given ");
 #line hidden
             global::Reqnroll.Table table10 = new global::Reqnroll.Table(new string[] {
@@ -299,7 +289,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "00000001",
                         "10000001",
                         "Test Estate 2"});
-#line 52
+#line 50
  await testRunner.GivenAsync("I have assigned the following  operator to the merchants", ((string)(null)), table10, "Given ");
 #line hidden
             global::Reqnroll.Table table11 = new global::Reqnroll.Table(new string[] {
@@ -330,7 +320,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
                         "User3",
                         "Test Estate 2",
                         "Test Merchant 3"});
-#line 58
+#line 56
  await testRunner.GivenAsync("I have created the following security users", ((string)(null)), table11, "Given ");
 #line hidden
         }
@@ -352,7 +342,7 @@ namespace TransactionProcessorACL.IntegrationTests.LogonTransaction
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Logon Transaction", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 65
+#line 63
 this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -365,7 +355,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-#line 66
+#line 64
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant1.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 1\" for Estate \"Test Estate 1\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -384,10 +374,10 @@ await this.FeatureBackgroundAsync();
                             "Test Merchant 1",
                             "123456789",
                             "Test Estate 1"});
-#line 67
+#line 65
  await testRunner.WhenAsync("I perform the following logon transactions", ((string)(null)), table12, "When ");
 #line hidden
-#line 71
+#line 69
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant2.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 2\" for Estate \"Test Estate 1\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -406,10 +396,10 @@ await this.FeatureBackgroundAsync();
                             "Test Merchant 2",
                             "123456789",
                             "Test Estate 1"});
-#line 72
+#line 70
  await testRunner.WhenAsync("I perform the following logon transactions", ((string)(null)), table13, "When ");
 #line hidden
-#line 76
+#line 74
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant3.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 3\" for Estate \"Test Estate 2\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -428,7 +418,7 @@ await this.FeatureBackgroundAsync();
                             "Test Merchant 3",
                             "123456789",
                             "Test Estate 2"});
-#line 77
+#line 75
  await testRunner.WhenAsync("I perform the following logon transactions", ((string)(null)), table14, "When ");
 #line hidden
                 global::Reqnroll.Table table15 = new global::Reqnroll.Table(new string[] {
@@ -459,7 +449,7 @@ await this.FeatureBackgroundAsync();
                             "Logon",
                             "0001",
                             "SUCCESS"});
-#line 81
+#line 79
  await testRunner.ThenAsync("the logon transaction response should contain the following information", ((string)(null)), table15, "Then ");
 #line hidden
             }

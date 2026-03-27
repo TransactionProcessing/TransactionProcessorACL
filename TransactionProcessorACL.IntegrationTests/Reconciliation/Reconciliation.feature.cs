@@ -123,10 +123,6 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "DisplayName",
                         "Description"});
             table34.AddRow(new string[] {
-                        "estateManagement",
-                        "Estate Managememt REST Scope",
-                        "A scope for Estate Managememt REST"});
-            table34.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST  Scope",
                         "A scope for Transaction Processor REST"});
@@ -144,24 +140,18 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "Scopes",
                         "UserClaims"});
             table35.AddRow(new string[] {
-                        "estateManagement",
-                        "Estate Managememt REST",
-                        "Secret1",
-                        "estateManagement",
-                        "merchantId, estateId, role"});
-            table35.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
                         "Secret1",
                         "transactionProcessor",
-                        ""});
+                        "merchantId, estateId, role"});
             table35.AddRow(new string[] {
                         "transactionProcessorACL",
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorACL",
                         "merchantId, estateId, role"});
-#line 16
+#line 15
  await testRunner.GivenAsync("the following api resources exist", ((string)(null)), table35, "Given ");
 #line hidden
             global::Reqnroll.Table table36 = new global::Reqnroll.Table(new string[] {
@@ -174,7 +164,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "serviceClient",
                         "Service Client",
                         "Secret1",
-                        "estateManagement,transactionProcessor,transactionProcessorACL",
+                        "transactionProcessor,transactionProcessorACL",
                         "client_credentials"});
             table36.AddRow(new string[] {
                         "merchantClient",
@@ -182,14 +172,14 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "Secret1",
                         "transactionProcessorACL",
                         "password"});
-#line 22
+#line 20
  await testRunner.GivenAsync("the following clients exist", ((string)(null)), table36, "Given ");
 #line hidden
             global::Reqnroll.Table table37 = new global::Reqnroll.Table(new string[] {
                         "ClientId"});
             table37.AddRow(new string[] {
                         "serviceClient"});
-#line 27
+#line 25
  await testRunner.GivenAsync("I have a token to access the estate management and transaction processor acl reso" +
                     "urces", ((string)(null)), table37, "Given ");
 #line hidden
@@ -199,7 +189,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "Test Estate 1"});
             table38.AddRow(new string[] {
                         "Test Estate 2"});
-#line 31
+#line 29
  await testRunner.GivenAsync("I have created the following estates", ((string)(null)), table38, "Given ");
 #line hidden
             global::Reqnroll.Table table39 = new global::Reqnroll.Table(new string[] {
@@ -217,7 +207,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "Safaricom",
                         "True",
                         "True"});
-#line 36
+#line 34
  await testRunner.GivenAsync("I have created the following operators", ((string)(null)), table39, "Given ");
 #line hidden
             global::Reqnroll.Table table40 = new global::Reqnroll.Table(new string[] {
@@ -229,7 +219,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
             table40.AddRow(new string[] {
                         "Test Estate 2",
                         "Safaricom"});
-#line 41
+#line 39
  await testRunner.AndAsync("I have assigned the following operators to the estates", ((string)(null)), table40, "And ");
 #line hidden
             global::Reqnroll.Table table41 = new global::Reqnroll.Table(new string[] {
@@ -244,7 +234,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "Test Estate 2",
                         "Safaricom",
                         "Safaricom Contract"});
-#line 46
+#line 44
  await testRunner.GivenAsync("I create a contract with the following values", ((string)(null)), table41, "Given ");
 #line hidden
             global::Reqnroll.Table table42 = new global::Reqnroll.Table(new string[] {
@@ -271,7 +261,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "Custom",
                         "",
                         "MobileTopup"});
-#line 51
+#line 49
  await testRunner.WhenAsync("I create the following Products", ((string)(null)), table42, "When ");
 #line hidden
             global::Reqnroll.Table table43 = new global::Reqnroll.Table(new string[] {
@@ -298,7 +288,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "Percentage",
                         "Merchant Commission",
                         "0.85"});
-#line 56
+#line 54
  await testRunner.WhenAsync("I add the following Transaction Fees", ((string)(null)), table43, "When ");
 #line hidden
             global::Reqnroll.Table table44 = new global::Reqnroll.Table(new string[] {
@@ -341,7 +331,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "Test Contact 3",
                         "testcontact3@merchant2.co.uk",
                         "Test Estate 2"});
-#line 61
+#line 59
  await testRunner.GivenAsync("I create the following merchants", ((string)(null)), table44, "Given ");
 #line hidden
             global::Reqnroll.Table table45 = new global::Reqnroll.Table(new string[] {
@@ -368,7 +358,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "00000003",
                         "10000003",
                         "Test Estate 2"});
-#line 67
+#line 65
  await testRunner.GivenAsync("I have assigned the following  operator to the merchants", ((string)(null)), table45, "Given ");
 #line hidden
             global::Reqnroll.Table table46 = new global::Reqnroll.Table(new string[] {
@@ -387,7 +377,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "123456782",
                         "Test Merchant 3",
                         "Test Estate 2"});
-#line 73
+#line 71
  await testRunner.GivenAsync("I have assigned the following devices to the merchants", ((string)(null)), table46, "Given ");
 #line hidden
             global::Reqnroll.Table table47 = new global::Reqnroll.Table(new string[] {
@@ -406,7 +396,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "Test Estate 2",
                         "Test Merchant 3",
                         "Safaricom Contract"});
-#line 79
+#line 77
  await testRunner.WhenAsync("I add the following contracts to the following merchants", ((string)(null)), table47, "When ");
 #line hidden
             global::Reqnroll.Table table48 = new global::Reqnroll.Table(new string[] {
@@ -433,7 +423,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "Today",
                         "Test Merchant 3",
                         "Test Estate 2"});
-#line 85
+#line 83
  await testRunner.GivenAsync("I make the following manual merchant deposits", ((string)(null)), table48, "Given ");
 #line hidden
             global::Reqnroll.Table table49 = new global::Reqnroll.Table(new string[] {
@@ -464,7 +454,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
                         "User3",
                         "Test Estate 2",
                         "Test Merchant 3"});
-#line 91
+#line 89
  await testRunner.GivenAsync("I have created the following security users", ((string)(null)), table49, "Given ");
 #line hidden
         }
@@ -486,7 +476,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reconciliation
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Reconciliation Transaction", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 98
+#line 96
 this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -499,7 +489,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-#line 99
+#line 97
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant1.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 1\" for Estate \"Test Estate 1\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -522,10 +512,10 @@ await this.FeatureBackgroundAsync();
                             "100.00",
                             "1",
                             "Reconciliation"});
-#line 100
+#line 98
  await testRunner.WhenAsync("I perform the following reconciliations", ((string)(null)), table50, "When ");
 #line hidden
-#line 104
+#line 102
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant2.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 2\" for Estate \"Test Estate 1\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -548,10 +538,10 @@ await this.FeatureBackgroundAsync();
                             "200.00",
                             "2",
                             "Reconciliation"});
-#line 105
+#line 103
  await testRunner.WhenAsync("I perform the following reconciliations", ((string)(null)), table51, "When ");
 #line hidden
-#line 109
+#line 107
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant3.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 3\" for Estate \"Test Estate 2\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -574,7 +564,7 @@ await this.FeatureBackgroundAsync();
                             "300.00",
                             "3",
                             "Reconciliation"});
-#line 110
+#line 108
  await testRunner.WhenAsync("I perform the following reconciliations", ((string)(null)), table52, "When ");
 #line hidden
                 global::Reqnroll.Table table53 = new global::Reqnroll.Table(new string[] {
@@ -601,7 +591,7 @@ await this.FeatureBackgroundAsync();
                             "3",
                             "0000",
                             "SUCCESS"});
-#line 114
+#line 112
  await testRunner.ThenAsync("the reconciliation response should contain the following information", ((string)(null)), table53, "Then ");
 #line hidden
             }

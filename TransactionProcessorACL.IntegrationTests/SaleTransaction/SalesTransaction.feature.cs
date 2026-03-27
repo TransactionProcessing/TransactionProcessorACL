@@ -123,10 +123,6 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "DisplayName",
                         "Description"});
             table74.AddRow(new string[] {
-                        "estateManagement",
-                        "Estate Managememt REST Scope",
-                        "A scope for Estate Managememt REST"});
-            table74.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST  Scope",
                         "A scope for Transaction Processor REST"});
@@ -134,10 +130,6 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "transactionProcessorACL",
                         "Transaction Processor ACL REST  Scope",
                         "A scope for Transaction Processor ACL REST"});
-            table74.AddRow(new string[] {
-                        "voucherManagement",
-                        "Voucher Management REST  Scope",
-                        "A scope for Voucher Management REST"});
 #line 10
  await testRunner.GivenAsync("I create the following api scopes", ((string)(null)), table74, "Given ");
 #line hidden
@@ -148,30 +140,18 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Scopes",
                         "UserClaims"});
             table75.AddRow(new string[] {
-                        "estateManagement",
-                        "Estate Managememt REST",
-                        "Secret1",
-                        "estateManagement",
-                        "merchantId, estateId, role"});
-            table75.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
                         "Secret1",
                         "transactionProcessor",
-                        ""});
+                        "merchantId, estateId, role"});
             table75.AddRow(new string[] {
                         "transactionProcessorACL",
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorACL",
                         "merchantId, estateId, role"});
-            table75.AddRow(new string[] {
-                        "voucherManagement",
-                        "Voucher Management REST",
-                        "Secret1",
-                        "voucherManagement",
-                        ""});
-#line 17
+#line 15
  await testRunner.GivenAsync("the following api resources exist", ((string)(null)), table75, "Given ");
 #line hidden
             global::Reqnroll.Table table76 = new global::Reqnroll.Table(new string[] {
@@ -184,7 +164,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "serviceClient",
                         "Service Client",
                         "Secret1",
-                        "estateManagement,transactionProcessor,transactionProcessorACL,voucherManagement",
+                        "transactionProcessor,transactionProcessorACL",
                         "client_credentials"});
             table76.AddRow(new string[] {
                         "merchantClient",
@@ -192,14 +172,14 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Secret1",
                         "transactionProcessorACL",
                         "password"});
-#line 24
+#line 20
  await testRunner.GivenAsync("the following clients exist", ((string)(null)), table76, "Given ");
 #line hidden
             global::Reqnroll.Table table77 = new global::Reqnroll.Table(new string[] {
                         "ClientId"});
             table77.AddRow(new string[] {
                         "serviceClient"});
-#line 29
+#line 25
  await testRunner.GivenAsync("I have a token to access the estate management and transaction processor acl reso" +
                     "urces", ((string)(null)), table77, "Given ");
 #line hidden
@@ -209,7 +189,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Test Estate 1"});
             table78.AddRow(new string[] {
                         "Test Estate 2"});
-#line 33
+#line 29
  await testRunner.GivenAsync("I have created the following estates", ((string)(null)), table78, "Given ");
 #line hidden
             global::Reqnroll.Table table79 = new global::Reqnroll.Table(new string[] {
@@ -237,7 +217,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Voucher",
                         "True",
                         "True"});
-#line 38
+#line 34
  await testRunner.GivenAsync("I have created the following operators", ((string)(null)), table79, "Given ");
 #line hidden
             global::Reqnroll.Table table80 = new global::Reqnroll.Table(new string[] {
@@ -255,7 +235,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
             table80.AddRow(new string[] {
                         "Test Estate 2",
                         "Voucher"});
-#line 45
+#line 41
  await testRunner.AndAsync("I have assigned the following operators to the estates", ((string)(null)), table80, "And ");
 #line hidden
             global::Reqnroll.Table table81 = new global::Reqnroll.Table(new string[] {
@@ -278,7 +258,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Test Estate 2",
                         "Voucher",
                         "Hospital 1 Contract"});
-#line 52
+#line 48
  await testRunner.GivenAsync("I create a contract with the following values", ((string)(null)), table81, "Given ");
 #line hidden
             global::Reqnroll.Table table82 = new global::Reqnroll.Table(new string[] {
@@ -321,7 +301,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "10 KES",
                         "",
                         "Voucher"});
-#line 59
+#line 55
  await testRunner.WhenAsync("I create the following Products", ((string)(null)), table82, "When ");
 #line hidden
             global::Reqnroll.Table table83 = new global::Reqnroll.Table(new string[] {
@@ -348,7 +328,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Percentage",
                         "Merchant Commission",
                         "0.85"});
-#line 66
+#line 62
  await testRunner.WhenAsync("I add the following Transaction Fees", ((string)(null)), table83, "When ");
 #line hidden
             global::Reqnroll.Table table84 = new global::Reqnroll.Table(new string[] {
@@ -391,7 +371,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Test Contact 3",
                         "testcontact3@merchant2.co.uk",
                         "Test Estate 2"});
-#line 71
+#line 67
  await testRunner.GivenAsync("I create the following merchants", ((string)(null)), table84, "Given ");
 #line hidden
             global::Reqnroll.Table table85 = new global::Reqnroll.Table(new string[] {
@@ -436,7 +416,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "00000003",
                         "10000003",
                         "Test Estate 2"});
-#line 77
+#line 73
  await testRunner.GivenAsync("I have assigned the following  operator to the merchants", ((string)(null)), table85, "Given ");
 #line hidden
             global::Reqnroll.Table table86 = new global::Reqnroll.Table(new string[] {
@@ -455,7 +435,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "123456782",
                         "Test Merchant 3",
                         "Test Estate 2"});
-#line 86
+#line 82
  await testRunner.GivenAsync("I have assigned the following devices to the merchants", ((string)(null)), table86, "Given ");
 #line hidden
             global::Reqnroll.Table table87 = new global::Reqnroll.Table(new string[] {
@@ -486,7 +466,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Test Estate 2",
                         "Test Merchant 3",
                         "Hospital 1 Contract"});
-#line 92
+#line 88
  await testRunner.WhenAsync("I add the following contracts to the following merchants", ((string)(null)), table87, "When ");
 #line hidden
             global::Reqnroll.Table table88 = new global::Reqnroll.Table(new string[] {
@@ -513,7 +493,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Today",
                         "Test Merchant 3",
                         "Test Estate 2"});
-#line 101
+#line 97
  await testRunner.GivenAsync("I make the following manual merchant deposits", ((string)(null)), table88, "Given ");
 #line hidden
             global::Reqnroll.Table table89 = new global::Reqnroll.Table(new string[] {
@@ -544,7 +524,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "User3",
                         "Test Estate 2",
                         "Test Merchant 3"});
-#line 107
+#line 103
  await testRunner.GivenAsync("I have created the following security users", ((string)(null)), table89, "Given ");
 #line hidden
         }
@@ -566,7 +546,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sale Transaction", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 114
+#line 110
 this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -579,7 +559,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-#line 115
+#line 111
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant1.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 1\" for Estate \"Test Estate 1\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -644,10 +624,10 @@ await this.FeatureBackgroundAsync();
                             "10 KES",
                             "test@recipient.co.uk",
                             ""});
-#line 116
+#line 112
  await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table90, "When ");
 #line hidden
-#line 122
+#line 118
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant2.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 2\" for Estate \"Test Estate 1\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -697,10 +677,10 @@ await this.FeatureBackgroundAsync();
                             "10 KES",
                             "",
                             "123456789"});
-#line 123
+#line 119
  await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table91, "When ");
 #line hidden
-#line 128
+#line 124
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant3.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 3\" for Estate \"Test Estate 2\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -750,7 +730,7 @@ await this.FeatureBackgroundAsync();
                             "10 KES",
                             "test@recipient.co.uk",
                             ""});
-#line 129
+#line 125
  await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table92, "When ");
 #line hidden
                 global::Reqnroll.Table table93 = new global::Reqnroll.Table(new string[] {
@@ -809,7 +789,7 @@ await this.FeatureBackgroundAsync();
                             "Sale",
                             "0000",
                             "SUCCESS"});
-#line 134
+#line 130
  await testRunner.ThenAsync("the sale transaction response should contain the following information", ((string)(null)), table93, "Then ");
 #line hidden
             }

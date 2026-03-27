@@ -217,6 +217,7 @@
                 ["AppSettings:ClientId"] = "ClientId",
                 ["AppSettings:ClientSecret"] = "secret",
                 ["SecurityConfiguration:Authority"] = "https://127.0.0.1",
+                ["SecurityConfiguration:ApiName"] = "ApiName",
                 ["EventStoreSettings:ConnectionString"] = "https://127.0.0.1:2113"
             };
 
