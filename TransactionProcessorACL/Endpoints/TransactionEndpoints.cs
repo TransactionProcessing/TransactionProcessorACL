@@ -25,12 +25,12 @@ namespace TransactionProcessorACL.Endpoints
             // POST /api/saletransactions
             saleGroup.MapPost("", TransactionHandlers.PerformSaleTransaction);
 
-            var logonGroup = app.MapGroup(LogonBaseRoute).RequireAuthorization().RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+            var logonGroup = app.MapGroup(LogonBaseRoute).RequireAuthorization();//.RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
 
             // POST /api/logontransactions
             logonGroup.MapPost("", TransactionHandlers.PerformLogonTransaction);
 
-            var reconciliationGroup = app.MapGroup(ReconciliationBaseRoute).RequireAuthorization().RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+            var reconciliationGroup = app.MapGroup(ReconciliationBaseRoute).RequireAuthorization();//.RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
 
             // POST /api/reconciliationtransactions
             reconciliationGroup.MapPost("", TransactionHandlers.PerformReconciliationTransaction);
