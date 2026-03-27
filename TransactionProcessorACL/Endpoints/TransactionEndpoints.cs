@@ -20,7 +20,7 @@ namespace TransactionProcessorACL.Endpoints
 
         public static IEndpointRouteBuilder MapTransactionEndpoints(this IEndpointRouteBuilder app)
         {
-            var saleGroup = app.MapGroup(SaleBaseRoute).RequireAuthorization().RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+            var saleGroup = app.MapGroup(SaleBaseRoute).RequireAuthorization();//.RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
 
             // POST /api/saletransactions
             saleGroup.MapPost("", TransactionHandlers.PerformSaleTransaction);

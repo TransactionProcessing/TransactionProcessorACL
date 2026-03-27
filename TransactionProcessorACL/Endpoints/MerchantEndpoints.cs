@@ -15,11 +15,9 @@ namespace TransactionProcessorACL.Endpoints
     {
         private const string BaseRoute = "/api/merchants";
 
-        public static IEndpointRouteBuilder MapMerchantEndpoints(this IEndpointRouteBuilder app)
-        {
-            var group = app.MapGroup(BaseRoute)
-                           .RequireAuthorization()
-                           .RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+        public static IEndpointRouteBuilder MapMerchantEndpoints(this IEndpointRouteBuilder app) {
+            var group = app.MapGroup(BaseRoute).RequireAuthorization();
+                           //.RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
             
             group.MapGet("", MerchantHandlers.GetMerchant).WithName("GetMerchant");
 
