@@ -18,7 +18,7 @@ namespace TransactionProcessorACL.Handlers
     /// </summary>
     public static class VoucherHandlers
     {
-        public static async Task<IResult> GetVoucherAsync(IMediator mediator,
+        public static async Task<IResult> GetVoucher(IMediator mediator,
                                                           IModelFactory modelFactory,
                                                           ClaimsPrincipal user,
                                                           string voucherCode,
@@ -27,11 +27,11 @@ namespace TransactionProcessorACL.Handlers
         {
 
             // NOTE: original controller had the version check commented out — preserving that behaviour.
-            Result<Claim> estateClaim = ClaimsHelper.GetUserClaim(user, "estateId");
+            Result<Claim> estateClaim = ClaimsHelper2.GetUserClaim(user, "estateId");
             if (estateClaim.IsFailed)
                 return ResponseFactory.FromResult(Result.Failure("No Claim found for Estate Id"));
 
-            Result<Claim> contractClaim = ClaimsHelper.GetUserClaim(user, "contractId");
+            Result<Claim> contractClaim = ClaimsHelper2.GetUserClaim(user, "contractId");
             if (contractClaim.IsFailed)
                 return ResponseFactory.FromResult(Result.Failure("No Claim found for Contract Id"));
 
@@ -44,7 +44,7 @@ namespace TransactionProcessorACL.Handlers
             return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
         }
 
-        public static async Task<IResult> RedeemVoucherAsync(IMediator mediator,
+        public static async Task<IResult> RedeemVoucher(IMediator mediator,
                                                              IModelFactory modelFactory,
                                                              ClaimsPrincipal user,
                                                              string voucherCode,
@@ -52,11 +52,11 @@ namespace TransactionProcessorACL.Handlers
                                                              CancellationToken cancellationToken)
         {
             // NOTE: original controller had authentication/version checks commented out for redeem — preserve behaviour.
-            Result<Claim> estateClaim = ClaimsHelper.GetUserClaim(user, "estateId");
+            Result<Claim> estateClaim = ClaimsHelper2.GetUserClaim(user, "estateId");
             if (estateClaim.IsFailed)
                 return ResponseFactory.FromResult(Result.Failure("No Claim found for Estate Id"));
 
-            Result<Claim> contractClaim = ClaimsHelper.GetUserClaim(user, "contractId");
+            Result<Claim> contractClaim = ClaimsHelper2.GetUserClaim(user, "contractId");
             if (contractClaim.IsFailed)
                 return ResponseFactory.FromResult(Result.Failure("No Claim found for Contract Id"));
 
