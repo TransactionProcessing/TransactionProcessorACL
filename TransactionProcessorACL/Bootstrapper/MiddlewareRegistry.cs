@@ -85,7 +85,7 @@ namespace TransactionProcessorACL.Bootstrapper
                     options.UseAspNetCore();
 
                     // Optionally set expected audience(s):
-                    //options.AddAudiences(ConfigurationReader.GetValue("SecurityConfiguration", "ApiName"));
+                    options.AddAudiences(ConfigurationReader.GetValue("SecurityConfiguration", "ApiName"));
 
 
 
