@@ -123,10 +123,6 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "DisplayName",
                         "Description"});
             table17.AddRow(new string[] {
-                        "estateManagement",
-                        "Estate Managememt REST Scope",
-                        "A scope for Estate Managememt REST"});
-            table17.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST  Scope",
                         "A scope for Transaction Processor REST"});
@@ -144,24 +140,18 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "Scopes",
                         "UserClaims"});
             table18.AddRow(new string[] {
-                        "estateManagement",
-                        "Estate Managememt REST",
-                        "Secret1",
-                        "estateManagement",
-                        "merchantId, estateId, role"});
-            table18.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
                         "Secret1",
                         "transactionProcessor",
-                        ""});
+                        "merchantId, estateId, role"});
             table18.AddRow(new string[] {
                         "transactionProcessorACL",
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorACL",
                         "merchantId, estateId, role"});
-#line 16
+#line 15
  await testRunner.GivenAsync("the following api resources exist", ((string)(null)), table18, "Given ");
 #line hidden
             global::Reqnroll.Table table19 = new global::Reqnroll.Table(new string[] {
@@ -174,7 +164,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "serviceClient",
                         "Service Client",
                         "Secret1",
-                        "estateManagement,transactionProcessor,transactionProcessorACL",
+                        "transactionProcessor,transactionProcessorACL",
                         "client_credentials"});
             table19.AddRow(new string[] {
                         "merchantClient",
@@ -182,14 +172,14 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "Secret1",
                         "transactionProcessorACL",
                         "password"});
-#line 22
+#line 20
  await testRunner.GivenAsync("the following clients exist", ((string)(null)), table19, "Given ");
 #line hidden
             global::Reqnroll.Table table20 = new global::Reqnroll.Table(new string[] {
                         "ClientId"});
             table20.AddRow(new string[] {
                         "serviceClient"});
-#line 27
+#line 25
  await testRunner.GivenAsync("I have a token to access the estate management and transaction processor acl reso" +
                     "urces", ((string)(null)), table20, "Given ");
 #line hidden
@@ -199,7 +189,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "Test Estate 1"});
             table21.AddRow(new string[] {
                         "Test Estate 2"});
-#line 31
+#line 29
  await testRunner.GivenAsync("I have created the following estates", ((string)(null)), table21, "Given ");
 #line hidden
             global::Reqnroll.Table table22 = new global::Reqnroll.Table(new string[] {
@@ -227,7 +217,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "Voucher",
                         "True",
                         "True"});
-#line 36
+#line 34
  await testRunner.GivenAsync("I have created the following operators", ((string)(null)), table22, "Given ");
 #line hidden
             global::Reqnroll.Table table23 = new global::Reqnroll.Table(new string[] {
@@ -245,7 +235,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
             table23.AddRow(new string[] {
                         "Test Estate 2",
                         "Voucher"});
-#line 43
+#line 41
  await testRunner.AndAsync("I have assigned the following operators to the estates", ((string)(null)), table23, "And ");
 #line hidden
             global::Reqnroll.Table table24 = new global::Reqnroll.Table(new string[] {
@@ -288,7 +278,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "Test Contact 3",
                         "testcontact3@merchant2.co.uk",
                         "Test Estate 2"});
-#line 50
+#line 48
  await testRunner.GivenAsync("I create the following merchants", ((string)(null)), table24, "Given ");
 #line hidden
             global::Reqnroll.Table table25 = new global::Reqnroll.Table(new string[] {
@@ -333,7 +323,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "00000003",
                         "10000003",
                         "Test Estate 2"});
-#line 56
+#line 54
  await testRunner.GivenAsync("I have assigned the following  operator to the merchants", ((string)(null)), table25, "Given ");
 #line hidden
             global::Reqnroll.Table table26 = new global::Reqnroll.Table(new string[] {
@@ -364,7 +354,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "User3",
                         "Test Estate 2",
                         "Test Merchant 3"});
-#line 65
+#line 63
  await testRunner.GivenAsync("I have created the following security users", ((string)(null)), table26, "Given ");
 #line hidden
             global::Reqnroll.Table table27 = new global::Reqnroll.Table(new string[] {
@@ -387,7 +377,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "Test Estate 2",
                         "Voucher",
                         "Hospital 1 Contract"});
-#line 71
+#line 69
  await testRunner.GivenAsync("I create a contract with the following values", ((string)(null)), table27, "Given ");
 #line hidden
             global::Reqnroll.Table table28 = new global::Reqnroll.Table(new string[] {
@@ -430,7 +420,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "10 KES",
                         "",
                         "Voucher"});
-#line 78
+#line 76
  await testRunner.WhenAsync("I create the following Products", ((string)(null)), table28, "When ");
 #line hidden
             global::Reqnroll.Table table29 = new global::Reqnroll.Table(new string[] {
@@ -457,7 +447,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "Percentage",
                         "Merchant Commission",
                         "0.85"});
-#line 85
+#line 83
  await testRunner.WhenAsync("I add the following Transaction Fees", ((string)(null)), table29, "When ");
 #line hidden
             global::Reqnroll.Table table30 = new global::Reqnroll.Table(new string[] {
@@ -488,7 +478,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
                         "Test Estate 2",
                         "Test Merchant 3",
                         "Hospital 1 Contract"});
-#line 90
+#line 88
  await testRunner.WhenAsync("I add the following contracts to the following merchants", ((string)(null)), table30, "When ");
 #line hidden
         }
@@ -508,7 +498,7 @@ namespace TransactionProcessorACL.IntegrationTests.Merchants
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get Merchant", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 100
+#line 98
 this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -521,7 +511,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-#line 101
+#line 99
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant1.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 1\" for Estate \"Test Estate 1\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -542,7 +532,7 @@ await this.FeatureBackgroundAsync();
                             "United Kingdom",
                             "Test Contact 1",
                             "testcontact1@merchant1.co.uk"});
-#line 102
+#line 100
  await testRunner.WhenAsync("I get the merchant information for Merchant \"Test Merchant 1\" for Estate \"Test Es" +
                         "tate 1\" the response should contain the following information", ((string)(null)), table31, "When ");
 #line hidden
@@ -560,7 +550,7 @@ await this.FeatureBackgroundAsync();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get Merchant Contracts", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 106
+#line 104
 this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -573,7 +563,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-#line 107
+#line 105
  await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant1.co.uk\" with password \"123456\" for M" +
                         "erchant \"Test Merchant 1\" for Estate \"Test Estate 1\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
@@ -587,7 +577,7 @@ await this.FeatureBackgroundAsync();
                 table32.AddRow(new string[] {
                             "Test Merchant 1",
                             "Hospital 1 Contract"});
-#line 108
+#line 106
  await testRunner.WhenAsync("I get the merchant contract information for Merchant \"Test Merchant 1\" for Estate" +
                         " \"Test Estate 1\" the response should contain the following information", ((string)(null)), table32, "When ");
 #line hidden

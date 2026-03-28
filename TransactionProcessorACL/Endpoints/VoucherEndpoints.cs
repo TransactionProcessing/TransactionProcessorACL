@@ -20,27 +20,9 @@ namespace TransactionProcessorACL.Endpoints
             var group = app.MapGroup(BaseRoute)
                            .RequireAuthorization();
 
-            // GET /api/vouchers?voucherCode=...&applicationVersion=...
-            group.MapGet("", async (IMediator mediator,
-                                     IModelFactory modelFactory,
-                                     ClaimsPrincipal user,
-                                     [FromQuery] string voucherCode,
-                                     [FromQuery] string applicationVersion,
-                                     CancellationToken cancellationToken) =>
-            {
-                return await VoucherHandlers.GetVoucherAsync(mediator, modelFactory, user, voucherCode, applicationVersion, cancellationToken);
-            });
+            group.MapGet("", VoucherHandlers.GetVoucher);
 
-            // PUT /api/vouchers?voucherCode=...&applicationVersion=...
-            group.MapPut("", async (IMediator mediator,
-                                     IModelFactory modelFactory,
-                                     ClaimsPrincipal user,
-                                     [FromQuery] string voucherCode,
-                                     [FromQuery] string applicationVersion,
-                                     CancellationToken cancellationToken) =>
-            {
-                return await VoucherHandlers.RedeemVoucherAsync(mediator, modelFactory, user, voucherCode, applicationVersion, cancellationToken);
-            });
+            group.MapPut("", VoucherHandlers.RedeemVoucher);
 
             return app;
         }
