@@ -112,14 +112,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         /// <param name="additionalRequestMetadata">The additional request metadata.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction(Guid estateId,
-                                                                                         Guid merchantId,
+        public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction((Guid estateId, Guid merchantId) merchantData,
                                                                                          DateTime transactionDateTime,
                                                                                          String transactionNumber,
                                                                                          String deviceIdentifier,
-                                                                                         Guid operatorId,
                                                                                          String customerEmailAddress,
-                                                                                         Guid contractId, Guid productId,
+                                                                                         (Guid operatorId, Guid contractId, Guid productId) productData,
                                                                                          Dictionary<String, String> additionalRequestMetadata, CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
@@ -132,13 +130,13 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(transactionNumber,
                                                                                             deviceIdentifier,
                                                                                             transactionDateTime,
-                                                                                            operatorId,
+                                                                                            productData.operatorId,
                                                                                             customerEmailAddress,
-                                                                                            contractId,
-                                                                                            productId,
+                                                                                            productData.contractId,
+                                                                                            productData.productId,
                                                                                             additionalRequestMetadata);
             
-            SerialisedMessage requestSerialisedMessage = this.BuildSaleTransactionSerialisedMessage(estateId, merchantId, saleTransactionRequest);
+            SerialisedMessage requestSerialisedMessage = this.BuildSaleTransactionSerialisedMessage(merchantData.estateId, merchantData.merchantId, saleTransactionRequest);
 
             ProcessSaleTransactionResponse response = null;
 
@@ -152,11 +150,11 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
                 SaleTransactionResponse saleTransactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponse>(responseSerialisedMessage.SerialisedData);
 
-                response = this.CreateSaleTransactionResponse(saleTransactionResponse, estateId, merchantId);
+                response = this.CreateSaleTransactionResponse(saleTransactionResponse, merchantData.estateId, merchantData.merchantId);
             }
             catch (Exception ex)
             {
-                response = this.CreateSaleTransactionErrorResponse(estateId, merchantId, ex);
+                response = this.CreateSaleTransactionErrorResponse(merchantData.estateId, merchantData.merchantId, ex);
             }
 
             return Result.Success(response);

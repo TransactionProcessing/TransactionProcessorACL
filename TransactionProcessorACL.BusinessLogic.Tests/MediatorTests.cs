@@ -108,15 +108,12 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
                                                                                            String deviceIdentifier,
                                                                                            CancellationToken cancellationToken) => Result.Success(new ProcessLogonTransactionResponse());
         
-        public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction(Guid estateId,
-                                                                                         Guid merchantId,
+        public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction((Guid estateId, Guid merchantId) merchantData,
                                                                                          DateTime transactionDateTime,
                                                                                          String transactionNumber,
                                                                                          String deviceIdentifier,
-                                                                                         Guid operatorId,
                                                                                          String customerEmailAddress,
-                                                                                         Guid contractId,
-                                                                                         Guid productId,
+                                                                                         (Guid operatorId, Guid contractId, Guid productId) productData,
                                                                                          Dictionary<String, String> additionalRequestMetadata,
                                                                                          CancellationToken cancellationToken) => Result.Success(new ProcessSaleTransactionResponse());
 

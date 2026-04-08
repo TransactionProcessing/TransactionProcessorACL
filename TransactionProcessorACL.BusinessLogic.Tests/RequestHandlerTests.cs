@@ -72,15 +72,12 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
             applicationService
-                .Setup(a => a.ProcessSaleTransaction(It.IsAny<Guid>(),
-                                                      It.IsAny<Guid>(),
+                .Setup(a => a.ProcessSaleTransaction(It.IsAny<(Guid, Guid)>(),
                                                       It.IsAny<DateTime>(),
                                                       It.IsAny<String>(),
                                                       It.IsAny<String>(),
-                                                      It.IsAny<Guid>(),
                                                       It.IsAny<String>(),
-                                                      It.IsAny<Guid>(),
-                                                      It.IsAny<Guid>(),
+                                                      It.IsAny<(Guid, Guid, Guid)>(),
                                                       It.IsAny<Dictionary<String,String>>(),
                                                       It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessSaleTransactionResponse);
 
