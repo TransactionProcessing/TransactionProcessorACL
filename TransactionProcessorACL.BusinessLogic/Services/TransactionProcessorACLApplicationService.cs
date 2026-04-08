@@ -76,11 +76,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                            String deviceIdentifier,
                                                                                            CancellationToken cancellationToken)
         {
-            // Get a client token to call the Transaction Processor
-            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
-            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
-
-            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
@@ -127,10 +123,10 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                          Dictionary<String, String> additionalRequestMetadata, CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed)
-            {
+            if (accessTokenResult.IsFailed) {
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
+
             TokenResponse accessToken = accessTokenResult.Data;
 
             SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(transactionNumber,
@@ -250,11 +246,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                        Decimal transactionValue,
                                                                                        CancellationToken cancellationToken)
         {
-            // Get a client token to call the Transaction Processor
-            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
-            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
-
-            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
@@ -281,110 +273,74 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
         }
 
-        public async Task<GetVoucherResponse> GetVoucher(Guid estateId,
-                                                         Guid contractId,
-                                                         String voucherCode,
-                                                         CancellationToken cancellationToken)
+        public async Task<Result<GetVoucherResponse>> GetVoucher(Guid estateId,
+                                                                 Guid contractId,
+                                                                 String voucherCode,
+                                                                 CancellationToken cancellationToken)
         {
-            // Get a client token to call the Voucher Management
-            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
-            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
-
-            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
-                return CreateGetVoucherTokenErrorResponse();
+                return ResultHelpers.CreateFailure(accessTokenResult);
             }
 
             TokenResponse accessToken = accessTokenResult.Data;
 
-            try
-            {
+            try {
                 Result<TransactionProcessor.DataTransferObjects.GetVoucherResponse> getVoucherResult = await this.TransactionProcessorClient.GetVoucherByCode(accessToken.AccessToken, estateId, voucherCode, cancellationToken);
-                if (getVoucherResult.IsFailed)
-                {
-                    return CreateGetVoucherFailureResponse(getVoucherResult.Message);
+                if (getVoucherResult.IsFailed) {
+                    return ResultHelpers.CreateFailure(getVoucherResult);
                 }
 
-                return CreateGetVoucherSuccessResponse(estateId, contractId, getVoucherResult.Data);
+                return Result.Success(CreateGetVoucherSuccessResponse(estateId, contractId, getVoucherResult.Data));
             }
-            catch (Exception ex)
-            {
-                return CreateGetVoucherErrorResponse(ex);
+            catch (Exception ex) {
+                return Result.Failure(ex.GetExceptionMessages());
             }
         }
 
-        public async Task<RedeemVoucherResponse> RedeemVoucher(Guid estateId,
-                                                               Guid contractId,
-                                                               String voucherCode,
-                                                               CancellationToken cancellationToken)
+        public async Task<Result<RedeemVoucherResponse>> RedeemVoucher(Guid estateId,
+                                                                       Guid contractId,
+                                                                       String voucherCode,
+                                                                       CancellationToken cancellationToken)
         {
-            // Get a client token to call the Voucher Management
-            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
-            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
-
-            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
-                return new RedeemVoucherResponse {
-                    ResponseCode = "0004", // Token error
-                    ResponseMessage = "Token Error",
-                };
+                return ResultHelpers.CreateFailure(accessTokenResult);
             }
+            
             TokenResponse accessToken = accessTokenResult.Data;
 
-            RedeemVoucherResponse response;
-
-            try
-            {
-                RedeemVoucherRequest redeemVoucherRequest = new() {
-                    EstateId = estateId,
-                    VoucherCode = voucherCode
-                };
+            try {
+                RedeemVoucherRequest redeemVoucherRequest = new() { EstateId = estateId, VoucherCode = voucherCode };
 
                 Result redeemVoucherResponseResult = await this.TransactionProcessorClient.RedeemVoucher(accessToken.AccessToken, redeemVoucherRequest, cancellationToken);
 
-                if (redeemVoucherResponseResult.IsFailed)
-                {
-                    return new RedeemVoucherResponse
-                    {
-                        ResponseCode = "0005", // Voucher not found or already redeemed
-                        ResponseMessage = redeemVoucherResponseResult.Message,
-                    };
+                if (redeemVoucherResponseResult.IsFailed) {
+                    return ResultHelpers.CreateFailure(redeemVoucherResponseResult);
                 }
 
-                response = new RedeemVoucherResponse
-                {
+                return Result.Success(new RedeemVoucherResponse {
                     ResponseCode = "0000", // Success
                     ResponseMessage = "SUCCESS",
                     ContractId = contractId,
                     EstateId = estateId
-                };
+                });
             }
-            catch (Exception ex)
-            {
-                // This means there is an error in the request
-                response = new RedeemVoucherResponse
-                {
-                    ResponseCode = "0001", // Request Message error
-                    ResponseMessage = "Redeem Voucher Failed",
-                    ErrorMessages = ex.GetExceptionMessages()
-                };
+            catch (Exception ex) {
+                return Result.Failure(ex.GetExceptionMessages());
             }
-        
-            return response;
         }
 
         public async Task<Result<List<Models.ContractResponse>>> GetMerchantContracts(Guid estateId,
                                                                                       Guid merchantId,
                                                                                       CancellationToken cancellationToken) {
             Logger.LogInformation($"GetMerchantContracts: {estateId} {merchantId}");
-            // Get a client token to call the Transaction Processor
-            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
-            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
 
-            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
+
             TokenResponse accessToken = accessTokenResult.Data;
 
             Result<List<TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse>> result = await this.TransactionProcessorClient.GetMerchantContracts(accessToken.AccessToken, estateId, merchantId, cancellationToken);
@@ -459,14 +415,11 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                 Guid merchantId,
                                                                 CancellationToken cancellationToken) {
             Logger.LogWarning("in GetMerchant");
-            // Get a client token to call the Transaction Processor
-            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
-            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
-
-            Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
+
             Logger.LogWarning("in GetMerchant - Got Token");
             TokenResponse accessToken = accessTokenResult.Data;
             
@@ -511,35 +464,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 Balance = getVoucherResponse.Balance
             };
         }
-
-        private static GetVoucherResponse CreateGetVoucherFailureResponse(String responseMessage)
-        {
-            return new GetVoucherResponse
-            {
-                ResponseCode = "0005", // Voucher not found
-                ResponseMessage = responseMessage
-            };
-        }
-
-        private static GetVoucherResponse CreateGetVoucherTokenErrorResponse()
-        {
-            return new GetVoucherResponse
-            {
-                ResponseCode = "0004", // Token error
-                ResponseMessage = "Token Error",
-            };
-        }
-
-        private static GetVoucherResponse CreateGetVoucherErrorResponse(Exception ex)
-        {
-            return new GetVoucherResponse
-            {
-                ResponseCode = "0001", // Request Message error
-                ResponseMessage = "Get Voucher Failed",
-                ErrorMessages = ex.GetExceptionMessages()
-            };
-        }
-
+        
         private static ProcessReconciliationResponse CreateReconciliationErrorResponse(Guid estateId,
                                                                                        Guid merchantId,
                                                                                        Exception ex)
@@ -569,7 +494,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 TransactionValue = transactionValue
             };
 
-            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
+            SerialisedMessage requestSerialisedMessage = new();
             requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
             requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
             requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(reconciliationRequest,
@@ -625,7 +550,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 TransactionType = "LOGON"
             };
 
-            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
+            SerialisedMessage requestSerialisedMessage = new();
             requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
             requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
             requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(logonTransactionRequest,
