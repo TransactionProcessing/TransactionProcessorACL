@@ -375,7 +375,7 @@ namespace TransactionProcessorACL.Tests.General
             List<Models.ContractResponse> model = null;
             List<DataTransferObjects.Responses.ContractResponse> dto = modelFactory.ConvertFrom(model);
 
-            dto.ShouldBeNull();
+            dto.Count.ShouldBe(0);
         }
 
         [Fact]
