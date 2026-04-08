@@ -128,20 +128,20 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
                                                                                        Decimal transactionValue,
                                                                                        CancellationToken cancellationToken) => Result.Success(new ProcessReconciliationResponse());
 
-        public async Task<GetVoucherResponse> GetVoucher(Guid estateId,
-                                                         Guid contractId,
-                                                         String voucherCode,
-                                                         CancellationToken cancellationToken)
+        public async Task<Result<GetVoucherResponse>> GetVoucher(Guid estateId,
+                                                                 Guid contractId,
+                                                                 String voucherCode,
+                                                                 CancellationToken cancellationToken)
         {
-            return new GetVoucherResponse();
+            return Result.Success(new GetVoucherResponse());
         }
 
-        public async Task<RedeemVoucherResponse> RedeemVoucher(Guid estateId,
-                                                               Guid contractId,
-                                                               String voucherCode,
+        public async Task<Result<RedeemVoucherResponse>> RedeemVoucher(Guid estateId,
+                                                                       Guid contractId,
+                                                                       String voucherCode,
                                                                CancellationToken cancellationToken)
         {
-            return new RedeemVoucherResponse();
+            return Result.Success(new RedeemVoucherResponse());
         }
 
         public async Task<Result<List<ContractResponse>>> GetMerchantContracts(Guid estateId,

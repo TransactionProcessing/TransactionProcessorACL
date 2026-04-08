@@ -416,15 +416,16 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 .ReturnsAsync(TestData.GetVoucherResponse);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            GetVoucherResponse voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+            Result<GetVoucherResponse> voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
-            voucherResponse.ShouldNotBeNull();
-            voucherResponse.VoucherCode.ShouldBe(TestData.GetVoucherResponse.VoucherCode);
-            voucherResponse.ContractId.ShouldBe(TestData.ContractId);
-            voucherResponse.EstateId.ShouldBe(TestData.EstateId);
-            voucherResponse.ExpiryDate.ShouldBe(TestData.GetVoucherResponse.ExpiryDate);
-            voucherResponse.Value.ShouldBe(TestData.GetVoucherResponse.Value);
-            voucherResponse.VoucherId.ShouldBe(TestData.GetVoucherResponse.VoucherId);
+            voucherResponse.IsSuccess.ShouldBeTrue();
+            voucherResponse.Data.ShouldNotBeNull();
+            voucherResponse.Data.VoucherCode.ShouldBe(TestData.GetVoucherResponse.VoucherCode);
+            voucherResponse.Data.ContractId.ShouldBe(TestData.ContractId);
+            voucherResponse.Data.EstateId.ShouldBe(TestData.EstateId);
+            voucherResponse.Data.ExpiryDate.ShouldBe(TestData.GetVoucherResponse.ExpiryDate);
+            voucherResponse.Data.Value.ShouldBe(TestData.GetVoucherResponse.Value);
+            voucherResponse.Data.VoucherId.ShouldBe(TestData.GetVoucherResponse.VoucherId);
         }
 
         [Fact]
@@ -432,10 +433,9 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
 
-            GetVoucherResponse voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+            Result<GetVoucherResponse> voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
-            voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseCode.ShouldBe("0004");
+            voucherResponse.IsFailed.ShouldBeTrue();
         }
 
         [Fact]
@@ -445,10 +445,9 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 .ReturnsAsync(Result.Failure());
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            GetVoucherResponse voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+            Result<GetVoucherResponse> voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
-            voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseCode.ShouldBe("0005");
+            voucherResponse.IsFailed.ShouldBeTrue();
         }
 
         [Fact]
@@ -458,11 +457,9 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error"));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            GetVoucherResponse voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+            Result<GetVoucherResponse> voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
-            voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseMessage.ShouldBe(TestData.VoucherExceptionResponseMessage);
-            voucherResponse.ResponseCode.ShouldBe(TestData.ExceptionErrorResponseCode);
+            voucherResponse.IsFailed.ShouldBeTrue();
         }
 
         [Fact]
@@ -472,11 +469,11 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ReturnsAsync(Result.Success);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+            Result<RedeemVoucherResponse> voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
-            voucherResponse.ShouldNotBeNull();
-            voucherResponse.ContractId.ShouldBe(TestData.ContractId);
-            voucherResponse.EstateId.ShouldBe(TestData.EstateId);
+            voucherResponse.IsSuccess.ShouldBeTrue();
+            voucherResponse.Data.ContractId.ShouldBe(TestData.ContractId);
+            voucherResponse.Data.EstateId.ShouldBe(TestData.EstateId);
         }
 
         [Fact]
@@ -486,10 +483,9 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 .ReturnsAsync(Result.Failure);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
 
-            RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+            Result<RedeemVoucherResponse> voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
-            voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseCode.ShouldBe("0004");
+            voucherResponse.IsFailed.ShouldBeTrue();
         }
 
         [Fact]
@@ -499,10 +495,9 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 .ReturnsAsync(Result.Failure());
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+            Result<RedeemVoucherResponse> voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
-            voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseCode.ShouldBe("0005");
+            voucherResponse.IsFailed.ShouldBeTrue();
         }
 
         [Fact]
@@ -513,11 +508,9 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            RedeemVoucherResponse voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
+            Result<RedeemVoucherResponse> voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
-            voucherResponse.ShouldNotBeNull();
-            voucherResponse.ResponseMessage.ShouldBe(TestData.RedeemVoucherExceptionResponseMessage);
-            voucherResponse.ResponseCode.ShouldBe(TestData.ExceptionErrorResponseCode);
+            voucherResponse.IsFailed.ShouldBeTrue();
         }
 
         [Theory]

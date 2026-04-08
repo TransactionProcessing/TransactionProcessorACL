@@ -42,12 +42,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                   Decimal transactionValue,
                                                                   CancellationToken cancellationToken);
 
-       Task<GetVoucherResponse> GetVoucher(Guid estateId,
+       Task<Result<GetVoucherResponse>> GetVoucher(Guid estateId,
                                            Guid contractId,
                                            String voucherCode,
                                            CancellationToken cancellationToken);
 
-       Task<RedeemVoucherResponse> RedeemVoucher(Guid estateId,
+       Task<Result<RedeemVoucherResponse>> RedeemVoucher(Guid estateId,
                                                  Guid contractId,
                                                  String voucherCode,
                                                  CancellationToken cancellationToken);
