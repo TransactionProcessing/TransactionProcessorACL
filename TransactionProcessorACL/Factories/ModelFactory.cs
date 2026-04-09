@@ -182,12 +182,12 @@ namespace TransactionProcessorACL.Factories
 
         public List<DataTransferObjects.Responses.ContractResponse> ConvertFrom(List<Models.ContractResponse> model)
         {
+            List<DataTransferObjects.Responses.ContractResponse> responses = new();
+
             if (model == null)
             {
-                return null;
+                return responses;
             }
-
-            List<DataTransferObjects.Responses.ContractResponse> responses = new();
 
             foreach (Models.ContractResponse contractModel in model)
             {
