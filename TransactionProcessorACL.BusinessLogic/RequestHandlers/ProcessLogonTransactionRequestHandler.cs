@@ -64,15 +64,12 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
         public async Task<Result<ProcessSaleTransactionResponse>> Handle(TransactionCommands.ProcessSaleTransactionCommand command,
                                                                          CancellationToken cancellationToken)
         {
-            return await this.ApplicationService.ProcessSaleTransaction(command.EstateId,
-                command.MerchantId,
+            return await this.ApplicationService.ProcessSaleTransaction((command.EstateId, command.MerchantId),
                 command.TransactionDateTime,
                 command.TransactionNumber,
                 command.DeviceIdentifier,
-                command.OperatorId,
                 command.CustomerEmailAddress,
-                command.ContractId,
-                command.ProductId,
+                (command.OperatorId, command.ContractId, command.ProductId),
                 command.AdditionalRequestMetadata,
                 cancellationToken);
         }

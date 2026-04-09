@@ -165,15 +165,12 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ReturnsAsync(TestData.SerialisedMessageResponseSale);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
-                                                                                                             TestData.MerchantId,
-                                                                                                             TestData.TransactionDateTime,
+            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction((TestData.EstateId, TestData.MerchantId),
+            TestData.TransactionDateTime,
                                                                                                              TestData.TransactionNumber,
                                                                                                              TestData.DeviceIdentifier,
-                                                                                                             TestData.OperatorId,
                                                                                                              TestData.CustomerEmailAddress,
-                                                                                                             TestData.ContractId,
-                                                                                                             TestData.ProductId,
+                                                                                                             (TestData.OperatorId, TestData.ContractId, TestData.ProductId),
                                                                                                              TestData.AdditionalRequestMetadata,
                                                                                                              CancellationToken.None);
 
@@ -193,15 +190,12 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ReturnsAsync(TestData.SerialisedMessageResponseSale);
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
-                                                                                                             TestData.MerchantId,
+            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction((TestData.EstateId, TestData.MerchantId),
                                                                                                              TestData.TransactionDateTime,
                                                                                                              TestData.TransactionNumber,
                                                                                                              TestData.DeviceIdentifier,
-                                                                                                             TestData.OperatorId,
                                                                                                              TestData.CustomerEmailAddress,
-                                                                                                             TestData.ContractId,
-                                                                                                             TestData.ProductId,
+                                                                                                             (TestData.OperatorId, TestData.ContractId, TestData.ProductId),
                                                                                                              TestData.AdditionalRequestMetadata,
                                                                                                              CancellationToken.None);
 
@@ -235,15 +229,12 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
 
-            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
-                                                                                                             TestData.MerchantId,
+            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction((TestData.EstateId, TestData.MerchantId),
                                                                                                              TestData.TransactionDateTime,
                                                                                                              TestData.TransactionNumber,
                                                                                                              TestData.DeviceIdentifier,
-                                                                                                             TestData.OperatorId,
                                                                                                              TestData.CustomerEmailAddress,
-                                                                                                             TestData.ContractId,
-                                                                                                             TestData.ProductId,
+                                                                                                             (TestData.OperatorId, TestData.ContractId, TestData.ProductId),
                                                                                                              TestData.AdditionalRequestMetadata,
                                                                                                              CancellationToken.None);
 
@@ -257,15 +248,12 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ReturnsAsync(Result.Failure());
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
-                TestData.MerchantId,
+            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction((TestData.EstateId, TestData.MerchantId),
                 TestData.TransactionDateTime,
                 TestData.TransactionNumber,
                 TestData.DeviceIdentifier,
-                TestData.OperatorId,
                 TestData.CustomerEmailAddress,
-                TestData.ContractId,
-                TestData.ProductId,
+                (TestData.OperatorId, TestData.ContractId, TestData.ProductId),
                 TestData.AdditionalRequestMetadata,
                 CancellationToken.None);
 
@@ -279,15 +267,12 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                       .ThrowsAsync(new Exception("Error"));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
-            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.EstateId,
-                                                                                                          TestData.MerchantId,
+            Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction((TestData.EstateId, TestData.MerchantId),
                                                                                                           TestData.TransactionDateTime,
                                                                                                           TestData.TransactionNumber,
                                                                                                           TestData.DeviceIdentifier,
-                                                                                                          TestData.OperatorId,
                                                                                                           TestData.CustomerEmailAddress,
-                                                                                                          TestData.ContractId,
-                                                                                                          TestData.ProductId,
+                                                                                                          (TestData.OperatorId, TestData.ContractId, TestData.ProductId),
                                                                                                           TestData.AdditionalRequestMetadata,
                                                                                                           CancellationToken.None);
             result.IsSuccess.ShouldBeTrue();

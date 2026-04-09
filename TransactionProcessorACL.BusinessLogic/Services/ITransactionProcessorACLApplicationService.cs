@@ -22,17 +22,13 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                       String deviceIdentifier,
                                                                       CancellationToken cancellationToken);
         
-        Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction(Guid estateId,
-                                                                      Guid merchantId,
-                                                                      DateTime transactionDateTime,
-                                                                      String transactionNumber,
-                                                                      String deviceIdentifier,
-                                                                      Guid operatorId,
-                                                                      String customerEmailAddress,
-                                                                      Guid contractId,
-                                                                      Guid productId,
-                                                                      Dictionary<String,String> additionalRequestMetadata,
-                                                                      CancellationToken cancellationToken);
+        Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction((Guid estateId, Guid merchantId) merchantData,
+                                                                            DateTime transactionDateTime,
+                                                                            String transactionNumber,
+                                                                            String deviceIdentifier,
+                                                                            String customerEmailAddress,
+                                                                            (Guid operatorId, Guid contractId, Guid productId) productData,
+                                                                            Dictionary<String, String> additionalRequestMetadata, CancellationToken cancellationToken);
 
        Task<Result<ProcessReconciliationResponse>> ProcessReconciliation(Guid estateId,
                                                                   Guid merchantId,
