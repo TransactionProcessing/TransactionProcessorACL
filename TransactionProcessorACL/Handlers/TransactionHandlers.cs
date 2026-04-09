@@ -22,7 +22,6 @@ namespace TransactionProcessorACL.Handlers
     public static class TransactionHandlers
     {
         public static async Task<IResult> PerformSaleTransaction(IMediator mediator,
-                                                                  IModelFactory modelFactory,
                                                                   ClaimsPrincipal user,
                                                                   SaleTransactionRequestMessage transactionRequest,
                                                                   CancellationToken cancellationToken)
@@ -33,11 +32,10 @@ namespace TransactionProcessorACL.Handlers
 
             TransactionCommands.ProcessSaleTransactionCommand saleCommand = CreateSaleCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
             Result<ProcessSaleTransactionResponse> saleResponse = await mediator.Send(saleCommand, cancellationToken);
-            return ResponseFactory.FromResult(saleResponse, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(saleResponse, ModelFactory.ConvertFrom);
         }
 
         public static async Task<IResult> PerformLogonTransaction(IMediator mediator,
-                                                                      IModelFactory modelFactory,
                                                                       ClaimsPrincipal user,
                                                                       LogonTransactionRequestMessage transactionRequest,
                                                                       CancellationToken cancellationToken)
@@ -48,11 +46,10 @@ namespace TransactionProcessorACL.Handlers
 
             TransactionCommands.ProcessLogonTransactionCommand logonCommand = CreateLogonCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
             Result<ProcessLogonTransactionResponse> logonResponse = await mediator.Send(logonCommand, cancellationToken);
-            return ResponseFactory.FromResult(logonResponse, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(logonResponse, ModelFactory.ConvertFrom);
         }
 
         public static async Task<IResult> PerformReconciliationTransaction(IMediator mediator,
-                                                                       IModelFactory modelFactory,
                                                                        ClaimsPrincipal user,
                                                                        ReconciliationRequestMessage transactionRequest,
                                                                        CancellationToken cancellationToken)
@@ -63,7 +60,7 @@ namespace TransactionProcessorACL.Handlers
 
             TransactionCommands.ProcessReconciliationCommand reconCommand = CreateReconciliationCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
             Result<ProcessReconciliationResponse> reconResponse = await mediator.Send(reconCommand, cancellationToken);
-            return ResponseFactory.FromResult(reconResponse, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(reconResponse, ModelFactory.ConvertFrom);
         
         }
 
