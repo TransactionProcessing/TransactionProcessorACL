@@ -26,11 +26,11 @@ namespace TransactionProcessorACL.Handlers
         {
 
             // NOTE: original controller had the version check commented out — preserving that behaviour.
-            Result<Claim> estateClaim = ClaimsHelper2.GetUserClaim(user, "estateId");
+            Result<Claim> estateClaim = ClaimsHelper.GetUserClaim(user, "estateId");
             if (estateClaim.IsFailed)
                 return ResponseFactory.FromResult(Result.Failure("No Claim found for Estate Id"));
 
-            Result<Claim> contractClaim = ClaimsHelper2.GetUserClaim(user, "contractId");
+            Result<Claim> contractClaim = ClaimsHelper.GetUserClaim(user, "contractId");
             if (contractClaim.IsFailed)
                 return ResponseFactory.FromResult(Result.Failure("No Claim found for Contract Id"));
 
@@ -50,11 +50,11 @@ namespace TransactionProcessorACL.Handlers
                                                              CancellationToken cancellationToken)
         {
             // NOTE: original controller had authentication/version checks commented out for redeem — preserve behaviour.
-            Result<Claim> estateClaim = ClaimsHelper2.GetUserClaim(user, "estateId");
+            Result<Claim> estateClaim = ClaimsHelper.GetUserClaim(user, "estateId");
             if (estateClaim.IsFailed)
                 return ResponseFactory.FromResult(Result.Failure("No Claim found for Estate Id"));
 
-            Result<Claim> contractClaim = ClaimsHelper2.GetUserClaim(user, "contractId");
+            Result<Claim> contractClaim = ClaimsHelper.GetUserClaim(user, "contractId");
             if (contractClaim.IsFailed)
                 return ResponseFactory.FromResult(Result.Failure("No Claim found for Contract Id"));
 
