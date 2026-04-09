@@ -19,7 +19,6 @@ namespace TransactionProcessorACL.Handlers
     public static class VoucherHandlers
     {
         public static async Task<IResult> GetVoucher(IMediator mediator,
-                                                          IModelFactory modelFactory,
                                                           ClaimsPrincipal user,
                                                           string voucherCode,
                                                           string applicationVersion,
@@ -41,11 +40,10 @@ namespace TransactionProcessorACL.Handlers
             var query = new VoucherQueries.GetVoucherQuery(estateId, contractId, voucherCode);
             var result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
 
         public static async Task<IResult> RedeemVoucher(IMediator mediator,
-                                                             IModelFactory modelFactory,
                                                              ClaimsPrincipal user,
                                                              string voucherCode,
                                                              string applicationVersion,
@@ -66,7 +64,7 @@ namespace TransactionProcessorACL.Handlers
             var command = new VoucherCommands.RedeemVoucherCommand(estateId, contractId, voucherCode);
             var result = await mediator.Send(command, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
     }
 }

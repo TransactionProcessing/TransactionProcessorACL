@@ -16,11 +16,9 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_ProcessLogonTransactionResponse_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             ProcessLogonTransactionResponse processLogonTransactionResponse = TestData.ProcessLogonTransactionResponse;
 
-            LogonTransactionResponseMessage response = modelFactory.ConvertFrom(processLogonTransactionResponse);
+            LogonTransactionResponseMessage response = ModelFactory.ConvertFrom(processLogonTransactionResponse);
 
             response.ShouldNotBeNull();
             response.ResponseMessage.ShouldBe(processLogonTransactionResponse.ResponseMessage);
@@ -32,11 +30,9 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_ProcessLogonTransactionResponse_NullValue_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             ProcessLogonTransactionResponse processLogonTransactionResponse = null;
 
-            LogonTransactionResponseMessage response = modelFactory.ConvertFrom(processLogonTransactionResponse);
+            LogonTransactionResponseMessage response = ModelFactory.ConvertFrom(processLogonTransactionResponse);
 
             response.ShouldBeNull();
         }
@@ -44,11 +40,9 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_ProcessSaleTransactionResponse_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             ProcessSaleTransactionResponse processSaleTransactionResponse = TestData.ProcessSaleTransactionResponse;
 
-            SaleTransactionResponseMessage response = modelFactory.ConvertFrom(processSaleTransactionResponse);
+            SaleTransactionResponseMessage response = ModelFactory.ConvertFrom(processSaleTransactionResponse);
 
             response.ShouldNotBeNull();
             response.ResponseMessage.ShouldBe(processSaleTransactionResponse.ResponseMessage);
@@ -60,11 +54,9 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_ProcessSaleTransactionResponse_NullValue_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             ProcessSaleTransactionResponse processSaleTransactionResponse = null;
 
-            SaleTransactionResponseMessage response = modelFactory.ConvertFrom(processSaleTransactionResponse);
+            SaleTransactionResponseMessage response = ModelFactory.ConvertFrom(processSaleTransactionResponse);
 
             response.ShouldBeNull();
         }
@@ -72,11 +64,9 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_ProcessReconciliationResponse_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             ProcessReconciliationResponse processReconciliationResponse = TestData.ProcessReconciliationResponse;
 
-            ReconciliationResponseMessage response = modelFactory.ConvertFrom(processReconciliationResponse);
+            ReconciliationResponseMessage response = ModelFactory.ConvertFrom(processReconciliationResponse);
 
             response.ShouldNotBeNull();
             response.ResponseMessage.ShouldBe(processReconciliationResponse.ResponseMessage);
@@ -88,11 +78,9 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_ProcessReconciliationResponse_NullValue_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             ProcessReconciliationResponse processReconciliationResponse = null;
 
-            ReconciliationResponseMessage response = modelFactory.ConvertFrom(processReconciliationResponse);
+            ReconciliationResponseMessage response = ModelFactory.ConvertFrom(processReconciliationResponse);
 
             response.ShouldBeNull();
         }
@@ -100,10 +88,8 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_GetVoucherResponse_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             GetVoucherResponse model = TestData.GetVoucherResponseModel;
-            GetVoucherResponseMessage dto = modelFactory.ConvertFrom(model);
+            GetVoucherResponseMessage dto = ModelFactory.ConvertFrom(model);
 
             dto.ShouldNotBeNull();
             dto.ContractId.ShouldBe(model.ContractId);
@@ -120,10 +106,8 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_GetVoucherResponse_NullValue_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             GetVoucherResponse model = null;
-            GetVoucherResponseMessage dto = modelFactory.ConvertFrom(model);
+            GetVoucherResponseMessage dto = ModelFactory.ConvertFrom(model);
 
             dto.ShouldBeNull();
         }
@@ -131,10 +115,8 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_RedeemVoucherResponse_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             RedeemVoucherResponse model = TestData.RedeemVoucherResponseModel;
-            RedeemVoucherResponseMessage dto = modelFactory.ConvertFrom(model);
+            RedeemVoucherResponseMessage dto = ModelFactory.ConvertFrom(model);
 
             dto.ShouldNotBeNull();
             dto.ContractId.ShouldBe(model.ContractId);
@@ -149,10 +131,8 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_RedeemVoucherResponse_NullValue_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             RedeemVoucherResponse model = null;
-            RedeemVoucherResponseMessage dto = modelFactory.ConvertFrom(model);
+            RedeemVoucherResponseMessage dto = ModelFactory.ConvertFrom(model);
 
             dto.ShouldBeNull();
         }
@@ -160,8 +140,6 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_MerchantResponse_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             Models.MerchantResponse model = new Models.MerchantResponse
             {
                 EstateId = TestData.EstateId,
@@ -223,7 +201,7 @@ namespace TransactionProcessorACL.Tests.General
                 }
             };
 
-            DataTransferObjects.Responses.MerchantResponse dto = modelFactory.ConvertFrom(model);
+            DataTransferObjects.Responses.MerchantResponse dto = ModelFactory.ConvertFrom(model);
 
             dto.ShouldNotBeNull();
             dto.EstateId.ShouldBe(model.EstateId);
@@ -248,10 +226,8 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_MerchantResponse_NullValue_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             Models.MerchantResponse model = null;
-            DataTransferObjects.Responses.MerchantResponse dto = modelFactory.ConvertFrom(model);
+            DataTransferObjects.Responses.MerchantResponse dto = ModelFactory.ConvertFrom(model);
 
             dto.ShouldBeNull();
         }
@@ -259,8 +235,6 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_ContractResponses_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             Guid contractId = Guid.NewGuid();
             Guid estateId = Guid.NewGuid();
             Guid operatorId = Guid.NewGuid();
@@ -279,8 +253,7 @@ namespace TransactionProcessorACL.Tests.General
                     OperatorName = "Operator 1",
                     Products = new List<Models.ContractProduct>
                     {
-                        new Models.ContractProduct
-                        {
+                        new() {
                             DisplayText = "Display",
                             Name = "Product",
                             ProductId = productId,
@@ -289,8 +262,7 @@ namespace TransactionProcessorACL.Tests.General
                             ProductType = Models.ProductType.BillPayment,
                             TransactionFees = new List<Models.ContractProductTransactionFee>
                             {
-                                new Models.ContractProductTransactionFee
-                                {
+                                new() {
                                     CalculationType = Models.CalculationType.Fixed,
                                     FeeType = Models.FeeType.Merchant,
                                     Description = "Fee",
@@ -300,8 +272,7 @@ namespace TransactionProcessorACL.Tests.General
                                 }
                             }
                         },
-                        new Models.ContractProduct
-                        {
+                        new() {
                             DisplayText = "Display 2",
                             Name = "Product 2",
                             ProductId = Guid.NewGuid(),
@@ -310,8 +281,7 @@ namespace TransactionProcessorACL.Tests.General
                             ProductType = Models.ProductType.MobileTopup,
                             TransactionFees = new List<Models.ContractProductTransactionFee>
                             {
-                                new Models.ContractProductTransactionFee
-                                {
+                                new() {
                                     CalculationType = Models.CalculationType.Percentage,
                                     FeeType = Models.FeeType.ServiceProvider,
                                     Description = "Fee 2",
@@ -321,8 +291,7 @@ namespace TransactionProcessorACL.Tests.General
                                 }
                             }
                         },
-                        new Models.ContractProduct
-                        {
+                        new() {
                             DisplayText = "Display 3",
                             Name = "Product 3",
                             ProductId = Guid.NewGuid(),
@@ -335,7 +304,7 @@ namespace TransactionProcessorACL.Tests.General
                 }
             };
 
-            List<DataTransferObjects.Responses.ContractResponse> dto = modelFactory.ConvertFrom(model);
+            List<DataTransferObjects.Responses.ContractResponse> dto = ModelFactory.ConvertFrom(model);
 
             dto.ShouldNotBeNull();
             dto.Count.ShouldBe(1);
@@ -370,34 +339,17 @@ namespace TransactionProcessorACL.Tests.General
         [Fact]
         public void ModelFactory_ConvertFrom_ContractResponses_NullValue_IsConverted()
         {
-            ModelFactory modelFactory = new ModelFactory();
-
             List<Models.ContractResponse> model = null;
-            List<DataTransferObjects.Responses.ContractResponse> dto = modelFactory.ConvertFrom(model);
+            List<DataTransferObjects.Responses.ContractResponse> dto = ModelFactory.ConvertFrom(model);
 
             dto.Count.ShouldBe(0);
         }
 
         [Fact]
-        public void ModelFactory_ConvertFrom_ContractResponses_UnknownProductType_IsMappedToNotSet()
-        {
-            ModelFactory modelFactory = new ModelFactory();
-            List<Models.ContractResponse> model = new()
-            {
-                new Models.ContractResponse
-                {
-                    Products = new List<Models.ContractProduct>
-                    {
-                        new Models.ContractProduct
-                        {
-                            ProductType = (Models.ProductType)999,
-                            TransactionFees = new List<Models.ContractProductTransactionFee>()
-                        }
-                    }
-                }
-            };
+        public void ModelFactory_ConvertFrom_ContractResponses_UnknownProductType_IsMappedToNotSet() {
+            List<Models.ContractResponse> model = new() { new Models.ContractResponse { Products = new List<Models.ContractProduct> { new Models.ContractProduct { ProductType = (Models.ProductType)999, TransactionFees = new List<Models.ContractProductTransactionFee>() } } } };
 
-            List<DataTransferObjects.Responses.ContractResponse> dto = modelFactory.ConvertFrom(model);
+            List<DataTransferObjects.Responses.ContractResponse> dto = ModelFactory.ConvertFrom(model);
 
             dto[0].Products[0].ProductType.ShouldBe(DataTransferObjects.Responses.ProductType.NotSet);
         }

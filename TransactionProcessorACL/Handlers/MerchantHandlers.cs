@@ -19,7 +19,6 @@ namespace TransactionProcessorACL.Handlers
     public static class MerchantHandlers
     {
         public static async Task<IResult> GetMerchantContracts(IMediator mediator,
-                                                               IModelFactory modelFactory,
                                                                ClaimsPrincipal user,
                                                                string applicationVersion,
                                                                CancellationToken cancellationToken)
@@ -33,11 +32,10 @@ namespace TransactionProcessorACL.Handlers
             MerchantQueries.GetMerchantContractsQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
             Result<List<ContractResponse>> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
 
         public static async Task<IResult> GetMerchant(IMediator mediator,
-                                                      IModelFactory modelFactory,
                                                       ClaimsPrincipal user,
                                                       string applicationVersion,
                                                       CancellationToken cancellationToken)

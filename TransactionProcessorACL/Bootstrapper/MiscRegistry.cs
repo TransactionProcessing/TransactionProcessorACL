@@ -29,11 +29,8 @@ namespace TransactionProcessorACL.Bootstrapper
             bool logResponses = ConfigurationReader.GetValueOrDefault<Boolean>("MiddlewareLogging", "LogResponses", true);
             LogLevel middlewareLogLevel = ConfigurationReader.GetValueOrDefault<LogLevel>("MiddlewareLogging", "MiddlewareLogLevel", LogLevel.Warning);
 
-            RequestResponseMiddlewareLoggingConfig config =
-                new RequestResponseMiddlewareLoggingConfig(middlewareLogLevel, logRequests, logResponses);
-
-            this.AddSingleton<IModelFactory, ModelFactory>();
-
+            RequestResponseMiddlewareLoggingConfig config = new(middlewareLogLevel, logRequests, logResponses);
+            
             this.AddSingleton(config);
         }
 
