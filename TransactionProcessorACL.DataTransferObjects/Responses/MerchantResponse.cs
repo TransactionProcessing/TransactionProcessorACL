@@ -46,6 +46,18 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses {
 
         [JsonProperty("contracts")]
         public List<MerchantContractResponse> Contracts { get; set; }
+
+        [JsonProperty("opening_hours")]
+        public Dictionary<DayOfWeek, OpeningHoursResponse> OpeningHours { get; set; }
+    }
+
+    public class OpeningHoursResponse
+    {
+        [JsonProperty("opening")]
+        public string Opening { get; set; }
+
+        [JsonProperty("closing")]
+        public string Closing { get; set; }
     }
 
     [ExcludeFromCodeCoverage]

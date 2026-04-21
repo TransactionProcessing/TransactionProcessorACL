@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using TransactionProcessor.DataTransferObjects.Requests.Merchant;
 using TransactionProcessorACL.Models;
 using ContractContactResponse = TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse;
 using ModelContactResponse = TransactionProcessorACL.Models.ContactResponse;
+using OpeningHoursResponse = TransactionProcessor.DataTransferObjects.Requests.Merchant.OpeningHoursResponse;
 
 namespace TransactionProcessorACL.BusinessLogic.Services
 {
@@ -26,7 +28,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 Contacts = new(),
                 Addresses = new(),
                 Devices = new(),
-                Operators = new()
+                Operators = new(),
+                OpeningHours = new()
             };
 
             PopulateMerchantAddresses(merchant.Addresses, merchantResponse);
@@ -34,8 +37,23 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             PopulateMerchantContracts(merchant.Contracts, merchantResponse);
             PopulateMerchantDevices(merchant.Devices, merchantResponse);
             PopulateMerchantOperators(merchant.Operators, merchantResponse);
+            PopulateMerchantOpeningHours(merchant.OpeningHours, merchantResponse);
 
             return merchantResponse;
+        }
+
+        private static void PopulateMerchantOpeningHours(Dictionary<DayOfWeek, OpeningHoursResponse> merchantOpeningHours,
+                                                         MerchantResponse merchantResponse) {
+            if (merchantOpeningHours == null) {
+                return;
+            }
+
+            foreach (KeyValuePair<DayOfWeek, OpeningHoursResponse> openingHoursResponse in merchantOpeningHours) {
+                merchantResponse.OpeningHours.Add(openingHoursResponse.Key, new Models.OpeningHoursResponse() {
+                    Closing = openingHoursResponse.Value.Closing,
+                    Opening = openingHoursResponse.Value.Opening
+                });
+            }
         }
 
         private static void PopulateMerchantAddresses(List<TransactionProcessor.DataTransferObjects.Responses.Merchant.AddressResponse> addresses,

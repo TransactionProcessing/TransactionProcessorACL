@@ -198,6 +198,15 @@ namespace TransactionProcessorACL.Tests.General
                         Name = "Operator Name",
                         TerminalNumber = TestData.TerminalNumber
                     }
+                },
+                OpeningHours = new Dictionary<DayOfWeek, Models.OpeningHoursResponse>() {
+                    { DayOfWeek.Monday, new Models.OpeningHoursResponse { Opening = "09:00", Closing = "17:00" } },
+                    { DayOfWeek.Tuesday, new Models.OpeningHoursResponse { Opening = "10:00", Closing = "18:00" } },
+                    { DayOfWeek.Wednesday, new Models.OpeningHoursResponse { Opening = "11:00", Closing = "19:00" } },
+                    { DayOfWeek.Thursday, new Models.OpeningHoursResponse { Opening = "12:00", Closing = "20:00" } },
+                    { DayOfWeek.Friday, new Models.OpeningHoursResponse { Opening = "13:00", Closing = "21:00" } },
+                    { DayOfWeek.Saturday, new Models.OpeningHoursResponse { Opening = "14:00", Closing = "22:00" } },
+                    { DayOfWeek.Sunday, new Models.OpeningHoursResponse { Opening = "15:00", Closing = "23:00" } }
                 }
             };
 
@@ -221,6 +230,7 @@ namespace TransactionProcessorACL.Tests.General
             dto.Devices[TestData.DeviceId].ShouldBe(TestData.DeviceIdentifier);
             dto.Operators.Count.ShouldBe(1);
             dto.Operators[0].TerminalNumber.ShouldBe(TestData.TerminalNumber);
+            dto.OpeningHours.Count.ShouldBe(7);
         }
 
         [Fact]

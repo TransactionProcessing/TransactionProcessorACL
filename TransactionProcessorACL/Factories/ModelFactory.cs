@@ -155,7 +155,8 @@ namespace TransactionProcessorACL.Factories
                 Contacts = new List<DataTransferObjects.Responses.ContactResponse>(),
                 Contracts = new List<DataTransferObjects.Responses.MerchantContractResponse>(),
                 Devices = new Dictionary<Guid, string>(),
-                Operators = new List<DataTransferObjects.Responses.MerchantOperatorResponse>()
+                Operators = new List<DataTransferObjects.Responses.MerchantOperatorResponse>(),
+                OpeningHours = new Dictionary<DayOfWeek, DataTransferObjects.Responses.OpeningHoursResponse>()
             };
 
             foreach (Models.AddressResponse addressModel in model.Addresses) {
@@ -176,6 +177,12 @@ namespace TransactionProcessorACL.Factories
 
             foreach (Models.MerchantOperatorResponse merchantOperatorResponse in model.Operators) {
                 merchantResponse.Operators.Add(ConvertFrom(merchantOperatorResponse));
+            }
+
+            if (model.OpeningHours != null) {
+                foreach (KeyValuePair<DayOfWeek, Models.OpeningHoursResponse> openingHoursResponse in model.OpeningHours) {
+                    merchantResponse.OpeningHours.Add(openingHoursResponse.Key, new DataTransferObjects.Responses.OpeningHoursResponse() { Opening = openingHoursResponse.Value.Opening, Closing = openingHoursResponse.Value.Closing });
+                }
             }
 
             return merchantResponse;
