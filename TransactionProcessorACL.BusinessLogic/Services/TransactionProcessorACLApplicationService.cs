@@ -197,8 +197,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                         SaleTransactionRequest request)
         {
             SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
+            requestSerialisedMessage.Metadata.Add(MetadataContants.EstateIdMetadataName, estateId.ToString());
+            requestSerialisedMessage.Metadata.Add(MetadataContants.MerchantIdMetadataName, merchantId.ToString());
             requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(request,
                                                                                   new JsonSerializerSettings
                                                                                   {
@@ -493,8 +493,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             };
 
             SerialisedMessage requestSerialisedMessage = new();
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
+            requestSerialisedMessage.Metadata.Add(MetadataContants.EstateIdMetadataName, estateId.ToString());
+            requestSerialisedMessage.Metadata.Add(MetadataContants.MerchantIdMetadataName, merchantId.ToString());
             requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(reconciliationRequest,
                                                                                   new JsonSerializerSettings
                                                                                   {
@@ -549,8 +549,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             };
 
             SerialisedMessage requestSerialisedMessage = new();
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameEstateId, estateId.ToString());
-            requestSerialisedMessage.Metadata.Add(MetadataContants.KeyNameMerchantId, merchantId.ToString());
+            requestSerialisedMessage.Metadata.Add(MetadataContants.EstateIdMetadataName, estateId.ToString());
+            requestSerialisedMessage.Metadata.Add(MetadataContants.MerchantIdMetadataName, merchantId.ToString());
             requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(logonTransactionRequest,
                                                                                   new JsonSerializerSettings
                                                                                   {

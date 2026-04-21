@@ -34,6 +34,8 @@ namespace TransactionProcessorACL.Models
         public SettlementSchedule SettlementSchedule { get; set; }
 
         public List<MerchantContractResponse> Contracts { get; set; }
+
+        public Dictionary<DayOfWeek, OpeningHoursResponse> OpeningHours { get; set; }
     }
 
     [ExcludeFromCodeCoverage]
@@ -101,5 +103,12 @@ namespace TransactionProcessorACL.Models
         Immediate,
         Weekly,
         Monthly,
+    }
+
+    public class OpeningHoursResponse
+    {
+        public string Opening { get; set; }
+
+        public string Closing { get; set; }
     }
 }

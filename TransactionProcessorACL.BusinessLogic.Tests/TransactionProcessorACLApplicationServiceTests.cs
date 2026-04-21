@@ -92,8 +92,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                              CancellationToken.None);
 
             capturedMessage.ShouldNotBeNull();
-            capturedMessage.Metadata[MetadataContants.KeyNameEstateId].ShouldBe(TestData.EstateId.ToString());
-            capturedMessage.Metadata[MetadataContants.KeyNameMerchantId].ShouldBe(TestData.MerchantId.ToString());
+            capturedMessage.Metadata[MetadataContants.EstateIdMetadataName].ShouldBe(TestData.EstateId.ToString());
+            capturedMessage.Metadata[MetadataContants.MerchantIdMetadataName].ShouldBe(TestData.MerchantId.ToString());
 
             LogonTransactionRequest logonTransactionRequest = JsonConvert.DeserializeObject<LogonTransactionRequest>(capturedMessage.SerialisedData,
                 new JsonSerializerSettings {
@@ -201,8 +201,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
 
             result.IsSuccess.ShouldBeTrue();
             capturedRequest.ShouldNotBeNull();
-            capturedRequest.Metadata[MetadataContants.KeyNameEstateId].ShouldBe(TestData.EstateId.ToString());
-            capturedRequest.Metadata[MetadataContants.KeyNameMerchantId].ShouldBe(TestData.MerchantId.ToString());
+            capturedRequest.Metadata[MetadataContants.EstateIdMetadataName].ShouldBe(TestData.EstateId.ToString());
+            capturedRequest.Metadata[MetadataContants.MerchantIdMetadataName].ShouldBe(TestData.MerchantId.ToString());
 
             SaleTransactionRequest request = JsonConvert.DeserializeObject<SaleTransactionRequest>(capturedRequest.SerialisedData,
                                                                                                    new JsonSerializerSettings
@@ -323,8 +323,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                                            CancellationToken.None);
 
             capturedMessage.ShouldNotBeNull();
-            capturedMessage.Metadata[MetadataContants.KeyNameEstateId].ShouldBe(TestData.EstateId.ToString());
-            capturedMessage.Metadata[MetadataContants.KeyNameMerchantId].ShouldBe(TestData.MerchantId.ToString());
+            capturedMessage.Metadata[MetadataContants.EstateIdMetadataName].ShouldBe(TestData.EstateId.ToString());
+            capturedMessage.Metadata[MetadataContants.MerchantIdMetadataName].ShouldBe(TestData.MerchantId.ToString());
 
             ReconciliationRequest reconciliationRequest = JsonConvert.DeserializeObject<ReconciliationRequest>(capturedMessage.SerialisedData,
                 new JsonSerializerSettings {
