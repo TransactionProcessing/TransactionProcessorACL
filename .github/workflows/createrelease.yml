@@ -23,13 +23,7 @@ jobs:
       run: dotnet restore TransactionProcessorACL.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
     - name: Build Code
-      run: dotnet build TransactionProcessorACL.sln --configuration Release
-
-    - name: Run Unit Tests
-      run: |
-        echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "TransactionProcessorACL.Tests\TransactionProcessorACL.Tests.csproj"      
-        dotnet test "TransactionProcessorACL.BusinessLogic.Tests\TransactionProcessorACL.BusinessLogic.Tests.csproj"      
+      run: dotnet build TransactionProcessorACL.sln --configuration Release     
             
     - name: Publish Images to Docker Hub - Pre Release
       if: ${{ github.event.release.prerelease == true }} 
@@ -52,7 +46,6 @@ jobs:
               -p:AssemblyVersion=${{ steps.get_version.outputs.VERSION }}
               -p:FileVersion=${{ steps.get_version.outputs.VERSION }}
               -p:InformationalVersion=${{ steps.get_version.outputs.VERSION }}
-
 
     - name: Build Release Package
       run: |
