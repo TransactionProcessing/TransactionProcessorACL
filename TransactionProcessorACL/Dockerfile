@@ -23,8 +23,5 @@ RUN dotnet publish "TransactionProcessorACL.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
-RUN groupadd --gid 10001 appuser \
-    && useradd --uid 10001 --gid appuser --shell /usr/sbin/nologin appuser
-COPY --from=publish --chown=appuser:appuser /app/publish .
-USER appuser
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TransactionProcessorACL.dll"]
