@@ -35,6 +35,7 @@ jobs:
       run: dotnet test "TransactionProcessorACL.IntegrationTests\TransactionProcessorACL.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=integration-test-results.trx"
 
     - uses: actions/upload-artifact@v4.4.0
+      if: always()
       with:
         name: tracelogs
         path: /home/runner/trace/   
