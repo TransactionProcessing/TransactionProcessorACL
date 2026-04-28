@@ -37,14 +37,14 @@ jobs:
     - name: Run Unit Tests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "TransactionProcessorACL.Tests\TransactionProcessorACL.Tests.csproj" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"        
-        dotnet test "TransactionProcessorACL.BusinessLogic.Tests\TransactionProcessorACL.BusinessLogic.Tests.csproj" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov2.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"        
+        dotnet test "TransactionProcessorACL.Tests/TransactionProcessorACL.Tests.csproj" --logger "trx;LogFileName=TransactionProcessorACL.Tests.trx" --results-directory "./TestResults" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"        
+        dotnet test "TransactionProcessorACL.BusinessLogic.Tests/TransactionProcessorACL.BusinessLogic.Tests.csproj" --logger "trx;LogFileName=TransactionProcessorACL.BusinessLogic.Tests.trx" --results-directory "./TestResults" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov2.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"        
         
     - name: Build Docker Image
       run: docker build . --file TransactionProcessorACL/Dockerfile --tag transactionprocessoracl:latest
 
     - name: Run Integration Tests
-      run: dotnet test "TransactionProcessorACL.IntegrationTests\TransactionProcessorACL.IntegrationTests.csproj"
+      run: dotnet test "TransactionProcessorACL.IntegrationTests/TransactionProcessorACL.IntegrationTests.csproj" --logger "trx;LogFileName=TransactionProcessorACL.IntegrationTests.trx" --results-directory "./TestResults"
 
     - uses: actions/upload-artifact@v4.4.0
       if: always()
