@@ -379,27 +379,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                         },
                         TransactionFees = new()
                     };
-
-                    // Leave here but not used atm
-                    //foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractProductTransactionFee contractProductTransactionFee in contractResponseProduct.TransactionFees) {
-                    //    Logger.LogInformation($"Processing contract product fee {contractProductTransactionFee.Description}");
-                    //    ContractProductTransactionFee transactionFeeModel = new ContractProductTransactionFee {
-                    //        Value = contractProductTransactionFee.Value,
-                    //        Description = contractProductTransactionFee.Description,
-                    //        CalculationType = contractProductTransactionFee.CalculationType switch {
-                    //            TransactionProcessor.DataTransferObjects.Responses.Contract.CalculationType.Fixed => CalculationType.Fixed,
-                    //            _ => CalculationType.Percentage,
-                    //        },
-                    //        FeeType = contractProductTransactionFee.FeeType switch {
-                    //            TransactionProcessor.DataTransferObjects.Responses.Contract.FeeType.Merchant => FeeType.Merchant,
-                    //            _ => FeeType.ServiceProvider,
-                    //        },
-                    //        TransactionFeeId = contractProductTransactionFee.TransactionFeeId,
-                    //        TransactionFeeReportingId = contractProductTransactionFee.TransactionFeeReportingId
-                    //    };
-                    //    productModel.TransactionFees.Add(transactionFeeModel);
-                    //}
-
+                    
                     contractModel.Products.Add(productModel);
                 }
 

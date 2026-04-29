@@ -97,15 +97,7 @@ namespace TransactionProcessorACL.Bootstrapper
         private void ConfigureControllers()
         {
             this.AddControllers();
-            //.AddNewtonsoftJson(options =>
-            //                                        {
-            //                                            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            //                                            options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-            //                                            options.SerializerSettings.Formatting = Formatting.Indented;
-            //                                            options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-            //                                            options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            //                                        });
-
+            
             Assembly assembly = this.GetType().GetTypeInfo().Assembly;
             this.AddMvcCore().AddApplicationPart(assembly).AddControllersAsServices();
         }
