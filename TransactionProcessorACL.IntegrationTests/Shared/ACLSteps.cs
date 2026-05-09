@@ -46,20 +46,16 @@ public class ACLSteps{
                                                 CancellationToken cancellationToken)
     {
         String uri = "api/logontransactions";
-
-        String requestJson = StringSerialiser.Serialise(requestMessage.Item5, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
-
-        await this.SendAclRequestMessage(uri, requestJson, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
+        
+        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
     }
 
     public async Task SendAclReconciliationRequestMessage((EstateDetails, String, Guid, String, ReconciliationRequestMessage) requestMessage,
                                                  CancellationToken cancellationToken)
     {
         String uri = "api/reconciliationtransactions";
-
-        String requestJson = StringSerialiser.Serialise(requestMessage.Item5, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
-
-        await this.SendAclRequestMessage(uri, requestJson, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
+        
+        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
     }
 
     private async Task SendAclRequestMessage<T>(String uri, 
