@@ -1,20 +1,21 @@
-﻿using System.Linq;
+﻿using EventStore.Client;
+using Shared.IntegrationTesting;
+using System.Linq;
 
 namespace TransactionProcessor.IntegrationTests.Common
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Net.Http;
-    using System.Threading;
-    using System.Threading.Tasks;
     using Client;
     using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Executors;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
-    using EventStore.Client;
-    using global::Shared.IntegrationTesting;
     using SecurityService.Client;
+    using Shared.Serialisation;
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// 
@@ -58,6 +59,7 @@ namespace TransactionProcessor.IntegrationTests.Common
         public DockerHelper()
         {
             this.TestingContext = new TestingContext();
+            StringSerialiser.Initialise((IStringSerialiser)new SystemTextJsonSerializer(SystemTextJsonSerializer.GetDefaultJsonSerializerOptions()));
         }
 
         #endregion
@@ -102,8 +104,8 @@ namespace TransactionProcessor.IntegrationTests.Common
 
                                               };
             HttpClient httpClient = new HttpClient(clientHandler);
-            this.SecurityServiceClient = new SecurityServiceClient(SecurityServiceBaseAddressResolver, httpClient);
-            this.TransactionProcessorClient = new TransactionProcessorClient(TransactionProcessorBaseAddressResolver, httpClient);
+            this.SecurityServiceClient = new SecurityServiceClient(SecurityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
+            this.TransactionProcessorClient = new TransactionProcessorClient(TransactionProcessorBaseAddressResolver, httpClient, Serialise, Deserialise);
             this.TestHostHttpClient = new HttpClient(clientHandler);
             this.TestHostHttpClient.BaseAddress = new Uri($"http://127.0.0.1:{this.TestHostServicePort}");
 
@@ -113,7 +115,17 @@ namespace TransactionProcessor.IntegrationTests.Common
             this.ProjectionManagementClient = new EventStoreProjectionManagementClient(ConfigureEventStoreSettings());
             
         }
-        
+
+        String Serialise(Object arg)
+        {
+            return StringSerialiser.Serialise<Object>(arg, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+        }
+
+        Object Deserialise(String arg, Type type)
+        {
+            return StringSerialiser.DeserializeObject<Object>(arg, type, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+        }
+
         #endregion
     }
 

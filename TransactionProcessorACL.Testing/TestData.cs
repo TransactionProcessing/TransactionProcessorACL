@@ -1,11 +1,10 @@
-﻿namespace TransactionProcessorACL.Testing
+﻿using SecurityService.DataTransferObjects;
+
+namespace TransactionProcessorACL.Testing
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.Extensions.Configuration;
     using Models;
-    using Newtonsoft.Json;
-    using SecurityService.DataTransferObjects.Responses;
     using TransactionProcessor.DataTransferObjects;
     using TransactionProcessorACL.BusinessLogic.Requests;
     using TransactionProcessorACL.DataTransferObjects;
@@ -89,21 +88,6 @@
                                                                                             EstateId = TestData.EstateId,
                                                                                             MerchantId = TestData.MerchantId
                                                                                         };
-
-
-        public static SerialisedMessage SerialisedMessageResponseLogon = new SerialisedMessage
-                                                                    {
-                                                                        Metadata = new Dictionary<String, String>
-                                                                                   {
-                                                                                       {"EstateId", TestData.EstateId.ToString()},
-                                                                                       {"MerchantId", TestData.MerchantId.ToString()},
-                                                                                   },
-                                                                        SerialisedData = JsonConvert.SerializeObject(TestData.ClientLogonTransactionResponse, new JsonSerializerSettings
-                                                                                                                                                               {
-                                                                                                                                                                   TypeNameHandling = TypeNameHandling.All
-                                                                                                                                                               })
-                                                                    };
-
         #endregion
 
         public static String Token = "{\"access_token\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6IjA4NGZlNTIwZmIzZmVhM2M0MmNmMjBiZWM2OGY1NDg2IiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE1Nzc1NTIyMTQsImV4cCI6MTU3NzU1NTgxNCwiaXNzIjoiaHR0cDovLzE5Mi4xNjguMS4xMzM6NTAwMSIsImF1ZCI6WyJlc3RhdGVNYW5hZ2VtZW50IiwidHJhbnNhY3Rpb25Qcm9jZXNzb3IiLCJ0cmFuc2FjdGlvblByb2Nlc3NvckFDTCJdLCJjbGllbnRfaWQiOiJzZXJ2aWNlQ2xpZW50Iiwic2NvcGUiOlsiZXN0YXRlTWFuYWdlbWVudCIsInRyYW5zYWN0aW9uUHJvY2Vzc29yIiwidHJhbnNhY3Rpb25Qcm9jZXNzb3JBQ0wiXX0.JxK6kEvmvuMnL7ktgvv6N52fjqnFG-NSjPcQORIcFb4ravZAk5oNgsnEtjPcOHTXiktcr8i361GlYO1yiSGdfLKtCTaH3lihcbOb1wfQh3bYM_xmlqJUdirerR8ql9lxqBqm2_Q__PDFuFhMd9lAz-iFr3svuOXeQJB5HQ2rtA3xBDDked5SaEs1dMfbBJA6svRq831WCQSJgap2Db7XN7ais7AQhPYUcFOTGs9Qk33rF_k-2dnAzkEITjvgPwim-8YsEQfsbRYgZmIXfjOXcD81Y0G2_grugvc0SOj_hKXd4d62T-zU-mC4opuYauWKYFqV4UB4sf4V4rtLWeDWrA\",\"expires_in\": 3600,\"token_type\": \"Bearer\",\"scope\": \"estateManagement transactionProcessor transactionProcessorACL\"}";
@@ -125,19 +109,6 @@
                                                                                           EstateId = TestData.EstateId,
                                                                                           MerchantId = TestData.MerchantId
                                                                                       };
-
-        public static SerialisedMessage SerialisedMessageResponseSale = new SerialisedMessage
-                                                                        {
-                                                                            Metadata = new Dictionary<String, String>
-                                                                                       {
-                                                                                           {"EstateId", TestData.EstateId.ToString()},
-                                                                                           {"MerchantId", TestData.MerchantId.ToString()},
-                                                                                       },
-                                                                            SerialisedData = JsonConvert.SerializeObject(TestData.ClientSaleTransactionResponse, new JsonSerializerSettings
-                                                                                {
-                                                                                    TypeNameHandling = TypeNameHandling.All
-                                                                                })
-                                                                        };
 
         public static Guid OperatorId = Guid.Parse("02238578-30F1-409C-BC73-1CC0220A0A0D");
 
@@ -194,19 +165,6 @@
                                                                                         EstateId = TestData.EstateId,
                                                                                         MerchantId = TestData.MerchantId
                                                                                     };
-
-        public static SerialisedMessage SerialisedMessageResponseReconciliation = new SerialisedMessage
-                                                                                  {
-                                                                                      Metadata = new Dictionary<String, String>
-                                                                                                 {
-                                                                                                     {"EstateId", TestData.EstateId.ToString()},
-                                                                                                     {"MerchantId", TestData.MerchantId.ToString()},
-                                                                                                 },
-                                                                                      SerialisedData = JsonConvert.SerializeObject(TestData.ClientReconciliationResponse, new JsonSerializerSettings
-                                                                                          {
-                                                                                              TypeNameHandling = TypeNameHandling.All
-                                                                                          })
-                                                                                  };
 
         public static IReadOnlyDictionary<String, String> DefaultAppSettings =>
             new Dictionary<String, String>

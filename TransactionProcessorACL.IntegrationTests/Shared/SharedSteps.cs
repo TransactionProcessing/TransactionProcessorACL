@@ -1,21 +1,16 @@
 ﻿using SimpleResults;
+using System.Diagnostics.CodeAnalysis;
 using TransactionProcessor.DataTransferObjects.Requests.Contract;
 using TransactionProcessor.DataTransferObjects.Requests.Estate;
 using TransactionProcessor.DataTransferObjects.Requests.Merchant;
 using TransactionProcessor.DataTransferObjects.Requests.Operator;
-using TransactionProcessor.DataTransferObjects.Responses.Contract;
 using TransactionProcessor.DataTransferObjects.Responses.Estate;
-using TransactionProcessor.DataTransferObjects.Responses.Merchant;
 using AssignOperatorRequest = TransactionProcessor.DataTransferObjects.Requests.Merchant.AssignOperatorRequest;
 
 namespace TransactionProcessorACL.IntegrationTests.Shared{
     using DataTransferObjects;
-    using DataTransferObjects.Responses;
-    using Newtonsoft.Json.Linq;
     using Reqnroll;
     using SecurityService.DataTransferObjects;
-    using SecurityService.DataTransferObjects.Requests;
-    using SecurityService.DataTransferObjects.Responses;
     using SecurityService.IntegrationTesting.Helpers;
     using Shouldly;
     using System;
@@ -190,10 +185,8 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
 
         private async Task<Decimal> GetMerchantBalance(Guid merchantId)
         {
-            JsonElement jsonElement = (JsonElement)await this.TestingContext.DockerHelper.ProjectionManagementClient.GetStateAsync<dynamic>("MerchantBalanceProjection", $"MerchantBalance-{merchantId:N}");
-            JObject jsonObject = JObject.Parse(jsonElement.GetRawText());
-            decimal balanceValue = jsonObject.SelectToken("merchant.balance").Value<decimal>();
-            return balanceValue;
+            MerchantBalanceProjectionState1 balanceState = await this.TestingContext.DockerHelper.ProjectionManagementClient.GetStateAsync<MerchantBalanceProjectionState1>("MerchantBalanceProjection", $"MerchantBalance-{merchantId:N}");
+            return balanceState.merchant.balance;
         }
 
         /// <summary>
@@ -409,7 +402,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         [When(@"I perform the following reconciliations")]
         public async Task WhenIPerformTheFollowingReconciliations(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
-            List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages = table.Rows.ToSerialisedMessages(estates);
+            List<(EstateDetails, Guid, String, TransactionRequest)> serialisedMessages = table.Rows.ToTransactionRequests(estates);
             List<(EstateDetails, String, Guid, String, ReconciliationRequestMessage)> requestMessages = ReqnrollExtensions.ToACLSerialisedMessages<ReconciliationRequestMessage>(SharedSteps.ApplicationVersion,
                                                                                                                                                 serialisedMessages,
                                                                                                                                                 this.TestingContext.Estates);
@@ -426,7 +419,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         [When(@"I perform the following transactions")]
         public async Task WhenIPerformTheFollowingTransactions(DataTable table){
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
-            List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages = table.Rows.ToSerialisedMessages(estates);
+            List<(EstateDetails, Guid, String, TransactionRequest)> serialisedMessages = table.Rows.ToTransactionRequests(estates);
 
             List<(EstateDetails, String, Guid, String, SaleTransactionRequestMessage)> requestMessages = ReqnrollExtensions.ToACLSerialisedMessages<SaleTransactionRequestMessage>(SharedSteps.ApplicationVersion,
                                                                                                                                                 serialisedMessages,
@@ -441,7 +434,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         public async Task WhenIPerformTheFollowingLogonTransactions(DataTable table)
         {
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
-            List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages = table.Rows.ToSerialisedMessages(estates);
+            List<(EstateDetails, Guid, String, TransactionRequest)> serialisedMessages = table.Rows.ToTransactionRequests(estates);
 
             List<(EstateDetails, String, Guid, String, LogonTransactionRequestMessage)> requestMessages = ReqnrollExtensions.ToACLSerialisedMessages<LogonTransactionRequestMessage>(SharedSteps.ApplicationVersion,
                 serialisedMessages,
@@ -496,3 +489,8 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         #endregion
     }
 }
+[ExcludeFromCodeCoverage]
+public record Merchant(string Id, string Name, int numberOfEventsProcessed, decimal balance);
+
+[ExcludeFromCodeCoverage]
+public record MerchantBalanceProjectionState1(Merchant merchant);

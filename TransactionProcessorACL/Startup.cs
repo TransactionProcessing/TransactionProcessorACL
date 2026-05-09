@@ -22,6 +22,7 @@ namespace TransactionProcessorACL
     using Shared.General;
     using Shared.Logger;
     using Shared.Middleware;
+    using Shared.Serialisation;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
@@ -55,8 +56,12 @@ namespace TransactionProcessorACL
             services.IncludeRegistry<ClientRegistry>();
             services.IncludeRegistry<MediatorRegistry>();
             services.IncludeRegistry<MiscRegistry>();
+            services.IncludeRegistry<SerialiserRegistry>();
 
             Startup.Container = new Container(services);
+
+            var serialiser = Container.GetRequiredService<IStringSerialiser>();
+            StringSerialiser.Initialise(serialiser);
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

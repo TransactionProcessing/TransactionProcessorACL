@@ -3,23 +3,12 @@
 namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
 {
     using System;
-    using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
-    using Common;
     using MediatR;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Extensions;
-    using Newtonsoft.Json;
     using Requests;
     using Shared.General;
-    using Shared.Logger;
-    using Shared.Middleware;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="VersionCheckRequest" />
     public class VersionCheckRequestHandler : IRequestHandler<VersionCheckCommands.VersionCheckCommand, Result>
     {
         #region Methods
