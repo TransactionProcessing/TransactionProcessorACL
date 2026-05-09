@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using DataTransferObjects;
 using global::Shared.IntegrationTesting;
-using Newtonsoft.Json;
 using Reqnroll;
 using SecurityService.DataTransferObjects;
 using Shouldly;
@@ -49,30 +48,29 @@ public static class ReqnrollExtensions
         return requests;
     }
 
-    public static List<(EstateDetails,String, Guid, String, T)> ToACLSerialisedMessages<T>(String applicationVersion, List<(EstateDetails, Guid, String, SerialisedMessage)> serialisedMessages, List<EstateDetails1> estateDetailsList) where T : TransactionRequestMessage {
+    public static List<(EstateDetails,String, Guid, String, T)> ToACLSerialisedMessages<T>(String applicationVersion, List<(EstateDetails, Guid, String, TransactionRequest)> serialisedMessages, List<EstateDetails1> estateDetailsList) where T : TransactionRequestMessage {
         List<(EstateDetails,String, Guid, String,T)> aclRequestMessages = new();
-        foreach ((EstateDetails, Guid, String, SerialisedMessage) sm in serialisedMessages){
+        foreach ((EstateDetails, Guid, String, TransactionRequest) sm in serialisedMessages){
             EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateId == sm.Item1.EstateId);
             es1.ShouldNotBeNull();
             String merchantToken = es1.GetMerchantUserToken(sm.Item2);
-                
-            Object x = JsonConvert.DeserializeObject(sm.Item4.SerialisedData, new JsonSerializerSettings{
-                                                                                                            TypeNameHandling = TypeNameHandling.All
-                                                                                                        });
+
             TransactionRequestMessage transactionRequest = null;
-            if (x.GetType() == typeof(LogonTransactionRequest)){
-                LogonTransactionRequest logonRequest = (LogonTransactionRequest)x;
+            if (sm.Item4.GetType() == typeof(LogonTransactionRequest)){
+                LogonTransactionRequest logonRequest = (LogonTransactionRequest)sm.Item4;
                 transactionRequest = new LogonTransactionRequestMessage{
                                                                            ApplicationVersion = applicationVersion,
                                                                            DeviceIdentifier = logonRequest.DeviceIdentifier,
                                                                            TransactionDateTime = logonRequest.TransactionDateTime,
-                                                                           TransactionNumber = logonRequest.TransactionNumber
-                                                                       };
+                                                                           TransactionNumber = logonRequest.TransactionNumber,
+                                                                           EstateId = logonRequest.EstateId,
+                                                                           MerchantId = logonRequest.MerchantId,
+                };
 
             }
 
-            if (x.GetType() == typeof(SaleTransactionRequest)){
-                SaleTransactionRequest saleRequest = (SaleTransactionRequest)x;
+            if (sm.Item4.GetType() == typeof(SaleTransactionRequest)){
+                SaleTransactionRequest saleRequest = (SaleTransactionRequest)sm.Item4;
                 transactionRequest = new SaleTransactionRequestMessage{
                                                                           TransactionNumber = saleRequest.TransactionNumber,
                                                                           ApplicationVersion = applicationVersion,
@@ -83,18 +81,22 @@ public static class ReqnrollExtensions
                                                                           CustomerEmailAddress = saleRequest.CustomerEmailAddress,
                                                                           OperatorId = saleRequest.OperatorId,
                                                                           ProductId = saleRequest.ProductId,
-                                                                      };
+                                                                          EstateId = saleRequest.EstateId,
+                                                                          MerchantId = saleRequest.MerchantId,
+                };
             }
 
-            if (x.GetType() == typeof(ReconciliationRequest)){
-                ReconciliationRequest reconciliation = (ReconciliationRequest)x;
+            if (sm.Item4.GetType() == typeof(ReconciliationRequest)){
+                ReconciliationRequest reconciliation = (ReconciliationRequest)sm.Item4;
                 transactionRequest = new ReconciliationRequestMessage{
                                                                          TransactionDateTime = reconciliation.TransactionDateTime,
                                                                          DeviceIdentifier = reconciliation.DeviceIdentifier,
                                                                          TransactionValue = reconciliation.TransactionValue,
                                                                          TransactionCount = reconciliation.TransactionCount,
                                                                          ApplicationVersion = applicationVersion,
-                                                                         TransactionNumber = sm.Item3
+                                                                         TransactionNumber = sm.Item3,
+                                                                         EstateId = reconciliation.EstateId,
+                                                                         MerchantId = reconciliation.MerchantId
                                                                      };
 
                 if (reconciliation.OperatorTotals != null){

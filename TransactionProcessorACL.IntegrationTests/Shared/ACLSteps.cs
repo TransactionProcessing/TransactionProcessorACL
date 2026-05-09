@@ -1,13 +1,11 @@
-﻿using SimpleResults;
-using System.Diagnostics;
+﻿using Shared.Serialisation;
+using SimpleResults;
 using TransactionProcessor.IntegrationTesting.Helpers;
 
 namespace TransactionProcessorACL.IntegrationTests.Shared;
 
 using DataTransferObjects;
 using DataTransferObjects.Responses;
-using Newtonsoft.Json;
-using Renci.SshNet.Messages.Authentication;
 using Shouldly;
 using System;
 using System.Collections.Generic;
@@ -40,10 +38,8 @@ public class ACLSteps{
     public async Task SendAclSaleRequestMessage((EstateDetails, String, Guid, String, SaleTransactionRequestMessage) requestMessage,
                                                 CancellationToken cancellationToken) {
         String uri = "api/saletransactions";
-
-        String requestJson = JsonConvert.SerializeObject(requestMessage.Item5, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
-
-        await this.SendAclRequestMessage(uri, requestJson, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
+        
+        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
     }
 
     public async Task SendAclLogonRequestMessage((EstateDetails, String, Guid, String, LogonTransactionRequestMessage) requestMessage,
@@ -51,7 +47,7 @@ public class ACLSteps{
     {
         String uri = "api/logontransactions";
 
-        String requestJson = JsonConvert.SerializeObject(requestMessage.Item5, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+        String requestJson = StringSerialiser.Serialise(requestMessage.Item5, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
 
         await this.SendAclRequestMessage(uri, requestJson, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
     }
@@ -61,19 +57,19 @@ public class ACLSteps{
     {
         String uri = "api/reconciliationtransactions";
 
-        String requestJson = JsonConvert.SerializeObject(requestMessage.Item5, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+        String requestJson = StringSerialiser.Serialise(requestMessage.Item5, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
 
         await this.SendAclRequestMessage(uri, requestJson, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
     }
 
-    private async Task SendAclRequestMessage(String uri, 
-                                            String requestJson,
+    private async Task SendAclRequestMessage<T>(String uri, 
+                                            T request,
                                             String accessToken,
                                             Guid merchantId,
                                             EstateDetails estateDetails,
                                             String transactionNumber,
                                             CancellationToken cancellationToken) {
-        StringContent content = new StringContent(requestJson,
+        StringContent content = new StringContent(StringSerialiser.Serialise(request),
             Encoding.UTF8,
             "application/json");
         this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -82,11 +78,13 @@ public class ACLSteps{
 
         response.IsSuccessStatusCode.ShouldBeTrue();
 
-        String responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
         responseContent.ShouldNotBeNullOrEmpty("No response message received");
 
-        estateDetails.AddTransactionResponse(merchantId, transactionNumber, responseContent);
+        TransactionResponse transactionResponse = StringSerialiser.Deserialise<TransactionResponse>(responseContent);
+
+        estateDetails.AddTransactionResponse(merchantId, transactionNumber, transactionResponse);
     }
     
     public void ThenTheLogonTransactionResponseShouldContainTheFollowingInformation(List<ReqnrollExtensions.ExpectedTransactionResponse> expectedResponses, List<EstateDetails1> estateDetailsList)
@@ -94,9 +92,8 @@ public class ACLSteps{
         foreach (ReqnrollExtensions.ExpectedTransactionResponse expectedTransactionResponse in expectedResponses){
             EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateName == expectedTransactionResponse.EstateName);
             es1.ShouldNotBeNull();
-            String responseMessage = es1.EstateDetails.GetTransactionResponse(expectedTransactionResponse.MerchantId, expectedTransactionResponse.TransactionNumber);
+            TransactionResponse transactionResponse = es1.EstateDetails.GetTransactionResponse(expectedTransactionResponse.MerchantId, expectedTransactionResponse.TransactionNumber);
 
-            LogonTransactionResponseMessage transactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponseMessage>(responseMessage);
             transactionResponse.ResponseCode.ShouldBe(expectedTransactionResponse.ResponseCode);
             transactionResponse.ResponseMessage.ShouldBe(expectedTransactionResponse.ResponseMessage);
         }
@@ -108,9 +105,8 @@ public class ACLSteps{
         {
             EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateName == expectedTransactionResponse.EstateName);
             es1.ShouldNotBeNull();
-            String responseMessage = es1.EstateDetails.GetTransactionResponse(expectedTransactionResponse.MerchantId, expectedTransactionResponse.TransactionNumber);
+            TransactionResponse transactionResponse = es1.EstateDetails.GetTransactionResponse(expectedTransactionResponse.MerchantId, expectedTransactionResponse.TransactionNumber);
 
-            SaleTransactionResponseMessage transactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponseMessage>(responseMessage);
             transactionResponse.ResponseCode.ShouldBe(expectedTransactionResponse.ResponseCode);
             transactionResponse.ResponseMessage.ShouldBe(expectedTransactionResponse.ResponseMessage);
         }
@@ -121,11 +117,10 @@ public class ACLSteps{
         {
             EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateName == expectedReconciliationResponse.EstateName);
             es1.ShouldNotBeNull();
-            String responseMessage = es1.EstateDetails.GetTransactionResponse(expectedReconciliationResponse.MerchantId, expectedReconciliationResponse.TransactionNumber);
+            TransactionResponse transactionResponse = es1.EstateDetails.GetTransactionResponse(expectedReconciliationResponse.MerchantId, expectedReconciliationResponse.TransactionNumber);
 
-            ReconciliationResponseMessage reconciliationResponse= JsonConvert.DeserializeObject<ReconciliationResponseMessage>(responseMessage);
-            reconciliationResponse.ResponseCode.ShouldBe(expectedReconciliationResponse.ResponseCode);
-            reconciliationResponse.ResponseMessage.ShouldBe(expectedReconciliationResponse.ResponseMessage);
+            transactionResponse.ResponseCode.ShouldBe(expectedReconciliationResponse.ResponseCode);
+            transactionResponse.ResponseMessage.ShouldBe(expectedReconciliationResponse.ResponseMessage);
         }
     }
 
@@ -133,12 +128,8 @@ public class ACLSteps{
         EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateName == estateName);
         es1.ShouldNotBeNull();
         Guid merchantId = es1.EstateDetails.GetMerchantId(merchantName);
-        String serialisedMessage = es1.EstateDetails.GetTransactionResponse(merchantId, transactionNumber.ToString());
-        SaleTransactionResponse transactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponse>(serialisedMessage,
-                                                                                                             new JsonSerializerSettings
-                                                                                                             {
-                                                                                                                 TypeNameHandling = TypeNameHandling.All
-                                                                                                             });
+        TransactionResponse transactionResponse = es1.EstateDetails.GetTransactionResponse(merchantId, transactionNumber.ToString());
+
         GetVoucherResponse voucher = null;
         await Retry.For(async () => {
 
@@ -164,7 +155,7 @@ public class ACLSteps{
 
         response.IsSuccessStatusCode.ShouldBeTrue();
 
-        RedeemVoucherResponseMessage redeemVoucherResponse = JsonConvert.DeserializeObject<RedeemVoucherResponseMessage>(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+        RedeemVoucherResponseMessage redeemVoucherResponse = StringSerialiser.DeserializeObject<RedeemVoucherResponseMessage>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), typeof(RedeemVoucherResponseMessage), new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
 
         redeemVoucherResponse.Balance.ShouldBe(balance);
     }
@@ -189,7 +180,7 @@ public class ACLSteps{
         String responseContent = await response.Content.ReadAsStringAsync();
         
 
-        MerchantResponse merchantResponse = JsonConvert.DeserializeObject<MerchantResponse>(responseContent);
+        MerchantResponse merchantResponse = StringSerialiser.Deserialise<MerchantResponse>(responseContent, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
         merchantResponse.ShouldNotBeNull();
         merchantResponse.MerchantId.ShouldBe(merchantId);
         merchantResponse.MerchantName.ShouldBe(expectedMerchantResponse.MerchantName);
@@ -228,7 +219,7 @@ public class ACLSteps{
 
             String responseContent = await response.Content.ReadAsStringAsync();
 
-            List<ContractResponse> merchantContractResponseResult = JsonConvert.DeserializeObject<List<ContractResponse>>(responseContent);
+            List<ContractResponse> merchantContractResponseResult = StringSerialiser.Deserialise<List<ContractResponse>>(responseContent);
 
             foreach (ExpectedMerchantContractResponse expectedMerchantContractResponse in expectedMerchantContractResponses) {
                 ContractResponse contractResponse = merchantContractResponseResult.SingleOrDefault(c => c.Description == expectedMerchantContractResponse.ContractName);

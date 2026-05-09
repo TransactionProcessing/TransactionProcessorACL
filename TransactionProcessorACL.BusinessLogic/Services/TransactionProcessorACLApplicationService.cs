@@ -1,4 +1,5 @@
-﻿using Shared.Exceptions;
+﻿using SecurityService.DataTransferObjects;
+using Shared.Exceptions;
 using Shared.Results;
 using SimpleResults;
 using TransactionProcessor.DataTransferObjects.Responses.Contract;
@@ -11,9 +12,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
     using System.Threading;
     using System.Threading.Tasks;
     using Models;
-    using Newtonsoft.Json;
     using SecurityService.Client;
-    using SecurityService.DataTransferObjects.Responses;
     using Shared.General;
     using Shared.Logger;
     using TransactionProcessor.Client;
@@ -82,10 +81,10 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
 
             TokenResponse accessToken = accessTokenResult.Data;
-            SerialisedMessage requestSerialisedMessage = CreateLogonRequestMessage(estateId, merchantId, transactionDateTime, transactionNumber, deviceIdentifier);
+            LogonTransactionRequest logonTransactionRequest = CreateLogonRequestMessage(estateId, merchantId, transactionDateTime, transactionNumber, deviceIdentifier);
 
             try {
-                Result<SerialisedMessage> transactionResult = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
+                Result<LogonTransactionResponse> transactionResult = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, logonTransactionRequest, cancellationToken);
 
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
@@ -120,14 +119,17 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                          (Guid operatorId, Guid contractId, Guid productId) productData,
                                                                                          Dictionary<String, String> additionalRequestMetadata, CancellationToken cancellationToken)
         {
+            Logger.LogWarning("Here 2.1");
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
-
+            Logger.LogWarning("Here 2.2");
             TokenResponse accessToken = accessTokenResult.Data;
 
-            SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(transactionNumber,
+            SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(merchantData.estateId,
+                                                                                            merchantData.merchantId,
+                                                                                            transactionNumber,
                                                                                             deviceIdentifier,
                                                                                             transactionDateTime,
                                                                                             productData.operatorId,
@@ -135,25 +137,24 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                             productData.contractId,
                                                                                             productData.productId,
                                                                                             additionalRequestMetadata);
-            
-            SerialisedMessage requestSerialisedMessage = this.BuildSaleTransactionSerialisedMessage(merchantData.estateId, merchantData.merchantId, saleTransactionRequest);
 
             ProcessSaleTransactionResponse response = null;
 
             try
             {
-                Result<SerialisedMessage> transactionResult = 
-                    await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
+                Logger.LogWarning("Here 2.3");
+                Result<SaleTransactionResponse> transactionResult = 
+                    await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, saleTransactionRequest, cancellationToken);
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
-                SerialisedMessage responseSerialisedMessage = transactionResult.Data;
+                Logger.LogWarning("Here 2.4");
 
-                SaleTransactionResponse saleTransactionResponse = JsonConvert.DeserializeObject<SaleTransactionResponse>(responseSerialisedMessage.SerialisedData);
-
-                response = this.CreateSaleTransactionResponse(saleTransactionResponse, merchantData.estateId, merchantData.merchantId);
+                response = this.CreateSaleTransactionResponse(transactionResult.Data, merchantData.estateId, merchantData.merchantId);
+                Logger.LogWarning("Here 2.5");
             }
             catch (Exception ex)
             {
+                Logger.LogWarning("Here 2.6");
                 response = this.CreateSaleTransactionErrorResponse(merchantData.estateId, merchantData.merchantId, ex);
             }
 
@@ -168,14 +169,16 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             return await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
         }
 
-        private SaleTransactionRequest BuildSaleTransactionRequest(String transactionNumber,
-                                                                  String deviceIdentifier,
-                                                                  DateTime transactionDateTime,
-                                                                  Guid operatorId,
-                                                                  String customerEmailAddress,
-                                                                  Guid contractId,
-                                                                  Guid productId,
-                                                                  Dictionary<String, String> additionalRequestMetadata)
+        private SaleTransactionRequest BuildSaleTransactionRequest(Guid estateId,
+                                                                   Guid merchantId,
+                                                                   String transactionNumber,
+                                                                   String deviceIdentifier, 
+                                                                   DateTime transactionDateTime,
+                                                                   Guid operatorId,
+                                                                   String customerEmailAddress,
+                                                                   Guid contractId,
+                                                                   Guid productId,
+                                                                   Dictionary<String, String> additionalRequestMetadata)
         {
             return new SaleTransactionRequest
             {
@@ -188,24 +191,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 TransactionSource = 1,
                 ContractId = contractId,
                 ProductId = productId,
-                AdditionalTransactionMetadata = additionalRequestMetadata
+                AdditionalTransactionMetadata = additionalRequestMetadata,
+                EstateId = estateId,
+                MerchantId = merchantId,
             };
         }
 
-        private SerialisedMessage BuildSaleTransactionSerialisedMessage(Guid estateId,
-                                                                        Guid merchantId,
-                                                                        SaleTransactionRequest request)
-        {
-            SerialisedMessage requestSerialisedMessage = new SerialisedMessage();
-            requestSerialisedMessage.Metadata.Add(MetadataContants.EstateIdMetadataName, estateId.ToString());
-            requestSerialisedMessage.Metadata.Add(MetadataContants.MerchantIdMetadataName, merchantId.ToString());
-            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(request,
-                                                                                  new JsonSerializerSettings
-                                                                                  {
-                                                                                      TypeNameHandling = TypeNameHandling.All
-                                                                                  });
-            return requestSerialisedMessage;
-        }
 
         private ProcessSaleTransactionResponse CreateSaleTransactionResponse(SaleTransactionResponse saleTransactionResponse,
                                                                              Guid estateId,
@@ -250,7 +241,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
 
             TokenResponse accessToken = accessTokenResult.Data;
-            SerialisedMessage requestSerialisedMessage = CreateReconciliationRequestMessage(estateId,
+            ReconciliationRequest reconciliationRequest = CreateReconciliationRequestMessage(estateId,
                                                                                             merchantId,
                                                                                             transactionDateTime,
                                                                                             deviceIdentifier,
@@ -259,8 +250,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             try
             {
-                Result<SerialisedMessage> transactionResult = 
-                    await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, requestSerialisedMessage, cancellationToken);
+                Result<ReconciliationResponse> transactionResult = 
+                    await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, reconciliationRequest, cancellationToken);
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
                 return Result.Success(CreateProcessReconciliationResponse(transactionResult.Data));
@@ -412,32 +403,25 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         public async Task<Result<MerchantResponse>> GetMerchant(Guid estateId,
                                                                 Guid merchantId,
                                                                 CancellationToken cancellationToken) {
-            Logger.LogWarning("in GetMerchant");
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
 
-            Logger.LogWarning("in GetMerchant - Got Token");
             TokenResponse accessToken = accessTokenResult.Data;
             
             Result<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> result = await this.TransactionProcessorClient.GetMerchant(accessToken.AccessToken, estateId, merchantId, cancellationToken);
 
             if (result.IsFailed)
                 return Result.Failure($"Error getting merchant {result.Message}");
-            Logger.LogWarning("in GetMerchant - Got Merchant");
-
-            Logger.LogWarning($"in GetMerchant - {JsonConvert.SerializeObject(result.Data)}");
-
+            
             MerchantResponse merchantResponse = ResponseFactory.Build(result.Data);
 
             return merchantResponse;
         }
 
-        private static ProcessReconciliationResponse CreateProcessReconciliationResponse(SerialisedMessage responseSerialisedMessage)
+        private static ProcessReconciliationResponse CreateProcessReconciliationResponse(ReconciliationResponse reconciliationResponse)
         {
-            ReconciliationResponse reconciliationResponse = JsonConvert.DeserializeObject<ReconciliationResponse>(responseSerialisedMessage.SerialisedData);
-
             return new ProcessReconciliationResponse
             {
                 ResponseCode = reconciliationResponse.ResponseCode,
@@ -477,39 +461,30 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             };
         }
 
-        private static SerialisedMessage CreateReconciliationRequestMessage(Guid estateId,
-                                                                            Guid merchantId,
-                                                                            DateTime transactionDateTime,
-                                                                            String deviceIdentifier,
-                                                                            Int32 transactionCount,
-                                                                            Decimal transactionValue)
+        private static ReconciliationRequest CreateReconciliationRequestMessage(Guid estateId,
+                                                                                Guid merchantId,
+                                                                                DateTime transactionDateTime,
+                                                                                String deviceIdentifier,
+                                                                                Int32 transactionCount,
+                                                                                Decimal transactionValue)
         {
             ReconciliationRequest reconciliationRequest = new ReconciliationRequest
             {
                 DeviceIdentifier = deviceIdentifier,
                 TransactionDateTime = transactionDateTime,
                 TransactionCount = transactionCount,
-                TransactionValue = transactionValue
+                TransactionValue = transactionValue,
+                EstateId = estateId,
+                MerchantId = merchantId
             };
 
-            SerialisedMessage requestSerialisedMessage = new();
-            requestSerialisedMessage.Metadata.Add(MetadataContants.EstateIdMetadataName, estateId.ToString());
-            requestSerialisedMessage.Metadata.Add(MetadataContants.MerchantIdMetadataName, merchantId.ToString());
-            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(reconciliationRequest,
-                                                                                  new JsonSerializerSettings
-                                                                                  {
-                                                                                      TypeNameHandling = TypeNameHandling.All
-                                                                                  });
-
-            return requestSerialisedMessage;
+            return reconciliationRequest;
         }
 
         private static ProcessLogonTransactionResponse CreateProcessLogonTransactionResponse(Guid estateId,
                                                                                              Guid merchantId,
-                                                                                             SerialisedMessage responseSerialisedMessage)
+                                                                                             LogonTransactionResponse logonTransactionResponse)
         {
-            LogonTransactionResponse logonTransactionResponse = JsonConvert.DeserializeObject<LogonTransactionResponse>(responseSerialisedMessage.SerialisedData);
-
             return new ProcessLogonTransactionResponse
             {
                 ResponseCode = logonTransactionResponse.ResponseCode,
@@ -534,30 +509,23 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             };
         }
 
-        private static SerialisedMessage CreateLogonRequestMessage(Guid estateId,
-                                                                   Guid merchantId,
-                                                                   DateTime transactionDateTime,
-                                                                   String transactionNumber,
-                                                                   String deviceIdentifier)
+        private static LogonTransactionRequest CreateLogonRequestMessage(Guid estateId,
+                                                                         Guid merchantId,
+                                                                         DateTime transactionDateTime,
+                                                                         String transactionNumber,
+                                                                         String deviceIdentifier)
         {
             LogonTransactionRequest logonTransactionRequest = new LogonTransactionRequest
             {
                 TransactionNumber = transactionNumber,
                 DeviceIdentifier = deviceIdentifier,
                 TransactionDateTime = transactionDateTime,
-                TransactionType = "LOGON"
+                TransactionType = "LOGON",
+                EstateId = estateId,
+                MerchantId = merchantId
             };
-
-            SerialisedMessage requestSerialisedMessage = new();
-            requestSerialisedMessage.Metadata.Add(MetadataContants.EstateIdMetadataName, estateId.ToString());
-            requestSerialisedMessage.Metadata.Add(MetadataContants.MerchantIdMetadataName, merchantId.ToString());
-            requestSerialisedMessage.SerialisedData = JsonConvert.SerializeObject(logonTransactionRequest,
-                                                                                  new JsonSerializerSettings
-                                                                                  {
-                                                                                      TypeNameHandling = TypeNameHandling.All
-                                                                                  });
-
-            return requestSerialisedMessage;
+            
+            return logonTransactionRequest;
         }
 
         #endregion

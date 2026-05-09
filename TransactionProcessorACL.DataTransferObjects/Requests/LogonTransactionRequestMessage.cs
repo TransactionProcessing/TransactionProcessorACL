@@ -2,8 +2,7 @@
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
-    using Newtonsoft.Json;
-
+    
     /// <summary>
     /// 
     /// </summary>

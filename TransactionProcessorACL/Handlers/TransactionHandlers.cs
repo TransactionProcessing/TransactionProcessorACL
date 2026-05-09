@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Shared.Logger;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects;
 using TransactionProcessorACL.Factories;
@@ -26,12 +27,16 @@ public static class TransactionHandlers
                                                              SaleTransactionRequestMessage transactionRequest,
                                                              CancellationToken cancellationToken)
     {
+        Logger.LogWarning($"Performing Sale Transaction for TransactionNumber: {transactionRequest.TransactionNumber}, DeviceIdentifier: {transactionRequest.DeviceIdentifier}, TransactionDateTime: {transactionRequest.TransactionDateTime}");
+
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed)
             return ResponseFactory.FromResult(Result.Forbidden());
-
+        Logger.LogWarning("Here 1");
         TransactionCommands.ProcessSaleTransactionCommand saleCommand = CreateSaleCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
+        Logger.LogWarning("Here 2");
         Result<ProcessSaleTransactionResponse> saleResponse = await mediator.Send(saleCommand, cancellationToken);
+        Logger.LogWarning("Here 3");
         return ResponseFactory.FromResult(saleResponse, ModelFactory.ConvertFrom);
     }
 
