@@ -10,13 +10,11 @@ using TransactionProcessorACL.Models;
 namespace TransactionProcessorACL.BusinessLogic.RequestHandlers;
 
 public class MerchantRequestHandler : IRequestHandler<MerchantQueries.GetMerchantContractsQuery, Result<List<ContractResponse>>>,
-IRequestHandler<MerchantQueries.GetMerchantQuery, Result<MerchantResponse>> {
-    #region Fields
-
+IRequestHandler<MerchantQueries.GetMerchantQuery, Result<MerchantResponse>>,
+IRequestHandler<MerchantQueries.GetMerchantScheduleQuery, Result<MerchantScheduleResponse>> {
+    
     private readonly ITransactionProcessorACLApplicationService ApplicationService;
-
-    #endregion
-
+    
     public MerchantRequestHandler(ITransactionProcessorACLApplicationService applicationService) {
         this.ApplicationService = applicationService;
     }
@@ -29,5 +27,10 @@ IRequestHandler<MerchantQueries.GetMerchantQuery, Result<MerchantResponse>> {
     public async Task<Result<MerchantResponse>> Handle(MerchantQueries.GetMerchantQuery request,
                                                        CancellationToken cancellationToken) {
         return await this.ApplicationService.GetMerchant(request.EstateId, request.MerchantId, cancellationToken);
+    }
+
+    public async Task<Result<MerchantScheduleResponse>> Handle(MerchantQueries.GetMerchantScheduleQuery request,
+                                                               CancellationToken cancellationToken) {
+        return await this.ApplicationService.GetMerchantSchedule(request.EstateId, request.MerchantId, request.Year, cancellationToken);
     }
 }

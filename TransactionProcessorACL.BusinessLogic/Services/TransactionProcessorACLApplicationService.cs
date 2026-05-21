@@ -397,7 +397,29 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             
             MerchantResponse merchantResponse = ResponseFactory.Build(result.Data);
 
-            return merchantResponse;
+            return Result.Success(merchantResponse);
+        }
+
+        public async Task<Result<MerchantScheduleResponse>> GetMerchantSchedule(Guid estateId,
+                                                                                Guid merchantId,
+                                                                                Int32 year,
+                                                                                CancellationToken cancellationToken) {
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
+            if (accessTokenResult.IsFailed)
+            {
+                return ResultHelpers.CreateFailure(accessTokenResult);
+            }
+
+            TokenResponse accessToken = accessTokenResult.Data;
+
+            Result<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantScheduleResponse> result = await this.TransactionProcessorClient.GetMerchantSchedule(accessToken.AccessToken, estateId, merchantId, year, cancellationToken);
+
+            if (result.IsFailed)
+                return Result.Failure($"Error getting merchant schedule {result.Message}");
+
+            MerchantScheduleResponse merchantScheduleResponse = ResponseFactory.Build(result.Data);
+
+            return Result.Success(merchantScheduleResponse);
         }
 
         private static ProcessReconciliationResponse CreateProcessReconciliationResponse(ReconciliationResponse reconciliationResponse)

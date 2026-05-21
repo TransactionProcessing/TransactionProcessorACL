@@ -71,7 +71,6 @@ namespace TransactionProcessorACL
             InitializeLogger(loggerFactory);
             ConfigureMiddleware(app);
             ConfigureEndpoints(app);
-            ConfigureSwagger(app);
         }
 
         private static void UseDevelopmentExceptionPage(IApplicationBuilder app,
@@ -105,12 +104,6 @@ namespace TransactionProcessorACL
         private static void ConfigureEndpoints(IApplicationBuilder app)
         {
             app.UseEndpoints(MapEndpoints);
-        }
-
-        private static void ConfigureSwagger(IApplicationBuilder app)
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
         }
 
         private static void MapEndpoints(IEndpointRouteBuilder endpoints)

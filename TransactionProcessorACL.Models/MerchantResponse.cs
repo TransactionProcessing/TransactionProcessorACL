@@ -111,4 +111,19 @@ namespace TransactionProcessorACL.Models
 
         public string Closing { get; set; }
     }
+
+    public class MerchantScheduleResponse
+    {
+        public int Year { get; set; }
+
+        public List<MerchantScheduleMonthResponse> Months { get; set; } = new List<MerchantScheduleMonthResponse>();
+    }
+
+    public class MerchantScheduleMonthResponse
+    {
+        public int Month { get; set; }
+
+        public List<int> ClosedDays { get; set; } = new List<int>();
+    }
+
 }

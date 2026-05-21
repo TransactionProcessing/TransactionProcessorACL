@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TransactionProcessor.DataTransferObjects.Requests.Merchant;
 using TransactionProcessorACL.Models;
 using ContractContactResponse = TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse;
@@ -137,6 +138,24 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                     TerminalNumber = merchantOperator.TerminalNumber
                 });
             }
+        }
+
+        public static MerchantScheduleResponse Build(TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantScheduleResponse resultData) {
+            if (resultData == null) {
+                return null;
+            }
+
+            var response = new MerchantScheduleResponse
+            {
+                Year = resultData.Year,
+                Months = resultData.Months.Select(m => new MerchantScheduleMonthResponse
+                {
+                    Month = m.Month,
+                    ClosedDays = m.ClosedDays
+                }).ToList() ?? new List<MerchantScheduleMonthResponse>()
+            };
+
+            return response;
         }
     }
 }

@@ -371,7 +371,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetVoucher_VoucherRetrieved()
+        public async Task TransactionProcessorACLApplicationService_GetVoucher_VoucherRetrieved()
         {
             this.transactionProcessorClient.Setup(v => v.GetVoucherByCode(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(TestData.GetVoucherResponse);
@@ -390,7 +390,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetVoucher_GetTokenFailed_ResultIsFailed()
+        public async Task TransactionProcessorACLApplicationService_GetVoucher_GetTokenFailed_ResultIsFailed()
         {
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
 
@@ -400,7 +400,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetVoucher_GetVoucherFailed_ResultIsFailed()
+        public async Task TransactionProcessorACLApplicationService_GetVoucher_GetVoucherFailed_ResultIsFailed()
         {
             this.transactionProcessorClient.Setup(v => v.GetVoucherByCode(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result.Failure());
@@ -412,7 +412,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetVoucher_ExceptionErrorInGetVoucher_GetVoucherIsNotSuccessful()
+        public async Task TransactionProcessorACLApplicationService_GetVoucher_ExceptionErrorInGetVoucher_GetVoucherIsNotSuccessful()
         {
             transactionProcessorClient.Setup(v => v.GetVoucherByCode(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
                                       .ThrowsAsync(new Exception("Error"));
@@ -424,7 +424,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_RedeemVoucher_VoucherRedeemed()
+        public async Task TransactionProcessorACLApplicationService_RedeemVoucher_VoucherRedeemed()
         {
             transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
                                       .ReturnsAsync(Result.Success);
@@ -438,7 +438,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_RedeemVoucher_GetTokenFailed_ResultIsFailed()
+        public async Task TransactionProcessorACLApplicationService_RedeemVoucher_GetTokenFailed_ResultIsFailed()
         {
             transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result.Failure);
@@ -450,7 +450,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_RedeemVoucher_RedeemVoucherFailed_ResultIsFailed()
+        public async Task TransactionProcessorACLApplicationService_RedeemVoucher_RedeemVoucherFailed_ResultIsFailed()
         {
             transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result.Failure());
@@ -462,7 +462,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_RedeemVoucher_ExceptionErrorInGetVoucher_GetVoucherIsNotSuccessful()
+        public async Task TransactionProcessorACLApplicationService_RedeemVoucher_ExceptionErrorInGetVoucher_GetVoucherIsNotSuccessful()
         {
              transactionProcessorClient.Setup(v => v.RedeemVoucher(It.IsAny<String>(), It.IsAny<RedeemVoucherRequest>(), It.IsAny<CancellationToken>()))
                                       .ThrowsAsync(new Exception("Error"));
@@ -478,7 +478,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [InlineData(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Immediate)]
         [InlineData(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Weekly)]
         [InlineData(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Monthly)]
-        public async Task VoucherManagementACLApplicationService_GetMerchant_MerchantReturned(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule settlementSchedule)
+        public async Task TransactionProcessorACLApplicationService_GetMerchant_MerchantReturned(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule settlementSchedule)
         {
             transactionProcessorClient.Setup(v => v.GetMerchant(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                                       .ReturnsAsync(Result.Success(TestData.MerchantResponse(settlementSchedule)));
@@ -504,7 +504,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetMerchant_GetTokenFailed_ResultIsFailed()
+        public async Task TransactionProcessorACLApplicationService_GetMerchant_GetTokenFailed_ResultIsFailed()
         {
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
 
@@ -514,7 +514,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetMerchant_GetMerchantFailed_ResultIsFailed()
+        public async Task TransactionProcessorACLApplicationService_GetMerchant_GetMerchantFailed_ResultIsFailed()
         {
             transactionProcessorClient.Setup(v => v.GetMerchant(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result.Failure());
@@ -528,7 +528,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [InlineData(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType.Voucher)]
         [InlineData(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType.BillPayment)]
         [InlineData(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType.MobileTopup)]
-        public async Task VoucherManagementACLApplicationService_GetMerchantContracts_MerchantContractsReturned(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType productType) {
+        public async Task TransactionProcessorACLApplicationService_GetMerchantContracts_MerchantContractsReturned(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType productType) {
             transactionProcessorClient.Setup(v => v.GetMerchantContracts(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result.Success(TestData.MerchantContractResponses(productType)));
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
@@ -538,7 +538,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetMerchantContracts_GetTokenFailed_ResultIsFailed()
+        public async Task TransactionProcessorACLApplicationService_GetMerchantContracts_GetTokenFailed_ResultIsFailed()
         {
             securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
 
@@ -547,7 +547,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         }
 
         [Fact]
-        public async Task VoucherManagementACLApplicationService_GetMerchantContracts_GetMerchantContractsFailed_ResultIsFailed()
+        public async Task TransactionProcessorACLApplicationService_GetMerchantContracts_GetMerchantContractsFailed_ResultIsFailed()
         {
             transactionProcessorClient.Setup(v => v.GetMerchantContracts(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result.Failure());
@@ -555,6 +555,37 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
 
             var merchantContractsResponse = await applicationService.GetMerchantContracts(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
             merchantContractsResponse.IsFailed.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_GetMerchantSchedule_MerchantScheduleReturned()
+        {
+            transactionProcessorClient.Setup(v => v.GetMerchantSchedule(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(),It.IsAny<Int32>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Success(TestData.MerchantScheduleResponse()));
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            var merchantScheduleResponse = await applicationService.GetMerchantSchedule(TestData.EstateId, TestData.MerchantId, TestData.ScheduleYear, CancellationToken.None);
+            merchantScheduleResponse.IsSuccess.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_GetMerchantSchedule_GetTokenFailed_ResultIsFailed()
+        {
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
+
+            var merchantScheduleResponse = await applicationService.GetMerchantSchedule(TestData.EstateId, TestData.MerchantId, TestData.ScheduleYear, CancellationToken.None);
+            merchantScheduleResponse.IsFailed.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_GetMerchantSchedule_GetMerchantScheduleFailed_ResultIsFailed()
+        {
+            transactionProcessorClient.Setup(v => v.GetMerchantSchedule(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Int32>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Failure());
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            var merchantScheduleResponse = await applicationService.GetMerchantSchedule(TestData.EstateId, TestData.MerchantId, TestData.ScheduleYear, CancellationToken.None);
+            merchantScheduleResponse.IsFailed.ShouldBeTrue();
         }
     }
 }

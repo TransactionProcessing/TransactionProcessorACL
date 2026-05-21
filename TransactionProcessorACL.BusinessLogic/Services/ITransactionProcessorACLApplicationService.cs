@@ -55,5 +55,10 @@ namespace TransactionProcessorACL.BusinessLogic.Services
        Task<Result<Models.MerchantResponse>> GetMerchant(Guid estateId,
                                                                         Guid merchantId,
                                                                         CancellationToken cancellationToken);
+
+       Task<Result<MerchantScheduleResponse>> GetMerchantSchedule(Guid estateId,
+                                                                  Guid merchantId,
+                                                                  Int32 year,
+                                                                  CancellationToken cancellationToken);
     }
 }

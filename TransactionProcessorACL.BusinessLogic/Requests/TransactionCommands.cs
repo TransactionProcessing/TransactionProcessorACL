@@ -5,7 +5,6 @@ using MediatR;
 using SimpleResults;
 using TransactionProcessor.DataTransferObjects.Responses.Merchant;
 using TransactionProcessorACL.Models;
-using MerchantResponse = TransactionProcessorACL.Models.MerchantResponse;
 
 namespace TransactionProcessorACL.BusinessLogic.Requests;
 
@@ -37,11 +36,4 @@ public record TransactionCommands {
                                                Int32 TransactionCount,
                                                Decimal TransactionValue)
         : IRequest<Result<ProcessReconciliationResponse>>;
-}
-
-[ExcludeFromCodeCoverage]
-public record MerchantQueries {
-    public record GetMerchantContractsQuery(Guid EstateId,Guid MerchantId) : IRequest<Result<List<ContractResponse>>>;
-    public record GetMerchantQuery(Guid EstateId, Guid MerchantId) : IRequest<Result<MerchantResponse>>;
-
 }
