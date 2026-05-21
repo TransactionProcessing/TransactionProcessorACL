@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace TransactionProcessorACL.Factories
 {
     using System;
@@ -285,6 +287,24 @@ namespace TransactionProcessorACL.Factories
             };
 
             return responseMessage;
+        }
+
+        public static DataTransferObjects.Responses.MerchantScheduleResponse ConvertFrom(Models.MerchantScheduleResponse model) {
+            if (model == null) {
+                return null;
+            }
+
+            DataTransferObjects.Responses.MerchantScheduleResponse response = new DataTransferObjects.Responses.MerchantScheduleResponse
+            {
+                Year = model.Year,
+                Months = model.Months?.Select(m => new DataTransferObjects.Responses.MerchantScheduleMonthResponse
+                {
+                    Month = m.Month,
+                    ClosedDays = m.ClosedDays
+                }).ToList() ?? new List<DataTransferObjects.Responses.MerchantScheduleMonthResponse>()
+            };
+
+            return response;
         }
     }
 }

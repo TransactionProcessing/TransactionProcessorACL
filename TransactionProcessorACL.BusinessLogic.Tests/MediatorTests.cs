@@ -35,6 +35,7 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
             this.Requests.Add(TestData.RedeemVoucherCommand);
             this.Requests.Add(TestData.GetMerchantContractsQuery);
             this.Requests.Add(TestData.GetMerchantQuery);
+            this.Requests.Add(TestData.GetMerchantScheduleQuery);
         }
 
         [Fact]
@@ -151,6 +152,13 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
                                                                 Guid merchantId,
                                                                 CancellationToken cancellationToken) {
             return Result.Success(new MerchantResponse());
+        }
+
+        public async Task<Result<MerchantScheduleResponse>> GetMerchantSchedule(Guid estateId,
+                                                                                Guid merchantId,
+                                                                                Int32 year,
+                                                                                CancellationToken cancellationToken) {
+            return Result.Success(new MerchantScheduleResponse());
         }
     }
 }

@@ -23,6 +23,8 @@ namespace TransactionProcessorACL.Endpoints
 
             group.MapGet("contracts",MerchantHandlers.GetMerchantContracts).WithName("GetMerchantContracts");
 
+            group.MapGet("schedules", MerchantHandlers.GetMerchantSchedule).WithName("GetMerchantSchedule");
+
             return app;
         }
     }

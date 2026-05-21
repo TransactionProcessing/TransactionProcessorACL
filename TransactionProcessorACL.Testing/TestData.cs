@@ -53,6 +53,8 @@ namespace TransactionProcessorACL.Testing
         /// </summary>
         public static Guid MerchantId = Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3");
 
+        public static Int32 ScheduleYear = 2026;
+
         /// <summary>
         /// The process logon transaction request
         /// </summary>
@@ -200,6 +202,7 @@ namespace TransactionProcessorACL.Testing
         public static VoucherCommands.RedeemVoucherCommand RedeemVoucherCommand => new(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
         public static MerchantQueries.GetMerchantContractsQuery GetMerchantContractsQuery => new(EstateId,MerchantId);
         public static MerchantQueries.GetMerchantQuery GetMerchantQuery => new(EstateId, MerchantId);
+        public static MerchantQueries.GetMerchantScheduleQuery GetMerchantScheduleQuery => new(EstateId, MerchantId, 2026);
 
         public static VoucherQueries.GetVoucherQuery GetVoucherQuery => new(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
 
@@ -354,5 +357,9 @@ namespace TransactionProcessorACL.Testing
                     }
                 }
             };
+
+        public static TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantScheduleResponse MerchantScheduleResponse() {
+            return new TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantScheduleResponse { Year = ScheduleYear, Months = new List<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantScheduleMonthResponse>() { new TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantScheduleMonthResponse { ClosedDays = new List<int> { 1, 2 }, Month = 1 }, new TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantScheduleMonthResponse { ClosedDays = new List<int> { 25, 26 }, Month = 12 } } };
+        }
     }
 }

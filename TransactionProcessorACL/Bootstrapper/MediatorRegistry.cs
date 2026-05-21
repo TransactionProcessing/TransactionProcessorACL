@@ -38,6 +38,7 @@ namespace TransactionProcessorACL.Bootstrapper
 
             this.AddSingleton<IRequestHandler<MerchantQueries.GetMerchantContractsQuery, Result<List<ContractResponse>>>, MerchantRequestHandler>();
             this.AddSingleton<IRequestHandler<MerchantQueries.GetMerchantQuery, Result<MerchantResponse>>, MerchantRequestHandler>();
+            this.AddSingleton<IRequestHandler<MerchantQueries.GetMerchantScheduleQuery, Result<MerchantScheduleResponse>>, MerchantRequestHandler>();
         }
 
         #endregion

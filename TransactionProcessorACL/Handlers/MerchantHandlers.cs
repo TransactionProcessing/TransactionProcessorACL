@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Shared.Logger;
 using Shared.Results.Web;
 using SimpleResults;
@@ -48,6 +49,24 @@ namespace TransactionProcessorACL.Handlers
 
             MerchantQueries.GetMerchantQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
             Result<MerchantResponse> result = await mediator.Send(query, cancellationToken);
+
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+        }
+
+        public static async Task<IResult> GetMerchantSchedule(IMediator mediator,
+                                                      ClaimsPrincipal user,
+                                                      string applicationVersion,
+                                                      [FromQuery] Int32 year,
+                                                      CancellationToken cancellationToken)
+        {
+            Logger.LogWarning("In GetMerchantSchedule Handler");
+
+            Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
+            if (claimsResult.IsFailed)
+                return ResponseFactory.FromResult(Result.Forbidden());
+
+            MerchantQueries.GetMerchantScheduleQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId, year);
+            Result<MerchantScheduleResponse> result = await mediator.Send(query, cancellationToken);
 
             return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
