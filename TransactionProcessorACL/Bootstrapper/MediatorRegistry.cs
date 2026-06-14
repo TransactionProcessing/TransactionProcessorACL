@@ -25,20 +25,7 @@ namespace TransactionProcessorACL.Bootstrapper
         /// </summary>
         public MediatorRegistry()
         {
-            this.AddTransient<IMediator, Mediator>();
-            
-            this.AddSingleton<IRequestHandler<VersionCheckCommands.VersionCheckCommand, Result>, VersionCheckRequestHandler>();
-            
-            this.AddSingleton<IRequestHandler<TransactionCommands.ProcessLogonTransactionCommand, Result<ProcessLogonTransactionResponse>>, TransactionRequestHandler>();
-            this.AddSingleton<IRequestHandler<TransactionCommands.ProcessSaleTransactionCommand, Result<ProcessSaleTransactionResponse>>, TransactionRequestHandler>();
-            this.AddSingleton<IRequestHandler<TransactionCommands.ProcessReconciliationCommand, Result<ProcessReconciliationResponse>>, TransactionRequestHandler>();
-            
-            this.AddSingleton<IRequestHandler<VoucherQueries.GetVoucherQuery, Result<GetVoucherResponse>>, VoucherRequestHandler>();
-            this.AddSingleton<IRequestHandler<VoucherCommands.RedeemVoucherCommand, Result<RedeemVoucherResponse>>, VoucherRequestHandler>();
-
-            this.AddSingleton<IRequestHandler<MerchantQueries.GetMerchantContractsQuery, Result<List<ContractResponse>>>, MerchantRequestHandler>();
-            this.AddSingleton<IRequestHandler<MerchantQueries.GetMerchantQuery, Result<MerchantResponse>>, MerchantRequestHandler>();
-            this.AddSingleton<IRequestHandler<MerchantQueries.GetMerchantScheduleQuery, Result<MerchantScheduleResponse>>, MerchantRequestHandler>();
+            this.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(VersionCheckRequestHandler).Assembly));
         }
 
         #endregion
