@@ -8,6 +8,8 @@ COPY ["TransactionProcessorACL/TransactionProcessorACL.csproj", "TransactionProc
 COPY ["TransactionProcessorACL.DataTransferObjects/TransactionProcessorACL.DataTransferObjects.csproj", "TransactionProcessorACL.DataTransferObjects/"]
 COPY ["TransactionProcessorACL.BusinessLogic/TransactionProcessorACL.BusinessLogic.csproj", "TransactionProcessorACL.BusinessLogic/"]
 COPY ["TransactionProcessorACL.Models/TransactionProcessorACL.Models.csproj", "TransactionProcessorACL.Models/"]
+COPY ["Directory.Packages.props", "."]
+COPY . .
 RUN dotnet restore "TransactionProcessorACL/TransactionProcessorACL.csproj"
 COPY . .
 WORKDIR "/src/TransactionProcessorACL"
