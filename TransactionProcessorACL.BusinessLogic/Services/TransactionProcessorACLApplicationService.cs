@@ -127,15 +127,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             Logger.LogWarning("Here 2.2");
             TokenResponse accessToken = accessTokenResult.Data;
 
-            SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(merchantData.estateId,
-                                                                                            merchantData.merchantId,
+            SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(merchantData,
                                                                                             transactionNumber,
                                                                                             deviceIdentifier,
                                                                                             transactionDateTime,
-                                                                                            productData.operatorId,
+                                                                                            productData,
                                                                                             customerEmailAddress,
-                                                                                            productData.contractId,
-                                                                                            productData.productId,
                                                                                             additionalRequestMetadata);
 
             ProcessSaleTransactionResponse response = null;
@@ -169,15 +166,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             return await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
         }
 
-        private SaleTransactionRequest BuildSaleTransactionRequest(Guid estateId,
-                                                                   Guid merchantId,
+        private SaleTransactionRequest BuildSaleTransactionRequest((Guid estateId, Guid merchantId) merchantData,
                                                                    String transactionNumber,
                                                                    String deviceIdentifier, 
                                                                    DateTime transactionDateTime,
-                                                                   Guid operatorId,
+                                                                   (Guid operatorId, Guid contractId, Guid productId) productData,
                                                                    String customerEmailAddress,
-                                                                   Guid contractId,
-                                                                   Guid productId,
                                                                    Dictionary<String, String> additionalRequestMetadata)
         {
             return new SaleTransactionRequest
@@ -186,14 +180,14 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 DeviceIdentifier = deviceIdentifier,
                 TransactionDateTime = transactionDateTime,
                 TransactionType = "SALE",
-                OperatorId = operatorId,
+                OperatorId = productData.operatorId,
                 CustomerEmailAddress = customerEmailAddress,
                 TransactionSource = 1,
-                ContractId = contractId,
-                ProductId = productId,
+                ContractId = productData.contractId,
+                ProductId = productData.productId,
                 AdditionalTransactionMetadata = additionalRequestMetadata,
-                EstateId = estateId,
-                MerchantId = merchantId,
+                EstateId = merchantData.estateId,
+                MerchantId = merchantData.merchantId,
             };
         }
 
