@@ -28,6 +28,7 @@ public sealed class AuditPipelineBehavior<TRequest, TResponse> : IPipelineBehavi
             return await next().ConfigureAwait(false);
         }
 
+        Boolean failed = false;
         String? errorMessage = null;
 
         try
@@ -37,25 +38,35 @@ public sealed class AuditPipelineBehavior<TRequest, TResponse> : IPipelineBehavi
         }
         catch (Exception ex)
         {
+            failed = true;
             errorMessage = ex.Message;
             throw;
         }
         finally
         {
-            RequestAuditEvent auditEvent = RequestAuditContextBuilder.Build(
-                httpContext,
-                request,
-                errorMessage is null ? "Succeeded" : "Failed",
-                errorMessage);
+            await RecordAuditAsync(httpContext, request, failed, errorMessage, cancellationToken).ConfigureAwait(false);
+        }
+    }
 
-            try
-            {
-                await _requestAuditRecorder.RecordAsync(auditEvent, cancellationToken).ConfigureAwait(false);
-            }
-            catch
-            {
-                // Audit must not interfere with the request path.
-            }
+    private async Task RecordAuditAsync(HttpContext httpContext,
+                                        TRequest request,
+                                        Boolean failed,
+                                        String? errorMessage,
+                                        CancellationToken cancellationToken)
+    {
+        RequestAuditEvent auditEvent = RequestAuditContextBuilder.Build(
+            httpContext,
+            request,
+            failed ? "Failed" : "Succeeded",
+            errorMessage);
+
+        try
+        {
+            await _requestAuditRecorder.RecordAsync(auditEvent, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            // Audit must not interfere with the request path.
         }
     }
 }
