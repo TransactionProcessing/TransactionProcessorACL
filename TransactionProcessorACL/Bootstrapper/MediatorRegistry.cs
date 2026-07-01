@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Configuration;
 using SimpleResults;
+using System.Collections.Generic;
 
 namespace TransactionProcessorACL.Bootstrapper
 {
@@ -10,6 +11,7 @@ namespace TransactionProcessorACL.Bootstrapper
     using Microsoft.Extensions.DependencyInjection;
     using Models;
     using System.Diagnostics.CodeAnalysis;
+    using TransactionProcessorACL.Common;
     
     /// <summary>
     /// 
@@ -25,6 +27,16 @@ namespace TransactionProcessorACL.Bootstrapper
         /// </summary>
         public MediatorRegistry()
         {
+            string eventStoreConnectionString = Startup.Configuration.GetValue<string>("EventStoreSettings:ConnectionString");
+            int requestAuditStreamLifetimeDays = Startup.Configuration.GetValue<int?>("AuditSettings:RequestAuditStreamLifetimeDays") ?? 7;
+            this.AddKurrentDBClient(eventStoreConnectionString);
+
+            this.AddSingleton(new RequestAuditStreamOptions
+            {
+                RequestAuditStreamLifetimeDays = requestAuditStreamLifetimeDays
+            });
+            this.AddSingleton<IRequestAuditRecorder, LoggingRequestAuditRecorder.KurrentDbRequestAuditRecorder>();
+            this.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditPipelineBehavior<,>));
             this.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(VersionCheckRequestHandler).Assembly));
         }
 

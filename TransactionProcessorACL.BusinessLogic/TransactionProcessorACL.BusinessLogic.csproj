@@ -6,10 +6,15 @@
 
   <ItemGroup>
     <PackageReference Include="ClientProxyBase" />
+    <PackageReference Include="KurrentDB.Client" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="SecurityService.Client" />
     <PackageReference Include="Shared" />
     <PackageReference Include="TransactionProcessor.Client" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>

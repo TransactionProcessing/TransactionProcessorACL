@@ -8,7 +8,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Shared.Logger;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects;
 using TransactionProcessorACL.Factories;
@@ -27,16 +26,12 @@ public static class TransactionHandlers
                                                              SaleTransactionRequestMessage transactionRequest,
                                                              CancellationToken cancellationToken)
     {
-        Logger.LogWarning($"Performing Sale Transaction for TransactionNumber: {transactionRequest.TransactionNumber}, DeviceIdentifier: {transactionRequest.DeviceIdentifier}, TransactionDateTime: {transactionRequest.TransactionDateTime}");
-
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed)
             return ResponseFactory.FromResult(Result.Forbidden());
-        Logger.LogWarning("Here 1");
+
         TransactionCommands.ProcessSaleTransactionCommand saleCommand = CreateSaleCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
-        Logger.LogWarning("Here 2");
         Result<ProcessSaleTransactionResponse> saleResponse = await mediator.Send(saleCommand, cancellationToken);
-        Logger.LogWarning("Here 3");
         return ResponseFactory.FromResult(saleResponse, ModelFactory.ConvertFrom);
     }
 
@@ -66,7 +61,6 @@ public static class TransactionHandlers
         TransactionCommands.ProcessReconciliationCommand reconCommand = CreateReconciliationCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
         Result<ProcessReconciliationResponse> reconResponse = await mediator.Send(reconCommand, cancellationToken);
         return ResponseFactory.FromResult(reconResponse, ModelFactory.ConvertFrom);
-        
     }
 
     private static TransactionCommands.ProcessLogonTransactionCommand CreateLogonCommand(Guid estateId, Guid merchantId, LogonTransactionRequestMessage msg)
@@ -101,20 +95,18 @@ public static class TransactionHandlers
     }
 }
 
-public static class Helpers {
+public static class Helpers
+{
     public static Result<(Guid estateId, Guid merchantId)> GetRequiredClaims(ClaimsPrincipal user)
     {
-        Result<Claim> estateIdResult = ClaimsHelper.GetUserClaim(user, "estateId");
-        if (estateIdResult.IsFailed)
+        Claim? estateClaim = user.Claims.FirstOrDefault(c => string.Equals(c.Type, "estateId", StringComparison.OrdinalIgnoreCase));
+        if (!Guid.TryParse(estateClaim?.Value, out Guid estateId))
             return Result.Failure("No Claim found for Estate Id");
 
-        Result<Claim> merchantIdResult = ClaimsHelper.GetUserClaim(user, "merchantId");
-        if (merchantIdResult.IsFailed)
+        Claim? merchantClaim = user.Claims.FirstOrDefault(c => string.Equals(c.Type, "merchantId", StringComparison.OrdinalIgnoreCase));
+        if (!Guid.TryParse(merchantClaim?.Value, out Guid merchantId))
             return Result.Failure("No Claim found for Merchant Id");
 
-        // Ok we have the required claims
-        Guid estateId = Guid.Parse(estateIdResult.Data.Value);
-        Guid merchantId = Guid.Parse(merchantIdResult.Data.Value);
         return Result.Success((estateId, merchantId));
     }
 }
