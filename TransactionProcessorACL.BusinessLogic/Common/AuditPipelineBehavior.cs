@@ -28,7 +28,7 @@ public sealed class AuditPipelineBehavior<TRequest, TResponse> : IPipelineBehavi
             return await next().ConfigureAwait(false);
         }
 
-        Exception? exception = null;
+        String? errorMessage = null;
 
         try
         {
@@ -37,7 +37,7 @@ public sealed class AuditPipelineBehavior<TRequest, TResponse> : IPipelineBehavi
         }
         catch (Exception ex)
         {
-            exception = ex;
+            errorMessage = ex.Message;
             throw;
         }
         finally
@@ -45,8 +45,8 @@ public sealed class AuditPipelineBehavior<TRequest, TResponse> : IPipelineBehavi
             RequestAuditEvent auditEvent = RequestAuditContextBuilder.Build(
                 httpContext,
                 request,
-                exception is null ? "Succeeded" : "Failed",
-                exception?.Message);
+                errorMessage is null ? "Succeeded" : "Failed",
+                errorMessage);
 
             try
             {
