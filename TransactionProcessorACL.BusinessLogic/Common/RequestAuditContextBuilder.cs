@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using System.Text;
 using TransactionProcessorACL.BusinessLogic.Requests;
 
 namespace TransactionProcessorACL.Common;
@@ -182,25 +183,18 @@ public static class RequestAuditContextBuilder
             return value;
         }
 
-        List<String> parts = new();
-        String current = String.Empty;
+        StringBuilder builder = new();
         for (Int32 index = 0; index < value.Length; index++)
         {
             Char character = value[index];
-            if (Char.IsUpper(character) && current.Length > 0)
+            if (Char.IsUpper(character) && builder.Length > 0)
             {
-                parts.Add(current);
-                current = String.Empty;
+                builder.Append('_');
             }
 
-            current += Char.ToLowerInvariant(character);
+            builder.Append(Char.ToLowerInvariant(character));
         }
 
-        if (current.Length > 0)
-        {
-            parts.Add(current);
-        }
-
-        return String.Join("_", parts);
+        return builder.ToString();
     }
 }

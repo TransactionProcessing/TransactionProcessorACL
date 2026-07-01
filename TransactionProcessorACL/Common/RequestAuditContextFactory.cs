@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using TransactionProcessorACL.DataTransferObjects;
+using System.Text;
 
 namespace TransactionProcessorACL.Common;
 
@@ -179,26 +180,19 @@ public static class RequestAuditContextFactory
             return value;
         }
 
-        var parts = new List<string>();
-        string current = string.Empty;
+        StringBuilder builder = new();
 
         for (int index = 0; index < value.Length; index++)
         {
             char character = value[index];
-            if (char.IsUpper(character) && current.Length > 0)
+            if (char.IsUpper(character) && builder.Length > 0)
             {
-                parts.Add(current);
-                current = string.Empty;
+                builder.Append('_');
             }
 
-            current += char.ToLowerInvariant(character);
+            builder.Append(char.ToLowerInvariant(character));
         }
 
-        if (current.Length > 0)
-        {
-            parts.Add(current);
-        }
-
-        return string.Join("_", parts);
+        return builder.ToString();
     }
 }
