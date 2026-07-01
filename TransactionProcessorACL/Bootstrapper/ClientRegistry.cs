@@ -1,4 +1,4 @@
-﻿namespace TransactionProcessorACL.Bootstrapper
+namespace TransactionProcessorACL.Bootstrapper
 {
     using ClientProxyBase;
     using Lamar;
@@ -8,7 +8,7 @@
     using Shared.Serialisation;
     using System;
     using System.Diagnostics.CodeAnalysis;
-    using System.Net.Http;
+    using TransactionProcessorACL.Common;
     using TransactionProcessor.Client;
 
     /// <summary>
@@ -23,10 +23,15 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientRegistry"/> class.
         /// </summary>
-        public ClientRegistry() {
+        public ClientRegistry()
+        {
             this.AddHttpContextAccessor();
-            this.RegisterHttpClient<ISecurityServiceClient, SecurityServiceClient>();
-            this.RegisterHttpClient<ITransactionProcessorClient, TransactionProcessorClient>();
+            this.AddSingleton<RequestAuditContextAccessor>();
+            this.AddTransient<CorrelationHeaderDelegatingHandler>();
+            this.RegisterHttpClient<ISecurityServiceClient, SecurityServiceClient>()
+                .AddHttpMessageHandler<CorrelationHeaderDelegatingHandler>();
+            this.RegisterHttpClient<ITransactionProcessorClient, TransactionProcessorClient>()
+                .AddHttpMessageHandler<CorrelationHeaderDelegatingHandler>();
             Func<String, String> resolver(IServiceProvider container) => serviceName => ConfigurationReader.GetBaseServerUri(serviceName).OriginalString;
             this.AddSingleton<Func<String, String>>(resolver);
         }

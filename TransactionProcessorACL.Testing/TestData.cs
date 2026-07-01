@@ -7,6 +7,7 @@ namespace TransactionProcessorACL.Testing
     using Models;
     using TransactionProcessor.DataTransferObjects;
     using TransactionProcessorACL.BusinessLogic.Requests;
+    using TransactionProcessorACL.Common;
     using TransactionProcessorACL.DataTransferObjects;
     using GetVoucherResponse = TransactionProcessor.DataTransferObjects.GetVoucherResponse;
     using RedeemVoucherResponse = TransactionProcessor.DataTransferObjects.RedeemVoucherResponse;
@@ -52,6 +53,20 @@ namespace TransactionProcessorACL.Testing
         /// The merchant identifier
         /// </summary>
         public static Guid MerchantId = Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3");
+
+        public static RequestAuditContext RequestAuditContext = new RequestAuditContext(
+            RequestId: "req-123",
+            TraceId: "trace-123",
+            TimestampUtc: DateTimeOffset.UtcNow,
+            Method: "POST",
+            Route: "/api/saletransactions",
+            SourceIp: "203.0.113.9",
+            UserAgent: "TestClient/1.0",
+            EstateId: EstateId,
+            MerchantId: MerchantId,
+            TransactionType: "SALE",
+            TransactionNumber: TransactionNumber,
+            BusinessContext: new Dictionary<String, String>());
 
         public static Int32 ScheduleYear = 2026;
 
@@ -178,7 +193,7 @@ namespace TransactionProcessorACL.Testing
                 ["AppSettings:ClientSecret"] = "secret",
                 ["SecurityConfiguration:Authority"] = "https://127.0.0.1",
                 ["SecurityConfiguration:ApiName"] = "ApiName",
-                ["EventStoreSettings:ConnectionString"] = "https://127.0.0.1:2113"
+                ["EventStoreSettings:ConnectionString"] = "esdb://127.0.0.1:2113"
             };
 
         public static IReadOnlyDictionary<String, String> DefaultAppSettingsSkipVersionCheck =>

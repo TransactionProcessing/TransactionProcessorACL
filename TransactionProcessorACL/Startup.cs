@@ -29,6 +29,7 @@ namespace TransactionProcessorACL
     using System.Text;
     using System.Text.Json;
     using System.Threading.Tasks;
+    using TransactionProcessorACL.Common;
     using TransactionProcessorACL.Middleware;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -95,10 +96,11 @@ namespace TransactionProcessorACL
             app.UseMiddleware<TenantMiddleware>();
             app.AddRequestResponseLogging();
             app.AddExceptionHandler();
-            app.UseMiddleware<VersionCheckMiddleware>();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseMiddleware<RequestAuditMiddleware>();
+            app.UseMiddleware<VersionCheckMiddleware>();
         }
 
         private static void ConfigureEndpoints(IApplicationBuilder app)

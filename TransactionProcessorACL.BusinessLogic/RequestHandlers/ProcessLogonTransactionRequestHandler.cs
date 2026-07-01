@@ -1,4 +1,4 @@
-﻿using SimpleResults;
+using SimpleResults;
 
 namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
 {
