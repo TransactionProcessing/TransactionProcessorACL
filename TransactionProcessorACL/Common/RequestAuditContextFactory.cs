@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using TransactionProcessorACL.DataTransferObjects;
@@ -65,39 +67,60 @@ public static class RequestAuditContextFactory
 
     private static IReadOnlyDictionary<string, string> BuildBusinessContext(TransactionRequestMessage request)
     {
-        var businessContext = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["transaction_number"] = request.TransactionNumber ?? string.Empty,
-            ["device_identifier"] = request.DeviceIdentifier ?? string.Empty,
-            ["transaction_date_time_utc"] = request.TransactionDateTime.ToUniversalTime().ToString("O")
-        };
+        var businessContext = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        switch (request)
+        foreach (PropertyInfo property in request.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
         {
-            case SaleTransactionRequestMessage sale:
-                businessContext["customer_email_address"] = sale.CustomerEmailAddress ?? string.Empty;
-                businessContext["contract_id"] = sale.ContractId.ToString();
-                businessContext["product_id"] = sale.ProductId.ToString();
-                businessContext["operator_id"] = sale.OperatorId.ToString();
-                AddSafeMetadata(businessContext, sale.AdditionalRequestMetadata);
-                break;
-            case ReconciliationRequestMessage reconciliation:
-                businessContext["transaction_count"] = reconciliation.TransactionCount.ToString();
-                businessContext["transaction_value"] = reconciliation.TransactionValue.ToString();
-                break;
+            if (!property.CanRead || property.GetIndexParameters().Length > 0)
+            {
+                continue;
+            }
+
+            if (LooksSensitive(property.Name))
+            {
+                continue;
+            }
+
+            object? value = property.GetValue(request);
+            if (value is null)
+            {
+                if (property.PropertyType == typeof(string))
+                {
+                    businessContext[ToSnakeCase(property.Name)] = string.Empty;
+                }
+
+                continue;
+            }
+
+            if (TryAddDictionaryBusinessContext(businessContext, value))
+            {
+                continue;
+            }
+
+            if (TryFormatValue(value, out string formattedValue))
+            {
+                businessContext[GetBusinessContextKey(property.Name, value)] = formattedValue;
+            }
         }
 
         return businessContext;
     }
 
-    private static void AddSafeMetadata(IDictionary<string, string> businessContext, IDictionary<string, string>? additionalRequestMetadata)
+    private static string GetBusinessContextKey(string propertyName, object value)
     {
-        if (additionalRequestMetadata is null)
+        return value is DateTime or DateTimeOffset
+            ? $"{ToSnakeCase(propertyName)}_utc"
+            : ToSnakeCase(propertyName);
+    }
+
+    private static bool TryAddDictionaryBusinessContext(IDictionary<string, string> businessContext, object value)
+    {
+        if (value is not IEnumerable<KeyValuePair<string, string>> entries)
         {
-            return;
+            return false;
         }
 
-        foreach (KeyValuePair<string, string> item in additionalRequestMetadata)
+        foreach (KeyValuePair<string, string> item in entries)
         {
             if (LooksSensitive(item.Key))
             {
@@ -106,6 +129,8 @@ public static class RequestAuditContextFactory
 
             businessContext[item.Key] = item.Value;
         }
+
+        return true;
     }
 
     private static bool LooksSensitive(string key)
@@ -114,5 +139,66 @@ public static class RequestAuditContextFactory
                || key.Contains("token", StringComparison.OrdinalIgnoreCase)
                || key.Contains("secret", StringComparison.OrdinalIgnoreCase)
                || key.Contains("authorization", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryFormatValue(object value, out string formattedValue)
+    {
+        switch (value)
+        {
+            case string stringValue:
+                formattedValue = stringValue;
+                return true;
+            case Guid guidValue:
+                formattedValue = guidValue.ToString();
+                return true;
+            case DateTime dateTimeValue:
+                formattedValue = dateTimeValue.ToUniversalTime().ToString("O");
+                return true;
+            case DateTimeOffset dateTimeOffsetValue:
+                formattedValue = dateTimeOffsetValue.ToUniversalTime().ToString("O");
+                return true;
+            case Enum enumValue:
+                formattedValue = enumValue.ToString();
+                return true;
+            case bool boolValue:
+                formattedValue = boolValue.ToString();
+                return true;
+            case IFormattable formattableValue:
+                formattedValue = formattableValue.ToString(null, CultureInfo.InvariantCulture) ?? string.Empty;
+                return true;
+            default:
+                formattedValue = string.Empty;
+                return false;
+        }
+    }
+
+    private static string ToSnakeCase(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return value;
+        }
+
+        var parts = new List<string>();
+        string current = string.Empty;
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            char character = value[index];
+            if (char.IsUpper(character) && current.Length > 0)
+            {
+                parts.Add(current);
+                current = string.Empty;
+            }
+
+            current += char.ToLowerInvariant(character);
+        }
+
+        if (current.Length > 0)
+        {
+            parts.Add(current);
+        }
+
+        return string.Join("_", parts);
     }
 }

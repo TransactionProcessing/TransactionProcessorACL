@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using TransactionProcessorACL.BusinessLogic.Requests;
 
@@ -47,72 +48,57 @@ public static class RequestAuditContextBuilder
     private static IReadOnlyDictionary<String, String> BuildBusinessContext<TRequest>(TRequest request)
     {
         Dictionary<String, String> businessContext = new(StringComparer.OrdinalIgnoreCase);
-
-        switch (request)
+        if (request is null)
         {
-            case TransactionCommands.ProcessLogonTransactionCommand logon:
-                businessContext["transaction_number"] = logon.TransactionNumber;
-                businessContext["device_identifier"] = logon.DeviceIdentifier;
-                businessContext["transaction_date_time_utc"] = logon.TransactionDateTime.ToUniversalTime().ToString("O");
-                businessContext["transaction_kind"] = "LOGON";
-                break;
-            case TransactionCommands.ProcessSaleTransactionCommand sale:
-                businessContext["transaction_number"] = sale.TransactionNumber;
-                businessContext["device_identifier"] = sale.DeviceIdentifier;
-                businessContext["transaction_date_time_utc"] = sale.TransactionDateTime.ToUniversalTime().ToString("O");
-                businessContext["transaction_kind"] = "SALE";
-                businessContext["customer_email_address"] = sale.CustomerEmailAddress ?? String.Empty;
-                businessContext["contract_id"] = sale.ContractId.ToString();
-                businessContext["product_id"] = sale.ProductId.ToString();
-                businessContext["operator_id"] = sale.OperatorId.ToString();
-                AddSafeMetadata(businessContext, sale.AdditionalRequestMetadata);
-                break;
-            case TransactionCommands.ProcessReconciliationCommand reconciliation:
-                businessContext["device_identifier"] = reconciliation.DeviceIdentifier;
-                businessContext["transaction_date_time_utc"] = reconciliation.TransactionDateTime.ToUniversalTime().ToString("O");
-                businessContext["transaction_kind"] = "RECONCILIATION";
-                businessContext["transaction_count"] = reconciliation.TransactionCount.ToString();
-                businessContext["transaction_value"] = reconciliation.TransactionValue.ToString();
-                break;
-            case VersionCheckCommands.VersionCheckCommand versionCheck:
-                businessContext["application_version"] = versionCheck.VersionNumber ?? String.Empty;
-                break;
-            case MerchantQueries.GetMerchantContractsQuery merchantContracts:
-                businessContext["estate_id"] = merchantContracts.EstateId.ToString();
-                businessContext["merchant_id"] = merchantContracts.MerchantId.ToString();
-                break;
-            case MerchantQueries.GetMerchantQuery merchant:
-                businessContext["estate_id"] = merchant.EstateId.ToString();
-                businessContext["merchant_id"] = merchant.MerchantId.ToString();
-                break;
-            case MerchantQueries.GetMerchantScheduleQuery merchantSchedule:
-                businessContext["estate_id"] = merchantSchedule.EstateId.ToString();
-                businessContext["merchant_id"] = merchantSchedule.MerchantId.ToString();
-                businessContext["year"] = merchantSchedule.Year.ToString();
-                break;
-            case VoucherQueries.GetVoucherQuery voucherQuery:
-                businessContext["estate_id"] = voucherQuery.EstateId.ToString();
-                businessContext["contract_id"] = voucherQuery.ContractId.ToString();
-                businessContext["voucher_code"] = voucherQuery.VoucherCode ?? String.Empty;
-                break;
-            case VoucherCommands.RedeemVoucherCommand redeemVoucher:
-                businessContext["estate_id"] = redeemVoucher.EstateId.ToString();
-                businessContext["contract_id"] = redeemVoucher.ContractId.ToString();
-                businessContext["voucher_code"] = redeemVoucher.VoucherCode ?? String.Empty;
-                break;
+            return businessContext;
+        }
+
+        foreach (PropertyInfo property in request.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        {
+            if (!property.CanRead || property.GetIndexParameters().Length > 0)
+            {
+                continue;
+            }
+
+            if (LooksSensitive(property.Name))
+            {
+                continue;
+            }
+
+            object? value = property.GetValue(request);
+            if (value is null)
+            {
+                continue;
+            }
+
+            if (TryAddDictionaryBusinessContext(businessContext, value))
+            {
+                continue;
+            }
+
+            if (TryFormatValue(value, out String formattedValue))
+            {
+                businessContext[GetBusinessContextKey(property.Name, value)] = formattedValue;
+            }
         }
 
         return businessContext;
     }
 
-    private static void AddSafeMetadata(IDictionary<String, String> businessContext, IDictionary<String, String>? additionalRequestMetadata)
+    private static String GetBusinessContextKey(String propertyName, object value)
     {
-        if (additionalRequestMetadata is null)
+        String key = ToSnakeCase(propertyName);
+        return value is DateTime or DateTimeOffset ? $"{key}_utc" : key;
+    }
+
+    private static bool TryAddDictionaryBusinessContext(IDictionary<String, String> businessContext, object value)
+    {
+        if (value is not IEnumerable<KeyValuePair<String, String>> entries)
         {
-            return;
+            return false;
         }
 
-        foreach (KeyValuePair<String, String> item in additionalRequestMetadata)
+        foreach (KeyValuePair<String, String> item in entries)
         {
             if (LooksSensitive(item.Key))
             {
@@ -121,6 +107,33 @@ public static class RequestAuditContextBuilder
 
             businessContext[item.Key] = item.Value;
         }
+
+        return true;
+    }
+
+    private static String? TryGetTransactionNumber<TRequest>(TRequest request)
+    {
+        if (request is null)
+        {
+            return null;
+        }
+
+        PropertyInfo? transactionNumberProperty = request.GetType().GetProperty(
+            "TransactionNumber",
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+
+        if (transactionNumberProperty is null || !transactionNumberProperty.CanRead)
+        {
+            return null;
+        }
+
+        object? value = transactionNumberProperty.GetValue(request);
+        return value switch
+        {
+            null => null,
+            String stringValue => stringValue,
+            _ => value.ToString()
+        };
     }
 
     private static bool LooksSensitive(String key)
@@ -131,13 +144,63 @@ public static class RequestAuditContextBuilder
                || key.Contains("authorization", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static String? TryGetTransactionNumber<TRequest>(TRequest request)
+    private static bool TryFormatValue(object value, out String formattedValue)
     {
-        return request switch
+        switch (value)
         {
-            TransactionCommands.ProcessLogonTransactionCommand logon => logon.TransactionNumber,
-            TransactionCommands.ProcessSaleTransactionCommand sale => sale.TransactionNumber,
-            _ => null
-        };
+            case String stringValue:
+                formattedValue = stringValue;
+                return true;
+            case Guid guidValue:
+                formattedValue = guidValue.ToString();
+                return true;
+            case DateTime dateTimeValue:
+                formattedValue = dateTimeValue.ToUniversalTime().ToString("O");
+                return true;
+            case DateTimeOffset dateTimeOffsetValue:
+                formattedValue = dateTimeOffsetValue.ToUniversalTime().ToString("O");
+                return true;
+            case Enum enumValue:
+                formattedValue = enumValue.ToString();
+                return true;
+            case Boolean booleanValue:
+                formattedValue = booleanValue.ToString();
+                return true;
+            case IFormattable formattableValue:
+                formattedValue = formattableValue.ToString(null, CultureInfo.InvariantCulture) ?? String.Empty;
+                return true;
+            default:
+                formattedValue = String.Empty;
+                return false;
+        }
+    }
+
+    private static String ToSnakeCase(String value)
+    {
+        if (String.IsNullOrWhiteSpace(value))
+        {
+            return value;
+        }
+
+        List<String> parts = new();
+        String current = String.Empty;
+        for (Int32 index = 0; index < value.Length; index++)
+        {
+            Char character = value[index];
+            if (Char.IsUpper(character) && current.Length > 0)
+            {
+                parts.Add(current);
+                current = String.Empty;
+            }
+
+            current += Char.ToLowerInvariant(character);
+        }
+
+        if (current.Length > 0)
+        {
+            parts.Add(current);
+        }
+
+        return String.Join("_", parts);
     }
 }

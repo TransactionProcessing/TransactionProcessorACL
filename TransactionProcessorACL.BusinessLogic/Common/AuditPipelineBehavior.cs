@@ -28,12 +28,11 @@ public sealed class AuditPipelineBehavior<TRequest, TResponse> : IPipelineBehavi
             return await next().ConfigureAwait(false);
         }
 
-        TResponse? response = default;
         Exception? exception = null;
 
         try
         {
-            response = await next(cancellationToken).ConfigureAwait(false);
+            TResponse? response = await next(cancellationToken).ConfigureAwait(false);
             return response;
         }
         catch (Exception ex)

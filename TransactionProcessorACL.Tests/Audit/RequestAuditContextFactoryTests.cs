@@ -30,6 +30,7 @@ public class RequestAuditContextFactoryTests
 
         var request = new SaleTransactionRequestMessage
         {
+            ApplicationVersion = "9.9.9",
             TransactionNumber = "TX-0001",
             DeviceIdentifier = "device-01",
             TransactionDateTime = new System.DateTime(2026, 6, 30, 10, 15, 0),
@@ -57,6 +58,7 @@ public class RequestAuditContextFactoryTests
         auditContext.MerchantId.ShouldBe(System.Guid.Parse("2C8354B7-B97A-46EA-9AD1-C43F33F7E3C4"));
         auditContext.TransactionType.ShouldBe("SALE");
         auditContext.TransactionNumber.ShouldBe("TX-0001");
+        auditContext.BusinessContext["application_version"].ShouldBe("9.9.9");
         auditContext.BusinessContext["customer_email_address"].ShouldBe("customer@example.com");
         auditContext.BusinessContext["contract_id"].ToUpperInvariant().ShouldBe("3C8354B7-B97A-46EA-9AD1-C43F33F7E3C5");
         auditContext.BusinessContext["product_id"].ToUpperInvariant().ShouldBe("4C8354B7-B97A-46EA-9AD1-C43F33F7E3C6");

@@ -85,7 +85,7 @@ public class AuditPipelineBehaviorTests
         recorder.LastEvent!.Context.EstateId.ShouldBe(Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"));
         recorder.LastEvent.Context.MerchantId.ShouldBe(Guid.Parse("2C8354B7-B97A-46EA-9AD1-C43F33F7E3C4"));
         recorder.LastEvent.RequestType.ShouldBe(nameof(VersionCheckCommands.VersionCheckCommand));
-        recorder.LastEvent.Context.BusinessContext["application_version"].ShouldBe("9.9.9");
+        recorder.LastEvent.Context.BusinessContext["version_number"].ShouldBe("9.9.9");
     }
 
     private sealed class CapturingAuditRecorder : IRequestAuditRecorder
