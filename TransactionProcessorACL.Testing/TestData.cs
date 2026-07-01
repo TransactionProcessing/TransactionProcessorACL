@@ -193,7 +193,7 @@ namespace TransactionProcessorACL.Testing
                 ["AppSettings:ClientSecret"] = "secret",
                 ["SecurityConfiguration:Authority"] = "https://127.0.0.1",
                 ["SecurityConfiguration:ApiName"] = "ApiName",
-                ["EventStoreSettings:ConnectionString"] = "https://127.0.0.1:2113"
+                ["EventStoreSettings:ConnectionString"] = "esdb://127.0.0.1:2113"
             };
 
         public static IReadOnlyDictionary<String, String> DefaultAppSettingsSkipVersionCheck =>
