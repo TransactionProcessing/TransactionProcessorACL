@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
@@ -58,4 +59,5 @@ public class TransactionHandlersTests
         capturedCommand.AdditionalRequestMetadata["amount"].ShouldBe("1000.00");
         mediator.Verify(m => m.Send(It.IsAny<TransactionCommands.ProcessSaleTransactionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
     }
+
 }

@@ -8,6 +8,7 @@ namespace TransactionProcessorACL.Bootstrapper
     using Shared.Serialisation;
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using TransactionProcessorACL.BusinessLogic.BackendAPI;
     using TransactionProcessorACL.Common;
     using TransactionProcessor.Client;
 
@@ -31,6 +32,8 @@ namespace TransactionProcessorACL.Bootstrapper
             this.RegisterHttpClient<ISecurityServiceClient, SecurityServiceClient>()
                 .AddHttpMessageHandler<CorrelationHeaderDelegatingHandler>();
             this.RegisterHttpClient<ITransactionProcessorClient, TransactionProcessorClient>()
+                .AddHttpMessageHandler<CorrelationHeaderDelegatingHandler>();
+            this.RegisterHttpClient<IEstateReportingApiClient, EstateReportingApiClient>()
                 .AddHttpMessageHandler<CorrelationHeaderDelegatingHandler>();
             Func<String, String> resolver(IServiceProvider container) => serviceName => ConfigurationReader.GetBaseServerUri(serviceName).OriginalString;
             this.AddSingleton<Func<String, String>>(resolver);

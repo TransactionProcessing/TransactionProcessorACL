@@ -1,0 +1,21 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+using Shared.Authorisation;
+using TransactionProcessorACL.Handlers;
+
+namespace TransactionProcessorACL.Endpoints;
+
+public static class ReportingEndpoints
+{
+    private const string BaseRoute = "/api/reporting";
+
+    public static IEndpointRouteBuilder MapReportingEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup(BaseRoute).RequireAuthorization().RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+
+        // POST /api/reporting/dailymerchantprformancesummary
+        group.MapPost("dailymerchantprformancesummary", ReportingHandlers.GetMerchantDailyPerformanceSummary);
+
+        return app;
+    }
+}

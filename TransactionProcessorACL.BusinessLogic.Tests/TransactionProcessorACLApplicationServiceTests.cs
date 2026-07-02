@@ -6,6 +6,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessLogic.Services;
+    using TransactionProcessorACL.BusinessLogic.BackendAPI;
     using Microsoft.Extensions.Configuration;
     using Models;
     using Moq;
@@ -14,6 +15,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using Shared.Logger;
     using Shouldly;
     using Testing;
+    using TransactionProcessorACL.DataTransferObjects.Requests;
     using TransactionProcessor.Client;
     using TransactionProcessor.DataTransferObjects;
     using Xunit;
@@ -30,8 +32,9 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
 
             transactionProcessorClient = new Mock<ITransactionProcessorClient>();
             securityServiceClient = new Mock<ISecurityServiceClient>();
+            estateReportingApiClient = new Mock<IEstateReportingApiClient>();
             applicationService =
-                new TransactionProcessorACLApplicationService(transactionProcessorClient.Object, securityServiceClient.Object);
+                new TransactionProcessorACLApplicationService(transactionProcessorClient.Object, securityServiceClient.Object, estateReportingApiClient.Object);
         }
 
         private void SetupMemoryConfiguration()
@@ -46,6 +49,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         private Mock<ITransactionProcessorClient> transactionProcessorClient;
 
         private Mock<ISecurityServiceClient> securityServiceClient;
+
+        private Mock<IEstateReportingApiClient> estateReportingApiClient;
 
         private ITransactionProcessorACLApplicationService applicationService;
         [Fact]
@@ -586,6 +591,63 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
 
             var merchantScheduleResponse = await applicationService.GetMerchantSchedule(TestData.EstateId, TestData.MerchantId, TestData.ScheduleYear, CancellationToken.None);
             merchantScheduleResponse.IsFailed.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_GetMerchantDailyPerformanceSummary_ReturnedFromEstateReportingClient()
+        {
+            MerchantDailyPerformanceSummaryRequest capturedRequest = null;
+            estateReportingApiClient
+                .Setup(v => v.GetMerchantDailyPerformanceSummary(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<MerchantDailyPerformanceSummaryRequest>(), It.IsAny<CancellationToken>()))
+                .Callback<String, Guid, MerchantDailyPerformanceSummaryRequest, CancellationToken>((_, _, request, _) => capturedRequest = request)
+                .ReturnsAsync(Result.Success(new MerchantDailyPerformanceSummaryResponse
+                {
+                    Metrics =
+                    [
+                        new MetricItem
+                        {
+                            Title = "Total Sales Count",
+                            Value = 6,
+                            Description = "All sales transactions in the range",
+                            Category = 0
+                        }
+                    ]
+                }));
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            Result<MerchantDailyPerformanceSummaryResponse> result = await applicationService.GetMerchantDailyPerformanceSummary(
+                TestData.EstateId,
+                new MerchantDailyPerformanceSummaryRequest
+                {
+                    MerchantReportingId = 12345,
+                    StartDate = new DateTime(2026, 7, 1),
+                    EndDate = new DateTime(2026, 7, 1)
+                },
+                CancellationToken.None);
+
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
+            result.Data.Metrics.Count.ShouldBe(1);
+            capturedRequest.ShouldNotBeNull();
+            capturedRequest.MerchantReportingId.ShouldBe(12345);
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_GetMerchantDailyPerformanceSummary_GetTokenFailed_ResultIsFailed()
+        {
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure());
+
+            Result<MerchantDailyPerformanceSummaryResponse> result = await applicationService.GetMerchantDailyPerformanceSummary(
+                TestData.EstateId,
+                new MerchantDailyPerformanceSummaryRequest
+                {
+                    MerchantReportingId = 12345,
+                    StartDate = new DateTime(2026, 7, 1),
+                    EndDate = new DateTime(2026, 7, 1)
+                },
+                CancellationToken.None);
+
+            result.IsFailed.ShouldBeTrue();
         }
     }
 }

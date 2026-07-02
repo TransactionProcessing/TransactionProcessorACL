@@ -8,6 +8,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
     using System.Threading;
     using System.Threading.Tasks;
     using Shared.General;
+    using TransactionProcessorACL.DataTransferObjects.Requests;
     using TransactionProcessor.DataTransferObjects;
     using TransactionProcessorACL.Models;
     using GetVoucherResponse = Models.GetVoucherResponse;
@@ -60,5 +61,9 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                   Guid merchantId,
                                                                   Int32 year,
                                                                   CancellationToken cancellationToken);
+
+       Task<Result<MerchantDailyPerformanceSummaryResponse>> GetMerchantDailyPerformanceSummary(Guid estateId,
+                                                                                               MerchantDailyPerformanceSummaryRequest request,
+                                                                                               CancellationToken cancellationToken);
     }
 }

@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects;
+using TransactionProcessorACL.DataTransferObjects.Requests;
 using TransactionProcessorACL.Factories;
 using TransactionProcessorACL.Models;
 
@@ -108,5 +109,14 @@ public static class Helpers
             return Result.Failure("No Claim found for Merchant Id");
 
         return Result.Success((estateId, merchantId));
+    }
+
+    public static Result<Guid> GetRequiredEstateClaim(ClaimsPrincipal user)
+    {
+        Claim? estateClaim = user.Claims.FirstOrDefault(c => string.Equals(c.Type, "estateId", StringComparison.OrdinalIgnoreCase));
+        if (!Guid.TryParse(estateClaim?.Value, out Guid estateId))
+            return Result.Failure("No Claim found for Estate Id");
+
+        return Result.Success(estateId);
     }
 }
