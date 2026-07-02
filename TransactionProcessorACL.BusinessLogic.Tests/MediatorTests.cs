@@ -18,6 +18,7 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
 {
     using System.Threading;
     using Microsoft.Extensions.DependencyInjection;
+    using TransactionProcessorACL.DataTransferObjects.Requests;
     using Models;
     using Services;
 
@@ -159,6 +160,13 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
                                                                                 Int32 year,
                                                                                 CancellationToken cancellationToken) {
             return Result.Success(new MerchantScheduleResponse());
+        }
+
+        public async Task<Result<MerchantDailyPerformanceSummaryResponse>> GetMerchantDailyPerformanceSummary(Guid estateId,
+                                                                                                               MerchantDailyPerformanceSummaryRequest request,
+                                                                                                               CancellationToken cancellationToken)
+        {
+            return Result.Success(new MerchantDailyPerformanceSummaryResponse());
         }
     }
 }

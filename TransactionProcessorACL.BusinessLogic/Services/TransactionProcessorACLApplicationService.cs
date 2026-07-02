@@ -11,6 +11,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using TransactionProcessorACL.BusinessLogic.BackendAPI;
+    using TransactionProcessorACL.DataTransferObjects.Requests;
     using Models;
     using SecurityService.Client;
     using Shared.General;
@@ -38,6 +40,11 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         /// </summary>
         private readonly ITransactionProcessorClient TransactionProcessorClient;
 
+        /// <summary>
+        /// The estate reporting client
+        /// </summary>
+        private readonly IEstateReportingApiClient? EstateReportingApiClient;
+
         #endregion
 
         #region Constructors
@@ -48,10 +55,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         /// <param name="transactionProcessorClient">The transaction processor client.</param>
         /// <param name="securityServiceClient">The security service client.</param>
         public TransactionProcessorACLApplicationService(ITransactionProcessorClient transactionProcessorClient,
-                                                         ISecurityServiceClient securityServiceClient)
+                                                         ISecurityServiceClient securityServiceClient,
+                                                         IEstateReportingApiClient? estateReportingApiClient = null)
         {
             this.TransactionProcessorClient = transactionProcessorClient;
             this.SecurityServiceClient = securityServiceClient;
+            this.EstateReportingApiClient = estateReportingApiClient;
         }
 
         #endregion
@@ -414,6 +423,24 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             MerchantScheduleResponse merchantScheduleResponse = ResponseFactory.Build(result.Data);
 
             return Result.Success(merchantScheduleResponse);
+        }
+
+        public async Task<Result<MerchantDailyPerformanceSummaryResponse>> GetMerchantDailyPerformanceSummary(Guid estateId,
+                                                                                                               MerchantDailyPerformanceSummaryRequest request,
+                                                                                                               CancellationToken cancellationToken)
+        {
+            if (this.EstateReportingApiClient == null)
+            {
+                return Result.Failure("Estate reporting client is not configured");
+            }
+
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
+            if (accessTokenResult.IsFailed) {
+                return ResultHelpers.CreateFailure(accessTokenResult);
+            }
+
+            TokenResponse accessToken = accessTokenResult.Data;
+            return await this.EstateReportingApiClient.GetMerchantDailyPerformanceSummary(accessToken.AccessToken, estateId, request, cancellationToken);
         }
 
         private static ProcessReconciliationResponse CreateProcessReconciliationResponse(ReconciliationResponse reconciliationResponse)

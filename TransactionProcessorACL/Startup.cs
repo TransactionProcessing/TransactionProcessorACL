@@ -111,6 +111,7 @@ namespace TransactionProcessorACL
         private static void MapEndpoints(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapMerchantEndpoints();
+            endpoints.MapReportingEndpoints();
             endpoints.MapTransactionEndpoints();
             endpoints.MapVoucherEndpoints();
             endpoints.MapHealthChecks("health", CreateHealthCheckOptions(Shared.HealthChecks.HealthCheckMiddleware.WriteResponse));
