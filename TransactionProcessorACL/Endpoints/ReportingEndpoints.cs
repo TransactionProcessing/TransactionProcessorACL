@@ -15,6 +15,8 @@ public static class ReportingEndpoints
 
         // POST /api/reporting/dailymerchantprformancesummary
         group.MapPost("dailymerchantprformancesummary", ReportingHandlers.GetMerchantDailyPerformanceSummary);
+        // POST /api/reporting/transactionmixsummary
+        group.MapPost("transactionmixsummary", ReportingHandlers.GetMerchantTransactionMixSummary);
 
         return app;
     }

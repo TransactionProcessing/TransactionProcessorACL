@@ -62,8 +62,12 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                   Int32 year,
                                                                   CancellationToken cancellationToken);
 
-       Task<Result<MerchantDailyPerformanceSummaryResponse>> GetMerchantDailyPerformanceSummary(Guid estateId,
-                                                                                               MerchantDailyPerformanceSummaryRequest request,
-                                                                                               CancellationToken cancellationToken);
+        Task<Result<MerchantDailyPerformanceSummaryResponse>> GetMerchantDailyPerformanceSummary(Guid estateId,
+                                                                                                MerchantDailyPerformanceSummaryRequest request,
+                                                                                                CancellationToken cancellationToken);
+
+        Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(Guid estateId,
+                                                                                             MerchantTransactionMixSummaryRequest request,
+                                                                                             CancellationToken cancellationToken);
     }
 }

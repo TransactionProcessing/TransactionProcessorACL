@@ -1,14 +1,13 @@
-using System;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.General;
 using Shared.Results.Web;
 using SimpleResults;
+using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects.Requests;
-using TransactionProcessorACL.Models;
 
 namespace TransactionProcessorACL.Handlers;
 
@@ -16,14 +15,30 @@ public static class ReportingHandlers
 {
     public static async Task<IResult> GetMerchantDailyPerformanceSummary(ClaimsPrincipal user,
                                                                          MerchantDailyPerformanceSummaryRequest request,
-                                                                         TransactionProcessorACL.BusinessLogic.Services.ITransactionProcessorACLApplicationService applicationService,
+                                                                         IMediator mediator,
                                                                          CancellationToken cancellationToken)
     {
-        Result<Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
+        Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
         if (estateIdResult.IsFailed)
             return ResponseFactory.FromResult(Result.Forbidden());
 
-        Result<MerchantDailyPerformanceSummaryResponse> result = await applicationService.GetMerchantDailyPerformanceSummary(estateIdResult.Data, request, cancellationToken);
+        ReportingQueries.GetMerchantDailyPerformanceSummaryQuery query = new(estateIdResult.Data, request);
+        Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse> result =
+            await mediator.Send(query, cancellationToken);
+        return ResponseFactory.FromResult(result, response => response);
+    }
+
+    public static async Task<IResult> GetMerchantTransactionMixSummary(ClaimsPrincipal user,
+                                                                       MerchantTransactionMixSummaryRequest request,
+                                                                       IMediator mediator,
+                                                                       CancellationToken cancellationToken)
+    {
+        Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
+        if (estateIdResult.IsFailed)
+            return ResponseFactory.FromResult(Result.Forbidden());
+
+        ReportingQueries.GetMerchantTransactionMixSummaryQuery query = new(estateIdResult.Data, request);
+        Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse> result = await mediator.Send(query, cancellationToken);
         return ResponseFactory.FromResult(result, response => response);
     }
 }
