@@ -5,7 +5,7 @@
   <ItemGroup>
     <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
     <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="9.0.0" />
-    <PackageVersion Include="ClientProxyBase" Version="2026.5.6" />
+    <PackageVersion Include="ClientProxyBase" Version="2026.6.1" />
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />
     <PackageVersion Include="coverlet.msbuild" Version="10.0.1" />
     <PackageVersion Include="Ductus.FluentDocker" Version="2.85.0" />
@@ -39,7 +39,7 @@
     <PackageVersion Include="SecurityService.Client" Version="2026.4.3-build157" />
     <PackageVersion Include="SecurityService.IntegrationTesting.Helpers" Version="2026.4.3-build157" />
     <PackageVersion Include="Shared" Version="2026.5.6" />
-    <PackageVersion Include="Shared.IntegrationTesting" Version="2026.5.6" />
+    <PackageVersion Include="Shared.IntegrationTesting" Version="2026.6.1" />
     <PackageVersion Include="Shared.Results.Web" Version="2026.5.6" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.2.1" />
