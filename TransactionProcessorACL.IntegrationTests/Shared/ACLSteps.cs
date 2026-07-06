@@ -1,6 +1,7 @@
 ﻿using Shared.Serialisation;
 using SimpleResults;
 using TransactionProcessor.IntegrationTesting.Helpers;
+using TransactionProcessorACL.DataTransferObjects.Requests;
 
 namespace TransactionProcessorACL.IntegrationTests.Shared;
 
@@ -247,12 +248,12 @@ public class ACLSteps{
 
         this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAccessToken);
 
-        Object request = new
+        MerchantDailyPerformanceSummaryRequest request = new()
         {
-            application_version = "1.0.5",
-            merchant_reporting_id = merchantReportingId,
-            start_date = DateTime.Today,
-            end_date = DateTime.Today,
+            EndDate = DateTime.Today,
+            StartDate = DateTime.Today,
+            ApplicationVersion = "1.0.5",
+            MerchantReportingId = merchantReportingId
         };
         
 
@@ -303,15 +304,15 @@ public class ACLSteps{
 
         this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAccessToken);
 
-        Object request = new
+        MerchantTransactionMixSummaryRequest request= new()
         {
-            application_version = "1.0.5",
-            merchant_reporting_id = merchantReportingId,
-            start_date = DateTime.Today,
-            end_date = DateTime.Today,
-            breakdown = 2,
-            measure = 1,
-            top_n = 5,
+            ApplicationVersion = "1.0.5",
+            MerchantReportingId = merchantReportingId,
+            StartDate = DateTime.Today,
+            EndDate = DateTime.Today,
+            Breakdown = TransactionMixBreakdown.Product,
+            Measure = TransactionMixMeasure.Count,
+            TopN = 5,
         };
 
         StringContent content = new StringContent(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");

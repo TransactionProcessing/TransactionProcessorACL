@@ -2,8 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using SimpleResults;
-using TransactionProcessorACL.DataTransferObjects.Requests;
-using TransactionProcessorACL.Models;
+using TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects;
+
 
 namespace TransactionProcessorACL.BusinessLogic.BackendAPI;
 
@@ -14,8 +14,8 @@ public interface IEstateReportingApiClient
                                                                                               MerchantDailyPerformanceSummaryRequest request,
                                                                                               CancellationToken cancellationToken);
 
-    Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(String accessToken,
-                                                                                         Guid estateId,
-                                                                                         MerchantTransactionMixSummaryRequest request,
-                                                                                         CancellationToken cancellationToken);
+    Task<Result<TransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(String accessToken,
+                                                                                 Guid estateId,
+                                                                                 TransactionMixSummaryRequest request,
+                                                                                 CancellationToken cancellationToken);
 }

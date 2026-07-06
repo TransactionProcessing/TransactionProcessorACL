@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using ClientProxyBase;
-using Shared.General;
 using Shared.Results;
 using SimpleResults;
-using TransactionProcessorACL.DataTransferObjects.Requests;
-using TransactionProcessorACL.Models;
+using TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects;
 
 namespace TransactionProcessorACL.BusinessLogic.BackendAPI;
 
@@ -54,10 +51,10 @@ public class EstateReportingApiClient : ClientProxyBase.ClientProxyBase, IEstate
         }
     }
 
-    public async Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(String accessToken,
-                                                                                                     Guid estateId,
-                                                                                                     MerchantTransactionMixSummaryRequest request,
-                                                                                                     CancellationToken cancellationToken)
+    public async Task<Result<TransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(String accessToken,
+                                                                                              Guid estateId,
+                                                                                              TransactionMixSummaryRequest request,
+                                                                                              CancellationToken cancellationToken)
     {
         string requestUri = this.BuildRequestUrl("/api/transactions/transactionmixsummary");
 
@@ -68,8 +65,8 @@ public class EstateReportingApiClient : ClientProxyBase.ClientProxyBase, IEstate
                 (EstateIdHeaderName, estateId.ToString())
             ];
 
-            Result<MerchantTransactionMixSummaryResponse> result =
-                await this.Post<MerchantTransactionMixSummaryRequest, MerchantTransactionMixSummaryResponse>(requestUri, request, accessToken, additionalHeaders, cancellationToken);
+            Result<TransactionMixSummaryResponse> result =
+                await this.Post<TransactionMixSummaryRequest, TransactionMixSummaryResponse>(requestUri, request, accessToken, additionalHeaders, cancellationToken);
 
             if (result.IsFailed)
                 return ResultHelpers.CreateFailure(result);
