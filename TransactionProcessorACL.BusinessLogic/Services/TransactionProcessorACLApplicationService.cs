@@ -1,7 +1,9 @@
-﻿using SecurityService.DataTransferObjects;
+﻿using System.Linq;
+using SecurityService.DataTransferObjects;
 using Shared.Exceptions;
 using Shared.Results;
 using SimpleResults;
+using TransactionProcessor.DataTransferObjects.Requests.Merchant;
 using TransactionProcessor.DataTransferObjects.Responses.Contract;
 
 namespace TransactionProcessorACL.BusinessLogic.Services
@@ -375,8 +377,26 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
 
+            BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest apiRequest = new BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest { StartDate = request.StartDate, EndDate = request.EndDate, MerchantReportingId = request.MerchantReportingId };
+
             TokenResponse accessToken = accessTokenResult.Data;
-            return await this.EstateReportingApiClient.GetMerchantDailyPerformanceSummary(accessToken.AccessToken, estateId, request, cancellationToken);
+            Result<BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryResponse> apiResponse = await this.EstateReportingApiClient.GetMerchantDailyPerformanceSummary(accessToken.AccessToken, estateId, apiRequest, cancellationToken);
+
+            if (apiResponse.IsFailed)
+                return ResultHelpers.CreateFailure(apiResponse);
+
+            MerchantDailyPerformanceSummaryResponse response = new MerchantDailyPerformanceSummaryResponse {
+                Metrics = apiResponse.Data.Metrics.Select(m => new MetricItem { Category = m.Category, Description = m.Description, Title = m.Title, Value = m.Value }).ToList(),
+                DrillDownTransactions = apiResponse.Data.DrillDownTransactions.Select(d => new DrillDownTransaction {
+                    Amount = d.Amount,
+                    Product = d.Product,
+                    Reference = d.Reference,
+                    Status = d.Status,
+                    TransactionDateTime = d.TransactionDateTime
+                }).ToList()
+            };
+
+            return response;
         }
 
         public async Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(Guid estateId,
@@ -388,8 +408,42 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
 
+            var apiRequest = new BackendAPI.DataTransferObjects.TransactionMixSummaryRequest {
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                Breakdown = Enum.Parse<BackendAPI.DataTransferObjects.TransactionMixBreakdown>(request.Breakdown.ToString()),
+                Measure = Enum.Parse<BackendAPI.DataTransferObjects.TransactionMixMeasure>(request.Measure.ToString()),
+                MerchantReportingId = request.MerchantReportingId,
+                TopN = request.TopN
+            };
+
             TokenResponse accessToken = accessTokenResult.Data;
-            return await this.EstateReportingApiClient.GetMerchantTransactionMixSummary(accessToken.AccessToken, estateId, request, cancellationToken);
+            var apiResponse = await this.EstateReportingApiClient.GetMerchantTransactionMixSummary(accessToken.AccessToken, estateId, apiRequest, cancellationToken);
+
+            if (apiResponse.IsFailed)
+                return ResultHelpers.CreateFailure(apiResponse);
+
+            MerchantTransactionMixSummaryResponse response = new MerchantTransactionMixSummaryResponse() {
+                Breakdown = Enum.Parse<Models.TransactionMixBreakdown>(apiResponse.Data.Breakdown.ToString()),
+                Measure = Enum.Parse<Models.TransactionMixMeasure>(apiResponse.Data.Measure.ToString()),
+                FromDate = apiResponse.Data.FromDate,
+                ToDate = apiResponse.Data.ToDate,
+                TotalCount = apiResponse.Data.TotalCount,
+                TotalValue = apiResponse.Data.TotalValue,
+                Items = apiResponse.Data.Groups.Select(g => new TransactionMixSummaryItem { Value = g.TransactionValue, Count = g.TransactionCount, Key = g.GroupKey, Label = g.GroupName }).ToList(),
+                DrillDownTransactions = apiResponse.Data.Transactions.Select(t => new TransactionMixDrillDownTransaction {
+                    Amount = t.Value,
+                    Operator = t.Operator,
+                    Product = t.Product,
+                    Reference = t.SettlementReference,
+                    Status = t.Status,
+                    TransactionDateTime = t.DateTime,
+                    TransactionType = t.Type
+                }).ToList()
+
+            };
+
+            return response;
         }
 
         private static ProcessReconciliationResponse CreateProcessReconciliationResponse(ReconciliationResponse reconciliationResponse)

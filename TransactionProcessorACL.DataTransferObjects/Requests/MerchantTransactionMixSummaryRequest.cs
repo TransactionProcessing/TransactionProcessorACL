@@ -15,6 +15,7 @@ public class MerchantTransactionMixSummaryRequest
     public TransactionMixBreakdown Breakdown { get; set; }
 
     public TransactionMixMeasure Measure { get; set; }
+    public String ApplicationVersion { get; set; }
 
     public int TopN { get; set; } = 5;
 }

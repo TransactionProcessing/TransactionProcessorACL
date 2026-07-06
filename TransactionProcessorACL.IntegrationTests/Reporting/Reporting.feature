@@ -119,7 +119,6 @@ Scenario: Merchant daily performance summary
 	Then the merchant daily performance summary response should contain at least one metric and the sale amount 50.00
 
 @PRTest
-@ignore
 Scenario: Merchant transaction mix summary
 	Given I am logged in as "merchantuser@testmerchant1.co.uk" with password "123456" for Merchant "Test Merchant 1" for Estate "Test Estate 1" with client "merchantClient"
 	When I perform the following transactions

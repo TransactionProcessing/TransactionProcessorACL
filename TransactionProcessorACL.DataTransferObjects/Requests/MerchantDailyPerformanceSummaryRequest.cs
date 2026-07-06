@@ -11,4 +11,5 @@ public class MerchantDailyPerformanceSummaryRequest
     public DateTime StartDate { get; set; }
 
     public DateTime EndDate { get; set; }
+    public String ApplicationVersion { get; set; }
 }
