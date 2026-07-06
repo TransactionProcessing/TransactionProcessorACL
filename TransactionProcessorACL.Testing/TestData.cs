@@ -9,6 +9,7 @@ namespace TransactionProcessorACL.Testing
     using TransactionProcessorACL.BusinessLogic.Requests;
     using TransactionProcessorACL.Common;
     using TransactionProcessorACL.DataTransferObjects;
+    using TransactionProcessorACL.DataTransferObjects.Requests;
     using GetVoucherResponse = TransactionProcessor.DataTransferObjects.GetVoucherResponse;
     using RedeemVoucherResponse = TransactionProcessor.DataTransferObjects.RedeemVoucherResponse;
 
@@ -220,6 +221,23 @@ namespace TransactionProcessorACL.Testing
         public static MerchantQueries.GetMerchantContractsQuery GetMerchantContractsQuery => new(EstateId,MerchantId);
         public static MerchantQueries.GetMerchantQuery GetMerchantQuery => new(EstateId, MerchantId);
         public static MerchantQueries.GetMerchantScheduleQuery GetMerchantScheduleQuery => new(EstateId, MerchantId, 2026);
+        public static ReportingQueries.GetMerchantDailyPerformanceSummaryQuery GetMerchantDailyPerformanceSummaryQuery => new(EstateId,
+            new MerchantDailyPerformanceSummaryRequest
+            {
+                MerchantReportingId = 12345,
+                StartDate = new DateTime(2026, 7, 1),
+                EndDate = new DateTime(2026, 7, 1)
+            });
+        public static ReportingQueries.GetMerchantTransactionMixSummaryQuery GetMerchantTransactionMixSummaryQuery => new(EstateId,
+            new MerchantTransactionMixSummaryRequest
+            {
+                MerchantReportingId = 12345,
+                StartDate = new DateTime(2026, 7, 1),
+                EndDate = new DateTime(2026, 7, 3),
+                Breakdown = TransactionProcessorACL.DataTransferObjects.Requests.TransactionMixBreakdown.Product,
+                Measure = TransactionProcessorACL.DataTransferObjects.Requests.TransactionMixMeasure.Count,
+                TopN = 5
+            });
 
         public static VoucherQueries.GetVoucherQuery GetVoucherQuery => new(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
 

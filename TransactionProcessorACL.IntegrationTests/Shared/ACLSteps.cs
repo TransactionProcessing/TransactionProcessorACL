@@ -13,17 +13,25 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TransactionProcessor.Client;
 using TransactionProcessor.DataTransferObjects;
 using TransactionProcessor.IntegrationTests.Common;
+using ReportingDailyPerformanceSummaryResponse = TransactionProcessorACL.DataTransferObjects.Responses.MerchantDailyPerformanceSummaryResponse;
+using ReportingMerchantTransactionMixSummaryResponse = TransactionProcessorACL.IntegrationTests.Shared.MerchantTransactionMixSummaryResponse;
 using static TransactionProcessorACL.IntegrationTests.Shared.ReqnrollExtensions;
 
 public class ACLSteps{
     private readonly HttpClient HttpClient;
 
     private readonly ITransactionProcessorClient TransactionProcessorClient;
+
+    private EstateDetails1 LastMerchantDailyPerformanceSummaryEstateDetails;
+    private Guid LastMerchantDailyPerformanceSummaryMerchantId;
+    private EstateDetails1 LastMerchantTransactionMixSummaryEstateDetails;
+    private Guid LastMerchantTransactionMixSummaryMerchantId;
 
     public ACLSteps(HttpClient httpClient, ITransactionProcessorClient transactionProcessorClient){
         this.HttpClient = httpClient;
@@ -196,8 +204,8 @@ public class ACLSteps{
 
     public async Task WhenIGetTheMerchantContractInformationForMerchantForEstateTheResponseShouldContainTheFollowingInformation(String estateName,
                                                                                                                                 String merchantName,
-                                                                                                                                List<EstateDetails1> estateDetailsList,
-                                                                                                                                List<ExpectedMerchantContractResponse> expectedMerchantContractResponses) {
+                                                                                                                               List<EstateDetails1> estateDetailsList,
+                                                                                                                               List<ExpectedMerchantContractResponse> expectedMerchantContractResponses) {
         EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateName == estateName);
         es1.ShouldNotBeNull();
         Guid merchantId = es1.EstateDetails.GetMerchantId(merchantName);
@@ -222,5 +230,120 @@ public class ACLSteps{
                 contractResponse.ShouldNotBeNull($"Failed to find contract {expectedMerchantContractResponse.ContractName} in response");
             }
         });
+    }
+
+    public async Task WhenIGetTheMerchantDailyPerformanceSummaryForMerchantForEstate(String estateName,
+                                                                                     String merchantName,
+                                                                                     List<EstateDetails1> estateDetailsList,
+                                                                                     CancellationToken cancellationToken)
+    {
+        EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateName == estateName);
+        es1.ShouldNotBeNull();
+        Guid merchantId = es1.EstateDetails.GetMerchantId(merchantName);
+        Int32 merchantReportingId = es1.GetMerchantReportingId(merchantId);
+
+        String uri = "api/reporting/dailymerchantprformancesummary";
+        String userAccessToken = es1.GetMerchantUserToken(merchantId);
+
+        this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAccessToken);
+
+        Object request = new
+        {
+            application_version = "1.0.5",
+            merchant_reporting_id = merchantReportingId,
+            start_date = DateTime.Today,
+            end_date = DateTime.Today,
+        };
+        
+
+        StringContent content = new StringContent(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
+
+        HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+
+        response.IsSuccessStatusCode.ShouldBeTrue();
+
+        String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        responseContent.ShouldNotBeNullOrEmpty("No response message received");
+
+        ReportingDailyPerformanceSummaryResponse dailyPerformanceSummaryResponse =
+            StringSerialiser.Deserialise<ReportingDailyPerformanceSummaryResponse>(responseContent,
+                                                                                   new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+
+        es1.AddMerchantDailyPerformanceSummaryResponse(merchantId, dailyPerformanceSummaryResponse);
+        this.LastMerchantDailyPerformanceSummaryEstateDetails = es1;
+        this.LastMerchantDailyPerformanceSummaryMerchantId = merchantId;
+    }
+
+    public void ThenTheMerchantDailyPerformanceSummaryResponseShouldContainAtLeastOneMetricAndTheSaleAmount(Decimal saleAmount)
+    {
+        this.LastMerchantDailyPerformanceSummaryEstateDetails.ShouldNotBeNull();
+
+        ReportingDailyPerformanceSummaryResponse merchantDailyPerformanceSummaryResponse =
+            this.LastMerchantDailyPerformanceSummaryEstateDetails.GetMerchantDailyPerformanceSummaryResponse(this.LastMerchantDailyPerformanceSummaryMerchantId);
+
+        merchantDailyPerformanceSummaryResponse.ShouldNotBeNull();
+        merchantDailyPerformanceSummaryResponse!.Metrics.ShouldNotBeEmpty();
+        merchantDailyPerformanceSummaryResponse.DrillDownTransactions.ShouldNotBeEmpty();
+        merchantDailyPerformanceSummaryResponse.DrillDownTransactions.Any(t => t.Amount == saleAmount)
+            .ShouldBeTrue($"Expected a drill down transaction with amount {saleAmount}");
+    }
+
+    public async Task WhenIGetTheMerchantTransactionMixSummaryForMerchantForEstate(String estateName,
+                                                                                   String merchantName,
+                                                                                   List<EstateDetails1> estateDetailsList,
+                                                                                   CancellationToken cancellationToken)
+    {
+        EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateName == estateName);
+        es1.ShouldNotBeNull();
+        Guid merchantId = es1.EstateDetails.GetMerchantId(merchantName);
+        Int32 merchantReportingId = es1.GetMerchantReportingId(merchantId);
+
+        String uri = "api/reporting/transactionmixsummary";
+        String userAccessToken = es1.GetMerchantUserToken(merchantId);
+
+        this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAccessToken);
+
+        Object request = new
+        {
+            application_version = "1.0.5",
+            merchant_reporting_id = merchantReportingId,
+            start_date = DateTime.Today,
+            end_date = DateTime.Today,
+            breakdown = 2,
+            measure = 1,
+            top_n = 5,
+        };
+
+        StringContent content = new StringContent(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
+
+        HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+
+        response.IsSuccessStatusCode.ShouldBeTrue();
+
+        String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        responseContent.ShouldNotBeNullOrEmpty("No response message received");
+
+        ReportingMerchantTransactionMixSummaryResponse transactionMixSummaryResponse =
+            StringSerialiser.Deserialise<ReportingMerchantTransactionMixSummaryResponse>(responseContent,
+                                                                                        new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+
+        es1.AddMerchantTransactionMixSummaryResponse(merchantId, transactionMixSummaryResponse);
+        this.LastMerchantTransactionMixSummaryEstateDetails = es1;
+        this.LastMerchantTransactionMixSummaryMerchantId = merchantId;
+    }
+
+    public void ThenTheMerchantTransactionMixSummaryResponseShouldContainAtLeastOneItemAndTheSaleAmount(Decimal saleAmount)
+    {
+        this.LastMerchantTransactionMixSummaryEstateDetails.ShouldNotBeNull();
+
+        ReportingMerchantTransactionMixSummaryResponse merchantTransactionMixSummaryResponse =
+            this.LastMerchantTransactionMixSummaryEstateDetails.GetMerchantTransactionMixSummaryResponse(this.LastMerchantTransactionMixSummaryMerchantId);
+
+        merchantTransactionMixSummaryResponse.ShouldNotBeNull();
+        merchantTransactionMixSummaryResponse!.Items.ShouldNotBeEmpty();
+        merchantTransactionMixSummaryResponse.TotalCount.ShouldBeGreaterThan(0);
+        merchantTransactionMixSummaryResponse.DrillDownTransactions.ShouldNotBeEmpty();
+        merchantTransactionMixSummaryResponse.DrillDownTransactions.Any(t => t.Amount == saleAmount)
+            .ShouldBeTrue($"Expected a drill down transaction with amount {saleAmount}");
     }
 }

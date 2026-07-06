@@ -5,10 +5,6 @@ using System.Linq;
 namespace TransactionProcessor.IntegrationTests.Common
 {
     using Client;
-    using Ductus.FluentDocker.Builders;
-    using Ductus.FluentDocker.Executors;
-    using Ductus.FluentDocker.Services;
-    using Ductus.FluentDocker.Services.Extensions;
     using SecurityService.Client;
     using Shared.Serialisation;
     using System;
@@ -65,6 +61,15 @@ namespace TransactionProcessor.IntegrationTests.Common
         #endregion
 
         #region Methods
+
+        public override DotNet.Testcontainers.Builders.ContainerBuilder SetupEstateReportingContainer()
+        {
+            Dictionary<String, String> environmentVariables = new();
+            environmentVariables.Add("ConnectionStrings:TransactionProcessorReadModel", this.SetConnectionString("TransactionProcessorReadModel", this.UseSecureSqlServerDatabase));
+            this.AdditionalVariables.Add(ContainerType.EstateReporting, environmentVariables);
+
+            return base.SetupEstateReportingContainer();
+        }
 
         public override async Task CreateSubscriptions(){
             List<(String streamName, String groupName, Int32 maxRetries)> subscriptions = new List<(String streamName, String groupName, Int32 maxRetries)>();
@@ -124,6 +129,20 @@ namespace TransactionProcessor.IntegrationTests.Common
         Object Deserialise(String arg, Type type)
         {
             return StringSerialiser.DeserializeObject<Object>(arg, type, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+        }
+
+        public override Dictionary<String, String> GetAdditionalVariables(ContainerType containerType)
+        {
+            Dictionary<String, String> additionalVariables = base.GetAdditionalVariables(containerType);
+
+            if (containerType == ContainerType.TransactionProcessorAcl &&
+                (this.RequiredDockerServices & DockerServices.EstateReporting) == DockerServices.EstateReporting)
+            {
+                additionalVariables["AppSettings:EstateReportingApi"] =
+                    $"http://{this.EstateReportingContainerName}:{DockerPorts.EstateReportingDockerPort}";
+            }
+
+            return additionalVariables;
         }
 
         #endregion

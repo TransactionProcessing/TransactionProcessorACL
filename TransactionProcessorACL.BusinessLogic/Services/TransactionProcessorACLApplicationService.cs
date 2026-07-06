@@ -22,61 +22,23 @@ namespace TransactionProcessorACL.BusinessLogic.Services
     using GetVoucherResponse = Models.GetVoucherResponse;
     using RedeemVoucherResponse = Models.RedeemVoucherResponse;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="TransactionProcessorACL.BusinessLogic.Services.ITransactionProcessorACLApplicationService" />
     public class TransactionProcessorACLApplicationService : ITransactionProcessorACLApplicationService
     {
-        #region Fields
-
-        /// <summary>
-        /// The security service client
-        /// </summary>
         private readonly ISecurityServiceClient SecurityServiceClient;
 
-        /// <summary>
-        /// The transaction processor client
-        /// </summary>
         private readonly ITransactionProcessorClient TransactionProcessorClient;
 
-        /// <summary>
-        /// The estate reporting client
-        /// </summary>
-        private readonly IEstateReportingApiClient? EstateReportingApiClient;
+        private readonly IEstateReportingApiClient EstateReportingApiClient;
 
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TransactionProcessorACLApplicationService"/> class.
-        /// </summary>
-        /// <param name="transactionProcessorClient">The transaction processor client.</param>
-        /// <param name="securityServiceClient">The security service client.</param>
         public TransactionProcessorACLApplicationService(ITransactionProcessorClient transactionProcessorClient,
                                                          ISecurityServiceClient securityServiceClient,
-                                                         IEstateReportingApiClient? estateReportingApiClient = null)
+                                                         IEstateReportingApiClient estateReportingApiClient)
         {
             this.TransactionProcessorClient = transactionProcessorClient;
             this.SecurityServiceClient = securityServiceClient;
             this.EstateReportingApiClient = estateReportingApiClient;
         }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Processes the logon transaction.
-        /// </summary>
-        /// <param name="estateId">The estate identifier.</param>
-        /// <param name="merchantId">The merchant identifier.</param>
-        /// <param name="transactionDateTime">The transaction date time.</param>
-        /// <param name="transactionNumber">The transaction number.</param>
-        /// <param name="deviceIdentifier">The device identifier.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        
         public async Task<Result<ProcessLogonTransactionResponse>> ProcessLogonTransaction(Guid estateId,
                                                                                            Guid merchantId,
                                                                                            DateTime transactionDateTime,
@@ -105,21 +67,6 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
         }
 
-        /// <summary>
-        /// Processes the sale transaction.
-        /// </summary>
-        /// <param name="estateId">The estate identifier.</param>
-        /// <param name="merchantId">The merchant identifier.</param>
-        /// <param name="transactionDateTime">The transaction date time.</param>
-        /// <param name="transactionNumber">The transaction number.</param>
-        /// <param name="deviceIdentifier">The device identifier.</param>
-        /// <param name="operatorIdentifier">The operator identifier.</param>
-        /// <param name="customerEmailAddress">The customer email address.</param>
-        /// <param name="contractId">The contract identifier.</param>
-        /// <param name="productId">The product identifier.</param>
-        /// <param name="additionalRequestMetadata">The additional request metadata.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
         public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction((Guid estateId, Guid merchantId) merchantData,
                                                                                          DateTime transactionDateTime,
                                                                                          String transactionNumber,
@@ -128,12 +75,10 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                          (Guid operatorId, Guid contractId, Guid productId) productData,
                                                                                          Dictionary<String, String> additionalRequestMetadata, CancellationToken cancellationToken)
         {
-            Logger.LogWarning("Here 2.1");
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
-            Logger.LogWarning("Here 2.2");
             TokenResponse accessToken = accessTokenResult.Data;
 
             SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(merchantData,
@@ -148,19 +93,15 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             try
             {
-                Logger.LogWarning("Here 2.3");
                 Result<SaleTransactionResponse> transactionResult = 
                     await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, saleTransactionRequest, cancellationToken);
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
-                Logger.LogWarning("Here 2.4");
 
                 response = this.CreateSaleTransactionResponse(transactionResult.Data, merchantData.estateId, merchantData.merchantId);
-                Logger.LogWarning("Here 2.5");
             }
             catch (Exception ex)
             {
-                Logger.LogWarning("Here 2.6");
                 response = this.CreateSaleTransactionErrorResponse(merchantData.estateId, merchantData.merchantId, ex);
             }
 
@@ -429,11 +370,6 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                                                MerchantDailyPerformanceSummaryRequest request,
                                                                                                                CancellationToken cancellationToken)
         {
-            if (this.EstateReportingApiClient == null)
-            {
-                return Result.Failure("Estate reporting client is not configured");
-            }
-
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
                 return ResultHelpers.CreateFailure(accessTokenResult);
@@ -441,6 +377,19 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             TokenResponse accessToken = accessTokenResult.Data;
             return await this.EstateReportingApiClient.GetMerchantDailyPerformanceSummary(accessToken.AccessToken, estateId, request, cancellationToken);
+        }
+
+        public async Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(Guid estateId,
+                                                                                                          MerchantTransactionMixSummaryRequest request,
+                                                                                                          CancellationToken cancellationToken)
+        {
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
+            if (accessTokenResult.IsFailed) {
+                return ResultHelpers.CreateFailure(accessTokenResult);
+            }
+
+            TokenResponse accessToken = accessTokenResult.Data;
+            return await this.EstateReportingApiClient.GetMerchantTransactionMixSummary(accessToken.AccessToken, estateId, request, cancellationToken);
         }
 
         private static ProcessReconciliationResponse CreateProcessReconciliationResponse(ReconciliationResponse reconciliationResponse)
@@ -550,7 +499,5 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             
             return logonTransactionRequest;
         }
-
-        #endregion
     }
 }

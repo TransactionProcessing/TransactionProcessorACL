@@ -21,6 +21,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using Xunit;
     using GetVoucherResponse = Models.GetVoucherResponse;
     using RedeemVoucherResponse = Models.RedeemVoucherResponse;
+    using RequestTransactionMixBreakdown = TransactionProcessorACL.DataTransferObjects.Requests.TransactionMixBreakdown;
+    using RequestTransactionMixMeasure = TransactionProcessorACL.DataTransferObjects.Requests.TransactionMixMeasure;
 
     public class TransactionProcessorACLApplicationServiceTests
     {
@@ -648,6 +650,53 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 CancellationToken.None);
 
             result.IsFailed.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_GetMerchantTransactionMixSummary_ReturnedFromEstateReportingClient()
+        {
+            MerchantTransactionMixSummaryRequest capturedRequest = null;
+            estateReportingApiClient
+                .Setup(v => v.GetMerchantTransactionMixSummary(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<MerchantTransactionMixSummaryRequest>(), It.IsAny<CancellationToken>()))
+                .Callback<String, Guid, MerchantTransactionMixSummaryRequest, CancellationToken>((_, _, request, _) => capturedRequest = request)
+                .ReturnsAsync(Result.Success(new MerchantTransactionMixSummaryResponse
+                {
+                    FromDate = new DateTime(2026, 7, 1),
+                    ToDate = new DateTime(2026, 7, 3),
+                    Breakdown = TransactionProcessorACL.Models.TransactionMixBreakdown.Product,
+                    Measure = TransactionProcessorACL.Models.TransactionMixMeasure.Count,
+                    Items =
+                    [
+                        new TransactionMixSummaryItem
+                        {
+                            Key = "product-1",
+                            Label = "Product 1",
+                            Count = 6,
+                            Value = 42.75M
+                        }
+                    ]
+                }));
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            Result<MerchantTransactionMixSummaryResponse> result = await applicationService.GetMerchantTransactionMixSummary(
+                TestData.EstateId,
+                new MerchantTransactionMixSummaryRequest
+                {
+                    MerchantReportingId = 12345,
+                    StartDate = new DateTime(2026, 7, 1),
+                    EndDate = new DateTime(2026, 7, 3),
+                    Breakdown = RequestTransactionMixBreakdown.Product,
+                    Measure = RequestTransactionMixMeasure.Count,
+                    TopN = 5
+                },
+                CancellationToken.None);
+
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
+            result.Data.Items.Count.ShouldBe(1);
+            capturedRequest.ShouldNotBeNull();
+            capturedRequest.MerchantReportingId.ShouldBe(12345);
+            capturedRequest.Breakdown.ShouldBe(RequestTransactionMixBreakdown.Product);
         }
     }
 }

@@ -37,6 +37,8 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
             this.Requests.Add(TestData.GetMerchantContractsQuery);
             this.Requests.Add(TestData.GetMerchantQuery);
             this.Requests.Add(TestData.GetMerchantScheduleQuery);
+            this.Requests.Add(TestData.GetMerchantDailyPerformanceSummaryQuery);
+            this.Requests.Add(TestData.GetMerchantTransactionMixSummaryQuery);
         }
 
         [Fact]
@@ -167,6 +169,13 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
                                                                                                                CancellationToken cancellationToken)
         {
             return Result.Success(new MerchantDailyPerformanceSummaryResponse());
+        }
+
+        public async Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(Guid estateId,
+                                                                                                         MerchantTransactionMixSummaryRequest request,
+                                                                                                         CancellationToken cancellationToken)
+        {
+            return Result.Success(new MerchantTransactionMixSummaryResponse());
         }
     }
 }

@@ -16,8 +16,11 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using Shared.General;
     using Shouldly;
     using Testing;
+    using TransactionProcessorACL.DataTransferObjects.Requests;
     using Xunit;
     using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+    using RequestTransactionMixBreakdown = TransactionProcessorACL.DataTransferObjects.Requests.TransactionMixBreakdown;
+    using RequestTransactionMixMeasure = TransactionProcessorACL.DataTransferObjects.Requests.TransactionMixMeasure;
 
     /// <summary>
     /// 
@@ -194,6 +197,63 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                             {
                                 await requestHandler.Handle(TestData.RedeemVoucherCommand, CancellationToken.None);
                             });
+        }
+
+        [Fact]
+        public async Task ReportingRequestHandler_GetMerchantTransactionMixSummaryQuery_Handle_RequestIsHandled()
+        {
+            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            applicationService
+                .Setup(a => a.GetMerchantTransactionMixSummary(It.IsAny<Guid>(),
+                                                               It.IsAny<MerchantTransactionMixSummaryRequest>(),
+                                                               It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new MerchantTransactionMixSummaryResponse());
+
+            ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Object);
+
+            ReportingQueries.GetMerchantTransactionMixSummaryQuery query = new(
+                TestData.EstateId,
+                new MerchantTransactionMixSummaryRequest
+                {
+                    MerchantReportingId = 12345,
+                    StartDate = new DateTime(2026, 7, 1),
+                    EndDate = new DateTime(2026, 7, 3),
+                    Breakdown = RequestTransactionMixBreakdown.Product,
+                    Measure = RequestTransactionMixMeasure.Count,
+                    TopN = 5
+                });
+
+            Result<MerchantTransactionMixSummaryResponse> result = await requestHandler.Handle(query, CancellationToken.None);
+
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
+        }
+
+        [Fact]
+        public async Task ReportingRequestHandler_GetMerchantDailyPerformanceSummaryQuery_Handle_RequestIsHandled()
+        {
+            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            applicationService
+                .Setup(a => a.GetMerchantDailyPerformanceSummary(It.IsAny<Guid>(),
+                                                                 It.IsAny<MerchantDailyPerformanceSummaryRequest>(),
+                                                                 It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new MerchantDailyPerformanceSummaryResponse());
+
+            ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Object);
+
+            ReportingQueries.GetMerchantDailyPerformanceSummaryQuery query = new(
+                TestData.EstateId,
+                new MerchantDailyPerformanceSummaryRequest
+                {
+                    MerchantReportingId = 12345,
+                    StartDate = new DateTime(2026, 7, 1),
+                    EndDate = new DateTime(2026, 7, 1)
+                });
+
+            Result<MerchantDailyPerformanceSummaryResponse> result = await requestHandler.Handle(query, CancellationToken.None);
+
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
         }
 
         #endregion

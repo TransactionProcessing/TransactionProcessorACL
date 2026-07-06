@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace TransactionProcessor.IntegrationTests.Common
@@ -38,7 +39,12 @@ namespace TransactionProcessor.IntegrationTests.Common
             DockerServices dockerServices = DockerServices.CallbackHandler | DockerServices.EventStore |
                                             DockerServices.FileProcessor | DockerServices.MessagingService | DockerServices.SecurityService |
                                             DockerServices.SqlServer | DockerServices.TestHost | DockerServices.TransactionProcessor |
-                                            DockerServices.TransactionProcessorAcl;
+                                            DockerServices.TransactionProcessorAcl | DockerServices.EstateReporting;
+
+            if (this.ScenarioContext.ScenarioInfo.Tags.Any(tag => tag.Equals("reporting", StringComparison.OrdinalIgnoreCase)))
+            {
+                dockerServices |= DockerServices.EstateReporting;
+            }
 
             this.TestingContext.DockerHelper = new DockerHelper();
             this.TestingContext.DockerHelper.Logger = logger;

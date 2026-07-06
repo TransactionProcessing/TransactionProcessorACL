@@ -2,10 +2,11 @@ using System;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Moq;
 using Shouldly;
 using SimpleResults;
-using TransactionProcessorACL.BusinessLogic.Services;
+using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects.Requests;
 using TransactionProcessorACL.Handlers;
 using Xunit;
@@ -15,7 +16,7 @@ namespace TransactionProcessorACL.Tests.Handlers;
 public class ReportingHandlersTests
 {
     [Fact]
-    public async Task GetMerchantDailyPerformanceSummary_PassesEstateClaimAndRequestToApplicationService()
+    public async Task GetMerchantDailyPerformanceSummary_PassesEstateClaimAndRequestToMediator()
     {
         var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
         {
@@ -29,25 +30,57 @@ public class ReportingHandlersTests
             EndDate = new DateTime(2026, 7, 1)
         };
 
-        MerchantDailyPerformanceSummaryRequest? capturedRequest = null;
-        Guid capturedEstateId = Guid.Empty;
+        ReportingQueries.GetMerchantDailyPerformanceSummaryQuery? capturedQuery = null;
 
-        var applicationService = new Mock<ITransactionProcessorACLApplicationService>(MockBehavior.Strict);
-        applicationService
-            .Setup(a => a.GetMerchantDailyPerformanceSummary(It.IsAny<Guid>(), It.IsAny<MerchantDailyPerformanceSummaryRequest>(), It.IsAny<CancellationToken>()))
-            .Callback<Guid, MerchantDailyPerformanceSummaryRequest, CancellationToken>((estateId, payload, _) =>
-            {
-                capturedEstateId = estateId;
-                capturedRequest = payload;
-            })
+        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        mediator
+            .Setup(m => m.Send(It.IsAny<ReportingQueries.GetMerchantDailyPerformanceSummaryQuery>(), It.IsAny<CancellationToken>()))
+            .Callback<object, CancellationToken>((payload, _) => capturedQuery = (ReportingQueries.GetMerchantDailyPerformanceSummaryQuery)payload)
             .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse()));
 
-        var result = await ReportingHandlers.GetMerchantDailyPerformanceSummary(user, request, applicationService.Object, CancellationToken.None);
+        var result = await ReportingHandlers.GetMerchantDailyPerformanceSummary(user, request, mediator.Object, CancellationToken.None);
 
         result.ShouldNotBeNull();
-        capturedEstateId.ShouldBe(Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"));
-        capturedRequest.ShouldNotBeNull();
-        capturedRequest!.MerchantReportingId.ShouldBe(12345);
-        applicationService.Verify(a => a.GetMerchantDailyPerformanceSummary(It.IsAny<Guid>(), It.IsAny<MerchantDailyPerformanceSummaryRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        capturedQuery.ShouldNotBeNull();
+        capturedQuery!.EstateId.ShouldBe(Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"));
+        capturedQuery.Request.MerchantReportingId.ShouldBe(12345);
+        mediator.Verify(m => m.Send(It.IsAny<ReportingQueries.GetMerchantDailyPerformanceSummaryQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetMerchantTransactionMixSummary_PassesEstateClaimAndRequestToMediator()
+    {
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim("estateId", "1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3")
+        }, "Bearer"));
+
+        var request = new MerchantTransactionMixSummaryRequest
+        {
+            MerchantReportingId = 12345,
+            StartDate = new DateTime(2026, 7, 1),
+            EndDate = new DateTime(2026, 7, 3),
+            Breakdown = TransactionMixBreakdown.Product,
+            Measure = TransactionMixMeasure.Count,
+            TopN = 5
+        };
+
+        ReportingQueries.GetMerchantTransactionMixSummaryQuery? capturedQuery = null;
+
+        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        mediator
+            .Setup(m => m.Send(It.IsAny<ReportingQueries.GetMerchantTransactionMixSummaryQuery>(), It.IsAny<CancellationToken>()))
+            .Callback<object, CancellationToken>((payload, _) => capturedQuery = (ReportingQueries.GetMerchantTransactionMixSummaryQuery)payload)
+            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse()));
+
+        var result = await ReportingHandlers.GetMerchantTransactionMixSummary(user, request, mediator.Object, CancellationToken.None);
+
+        result.ShouldNotBeNull();
+        capturedQuery.ShouldNotBeNull();
+        capturedQuery!.EstateId.ShouldBe(Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"));
+        capturedQuery.Request.MerchantReportingId.ShouldBe(12345);
+        capturedQuery.Request.Breakdown.ShouldBe(TransactionMixBreakdown.Product);
+        capturedQuery.Request.Measure.ShouldBe(TransactionMixMeasure.Count);
+        mediator.Verify(m => m.Send(It.IsAny<ReportingQueries.GetMerchantTransactionMixSummaryQuery>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -54,6 +54,35 @@ public class EstateReportingApiClient : ClientProxyBase.ClientProxyBase, IEstate
         }
     }
 
+    public async Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(String accessToken,
+                                                                                                     Guid estateId,
+                                                                                                     MerchantTransactionMixSummaryRequest request,
+                                                                                                     CancellationToken cancellationToken)
+    {
+        string requestUri = this.BuildRequestUrl("/api/transactions/transactionmixsummary");
+
+        try
+        {
+            List<(string headerName, string headerValue)> additionalHeaders =
+            [
+                (EstateIdHeaderName, estateId.ToString())
+            ];
+
+            Result<MerchantTransactionMixSummaryResponse> result =
+                await this.Post<MerchantTransactionMixSummaryRequest, MerchantTransactionMixSummaryResponse>(requestUri, request, accessToken, additionalHeaders, cancellationToken);
+
+            if (result.IsFailed)
+                return ResultHelpers.CreateFailure(result);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Exception exception = new($"Error getting merchant transaction mix summary for estate {estateId}.", ex);
+            return Result.Failure(exception.Message);
+        }
+    }
+
     private string BuildRequestUrl(string relativePath)
     {
         string baseAddress = this.BaseAddressResolver("EstateReportingApi");

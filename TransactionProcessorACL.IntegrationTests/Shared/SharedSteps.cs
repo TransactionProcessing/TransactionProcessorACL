@@ -329,6 +329,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse verifiedMerchant in verifiedMerchants){
                 EstateDetails1 estateDetails = this.TestingContext.GetEstateDetails(verifiedMerchant.EstateId);
                 estateDetails.EstateDetails.AddMerchant(verifiedMerchant);
+                estateDetails.AddMerchantReportingId(verifiedMerchant.MerchantId, verifiedMerchant.MerchantReportingId);
                 this.TestingContext.Logger.LogInformation($"Merchant {verifiedMerchant.MerchantName} created with Id {verifiedMerchant.MerchantId} for Estate {estateDetails.EstateDetails.EstateName}");
             }
         }
@@ -473,6 +474,38 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             }
 
             await this.AclSteps.WhenIGetTheMerchantContractInformationForMerchantForEstateTheResponseShouldContainTheFollowingInformation(estateName, merchantName, this.TestingContext.Estates, expectedMerchantContractResponses);
+        }
+
+        [When("I get the merchant daily performance summary for Merchant {string} for Estate {string}")]
+        public async Task WhenIGetTheMerchantDailyPerformanceSummaryForMerchantForEstate(string merchantName,
+                                                                                         string estateName)
+        {
+            await this.AclSteps.WhenIGetTheMerchantDailyPerformanceSummaryForMerchantForEstate(estateName,
+                                                                                               merchantName,
+                                                                                               this.TestingContext.Estates,
+                                                                                               CancellationToken.None);
+        }
+
+        [Then("the merchant daily performance summary response should contain at least one metric and the sale amount {decimal}")]
+        public void ThenTheMerchantDailyPerformanceSummaryResponseShouldContainAtLeastOneMetricAndTheSaleAmount(decimal saleAmount)
+        {
+            this.AclSteps.ThenTheMerchantDailyPerformanceSummaryResponseShouldContainAtLeastOneMetricAndTheSaleAmount(saleAmount);
+        }
+
+        [When("I get the merchant transaction mix summary for Merchant {string} for Estate {string}")]
+        public async Task WhenIGetTheMerchantTransactionMixSummaryForMerchantForEstate(string merchantName,
+                                                                                       string estateName)
+        {
+            await this.AclSteps.WhenIGetTheMerchantTransactionMixSummaryForMerchantForEstate(estateName,
+                                                                                              merchantName,
+                                                                                              this.TestingContext.Estates,
+                                                                                              CancellationToken.None);
+        }
+
+        [Then("the merchant transaction mix summary response should contain at least one item and the sale amount {decimal}")]
+        public void ThenTheMerchantTransactionMixSummaryResponseShouldContainAtLeastOneItemAndTheSaleAmount(decimal saleAmount)
+        {
+            this.AclSteps.ThenTheMerchantTransactionMixSummaryResponseShouldContainAtLeastOneItemAndTheSaleAmount(saleAmount);
         }
 
 

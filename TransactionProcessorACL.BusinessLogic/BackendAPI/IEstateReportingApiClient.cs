@@ -13,4 +13,9 @@ public interface IEstateReportingApiClient
                                                                                               Guid estateId,
                                                                                               MerchantDailyPerformanceSummaryRequest request,
                                                                                               CancellationToken cancellationToken);
+
+    Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(String accessToken,
+                                                                                         Guid estateId,
+                                                                                         MerchantTransactionMixSummaryRequest request,
+                                                                                         CancellationToken cancellationToken);
 }
