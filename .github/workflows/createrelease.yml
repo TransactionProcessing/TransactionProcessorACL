@@ -1,4 +1,4 @@
-﻿name: Release
+name: Release
 
 on:
   release:
@@ -17,7 +17,17 @@ jobs:
 
     - name: Get the version
       id: get_version
-      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      shell: bash
+      run: |
+        VERSION="${{ github.event.release.tag_name }}"
+        VERSION="${VERSION#v}"
+
+        if [ -z "$VERSION" ]; then
+          echo "VERSION was empty"
+          exit 1
+        fi
+
+        echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
     - name: Restore Nuget Packages
       run: dotnet restore TransactionProcessorACL.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
@@ -41,11 +51,16 @@ jobs:
 
     - name: Publish API
       if: ${{ github.event.release.prerelease == false }} 
-      run: dotnet publish "TransactionProcessorACL\TransactionProcessorACL.csproj" --configuration Release --output publishOutput -r win-x64 --self-contained
-              -p:Version=${{ steps.get_version.outputs.VERSION }}
-              -p:AssemblyVersion=${{ steps.get_version.outputs.VERSION }}
-              -p:FileVersion=${{ steps.get_version.outputs.VERSION }}
-              -p:InformationalVersion=${{ steps.get_version.outputs.VERSION }}
+      run: |
+        dotnet publish "TransactionProcessorACL\TransactionProcessorACL.csproj" \
+          --configuration Release \
+          --output publishOutput \
+          -r win-x64 \
+          --self-contained \
+          -p:Version=${{ steps.get_version.outputs.VERSION }} \
+          -p:AssemblyVersion=${{ steps.get_version.outputs.VERSION }} \
+          -p:FileVersion=${{ steps.get_version.outputs.VERSION }} \
+          -p:InformationalVersion=${{ steps.get_version.outputs.VERSION }}
 
     - name: Build Release Package
       run: |
