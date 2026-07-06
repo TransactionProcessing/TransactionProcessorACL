@@ -598,10 +598,10 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionProcessorACLApplicationService_GetMerchantDailyPerformanceSummary_ReturnedFromEstateReportingClient()
         {
-            MerchantDailyPerformanceSummaryRequest capturedRequest = null;
+            TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest capturedRequest = null;
             estateReportingApiClient
                 .Setup(v => v.GetMerchantDailyPerformanceSummary(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest>(), It.IsAny<CancellationToken>()))
-                .Callback<String, Guid, MerchantDailyPerformanceSummaryRequest, CancellationToken>((_, _, request, _) => capturedRequest = request)
+                .Callback<String, Guid, TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest, CancellationToken>((_, _, request, _) => capturedRequest = request)
                 .ReturnsAsync(Result.Success(new TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryResponse
                 {
                     Metrics =
