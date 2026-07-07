@@ -14,6 +14,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         public static MerchantResponse Build(TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse merchant) {
             MerchantResponse merchantResponse = new() {
                 MerchantId = merchant.MerchantId,
+                MerchantReportingId = merchant.MerchantReportingId,
                 EstateId = merchant.EstateId,
                 MerchantName = merchant.MerchantName,
                 EstateReportingId = merchant.EstateReportingId,

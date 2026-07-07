@@ -495,6 +495,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             merchantResponse.IsSuccess.ShouldBeTrue();
             merchantResponse.Data.ShouldNotBeNull();
             merchantResponse.Data.MerchantId.ShouldBe(TestData.MerchantId);
+            merchantResponse.Data.MerchantReportingId.ShouldBe(TestData.MerchantReportingId);
             merchantResponse.Data.Addresses.Count.ShouldBe(1);
             merchantResponse.Data.Addresses[0].AddressLine1.ShouldBe(TestData.AddressLine1);
             merchantResponse.Data.Addresses[0].Town.ShouldBe(TestData.Town);
