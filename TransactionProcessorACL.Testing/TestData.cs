@@ -50,10 +50,9 @@ namespace TransactionProcessorACL.Testing
                                                                                           TransactionNumber = TestData.TransactionNumber
                                                                                       };
 
-        /// <summary>
-        /// The merchant identifier
-        /// </summary>
         public static Guid MerchantId = Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3");
+
+        public static Int32 MerchantReportingId = 1;
 
         public static RequestAuditContext RequestAuditContext = new RequestAuditContext(
             RequestId: "req-123",
@@ -379,6 +378,7 @@ namespace TransactionProcessorACL.Testing
                 Contacts = new (){
                     Contact
                 },
+                MerchantReportingId = MerchantReportingId
             };
         public static List<TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse> MerchantContractResponses(TransactionProcessor.DataTransferObjects.Responses.Contract.ProductType productType) =>
             new() {

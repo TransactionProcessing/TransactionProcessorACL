@@ -188,6 +188,7 @@ public class ACLSteps{
         MerchantResponse merchantResponse = StringSerialiser.Deserialise<MerchantResponse>(responseContent, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
         merchantResponse.ShouldNotBeNull();
         merchantResponse.MerchantId.ShouldBe(merchantId);
+        merchantResponse.MerchantReportingId.ShouldNotBe(0);
         merchantResponse.MerchantName.ShouldBe(expectedMerchantResponse.MerchantName);
         merchantResponse.Addresses.ShouldNotBeNull();
         merchantResponse.Addresses.Count.ShouldBe(1);
