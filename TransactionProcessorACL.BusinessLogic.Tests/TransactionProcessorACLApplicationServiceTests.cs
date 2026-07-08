@@ -753,5 +753,32 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             capturedRequest.PageNumber.ShouldBe(2);
             capturedRequest.PageSize.ShouldBe(5);
         }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_GetRecentActivityReceiptSearch_BlankSearchTextIsNotForwarded()
+        {
+            TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.RecentActivityReceiptSearchRequest capturedRequest = null;
+            estateReportingApiClient
+                .Setup(v => v.GetRecentActivityReceiptSearch(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.RecentActivityReceiptSearchRequest>(), It.IsAny<CancellationToken>()))
+                .Callback<String, Guid, TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.RecentActivityReceiptSearchRequest, CancellationToken>((_, _, request, _) => capturedRequest = request)
+                .ReturnsAsync(Result.Success(new TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.RecentActivityReceiptSearchResponse()));
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            Result<RecentActivityReceiptSearchResponse> result = await applicationService.GetRecentActivityReceiptSearch(
+                TestData.EstateId,
+                new RecentActivityReceiptSearchRequest
+                {
+                    MerchantReportingId = 12345,
+                    ReportDate = new DateTime(2026, 7, 8),
+                    SearchText = "   ",
+                    PageNumber = 1,
+                    PageSize = 5
+                },
+                CancellationToken.None);
+
+            result.IsSuccess.ShouldBeTrue();
+            capturedRequest.ShouldNotBeNull();
+            capturedRequest.SearchText.ShouldBeNull();
+        }
     }
 }

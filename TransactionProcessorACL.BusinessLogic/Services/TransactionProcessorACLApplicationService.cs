@@ -459,7 +459,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             {
                 MerchantReportingId = request.MerchantReportingId,
                 ReportDate = request.ReportDate.Date,
-                SearchText = request.SearchText,
+                SearchText = string.IsNullOrWhiteSpace(request.SearchText) ? null : request.SearchText.Trim(),
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize
             };

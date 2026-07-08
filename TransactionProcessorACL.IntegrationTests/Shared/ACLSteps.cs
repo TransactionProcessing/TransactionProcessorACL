@@ -360,7 +360,6 @@ public class ACLSteps{
             ApplicationVersion = "1.0.5",
             MerchantReportingId = merchantReportingId,
             ReportDate = DateTime.Today,
-            SearchText = string.Empty,
             PageNumber = pageNumber,
             PageSize = pageSize
         };
