@@ -69,5 +69,9 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(Guid estateId,
                                                                                              MerchantTransactionMixSummaryRequest request,
                                                                                              CancellationToken cancellationToken);
+
+        Task<Result<RecentActivityReceiptSearchResponse>> GetRecentActivityReceiptSearch(Guid estateId,
+                                                                                          RecentActivityReceiptSearchRequest request,
+                                                                                          CancellationToken cancellationToken);
     }
 }

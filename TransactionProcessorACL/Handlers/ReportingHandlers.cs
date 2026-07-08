@@ -41,4 +41,19 @@ public static class ReportingHandlers
         Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse> result = await mediator.Send(query, cancellationToken);
         return ResponseFactory.FromResult(result, response => response);
     }
+
+    public static async Task<IResult> GetRecentActivityReceiptSearch(ClaimsPrincipal user,
+                                                                     RecentActivityReceiptSearchRequest request,
+                                                                     IMediator mediator,
+                                                                     CancellationToken cancellationToken)
+    {
+        Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
+        if (estateIdResult.IsFailed)
+            return ResponseFactory.FromResult(Result.Forbidden());
+
+        ReportingQueries.GetRecentActivityReceiptSearchQuery query = new(estateIdResult.Data, request);
+        Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse> result =
+            await mediator.Send(query, cancellationToken);
+        return ResponseFactory.FromResult(result, response => response);
+    }
 }

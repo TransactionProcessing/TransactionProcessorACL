@@ -237,6 +237,15 @@ namespace TransactionProcessorACL.Testing
                 Measure = TransactionProcessorACL.DataTransferObjects.Requests.TransactionMixMeasure.Count,
                 TopN = 5
             });
+        public static ReportingQueries.GetRecentActivityReceiptSearchQuery GetRecentActivityReceiptSearchQuery => new(EstateId,
+            new RecentActivityReceiptSearchRequest
+            {
+                MerchantReportingId = 12345,
+                ReportDate = new DateTime(2026, 7, 8),
+                SearchText = "abc",
+                PageNumber = 2,
+                PageSize = 5
+            });
 
         public static VoucherQueries.GetVoucherQuery GetVoucherQuery => new(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
 

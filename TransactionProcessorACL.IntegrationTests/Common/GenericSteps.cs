@@ -41,11 +41,6 @@ namespace TransactionProcessor.IntegrationTests.Common
                                             DockerServices.SqlServer | DockerServices.TestHost | DockerServices.TransactionProcessor |
                                             DockerServices.TransactionProcessorAcl | DockerServices.EstateReporting;
 
-            if (this.ScenarioContext.ScenarioInfo.Tags.Any(tag => tag.Equals("reporting", StringComparison.OrdinalIgnoreCase)))
-            {
-                dockerServices |= DockerServices.EstateReporting;
-            }
-
             this.TestingContext.DockerHelper = new DockerHelper();
             this.TestingContext.DockerHelper.Logger = logger;
             this.TestingContext.Logger = logger;

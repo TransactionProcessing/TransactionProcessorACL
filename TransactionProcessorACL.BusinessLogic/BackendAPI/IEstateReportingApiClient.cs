@@ -18,4 +18,9 @@ public interface IEstateReportingApiClient
                                                                                  Guid estateId,
                                                                                  TransactionMixSummaryRequest request,
                                                                                  CancellationToken cancellationToken);
+
+    Task<Result<RecentActivityReceiptSearchResponse>> GetRecentActivityReceiptSearch(String accessToken,
+                                                                                      Guid estateId,
+                                                                                      RecentActivityReceiptSearchRequest request,
+                                                                                      CancellationToken cancellationToken);
 }

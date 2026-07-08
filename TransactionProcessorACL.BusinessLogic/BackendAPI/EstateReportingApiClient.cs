@@ -80,6 +80,35 @@ public class EstateReportingApiClient : ClientProxyBase.ClientProxyBase, IEstate
         }
     }
 
+    public async Task<Result<RecentActivityReceiptSearchResponse>> GetRecentActivityReceiptSearch(String accessToken,
+                                                                                                  Guid estateId,
+                                                                                                  RecentActivityReceiptSearchRequest request,
+                                                                                                  CancellationToken cancellationToken)
+    {
+        string requestUri = this.BuildRequestUrl("/api/transactions/recentactivityreceiptreport");
+
+        try
+        {
+            List<(string headerName, string headerValue)> additionalHeaders =
+            [
+                (EstateIdHeaderName, estateId.ToString())
+            ];
+
+            Result<RecentActivityReceiptSearchResponse> result =
+                await this.Post<RecentActivityReceiptSearchRequest, RecentActivityReceiptSearchResponse>(requestUri, request, accessToken, additionalHeaders, cancellationToken);
+
+            if (result.IsFailed)
+                return ResultHelpers.CreateFailure(result);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Exception exception = new($"Error getting recent activity receipt search for estate {estateId}.", ex);
+            return Result.Failure(exception.Message);
+        }
+    }
+
     private string BuildRequestUrl(string relativePath)
     {
         string baseAddress = this.BaseAddressResolver("EstateReportingApi");

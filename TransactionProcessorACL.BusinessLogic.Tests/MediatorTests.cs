@@ -39,6 +39,7 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
             this.Requests.Add(TestData.GetMerchantScheduleQuery);
             this.Requests.Add(TestData.GetMerchantDailyPerformanceSummaryQuery);
             this.Requests.Add(TestData.GetMerchantTransactionMixSummaryQuery);
+            this.Requests.Add(TestData.GetRecentActivityReceiptSearchQuery);
         }
 
         [Fact]
@@ -176,6 +177,13 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
                                                                                                          CancellationToken cancellationToken)
         {
             return Result.Success(new MerchantTransactionMixSummaryResponse());
+        }
+
+        public async Task<Result<RecentActivityReceiptSearchResponse>> GetRecentActivityReceiptSearch(Guid estateId,
+                                                                                                      RecentActivityReceiptSearchRequest request,
+                                                                                                      CancellationToken cancellationToken)
+        {
+            return Result.Success(new RecentActivityReceiptSearchResponse());
         }
     }
 }

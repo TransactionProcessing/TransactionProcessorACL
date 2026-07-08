@@ -508,6 +508,30 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             this.AclSteps.ThenTheMerchantTransactionMixSummaryResponseShouldContainAtLeastOneItemAndTheSaleAmount(saleAmount);
         }
 
+        [When("I get the recent activity receipt search for Merchant {string} for Estate {string} page {int} size {int}")]
+        public async Task WhenIGetTheRecentActivityReceiptSearchForMerchantForEstatePageSize(string merchantName,
+                                                                                            string estateName,
+                                                                                            int pageNumber,
+                                                                                            int pageSize)
+        {
+            await this.AclSteps.WhenIGetTheRecentActivityReceiptSearchForMerchantForEstate(estateName,
+                                                                                           merchantName,
+                                                                                           pageNumber,
+                                                                                           pageSize,
+                                                                                           this.TestingContext.Estates,
+                                                                                           CancellationToken.None);
+        }
+
+        [Then("the recent activity receipt search response for page {int} should contain {int} items and total count {int}")]
+        public void ThenTheRecentActivityReceiptSearchResponseForPageShouldContainItemsAndTotalCount(int pageNumber,
+                                                                                                    int expectedCount,
+                                                                                                    int expectedTotalCount)
+        {
+            this.AclSteps.ThenTheRecentActivityReceiptSearchResponseShouldContainPageWithCountAndDescendingDates(pageNumber,
+                                                                                                                 expectedCount,
+                                                                                                                 expectedTotalCount);
+        }
+
 
 
         #endregion

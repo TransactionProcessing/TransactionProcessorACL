@@ -11,7 +11,8 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers;
 
 public class ReportingRequestHandler :
     IRequestHandler<ReportingQueries.GetMerchantDailyPerformanceSummaryQuery, Result<MerchantDailyPerformanceSummaryResponse>>,
-    IRequestHandler<ReportingQueries.GetMerchantTransactionMixSummaryQuery, Result<MerchantTransactionMixSummaryResponse>>
+    IRequestHandler<ReportingQueries.GetMerchantTransactionMixSummaryQuery, Result<MerchantTransactionMixSummaryResponse>>,
+    IRequestHandler<ReportingQueries.GetRecentActivityReceiptSearchQuery, Result<RecentActivityReceiptSearchResponse>>
 {
     private readonly ITransactionProcessorACLApplicationService ApplicationService;
 
@@ -30,5 +31,11 @@ public class ReportingRequestHandler :
                                                                            CancellationToken cancellationToken)
     {
         return await this.ApplicationService.GetMerchantTransactionMixSummary(request.EstateId, request.Request, cancellationToken);
+    }
+
+    public async Task<Result<RecentActivityReceiptSearchResponse>> Handle(ReportingQueries.GetRecentActivityReceiptSearchQuery request,
+                                                                          CancellationToken cancellationToken)
+    {
+        return await this.ApplicationService.GetRecentActivityReceiptSearch(request.EstateId, request.Request, cancellationToken);
     }
 }
