@@ -285,6 +285,33 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             result.Data.ShouldNotBeNull();
         }
 
+        [Fact]
+        public async Task TransactionRequestHandler_ResendReceiptCommand_Handle_RequestIsHandled()
+        {
+            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            applicationService
+                .Setup(a => a.ResendReceipt(It.IsAny<Guid>(),
+                                            It.IsAny<Guid>(),
+                                            It.IsAny<String>(),
+                                            It.IsAny<String>(),
+                                            It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ResendReceiptResponse { Success = true, Message = "Receipt resend requested." });
+
+            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Object);
+
+            TransactionCommands.ResendReceiptCommand command = new(
+                TestData.EstateId,
+                TestData.MerchantId,
+                "RCPT-0001",
+                "recipient@example.com");
+
+            Result<ResendReceiptResponse> result = await requestHandler.Handle(command, CancellationToken.None);
+
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
+            result.Data.Success.ShouldBeTrue();
+        }
+
         #endregion
     }
 }

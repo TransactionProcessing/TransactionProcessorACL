@@ -73,5 +73,11 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         Task<Result<RecentActivityReceiptSearchResponse>> GetRecentActivityReceiptSearch(Guid estateId,
                                                                                           RecentActivityReceiptSearchRequest request,
                                                                                           CancellationToken cancellationToken);
+
+        Task<Result<ResendReceiptResponse>> ResendReceipt(Guid estateId,
+                                                          Guid merchantId,
+                                                          String reference,
+                                                          String recipientEmailAddress,
+                                                          CancellationToken cancellationToken);
     }
 }

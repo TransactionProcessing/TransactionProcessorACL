@@ -36,4 +36,10 @@ public record TransactionCommands {
                                                Int32 TransactionCount,
                                                Decimal TransactionValue)
         : IRequest<Result<ProcessReconciliationResponse>>;
+
+    public record ResendReceiptCommand(Guid EstateId,
+                                       Guid MerchantId,
+                                       String Reference,
+                                       String RecipientEmailAddress)
+        : IRequest<Result<ResendReceiptResponse>>;
 }

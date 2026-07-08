@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net.Mail;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects;
 using TransactionProcessorACL.DataTransferObjects.Requests;
@@ -20,7 +21,7 @@ namespace TransactionProcessorACL.Handlers;
 /// Static handler methods for transaction processing; callable from minimal endpoints or controllers.
 /// Returns IResult so endpoints can return directly.
 /// </summary>
-public static class TransactionHandlers
+    public static class TransactionHandlers
 {
     public static async Task<IResult> PerformSaleTransaction(IMediator mediator,
                                                              ClaimsPrincipal user,
@@ -28,8 +29,9 @@ public static class TransactionHandlers
                                                              CancellationToken cancellationToken)
     {
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-        if (claimsResult.IsFailed)
+        if (claimsResult.IsFailed) {
             return ResponseFactory.FromResult(Result.Forbidden());
+        }
 
         TransactionCommands.ProcessSaleTransactionCommand saleCommand = CreateSaleCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
         Result<ProcessSaleTransactionResponse> saleResponse = await mediator.Send(saleCommand, cancellationToken);
@@ -42,8 +44,9 @@ public static class TransactionHandlers
                                                               CancellationToken cancellationToken)
     {
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-        if (claimsResult.IsFailed)
+        if (claimsResult.IsFailed) {
             return ResponseFactory.FromResult(Result.Forbidden());
+        }
 
         TransactionCommands.ProcessLogonTransactionCommand logonCommand = CreateLogonCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
         Result<ProcessLogonTransactionResponse> logonResponse = await mediator.Send(logonCommand, cancellationToken);
@@ -56,18 +59,57 @@ public static class TransactionHandlers
                                                                        CancellationToken cancellationToken)
     {
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-        if (claimsResult.IsFailed)
+        if (claimsResult.IsFailed) {
             return ResponseFactory.FromResult(Result.Forbidden());
+        }
 
         TransactionCommands.ProcessReconciliationCommand reconCommand = CreateReconciliationCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
         Result<ProcessReconciliationResponse> reconResponse = await mediator.Send(reconCommand, cancellationToken);
         return ResponseFactory.FromResult(reconResponse, ModelFactory.ConvertFrom);
     }
 
-    private static TransactionCommands.ProcessLogonTransactionCommand CreateLogonCommand(Guid estateId, Guid merchantId, LogonTransactionRequestMessage msg)
+    public static async Task<IResult> ResendReceipt(IMediator mediator,
+                                                    ClaimsPrincipal user,
+                                                    ResendReceiptRequestMessage transactionRequest,
+                                                    CancellationToken cancellationToken)
     {
-        return new TransactionCommands.ProcessLogonTransactionCommand(estateId, merchantId, msg.TransactionDateTime, msg.TransactionNumber, msg.DeviceIdentifier);
+        Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
+        if (claimsResult.IsFailed) {
+            return ResponseFactory.FromResult(Result.Forbidden());
+        }
+
+        if (string.IsNullOrWhiteSpace(transactionRequest.Reference)) {
+            return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "A transaction reference or receipt reference is required." });
+        }
+
+        if (string.IsNullOrWhiteSpace(transactionRequest.RecipientEmailAddress)) {
+            return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "Recipient email address is required." });
+        }
+
+        try {
+            _ = new MailAddress(transactionRequest.RecipientEmailAddress);
+        }
+        catch (FormatException) {
+            return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "Recipient email address is not valid." });
+        }
+
+        TransactionCommands.ResendReceiptCommand resendCommand = new(claimsResult.Data.estateId,
+                                                                     claimsResult.Data.merchantId,
+                                                                     transactionRequest.Reference,
+                                                                     transactionRequest.RecipientEmailAddress);
+        Result<ResendReceiptResponse> resendResponse = await mediator.Send(resendCommand, cancellationToken);
+
+        if (resendResponse.IsFailed && resendResponse.Status == ResultStatus.NotFound) {
+            return Results.NotFound(new ResendReceiptResponse { Success = false, Message = resendResponse.Message });
+        }
+
+        return ResponseFactory.FromResult(resendResponse, response => response);
     }
+
+        private static TransactionCommands.ProcessLogonTransactionCommand CreateLogonCommand(Guid estateId, Guid merchantId, LogonTransactionRequestMessage msg)
+        {
+            return new TransactionCommands.ProcessLogonTransactionCommand(estateId, merchantId, msg.TransactionDateTime, msg.TransactionNumber, msg.DeviceIdentifier);
+        }
 
     private static TransactionCommands.ProcessSaleTransactionCommand CreateSaleCommand(Guid estateId, Guid merchantId, SaleTransactionRequestMessage msg)
     {

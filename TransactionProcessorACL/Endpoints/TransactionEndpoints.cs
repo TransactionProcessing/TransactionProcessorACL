@@ -17,6 +17,7 @@ namespace TransactionProcessorACL.Endpoints
         private const string SaleBaseRoute = "/api/saletransactions";
         private const string LogonBaseRoute = "/api/logontransactions";
         private const string ReconciliationBaseRoute = "/api/reconciliationtransactions";
+        private const string TransactionsBaseRoute = "/api/transactions";
 
         public static IEndpointRouteBuilder MapTransactionEndpoints(this IEndpointRouteBuilder app)
         {
@@ -34,6 +35,11 @@ namespace TransactionProcessorACL.Endpoints
 
             // POST /api/reconciliationtransactions
             reconciliationGroup.MapPost("", TransactionHandlers.PerformReconciliationTransaction);
+
+            var transactionGroup = app.MapGroup(TransactionsBaseRoute).RequireAuthorization().RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+
+            // POST /api/transactions/resendreceipt
+            transactionGroup.MapPost("resendreceipt", TransactionHandlers.ResendReceipt);
 
             return app;
         }

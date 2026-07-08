@@ -18,6 +18,7 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
 {
     using System.Threading;
     using Microsoft.Extensions.DependencyInjection;
+    using TransactionProcessorACL.BusinessLogic.Requests;
     using TransactionProcessorACL.DataTransferObjects.Requests;
     using Models;
     using Services;
@@ -40,6 +41,7 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
             this.Requests.Add(TestData.GetMerchantDailyPerformanceSummaryQuery);
             this.Requests.Add(TestData.GetMerchantTransactionMixSummaryQuery);
             this.Requests.Add(TestData.GetRecentActivityReceiptSearchQuery);
+            this.Requests.Add(new TransactionCommands.ResendReceiptCommand(TestData.EstateId, TestData.MerchantId, "RCPT-0001", "recipient@example.com"));
         }
 
         [Fact]
@@ -184,6 +186,15 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
                                                                                                       CancellationToken cancellationToken)
         {
             return Result.Success(new RecentActivityReceiptSearchResponse());
+        }
+
+        public async Task<Result<ResendReceiptResponse>> ResendReceipt(Guid estateId,
+                                                                        Guid merchantId,
+                                                                        String reference,
+                                                                        String recipientEmailAddress,
+                                                                        CancellationToken cancellationToken)
+        {
+            return Result.Success(new ResendReceiptResponse { Success = true, Message = "Receipt resend requested." });
         }
     }
 }

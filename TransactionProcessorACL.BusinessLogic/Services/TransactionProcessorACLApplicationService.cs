@@ -492,6 +492,271 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             return response;
         }
 
+        public async Task<Result<ResendReceiptResponse>> ResendReceipt(Guid estateId,
+                                                                       Guid merchantId,
+                                                                       String reference,
+                                                                       String recipientEmailAddress,
+                                                                       CancellationToken cancellationToken)
+        {
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
+            if (accessTokenResult.IsFailed) {
+                return ResultHelpers.CreateFailure(accessTokenResult);
+            }
+
+            if (string.IsNullOrWhiteSpace(reference)) {
+                return Result.Invalid("A transaction reference or receipt reference is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(recipientEmailAddress)) {
+                return Result.Invalid("Recipient email address is required.");
+            }
+
+            try {
+                _ = new System.Net.Mail.MailAddress(recipientEmailAddress);
+            }
+            catch (FormatException) {
+                return Result.Invalid("Recipient email address is not valid.");
+            }
+
+            Result<ResendReceiptResponse> resendResult = await this.InvokeResendReceipt(accessTokenResult.Data.AccessToken,
+                                                                                         estateId,
+                                                                                         merchantId,
+                                                                                         reference,
+                                                                                         recipientEmailAddress,
+                                                                                         cancellationToken);
+
+            if (resendResult.IsFailed) {
+                return resendResult;
+            }
+
+            return resendResult;
+        }
+
+        private async Task<Result<ResendReceiptResponse>> InvokeResendReceipt(String accessToken,
+                                                                              Guid estateId,
+                                                                              Guid merchantId,
+                                                                              String reference,
+                                                                              String recipientEmailAddress,
+                                                                              CancellationToken cancellationToken)
+        {
+            System.Reflection.MethodInfo? method = FindResendEmailReceiptMethod();
+            if (method == null) {
+                return Result.Failure("Receipt resend is not supported by the transaction client.");
+            }
+
+            object?[]? args = BuildResendReceiptArguments(method, accessToken, estateId, merchantId, reference, recipientEmailAddress, cancellationToken);
+            if (args == null) {
+                return Result.Failure("Unable to prepare receipt resend request.");
+            }
+
+            object? invocationResult = method.Invoke(this.TransactionProcessorClient, args);
+            if (invocationResult is not Task task) {
+                return Result.Failure("Receipt resend call did not return a task.");
+            }
+
+            await task.ConfigureAwait(false);
+            return MapResendReceiptInvocationResult(task, reference);
+        }
+
+        private static System.Reflection.MethodInfo? FindResendEmailReceiptMethod()
+        {
+            return typeof(ITransactionProcessorClient)
+                .GetMethods()
+                .SingleOrDefault(m => string.Equals(m.Name, "ResendEmailReceipt", StringComparison.Ordinal));
+        }
+
+        private static object?[]? BuildResendReceiptArguments(System.Reflection.MethodInfo method,
+                                                              String accessToken,
+                                                              Guid estateId,
+                                                              Guid merchantId,
+                                                              String reference,
+                                                              String recipientEmailAddress,
+                                                              CancellationToken cancellationToken)
+        {
+            System.Reflection.ParameterInfo[] parameters = method.GetParameters();
+            object?[] args = new object?[parameters.Length];
+            ResendReceiptInvocationState state = new();
+
+            for (int index = 0; index < parameters.Length; index++) {
+                object? argument = BuildResendReceiptArgument(parameters[index],
+                                                              state,
+                                                              accessToken,
+                                                              estateId,
+                                                              merchantId,
+                                                              reference,
+                                                              recipientEmailAddress,
+                                                              cancellationToken);
+                if (argument == ResendReceiptInvocationState.UnableToBuildArgument) {
+                    return null;
+                }
+
+                args[index] = argument;
+            }
+
+            return args;
+        }
+
+        private static object? BuildResendReceiptArgument(System.Reflection.ParameterInfo parameter,
+                                                          ResendReceiptInvocationState state,
+                                                          String accessToken,
+                                                          Guid estateId,
+                                                          Guid merchantId,
+                                                          String reference,
+                                                          String recipientEmailAddress,
+                                                          CancellationToken cancellationToken)
+        {
+            if (parameter.ParameterType == typeof(String)) {
+                return accessToken;
+            }
+
+            if (parameter.ParameterType == typeof(Guid)) {
+                return state.GetNextGuidArgument(estateId, merchantId);
+            }
+
+            if (parameter.ParameterType == typeof(CancellationToken)) {
+                return cancellationToken;
+            }
+
+            return state.GetResendReceiptRequest(parameter.ParameterType, estateId, merchantId, reference, recipientEmailAddress);
+        }
+
+        private static Result<ResendReceiptResponse> MapResendReceiptInvocationResult(Task task, String reference)
+        {
+            object? taskResult = task.GetType().GetProperty("Result")?.GetValue(task);
+            if (taskResult == null) {
+                return Result.Failure("Receipt resend call returned no result.");
+            }
+
+            if (IsFailedResult(taskResult, out String? message, out String? status)) {
+                return MapResendReceiptFailure(status, message);
+            }
+
+            object? data = taskResult.GetType().GetProperty("Data")?.GetValue(taskResult);
+            return Result.Success(MapResendReceiptResponse(data, reference));
+        }
+
+        private static bool IsFailedResult(object taskResult, out String? message, out String? status)
+        {
+            message = taskResult.GetType().GetProperty("Message")?.GetValue(taskResult)?.ToString();
+            status = taskResult.GetType().GetProperty("Status")?.GetValue(taskResult)?.ToString();
+            return (bool)(taskResult.GetType().GetProperty("IsFailed")?.GetValue(taskResult) ?? true);
+        }
+
+        private static Result<ResendReceiptResponse> MapResendReceiptFailure(String? status, String? message)
+        {
+            if (string.Equals(status, "NotFound", StringComparison.OrdinalIgnoreCase)) {
+                return Result.NotFound(message ?? "Receipt could not be found.");
+            }
+
+            if (string.Equals(status, "Invalid", StringComparison.OrdinalIgnoreCase)) {
+                return Result.Invalid(message ?? "Receipt resend request was invalid.");
+            }
+
+            return Result.Failure(message ?? "Receipt resend failed.");
+        }
+
+        private static void PopulateResendReceiptRequest(object request,
+                                                         Guid estateId,
+                                                         Guid merchantId,
+                                                         String reference,
+                                                         String recipientEmailAddress)
+        {
+            Type requestType = request.GetType();
+            SetIfPresent(requestType, request, "EstateId", estateId);
+            SetIfPresent(requestType, request, "MerchantId", merchantId);
+            SetIfPresent(requestType, request, "Reference", reference);
+            SetIfPresent(requestType, request, "ReceiptReference", reference);
+            SetIfPresent(requestType, request, "TransactionReference", reference);
+            SetIfPresent(requestType, request, "RecipientEmail", recipientEmailAddress);
+            SetIfPresent(requestType, request, "RecipientEmailAddress", recipientEmailAddress);
+            SetIfPresent(requestType, request, "EmailAddress", recipientEmailAddress);
+        }
+
+        private static void SetIfPresent(Type requestType, object request, String propertyName, object value)
+        {
+            System.Reflection.PropertyInfo? property = requestType.GetProperty(propertyName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.IgnoreCase);
+            if (property == null || property.CanWrite == false) {
+                return;
+            }
+
+            property.SetValue(request, value);
+        }
+
+        private static ResendReceiptResponse MapResendReceiptResponse(object? data, String reference)
+        {
+            ResendReceiptResponse response = new()
+            {
+                Success = true,
+                Message = "Receipt resend requested.",
+                Reference = reference
+            };
+
+            if (data == null) {
+                return response;
+            }
+
+            Type responseType = data.GetType();
+            response.Message = GetStringProperty(responseType, data, "Message") ?? response.Message;
+            response.Reference = GetStringProperty(responseType, data, "Reference") ?? response.Reference;
+            response.ReceiptReference = GetStringProperty(responseType, data, "ReceiptReference");
+            response.TransactionReference = GetStringProperty(responseType, data, "TransactionReference");
+
+            if (string.IsNullOrWhiteSpace(response.Reference) && string.IsNullOrWhiteSpace(response.ReceiptReference) == false) {
+                response.Reference = response.ReceiptReference;
+            }
+
+            if (string.IsNullOrWhiteSpace(response.Reference) && string.IsNullOrWhiteSpace(response.TransactionReference) == false) {
+                response.Reference = response.TransactionReference;
+            }
+
+            return response;
+        }
+
+        private static string? GetStringProperty(Type type, object instance, String propertyName)
+        {
+            System.Reflection.PropertyInfo? property = type.GetProperty(propertyName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.IgnoreCase);
+            return property?.GetValue(instance)?.ToString();
+        }
+
+        private sealed class ResendReceiptInvocationState
+        {
+            public static readonly object UnableToBuildArgument = new();
+
+            private bool estateAssigned;
+            private bool merchantAssigned;
+            private object? request;
+
+            public object? GetNextGuidArgument(Guid estateId, Guid merchantId)
+            {
+                if (this.estateAssigned == false) {
+                    this.estateAssigned = true;
+                    return estateId;
+                }
+
+                if (this.merchantAssigned == false) {
+                    this.merchantAssigned = true;
+                    return merchantId;
+                }
+
+                return Guid.Empty;
+            }
+
+            public object? GetResendReceiptRequest(Type requestType,
+                                                   Guid estateId,
+                                                   Guid merchantId,
+                                                   String reference,
+                                                   String recipientEmailAddress)
+            {
+                this.request ??= System.Activator.CreateInstance(requestType);
+                if (this.request == null) {
+                    return UnableToBuildArgument;
+                }
+
+                PopulateResendReceiptRequest(this.request, estateId, merchantId, reference, recipientEmailAddress);
+                return this.request;
+            }
+        }
+
         private static ProcessReconciliationResponse CreateProcessReconciliationResponse(ReconciliationResponse reconciliationResponse)
         {
             return new ProcessReconciliationResponse
