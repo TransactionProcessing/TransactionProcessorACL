@@ -29,8 +29,9 @@ namespace TransactionProcessorACL.Handlers;
                                                              CancellationToken cancellationToken)
     {
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-        if (claimsResult.IsFailed)
+        if (claimsResult.IsFailed) {
             return ResponseFactory.FromResult(Result.Forbidden());
+        }
 
         TransactionCommands.ProcessSaleTransactionCommand saleCommand = CreateSaleCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
         Result<ProcessSaleTransactionResponse> saleResponse = await mediator.Send(saleCommand, cancellationToken);
@@ -43,62 +44,67 @@ namespace TransactionProcessorACL.Handlers;
                                                               CancellationToken cancellationToken)
     {
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-        if (claimsResult.IsFailed)
+        if (claimsResult.IsFailed) {
             return ResponseFactory.FromResult(Result.Forbidden());
+        }
 
         TransactionCommands.ProcessLogonTransactionCommand logonCommand = CreateLogonCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
         Result<ProcessLogonTransactionResponse> logonResponse = await mediator.Send(logonCommand, cancellationToken);
         return ResponseFactory.FromResult(logonResponse, ModelFactory.ConvertFrom);
     }
 
-        public static async Task<IResult> PerformReconciliationTransaction(IMediator mediator,
-                                                                        ClaimsPrincipal user,
-                                                                        ReconciliationRequestMessage transactionRequest,
-                                                                        CancellationToken cancellationToken)
+    public static async Task<IResult> PerformReconciliationTransaction(IMediator mediator,
+                                                                       ClaimsPrincipal user,
+                                                                       ReconciliationRequestMessage transactionRequest,
+                                                                       CancellationToken cancellationToken)
     {
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-        if (claimsResult.IsFailed)
+        if (claimsResult.IsFailed) {
             return ResponseFactory.FromResult(Result.Forbidden());
-
-            TransactionCommands.ProcessReconciliationCommand reconCommand = CreateReconciliationCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
-            Result<ProcessReconciliationResponse> reconResponse = await mediator.Send(reconCommand, cancellationToken);
-            return ResponseFactory.FromResult(reconResponse, ModelFactory.ConvertFrom);
         }
 
-        public static async Task<IResult> ResendReceipt(IMediator mediator,
-                                                       ClaimsPrincipal user,
-                                                       ResendReceiptRequestMessage transactionRequest,
-                                                       CancellationToken cancellationToken)
-        {
-            Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-            if (claimsResult.IsFailed)
-                return ResponseFactory.FromResult(Result.Forbidden());
+        TransactionCommands.ProcessReconciliationCommand reconCommand = CreateReconciliationCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
+        Result<ProcessReconciliationResponse> reconResponse = await mediator.Send(reconCommand, cancellationToken);
+        return ResponseFactory.FromResult(reconResponse, ModelFactory.ConvertFrom);
+    }
 
-            if (string.IsNullOrWhiteSpace(transactionRequest.Reference))
-                return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "A transaction reference or receipt reference is required." });
-
-            if (string.IsNullOrWhiteSpace(transactionRequest.RecipientEmailAddress))
-                return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "Recipient email address is required." });
-
-            try {
-                _ = new MailAddress(transactionRequest.RecipientEmailAddress);
-            }
-            catch (FormatException) {
-                return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "Recipient email address is not valid." });
-            }
-
-            TransactionCommands.ResendReceiptCommand resendCommand = new(claimsResult.Data.estateId,
-                                                                         claimsResult.Data.merchantId,
-                                                                         transactionRequest.Reference,
-                                                                         transactionRequest.RecipientEmailAddress);
-            Result<ResendReceiptResponse> resendResponse = await mediator.Send(resendCommand, cancellationToken);
-
-            if (resendResponse.IsFailed && resendResponse.Status == ResultStatus.NotFound) {
-                return Results.NotFound(new ResendReceiptResponse { Success = false, Message = resendResponse.Message });
-            }
-
-            return ResponseFactory.FromResult(resendResponse, response => response);
+    public static async Task<IResult> ResendReceipt(IMediator mediator,
+                                                    ClaimsPrincipal user,
+                                                    ResendReceiptRequestMessage transactionRequest,
+                                                    CancellationToken cancellationToken)
+    {
+        Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
+        if (claimsResult.IsFailed) {
+            return ResponseFactory.FromResult(Result.Forbidden());
         }
+
+        if (string.IsNullOrWhiteSpace(transactionRequest.Reference)) {
+            return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "A transaction reference or receipt reference is required." });
+        }
+
+        if (string.IsNullOrWhiteSpace(transactionRequest.RecipientEmailAddress)) {
+            return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "Recipient email address is required." });
+        }
+
+        try {
+            _ = new MailAddress(transactionRequest.RecipientEmailAddress);
+        }
+        catch (FormatException) {
+            return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "Recipient email address is not valid." });
+        }
+
+        TransactionCommands.ResendReceiptCommand resendCommand = new(claimsResult.Data.estateId,
+                                                                     claimsResult.Data.merchantId,
+                                                                     transactionRequest.Reference,
+                                                                     transactionRequest.RecipientEmailAddress);
+        Result<ResendReceiptResponse> resendResponse = await mediator.Send(resendCommand, cancellationToken);
+
+        if (resendResponse.IsFailed && resendResponse.Status == ResultStatus.NotFound) {
+            return Results.NotFound(new ResendReceiptResponse { Success = false, Message = resendResponse.Message });
+        }
+
+        return ResponseFactory.FromResult(resendResponse, response => response);
+    }
 
         private static TransactionCommands.ProcessLogonTransactionCommand CreateLogonCommand(Guid estateId, Guid merchantId, LogonTransactionRequestMessage msg)
         {
