@@ -111,157 +111,157 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
         {
 #line 4
 #line hidden
-            global::Reqnroll.Table table92 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table93 = new global::Reqnroll.Table(new string[] {
                         "Role Name"});
-            table92.AddRow(new string[] {
+            table93.AddRow(new string[] {
                         "Merchant"});
 #line 6
- await testRunner.GivenAsync("the following security roles exist", ((string)(null)), table92, "Given ");
+ await testRunner.GivenAsync("the following security roles exist", ((string)(null)), table93, "Given ");
 #line hidden
-            global::Reqnroll.Table table93 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table94 = new global::Reqnroll.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Description"});
-            table93.AddRow(new string[] {
+            table94.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST  Scope",
                         "A scope for Transaction Processor REST"});
-            table93.AddRow(new string[] {
+            table94.AddRow(new string[] {
                         "transactionProcessorACL",
                         "Transaction Processor ACL REST  Scope",
                         "A scope for Transaction Processor ACL REST"});
 #line 10
- await testRunner.GivenAsync("I create the following api scopes", ((string)(null)), table93, "Given ");
+ await testRunner.GivenAsync("I create the following api scopes", ((string)(null)), table94, "Given ");
 #line hidden
-            global::Reqnroll.Table table94 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table95 = new global::Reqnroll.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
                         "UserClaims"});
-            table94.AddRow(new string[] {
+            table95.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
                         "Secret1",
                         "transactionProcessor",
                         "merchantId, estateId, role"});
-            table94.AddRow(new string[] {
+            table95.AddRow(new string[] {
                         "transactionProcessorACL",
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorACL",
                         "merchantId, estateId, role"});
 #line 15
- await testRunner.GivenAsync("the following api resources exist", ((string)(null)), table94, "Given ");
+ await testRunner.GivenAsync("the following api resources exist", ((string)(null)), table95, "Given ");
 #line hidden
-            global::Reqnroll.Table table95 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table96 = new global::Reqnroll.Table(new string[] {
                         "ClientId",
                         "ClientName",
                         "Secret",
                         "Scopes",
                         "GrantTypes"});
-            table95.AddRow(new string[] {
+            table96.AddRow(new string[] {
                         "serviceClient",
                         "Service Client",
                         "Secret1",
                         "transactionProcessor,transactionProcessorACL",
                         "client_credentials"});
-            table95.AddRow(new string[] {
+            table96.AddRow(new string[] {
                         "merchantClient",
                         "Merchant Client",
                         "Secret1",
                         "transactionProcessorACL",
                         "password"});
 #line 20
- await testRunner.GivenAsync("the following clients exist", ((string)(null)), table95, "Given ");
+ await testRunner.GivenAsync("the following clients exist", ((string)(null)), table96, "Given ");
 #line hidden
-            global::Reqnroll.Table table96 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table97 = new global::Reqnroll.Table(new string[] {
                         "ClientId"});
-            table96.AddRow(new string[] {
+            table97.AddRow(new string[] {
                         "serviceClient"});
 #line 25
  await testRunner.GivenAsync("I have a token to access the estate management and transaction processor acl reso" +
-                    "urces", ((string)(null)), table96, "Given ");
-#line hidden
-            global::Reqnroll.Table table97 = new global::Reqnroll.Table(new string[] {
-                        "EstateName"});
-            table97.AddRow(new string[] {
-                        "Test Estate 1"});
-            table97.AddRow(new string[] {
-                        "Test Estate 2"});
-#line 29
- await testRunner.GivenAsync("I have created the following estates", ((string)(null)), table97, "Given ");
+                    "urces", ((string)(null)), table97, "Given ");
 #line hidden
             global::Reqnroll.Table table98 = new global::Reqnroll.Table(new string[] {
+                        "EstateName"});
+            table98.AddRow(new string[] {
+                        "Test Estate 1"});
+            table98.AddRow(new string[] {
+                        "Test Estate 2"});
+#line 29
+ await testRunner.GivenAsync("I have created the following estates", ((string)(null)), table98, "Given ");
+#line hidden
+            global::Reqnroll.Table table99 = new global::Reqnroll.Table(new string[] {
                         "EstateName",
                         "OperatorName",
                         "RequireCustomMerchantNumber",
                         "RequireCustomTerminalNumber"});
-            table98.AddRow(new string[] {
+            table99.AddRow(new string[] {
                         "Test Estate 1",
                         "Safaricom",
                         "True",
                         "True"});
-            table98.AddRow(new string[] {
+            table99.AddRow(new string[] {
                         "Test Estate 1",
                         "Voucher",
                         "True",
                         "True"});
-            table98.AddRow(new string[] {
+            table99.AddRow(new string[] {
                         "Test Estate 2",
                         "Safaricom",
                         "True",
                         "True"});
-            table98.AddRow(new string[] {
+            table99.AddRow(new string[] {
                         "Test Estate 2",
                         "Voucher",
                         "True",
                         "True"});
 #line 34
- await testRunner.GivenAsync("I have created the following operators", ((string)(null)), table98, "Given ");
-#line hidden
-            global::Reqnroll.Table table99 = new global::Reqnroll.Table(new string[] {
-                        "EstateName",
-                        "OperatorName"});
-            table99.AddRow(new string[] {
-                        "Test Estate 1",
-                        "Safaricom"});
-            table99.AddRow(new string[] {
-                        "Test Estate 1",
-                        "Voucher"});
-            table99.AddRow(new string[] {
-                        "Test Estate 2",
-                        "Safaricom"});
-            table99.AddRow(new string[] {
-                        "Test Estate 2",
-                        "Voucher"});
-#line 41
- await testRunner.AndAsync("I have assigned the following operators to the estates", ((string)(null)), table99, "And ");
+ await testRunner.GivenAsync("I have created the following operators", ((string)(null)), table99, "Given ");
 #line hidden
             global::Reqnroll.Table table100 = new global::Reqnroll.Table(new string[] {
                         "EstateName",
+                        "OperatorName"});
+            table100.AddRow(new string[] {
+                        "Test Estate 1",
+                        "Safaricom"});
+            table100.AddRow(new string[] {
+                        "Test Estate 1",
+                        "Voucher"});
+            table100.AddRow(new string[] {
+                        "Test Estate 2",
+                        "Safaricom"});
+            table100.AddRow(new string[] {
+                        "Test Estate 2",
+                        "Voucher"});
+#line 41
+ await testRunner.AndAsync("I have assigned the following operators to the estates", ((string)(null)), table100, "And ");
+#line hidden
+            global::Reqnroll.Table table101 = new global::Reqnroll.Table(new string[] {
+                        "EstateName",
                         "OperatorName",
                         "ContractDescription"});
-            table100.AddRow(new string[] {
+            table101.AddRow(new string[] {
                         "Test Estate 1",
                         "Safaricom",
                         "Safaricom Contract"});
-            table100.AddRow(new string[] {
+            table101.AddRow(new string[] {
                         "Test Estate 1",
                         "Voucher",
                         "Hospital 1 Contract"});
-            table100.AddRow(new string[] {
+            table101.AddRow(new string[] {
                         "Test Estate 2",
                         "Safaricom",
                         "Safaricom Contract"});
-            table100.AddRow(new string[] {
+            table101.AddRow(new string[] {
                         "Test Estate 2",
                         "Voucher",
                         "Hospital 1 Contract"});
 #line 48
- await testRunner.GivenAsync("I create a contract with the following values", ((string)(null)), table100, "Given ");
+ await testRunner.GivenAsync("I create a contract with the following values", ((string)(null)), table101, "Given ");
 #line hidden
-            global::Reqnroll.Table table101 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table102 = new global::Reqnroll.Table(new string[] {
                         "EstateName",
                         "OperatorName",
                         "ContractDescription",
@@ -269,7 +269,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "DisplayText",
                         "Value",
                         "ProductType"});
-            table101.AddRow(new string[] {
+            table102.AddRow(new string[] {
                         "Test Estate 1",
                         "Safaricom",
                         "Safaricom Contract",
@@ -277,7 +277,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Custom",
                         "",
                         "MobileTopup"});
-            table101.AddRow(new string[] {
+            table102.AddRow(new string[] {
                         "Test Estate 1",
                         "Voucher",
                         "Hospital 1 Contract",
@@ -285,7 +285,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "10 KES",
                         "",
                         "Voucher"});
-            table101.AddRow(new string[] {
+            table102.AddRow(new string[] {
                         "Test Estate 2",
                         "Safaricom",
                         "Safaricom Contract",
@@ -293,7 +293,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Custom",
                         "",
                         "MobileTopup"});
-            table101.AddRow(new string[] {
+            table102.AddRow(new string[] {
                         "Test Estate 2",
                         "Voucher",
                         "Hospital 1 Contract",
@@ -302,9 +302,9 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "",
                         "Voucher"});
 #line 55
- await testRunner.WhenAsync("I create the following Products", ((string)(null)), table101, "When ");
+ await testRunner.WhenAsync("I create the following Products", ((string)(null)), table102, "When ");
 #line hidden
-            global::Reqnroll.Table table102 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table103 = new global::Reqnroll.Table(new string[] {
                         "EstateName",
                         "OperatorName",
                         "ContractDescription",
@@ -312,7 +312,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "CalculationType",
                         "FeeDescription",
                         "Value"});
-            table102.AddRow(new string[] {
+            table103.AddRow(new string[] {
                         "Test Estate 1",
                         "Safaricom",
                         "Safaricom Contract",
@@ -320,7 +320,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Fixed",
                         "Merchant Commission",
                         "2.50"});
-            table102.AddRow(new string[] {
+            table103.AddRow(new string[] {
                         "Test Estate 2",
                         "Safaricom",
                         "Safaricom Contract",
@@ -329,9 +329,9 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Merchant Commission",
                         "0.85"});
 #line 62
- await testRunner.WhenAsync("I add the following Transaction Fees", ((string)(null)), table102, "When ");
+ await testRunner.WhenAsync("I add the following Transaction Fees", ((string)(null)), table103, "When ");
 #line hidden
-            global::Reqnroll.Table table103 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table104 = new global::Reqnroll.Table(new string[] {
                         "MerchantName",
                         "AddressLine1",
                         "Town",
@@ -341,7 +341,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "ContactName",
                         "EmailAddress",
                         "EstateName"});
-            table103.AddRow(new string[] {
+            table104.AddRow(new string[] {
                         "Test Merchant 1",
                         "Address Line 1",
                         "TestTown",
@@ -351,7 +351,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Test Contact 1",
                         "testcontact1@merchant1.co.uk",
                         "Test Estate 1"});
-            table103.AddRow(new string[] {
+            table104.AddRow(new string[] {
                         "Test Merchant 2",
                         "Address Line 1",
                         "TestTown",
@@ -361,7 +361,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Test Contact 2",
                         "testcontact2@merchant2.co.uk",
                         "Test Estate 1"});
-            table103.AddRow(new string[] {
+            table104.AddRow(new string[] {
                         "Test Merchant 3",
                         "Address Line 1",
                         "TestTown",
@@ -372,152 +372,152 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "testcontact3@merchant2.co.uk",
                         "Test Estate 2"});
 #line 67
- await testRunner.GivenAsync("I create the following merchants", ((string)(null)), table103, "Given ");
+ await testRunner.GivenAsync("I create the following merchants", ((string)(null)), table104, "Given ");
 #line hidden
-            global::Reqnroll.Table table104 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table105 = new global::Reqnroll.Table(new string[] {
                         "OperatorName",
                         "MerchantName",
                         "MerchantNumber",
                         "TerminalNumber",
                         "EstateName"});
-            table104.AddRow(new string[] {
+            table105.AddRow(new string[] {
                         "Safaricom",
                         "Test Merchant 1",
                         "00000001",
                         "10000001",
                         "Test Estate 1"});
-            table104.AddRow(new string[] {
+            table105.AddRow(new string[] {
                         "Voucher",
                         "Test Merchant 1",
                         "00000001",
                         "10000001",
                         "Test Estate 1"});
-            table104.AddRow(new string[] {
+            table105.AddRow(new string[] {
                         "Safaricom",
                         "Test Merchant 2",
                         "00000002",
                         "10000002",
                         "Test Estate 1"});
-            table104.AddRow(new string[] {
+            table105.AddRow(new string[] {
                         "Voucher",
                         "Test Merchant 2",
                         "00000002",
                         "10000002",
                         "Test Estate 1"});
-            table104.AddRow(new string[] {
+            table105.AddRow(new string[] {
                         "Safaricom",
                         "Test Merchant 3",
                         "00000003",
                         "10000003",
                         "Test Estate 2"});
-            table104.AddRow(new string[] {
+            table105.AddRow(new string[] {
                         "Voucher",
                         "Test Merchant 3",
                         "00000003",
                         "10000003",
                         "Test Estate 2"});
 #line 73
- await testRunner.GivenAsync("I have assigned the following  operator to the merchants", ((string)(null)), table104, "Given ");
+ await testRunner.GivenAsync("I have assigned the following  operator to the merchants", ((string)(null)), table105, "Given ");
 #line hidden
-            global::Reqnroll.Table table105 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table106 = new global::Reqnroll.Table(new string[] {
                         "DeviceIdentifier",
                         "MerchantName",
                         "EstateName"});
-            table105.AddRow(new string[] {
+            table106.AddRow(new string[] {
                         "123456780",
                         "Test Merchant 1",
                         "Test Estate 1"});
-            table105.AddRow(new string[] {
+            table106.AddRow(new string[] {
                         "123456781",
                         "Test Merchant 2",
                         "Test Estate 1"});
-            table105.AddRow(new string[] {
+            table106.AddRow(new string[] {
                         "123456782",
                         "Test Merchant 3",
                         "Test Estate 2"});
 #line 82
- await testRunner.GivenAsync("I have assigned the following devices to the merchants", ((string)(null)), table105, "Given ");
+ await testRunner.GivenAsync("I have assigned the following devices to the merchants", ((string)(null)), table106, "Given ");
 #line hidden
-            global::Reqnroll.Table table106 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table107 = new global::Reqnroll.Table(new string[] {
                         "EstateName",
                         "MerchantName",
                         "ContractDescription"});
-            table106.AddRow(new string[] {
+            table107.AddRow(new string[] {
                         "Test Estate 1",
                         "Test Merchant 1",
                         "Safaricom Contract"});
-            table106.AddRow(new string[] {
+            table107.AddRow(new string[] {
                         "Test Estate 1",
                         "Test Merchant 1",
                         "Hospital 1 Contract"});
-            table106.AddRow(new string[] {
+            table107.AddRow(new string[] {
                         "Test Estate 1",
                         "Test Merchant 2",
                         "Safaricom Contract"});
-            table106.AddRow(new string[] {
+            table107.AddRow(new string[] {
                         "Test Estate 1",
                         "Test Merchant 2",
                         "Hospital 1 Contract"});
-            table106.AddRow(new string[] {
+            table107.AddRow(new string[] {
                         "Test Estate 2",
                         "Test Merchant 3",
                         "Safaricom Contract"});
-            table106.AddRow(new string[] {
+            table107.AddRow(new string[] {
                         "Test Estate 2",
                         "Test Merchant 3",
                         "Hospital 1 Contract"});
 #line 88
- await testRunner.WhenAsync("I add the following contracts to the following merchants", ((string)(null)), table106, "When ");
+ await testRunner.WhenAsync("I add the following contracts to the following merchants", ((string)(null)), table107, "When ");
 #line hidden
-            global::Reqnroll.Table table107 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table108 = new global::Reqnroll.Table(new string[] {
                         "Reference",
                         "Amount",
                         "DateTime",
                         "MerchantName",
                         "EstateName"});
-            table107.AddRow(new string[] {
+            table108.AddRow(new string[] {
                         "Deposit1",
                         "210.00",
                         "Today",
                         "Test Merchant 1",
                         "Test Estate 1"});
-            table107.AddRow(new string[] {
+            table108.AddRow(new string[] {
                         "Deposit1",
                         "110.00",
                         "Today",
                         "Test Merchant 2",
                         "Test Estate 1"});
-            table107.AddRow(new string[] {
+            table108.AddRow(new string[] {
                         "Deposit1",
                         "110.00",
                         "Today",
                         "Test Merchant 3",
                         "Test Estate 2"});
 #line 97
- await testRunner.GivenAsync("I make the following manual merchant deposits", ((string)(null)), table107, "Given ");
+ await testRunner.GivenAsync("I make the following manual merchant deposits", ((string)(null)), table108, "Given ");
 #line hidden
-            global::Reqnroll.Table table108 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table109 = new global::Reqnroll.Table(new string[] {
                         "EmailAddress",
                         "Password",
                         "GivenName",
                         "FamilyName",
                         "EstateName",
                         "MerchantName"});
-            table108.AddRow(new string[] {
+            table109.AddRow(new string[] {
                         "merchantuser@testmerchant1.co.uk",
                         "123456",
                         "TestMerchant",
                         "User1",
                         "Test Estate 1",
                         "Test Merchant 1"});
-            table108.AddRow(new string[] {
+            table109.AddRow(new string[] {
                         "merchantuser@testmerchant2.co.uk",
                         "123456",
                         "TestMerchant",
                         "User2",
                         "Test Estate 1",
                         "Test Merchant 2"});
-            table108.AddRow(new string[] {
+            table109.AddRow(new string[] {
                         "merchantuser@testmerchant3.co.uk",
                         "123456",
                         "TestMerchant",
@@ -525,7 +525,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Test Estate 2",
                         "Test Merchant 3"});
 #line 103
- await testRunner.GivenAsync("I have created the following security users", ((string)(null)), table108, "Given ");
+ await testRunner.GivenAsync("I have created the following security users", ((string)(null)), table109, "Given ");
 #line hidden
         }
         
@@ -564,74 +564,6 @@ await this.FeatureBackgroundAsync();
                         "erchant \"Test Merchant 1\" for Estate \"Test Estate 1\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-                global::Reqnroll.Table table109 = new global::Reqnroll.Table(new string[] {
-                            "DateTime",
-                            "TransactionNumber",
-                            "TransactionType",
-                            "MerchantName",
-                            "DeviceIdentifier",
-                            "EstateName",
-                            "OperatorName",
-                            "TransactionAmount",
-                            "CustomerAccountNumber",
-                            "CustomerEmailAddress",
-                            "ContractDescription",
-                            "ProductName",
-                            "RecipientEmail",
-                            "RecipientMobile"});
-                table109.AddRow(new string[] {
-                            "Today",
-                            "1",
-                            "Sale",
-                            "Test Merchant 1",
-                            "123456780",
-                            "Test Estate 1",
-                            "Safaricom",
-                            "100.00",
-                            "123456789",
-                            "",
-                            "Safaricom Contract",
-                            "Variable Topup",
-                            "",
-                            ""});
-                table109.AddRow(new string[] {
-                            "Today",
-                            "4",
-                            "Sale",
-                            "Test Merchant 1",
-                            "123456780",
-                            "Test Estate 1",
-                            "Safaricom",
-                            "100.00",
-                            "123456789",
-                            "testcustomer@customer.co.uk",
-                            "Safaricom Contract",
-                            "Variable Topup",
-                            "",
-                            ""});
-                table109.AddRow(new string[] {
-                            "Today",
-                            "5",
-                            "Sale",
-                            "Test Merchant 1",
-                            "123456780",
-                            "Test Estate 1",
-                            "Voucher",
-                            "10.00",
-                            "",
-                            "",
-                            "Hospital 1 Contract",
-                            "10 KES",
-                            "test@recipient.co.uk",
-                            ""});
-#line 112
- await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table109, "When ");
-#line hidden
-#line 118
- await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant2.co.uk\" with password \"123456\" for M" +
-                        "erchant \"Test Merchant 2\" for Estate \"Test Estate 1\" with client \"merchantClient" +
-                        "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
                 global::Reqnroll.Table table110 = new global::Reqnroll.Table(new string[] {
                             "DateTime",
                             "TransactionNumber",
@@ -649,10 +581,10 @@ await this.FeatureBackgroundAsync();
                             "RecipientMobile"});
                 table110.AddRow(new string[] {
                             "Today",
-                            "2",
+                            "1",
                             "Sale",
-                            "Test Merchant 2",
-                            "123456781",
+                            "Test Merchant 1",
+                            "123456780",
                             "Test Estate 1",
                             "Safaricom",
                             "100.00",
@@ -664,10 +596,25 @@ await this.FeatureBackgroundAsync();
                             ""});
                 table110.AddRow(new string[] {
                             "Today",
-                            "6",
+                            "4",
                             "Sale",
-                            "Test Merchant 2",
-                            "123456781",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "100.00",
+                            "123456789",
+                            "testcustomer@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table110.AddRow(new string[] {
+                            "Today",
+                            "5",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
                             "Test Estate 1",
                             "Voucher",
                             "10.00",
@@ -675,14 +622,14 @@ await this.FeatureBackgroundAsync();
                             "",
                             "Hospital 1 Contract",
                             "10 KES",
-                            "",
-                            "123456789"});
-#line 119
+                            "test@recipient.co.uk",
+                            ""});
+#line 112
  await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table110, "When ");
 #line hidden
-#line 124
- await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant3.co.uk\" with password \"123456\" for M" +
-                        "erchant \"Test Merchant 3\" for Estate \"Test Estate 2\" with client \"merchantClient" +
+#line 118
+ await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant2.co.uk\" with password \"123456\" for M" +
+                        "erchant \"Test Merchant 2\" for Estate \"Test Estate 1\" with client \"merchantClient" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
                 global::Reqnroll.Table table111 = new global::Reqnroll.Table(new string[] {
@@ -702,6 +649,59 @@ await this.FeatureBackgroundAsync();
                             "RecipientMobile"});
                 table111.AddRow(new string[] {
                             "Today",
+                            "2",
+                            "Sale",
+                            "Test Merchant 2",
+                            "123456781",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "100.00",
+                            "123456789",
+                            "",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table111.AddRow(new string[] {
+                            "Today",
+                            "6",
+                            "Sale",
+                            "Test Merchant 2",
+                            "123456781",
+                            "Test Estate 1",
+                            "Voucher",
+                            "10.00",
+                            "",
+                            "",
+                            "Hospital 1 Contract",
+                            "10 KES",
+                            "",
+                            "123456789"});
+#line 119
+ await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table111, "When ");
+#line hidden
+#line 124
+ await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant3.co.uk\" with password \"123456\" for M" +
+                        "erchant \"Test Merchant 3\" for Estate \"Test Estate 2\" with client \"merchantClient" +
+                        "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table112 = new global::Reqnroll.Table(new string[] {
+                            "DateTime",
+                            "TransactionNumber",
+                            "TransactionType",
+                            "MerchantName",
+                            "DeviceIdentifier",
+                            "EstateName",
+                            "OperatorName",
+                            "TransactionAmount",
+                            "CustomerAccountNumber",
+                            "CustomerEmailAddress",
+                            "ContractDescription",
+                            "ProductName",
+                            "RecipientEmail",
+                            "RecipientMobile"});
+                table112.AddRow(new string[] {
+                            "Today",
                             "3",
                             "Sale",
                             "Test Merchant 3",
@@ -715,7 +715,7 @@ await this.FeatureBackgroundAsync();
                             "Variable Topup",
                             "",
                             ""});
-                table111.AddRow(new string[] {
+                table112.AddRow(new string[] {
                             "Today",
                             "7",
                             "Sale",
@@ -731,58 +731,58 @@ await this.FeatureBackgroundAsync();
                             "test@recipient.co.uk",
                             ""});
 #line 125
- await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table111, "When ");
+ await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table112, "When ");
 #line hidden
-                global::Reqnroll.Table table112 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table113 = new global::Reqnroll.Table(new string[] {
                             "EstateName",
                             "MerchantName",
                             "TransactionNumber",
                             "TransactionType",
                             "ResponseCode",
                             "ResponseMessage"});
-                table112.AddRow(new string[] {
+                table113.AddRow(new string[] {
                             "Test Estate 1",
                             "Test Merchant 1",
                             "1",
                             "Sale",
                             "0000",
                             "SUCCESS"});
-                table112.AddRow(new string[] {
+                table113.AddRow(new string[] {
                             "Test Estate 1",
                             "Test Merchant 2",
                             "2",
                             "Sale",
                             "0000",
                             "SUCCESS"});
-                table112.AddRow(new string[] {
+                table113.AddRow(new string[] {
                             "Test Estate 2",
                             "Test Merchant 3",
                             "3",
                             "Sale",
                             "0000",
                             "SUCCESS"});
-                table112.AddRow(new string[] {
+                table113.AddRow(new string[] {
                             "Test Estate 1",
                             "Test Merchant 1",
                             "4",
                             "Sale",
                             "0000",
                             "SUCCESS"});
-                table112.AddRow(new string[] {
+                table113.AddRow(new string[] {
                             "Test Estate 1",
                             "Test Merchant 1",
                             "5",
                             "Sale",
                             "0000",
                             "SUCCESS"});
-                table112.AddRow(new string[] {
+                table113.AddRow(new string[] {
                             "Test Estate 1",
                             "Test Merchant 2",
                             "6",
                             "Sale",
                             "0000",
                             "SUCCESS"});
-                table112.AddRow(new string[] {
+                table113.AddRow(new string[] {
                             "Test Estate 2",
                             "Test Merchant 3",
                             "7",
@@ -790,7 +790,7 @@ await this.FeatureBackgroundAsync();
                             "0000",
                             "SUCCESS"});
 #line 130
- await testRunner.ThenAsync("the sale transaction response should contain the following information", ((string)(null)), table112, "Then ");
+ await testRunner.ThenAsync("the sale transaction response should contain the following information", ((string)(null)), table113, "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

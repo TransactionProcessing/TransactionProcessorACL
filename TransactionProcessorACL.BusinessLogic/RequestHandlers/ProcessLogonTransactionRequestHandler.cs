@@ -16,7 +16,8 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
     /// <seealso cref="ProcessLogonTransactionResponse" />
     public class TransactionRequestHandler : IRequestHandler<TransactionCommands.ProcessLogonTransactionCommand, Result<ProcessLogonTransactionResponse>>,
         IRequestHandler<TransactionCommands.ProcessReconciliationCommand, Result<ProcessReconciliationResponse>>,
-        IRequestHandler<TransactionCommands.ProcessSaleTransactionCommand, Result<ProcessSaleTransactionResponse>>
+        IRequestHandler<TransactionCommands.ProcessSaleTransactionCommand, Result<ProcessSaleTransactionResponse>>,
+        IRequestHandler<TransactionCommands.ResendReceiptCommand, Result<ResendReceiptResponse>>
     {
         #region Fields
 
@@ -62,7 +63,7 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
         }
 
         public async Task<Result<ProcessSaleTransactionResponse>> Handle(TransactionCommands.ProcessSaleTransactionCommand command,
-                                                                         CancellationToken cancellationToken)
+                                                                          CancellationToken cancellationToken)
         {
             return await this.ApplicationService.ProcessSaleTransaction((command.EstateId, command.MerchantId),
                 command.TransactionDateTime,
@@ -72,6 +73,16 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
                 (command.OperatorId, command.ContractId, command.ProductId),
                 command.AdditionalRequestMetadata,
                 cancellationToken);
+        }
+
+        public async Task<Result<ResendReceiptResponse>> Handle(TransactionCommands.ResendReceiptCommand command,
+                                                                CancellationToken cancellationToken)
+        {
+            return await this.ApplicationService.ResendReceipt(command.EstateId,
+                                                               command.MerchantId,
+                                                               command.Reference,
+                                                               command.RecipientEmailAddress,
+                                                               cancellationToken);
         }
 
         #endregion

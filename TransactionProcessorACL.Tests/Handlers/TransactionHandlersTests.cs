@@ -9,6 +9,7 @@ using Shouldly;
 using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects;
+using TransactionProcessorACL.DataTransferObjects.Requests;
 using TransactionProcessorACL.Handlers;
 using Xunit;
 
@@ -58,6 +59,61 @@ public class TransactionHandlersTests
         capturedCommand.CustomerEmailAddress.ShouldBe("customer@example.com");
         capturedCommand.AdditionalRequestMetadata["amount"].ShouldBe("1000.00");
         mediator.Verify(m => m.Send(It.IsAny<TransactionCommands.ProcessSaleTransactionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ResendReceipt_PassesClaimsAndRequestIntoCommand()
+    {
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim("estateId", "1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"),
+            new Claim("merchantId", "2C8354B7-B97A-46EA-9AD1-C43F33F7E3C4"),
+        }, "Bearer"));
+
+        var request = new ResendReceiptRequestMessage
+        {
+            Reference = "RCPT-0001",
+            RecipientEmailAddress = "recipient@example.com"
+        };
+
+        TransactionCommands.ResendReceiptCommand? capturedCommand = null;
+
+        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        mediator
+            .Setup(m => m.Send(It.IsAny<TransactionCommands.ResendReceiptCommand>(), It.IsAny<CancellationToken>()))
+            .Callback<object, CancellationToken>((command, _) => capturedCommand = (TransactionCommands.ResendReceiptCommand)command)
+            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.ResendReceiptResponse { Success = true, Message = "Receipt resend requested." }));
+
+        await TransactionHandlers.ResendReceipt(mediator.Object, user, request, CancellationToken.None);
+
+        capturedCommand.ShouldNotBeNull();
+        capturedCommand!.EstateId.ShouldBe(System.Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"));
+        capturedCommand.MerchantId.ShouldBe(System.Guid.Parse("2C8354B7-B97A-46EA-9AD1-C43F33F7E3C4"));
+        capturedCommand.Reference.ShouldBe("RCPT-0001");
+        capturedCommand.RecipientEmailAddress.ShouldBe("recipient@example.com");
+        mediator.Verify(m => m.Send(It.IsAny<TransactionCommands.ResendReceiptCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ResendReceipt_InvalidEmail_IsRejected()
+    {
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim("estateId", "1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"),
+            new Claim("merchantId", "2C8354B7-B97A-46EA-9AD1-C43F33F7E3C4"),
+        }, "Bearer"));
+
+        var request = new ResendReceiptRequestMessage
+        {
+            Reference = "RCPT-0001",
+            RecipientEmailAddress = "not-an-email"
+        };
+
+        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+
+        var result = await TransactionHandlers.ResendReceipt(mediator.Object, user, request, CancellationToken.None);
+
+        result.ShouldNotBeNull();
     }
 
 }
