@@ -17,4 +17,8 @@ public record ReportingQueries
     public record GetMerchantTransactionMixSummaryQuery(Guid EstateId,
                                                         MerchantTransactionMixSummaryRequest Request)
         : IRequest<Result<MerchantTransactionMixSummaryResponse>>;
+
+    public record GetRecentActivityReceiptSearchQuery(Guid EstateId,
+                                                      RecentActivityReceiptSearchRequest Request)
+        : IRequest<Result<RecentActivityReceiptSearchResponse>>;
 }

@@ -543,7 +543,7 @@ namespace TransactionProcessorACL.IntegrationTests.Reporting
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Reporting/Reporting.feature.ndjson", 4);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Reporting/Reporting.feature.ndjson", 5);
         }
         
         [global::NUnit.Framework.TestAttribute()]
@@ -691,6 +691,224 @@ await this.FeatureBackgroundAsync();
 #line 129
  await testRunner.ThenAsync("the merchant transaction mix summary response should contain at least one item an" +
                         "d the sale amount 25.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Recent activity receipt search supports paging")]
+        [global::NUnit.Framework.CategoryAttribute("PRTest")]
+        public async global::System.Threading.Tasks.Task RecentActivityReceiptSearchSupportsPaging()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "PRTest"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "2";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Recent activity receipt search supports paging", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 132
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 4
+await this.FeatureBackgroundAsync();
+#line hidden
+#line 133
+ await testRunner.GivenAsync("I am logged in as \"merchantuser@testmerchant1.co.uk\" with password \"123456\" for M" +
+                        "erchant \"Test Merchant 1\" for Estate \"Test Estate 1\" with client \"merchantClient" +
+                        "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table20 = new global::Reqnroll.Table(new string[] {
+                            "DateTime",
+                            "TransactionNumber",
+                            "TransactionType",
+                            "MerchantName",
+                            "DeviceIdentifier",
+                            "EstateName",
+                            "OperatorName",
+                            "TransactionAmount",
+                            "CustomerAccountNumber",
+                            "CustomerEmailAddress",
+                            "ContractDescription",
+                            "ProductName",
+                            "RecipientEmail",
+                            "RecipientMobile"});
+                table20.AddRow(new string[] {
+                            "Today",
+                            "1001",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "10.00",
+                            "123456789",
+                            "test1@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table20.AddRow(new string[] {
+                            "Today",
+                            "1002",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "11.00",
+                            "123456789",
+                            "test2@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table20.AddRow(new string[] {
+                            "Today",
+                            "1003",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "12.00",
+                            "123456789",
+                            "test3@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table20.AddRow(new string[] {
+                            "Today",
+                            "1004",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "13.00",
+                            "123456789",
+                            "test4@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table20.AddRow(new string[] {
+                            "Today",
+                            "1005",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "14.00",
+                            "123456789",
+                            "test5@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table20.AddRow(new string[] {
+                            "Today",
+                            "1006",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "15.00",
+                            "123456789",
+                            "test6@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table20.AddRow(new string[] {
+                            "Today",
+                            "1007",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "16.00",
+                            "123456789",
+                            "test7@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table20.AddRow(new string[] {
+                            "Today",
+                            "1008",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "17.00",
+                            "123456789",
+                            "test8@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table20.AddRow(new string[] {
+                            "Today",
+                            "1009",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "18.00",
+                            "123456789",
+                            "test9@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+                table20.AddRow(new string[] {
+                            "Today",
+                            "1010",
+                            "Sale",
+                            "Test Merchant 1",
+                            "123456780",
+                            "Test Estate 1",
+                            "Safaricom",
+                            "19.00",
+                            "123456789",
+                            "test10@customer.co.uk",
+                            "Safaricom Contract",
+                            "Variable Topup",
+                            "",
+                            ""});
+#line 134
+ await testRunner.WhenAsync("I perform the following transactions", ((string)(null)), table20, "When ");
+#line hidden
+#line 147
+ await testRunner.WhenAsync("I get the recent activity receipt search for Merchant \"Test Merchant 1\" for Estat" +
+                        "e \"Test Estate 1\" page 1 size 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 148
+ await testRunner.ThenAsync("the recent activity receipt search response for page 1 should contain 5 items and" +
+                        " total count 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 150
+ await testRunner.WhenAsync("I get the recent activity receipt search for Merchant \"Test Merchant 1\" for Estat" +
+                        "e \"Test Estate 1\" page 2 size 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 151
+ await testRunner.ThenAsync("the recent activity receipt search response for page 2 should contain 5 items and" +
+                        " total count 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

@@ -127,3 +127,25 @@ Scenario: Merchant transaction mix summary
 
 	When I get the merchant transaction mix summary for Merchant "Test Merchant 1" for Estate "Test Estate 1"
 	Then the merchant transaction mix summary response should contain at least one item and the sale amount 25.00
+
+@PRTest
+Scenario: Recent activity receipt search supports paging
+	Given I am logged in as "merchantuser@testmerchant1.co.uk" with password "123456" for Merchant "Test Merchant 1" for Estate "Test Estate 1" with client "merchantClient"
+	When I perform the following transactions
+	| DateTime | TransactionNumber | TransactionType | MerchantName    | DeviceIdentifier | EstateName    | OperatorName | TransactionAmount | CustomerAccountNumber | CustomerEmailAddress    | ContractDescription | ProductName    | RecipientEmail | RecipientMobile |
+	| Today    | 1001              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 10.00             | 123456789             | test1@customer.co.uk    | Safaricom Contract  | Variable Topup |                |                 |
+	| Today    | 1002              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 11.00             | 123456789             | test2@customer.co.uk    | Safaricom Contract  | Variable Topup |                |                 |
+	| Today    | 1003              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 12.00             | 123456789             | test3@customer.co.uk    | Safaricom Contract  | Variable Topup |                |                 |
+	| Today    | 1004              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 13.00             | 123456789             | test4@customer.co.uk    | Safaricom Contract  | Variable Topup |                |                 |
+	| Today    | 1005              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 14.00             | 123456789             | test5@customer.co.uk    | Safaricom Contract  | Variable Topup |                |                 |
+	| Today    | 1006              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 15.00             | 123456789             | test6@customer.co.uk    | Safaricom Contract  | Variable Topup |                |                 |
+	| Today    | 1007              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 16.00             | 123456789             | test7@customer.co.uk    | Safaricom Contract  | Variable Topup |                |                 |
+	| Today    | 1008              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 17.00             | 123456789             | test8@customer.co.uk    | Safaricom Contract  | Variable Topup |                |                 |
+	| Today    | 1009              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 18.00             | 123456789             | test9@customer.co.uk    | Safaricom Contract  | Variable Topup |                |                 |
+	| Today    | 1010              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 19.00             | 123456789             | test10@customer.co.uk   | Safaricom Contract  | Variable Topup |                |                 |
+
+	When I get the recent activity receipt search for Merchant "Test Merchant 1" for Estate "Test Estate 1" page 1 size 5
+	Then the recent activity receipt search response for page 1 should contain 5 items and total count 10
+
+	When I get the recent activity receipt search for Merchant "Test Merchant 1" for Estate "Test Estate 1" page 2 size 5
+	Then the recent activity receipt search response for page 2 should contain 5 items and total count 10

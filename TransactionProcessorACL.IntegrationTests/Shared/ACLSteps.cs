@@ -33,10 +33,14 @@ public class ACLSteps{
     private Guid LastMerchantDailyPerformanceSummaryMerchantId;
     private EstateDetails1 LastMerchantTransactionMixSummaryEstateDetails;
     private Guid LastMerchantTransactionMixSummaryMerchantId;
+    private EstateDetails1 LastRecentActivityReceiptSearchEstateDetails;
+    private Guid LastRecentActivityReceiptSearchMerchantId;
+    private readonly Dictionary<int, RecentActivityReceiptSearchResponse> RecentActivityReceiptSearchResponses;
 
     public ACLSteps(HttpClient httpClient, ITransactionProcessorClient transactionProcessorClient){
         this.HttpClient = httpClient;
         this.TransactionProcessorClient = transactionProcessorClient;
+        this.RecentActivityReceiptSearchResponses = new Dictionary<int, RecentActivityReceiptSearchResponse>();
     }
 
     internal class ResponseData<T>
@@ -334,6 +338,51 @@ public class ACLSteps{
         this.LastMerchantTransactionMixSummaryMerchantId = merchantId;
     }
 
+    public async Task WhenIGetTheRecentActivityReceiptSearchForMerchantForEstate(String estateName,
+                                                                                 String merchantName,
+                                                                                 Int32 pageNumber,
+                                                                                 Int32 pageSize,
+                                                                                 List<EstateDetails1> estateDetailsList,
+                                                                                 CancellationToken cancellationToken)
+    {
+        EstateDetails1 es1 = estateDetailsList.SingleOrDefault(e => e.EstateDetails.EstateName == estateName);
+        es1.ShouldNotBeNull();
+        Guid merchantId = es1.EstateDetails.GetMerchantId(merchantName);
+        Int32 merchantReportingId = es1.GetMerchantReportingId(merchantId);
+
+        String uri = "api/reporting/recentactivityreceiptsearch";
+        String userAccessToken = es1.GetMerchantUserToken(merchantId);
+
+        this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAccessToken);
+
+        RecentActivityReceiptSearchRequest request = new()
+        {
+            ApplicationVersion = "1.0.5",
+            MerchantReportingId = merchantReportingId,
+            ReportDate = DateTime.Today,
+            SearchText = string.Empty,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        StringContent content = new StringContent(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
+
+        HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+
+        response.IsSuccessStatusCode.ShouldBeTrue();
+
+        String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        responseContent.ShouldNotBeNullOrEmpty("No response message received");
+
+        RecentActivityReceiptSearchResponse searchResponse =
+            StringSerialiser.Deserialise<RecentActivityReceiptSearchResponse>(responseContent,
+                                                                             new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+
+        this.RecentActivityReceiptSearchResponses[pageNumber] = searchResponse;
+        this.LastRecentActivityReceiptSearchEstateDetails = es1;
+        this.LastRecentActivityReceiptSearchMerchantId = merchantId;
+    }
+
     public void ThenTheMerchantTransactionMixSummaryResponseShouldContainAtLeastOneItemAndTheSaleAmount(Decimal saleAmount)
     {
         this.LastMerchantTransactionMixSummaryEstateDetails.ShouldNotBeNull();
@@ -347,5 +396,20 @@ public class ACLSteps{
         merchantTransactionMixSummaryResponse.DrillDownTransactions.ShouldNotBeEmpty();
         merchantTransactionMixSummaryResponse.DrillDownTransactions.Any(t => t.Amount == saleAmount)
             .ShouldBeTrue($"Expected a drill down transaction with amount {saleAmount}");
+    }
+
+    public void ThenTheRecentActivityReceiptSearchResponseShouldContainPageWithCountAndDescendingDates(Int32 pageNumber,
+                                                                                                       Int32 expectedCount,
+                                                                                                       Int32 expectedTotalCount)
+    {
+        this.LastRecentActivityReceiptSearchEstateDetails.ShouldNotBeNull();
+
+        RecentActivityReceiptSearchResponse response = this.RecentActivityReceiptSearchResponses.SingleOrDefault(x => x.Key == pageNumber).Value;
+        response.ShouldNotBeNull();
+        response.Items.Count.ShouldBe(expectedCount);
+        response.TotalCount.ShouldBe(expectedTotalCount);
+        response.PageNumber.ShouldBe(pageNumber);
+        response.PageSize.ShouldBe(expectedCount);
+        response.Items.Select(i => i.TransactionDateTime).Zip(response.Items.Select(i => i.TransactionDateTime).Skip(1), (first, second) => first >= second).All(x => x).ShouldBeTrue();
     }
 }

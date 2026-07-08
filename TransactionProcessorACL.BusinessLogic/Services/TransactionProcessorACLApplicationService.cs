@@ -446,6 +446,52 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             return response;
         }
 
+        public async Task<Result<RecentActivityReceiptSearchResponse>> GetRecentActivityReceiptSearch(Guid estateId,
+                                                                                                       RecentActivityReceiptSearchRequest request,
+                                                                                                       CancellationToken cancellationToken)
+        {
+            Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
+            if (accessTokenResult.IsFailed) {
+                return ResultHelpers.CreateFailure(accessTokenResult);
+            }
+
+            var apiRequest = new BackendAPI.DataTransferObjects.RecentActivityReceiptSearchRequest
+            {
+                MerchantReportingId = request.MerchantReportingId,
+                ReportDate = request.ReportDate.Date,
+                SearchText = request.SearchText,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize
+            };
+
+            TokenResponse accessToken = accessTokenResult.Data;
+            var apiResponse = await this.EstateReportingApiClient.GetRecentActivityReceiptSearch(accessToken.AccessToken, estateId, apiRequest, cancellationToken);
+
+            if (apiResponse.IsFailed)
+                return ResultHelpers.CreateFailure(apiResponse);
+
+            RecentActivityReceiptSearchResponse response = new()
+            {
+                ReportDate = apiResponse.Data.ReportDate,
+                PageNumber = apiResponse.Data.PageNumber,
+                PageSize = apiResponse.Data.PageSize,
+                TotalCount = apiResponse.Data.TotalCount,
+                Items = apiResponse.Data.Items.Select(i => new RecentActivityReceiptSearchItem
+                {
+                    Amount = i.Amount,
+                    Operator = i.Operator,
+                    Product = i.Product,
+                    Reference = i.Reference,
+                    ReceiptReference = i.ReceiptReference,
+                    Status = i.Status,
+                    TransactionDateTime = i.TransactionDateTime,
+                    TransactionType = i.TransactionType
+                }).ToList()
+            };
+
+            return response;
+        }
+
         private static ProcessReconciliationResponse CreateProcessReconciliationResponse(ReconciliationResponse reconciliationResponse)
         {
             return new ProcessReconciliationResponse

@@ -256,6 +256,35 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             result.Data.ShouldNotBeNull();
         }
 
+        [Fact]
+        public async Task ReportingRequestHandler_GetRecentActivityReceiptSearchQuery_Handle_RequestIsHandled()
+        {
+            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            applicationService
+                .Setup(a => a.GetRecentActivityReceiptSearch(It.IsAny<Guid>(),
+                                                             It.IsAny<RecentActivityReceiptSearchRequest>(),
+                                                             It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new RecentActivityReceiptSearchResponse());
+
+            ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Object);
+
+            ReportingQueries.GetRecentActivityReceiptSearchQuery query = new(
+                TestData.EstateId,
+                new RecentActivityReceiptSearchRequest
+                {
+                    MerchantReportingId = 12345,
+                    ReportDate = new DateTime(2026, 7, 8),
+                    SearchText = "abc",
+                    PageNumber = 2,
+                    PageSize = 5
+                });
+
+            Result<RecentActivityReceiptSearchResponse> result = await requestHandler.Handle(query, CancellationToken.None);
+
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
+        }
+
         #endregion
     }
 }
