@@ -85,7 +85,7 @@ public class EstateReportingApiClient : ClientProxyBase.ClientProxyBase, IEstate
                                                                                                   RecentActivityReceiptSearchRequest request,
                                                                                                   CancellationToken cancellationToken)
     {
-        string requestUri = this.BuildRequestUrl("/api/transactions/recentactivityreceiptsearch");
+        string requestUri = this.BuildRequestUrl("/api/transactions/recentactivityreceiptreport");
 
         try
         {
