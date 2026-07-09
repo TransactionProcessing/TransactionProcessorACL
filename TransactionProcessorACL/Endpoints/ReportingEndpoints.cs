@@ -13,8 +13,8 @@ public static class ReportingEndpoints
     {
         var group = app.MapGroup(BaseRoute).RequireAuthorization().RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
 
-        // POST /api/reporting/dailymerchantprformancesummary
-        group.MapPost("dailymerchantprformancesummary", ReportingHandlers.GetMerchantDailyPerformanceSummary);
+        // POST /api/reporting/dailymerchantperformancesummary
+        group.MapPost("dailymerchantperformancesummary", ReportingHandlers.GetMerchantDailyPerformanceSummary);
         // POST /api/reporting/transactionmixsummary
         group.MapPost("transactionmixsummary", ReportingHandlers.GetMerchantTransactionMixSummary);
         // POST /api/reporting/recentactivityreceiptsearch
