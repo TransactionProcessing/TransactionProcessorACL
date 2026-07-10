@@ -248,7 +248,7 @@ public class ACLSteps{
         Guid merchantId = es1.EstateDetails.GetMerchantId(merchantName);
         Int32 merchantReportingId = es1.GetMerchantReportingId(merchantId);
 
-        String uri = "api/reporting/dailymerchantprformancesummary";
+        String uri = "api/reporting/dailymerchantperformancesummary";
         String userAccessToken = es1.GetMerchantUserToken(merchantId);
 
         this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAccessToken);
