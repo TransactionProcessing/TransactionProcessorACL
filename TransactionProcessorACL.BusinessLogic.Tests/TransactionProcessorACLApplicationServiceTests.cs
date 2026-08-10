@@ -3,6 +3,8 @@ using SimpleResults;
 
 namespace TransactionProcessorACL.BusinesssLogic.Tests
 {
+    using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessLogic.Services;
@@ -41,11 +43,18 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
 
         private void SetupMemoryConfiguration()
         {
-            if (ConfigurationReader.IsInitialised == false)
-            {
-                IConfigurationRoot configuration = new ConfigurationBuilder().AddInMemoryCollection(TestData.DefaultAppSettings).Build();
-                ConfigurationReader.Initialise(configuration);
+            this.InitialiseConfiguration();
+        }
+
+        private void InitialiseConfiguration(int? securityServiceTokenRetryCount = null)
+        {
+            Dictionary<String, String> settings = new(TestData.DefaultAppSettings);
+            if (securityServiceTokenRetryCount.HasValue) {
+                settings["AppSettings:SecurityServiceTokenRetryCount"] = securityServiceTokenRetryCount.Value.ToString(CultureInfo.InvariantCulture);
             }
+
+            IConfigurationRoot configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
+            ConfigurationReader.Initialise(configuration);
         }
 
         private Mock<ITransactionProcessorClient> transactionProcessorClient;
@@ -519,6 +528,60 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             Result<MerchantResponse> merchantResponse = await applicationService.GetMerchant(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
             merchantResponse.IsFailed.ShouldBeTrue();
             
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_GetMerchant_GetTokenThrowsOnceThenSucceeds_RetriesAndReturnsSuccess()
+        {
+            this.InitialiseConfiguration(1);
+
+            transactionProcessorClient.Setup(v => v.GetMerchant(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                                      .ReturnsAsync(Result.Success(TestData.MerchantResponse(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Monthly)));
+            securityServiceClient.SetupSequence(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
+                                 .ThrowsAsync(new TaskCanceledException("Transient token failure"))
+                                 .ReturnsAsync(Result.Success(TestData.TokenResponse));
+
+            Result<MerchantResponse> merchantResponse = await applicationService.GetMerchant(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
+
+            merchantResponse.IsSuccess.ShouldBeTrue();
+            securityServiceClient.Verify(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_GetMerchant_GetTokenKeepsFailing_StopsAfterConfiguredRetries()
+        {
+            this.InitialiseConfiguration(2);
+
+            transactionProcessorClient.Setup(v => v.GetMerchant(It.IsAny<String>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                                      .ReturnsAsync(Result.Success(TestData.MerchantResponse(TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Monthly)));
+            securityServiceClient.SetupSequence(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
+                                 .ThrowsAsync(new TaskCanceledException("Transient token failure"))
+                                 .ThrowsAsync(new TaskCanceledException("Transient token failure"))
+                                 .ThrowsAsync(new TaskCanceledException("Transient token failure"));
+
+            Result<MerchantResponse> merchantResponse = await applicationService.GetMerchant(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
+
+            merchantResponse.IsFailed.ShouldBeTrue();
+            securityServiceClient.Verify(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+        }
+
+        [Fact]
+        public async Task TransactionProcessorACLApplicationService_GetMerchant_GetTokenCanceled_DoesNotRetry()
+        {
+            this.InitialiseConfiguration(2);
+
+            using CancellationTokenSource cancellationTokenSource = new();
+            cancellationTokenSource.Cancel();
+
+            securityServiceClient.Setup(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>()))
+                                 .ThrowsAsync(new Exception("GetToken should not be called when the request is already canceled"));
+
+            await Should.ThrowAsync<OperationCanceledException>(async () =>
+            {
+                await applicationService.GetMerchant(TestData.EstateId, TestData.MerchantId, cancellationTokenSource.Token);
+            });
+
+            securityServiceClient.Verify(s => s.GetToken(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
