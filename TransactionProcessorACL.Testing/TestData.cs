@@ -192,6 +192,7 @@ namespace TransactionProcessorACL.Testing
                 ["AppSettings:EstateReportingApi"] = "http://192.168.1.133:5011",
                 ["AppSettings:ClientId"] = "ClientId",
                 ["AppSettings:ClientSecret"] = "secret",
+                ["AppSettings:SecurityServiceTokenRetryCount"] = "3",
                 ["SecurityConfiguration:Authority"] = "https://127.0.0.1",
                 ["SecurityConfiguration:ApiName"] = "ApiName",
                 ["EventStoreSettings:ConnectionString"] = "esdb://127.0.0.1:2113"
@@ -206,6 +207,7 @@ namespace TransactionProcessorACL.Testing
                 ["AppSettings:EstateReportingApi"] = "http://192.168.1.133:5011",
                 ["AppSettings:ClientId"] = "ClientId",
                 ["AppSettings:ClientSecret"] = "secret",
+                ["AppSettings:SecurityServiceTokenRetryCount"] = "3",
                 ["SecurityConfiguration:Authority"] = "https://127.0.0.1",
                 ["EventStoreSettings:ConnectionString"] = "https://127.0.0.1:2113",
                 ["AppSettings:SkipVersionCheck"] = "true"

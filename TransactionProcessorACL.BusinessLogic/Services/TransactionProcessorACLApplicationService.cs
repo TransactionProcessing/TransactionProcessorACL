@@ -115,7 +115,50 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
             String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
 
-            return await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+            Int32 retryCount = GetSecurityServiceTokenRetryCount();
+
+            for (Int32 attempt = 0; attempt <= retryCount; attempt++) {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                try {
+                    Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
+                    if (accessTokenResult.IsSuccess) {
+                        return accessTokenResult;
+                    }
+
+                    if (attempt == retryCount) {
+                        return accessTokenResult;
+                    }
+
+                    Logger.LogWarning($"Security service token request failed on attempt {attempt + 1} of {retryCount + 1}: {accessTokenResult.Message}");
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) {
+                    throw;
+                }
+                catch (Exception ex) {
+                    if (attempt == retryCount) {
+                        String errorMessage = String.Join(" | ", ex.GetExceptionMessages());
+                        Logger.LogWarning($"Security service token request failed after {retryCount + 1} attempts: {errorMessage}");
+                        return Result.Failure(errorMessage);
+                    }
+
+                    Logger.LogWarning($"Security service token request threw on attempt {attempt + 1} of {retryCount + 1}: {ex.GetExceptionMessages()}");
+                }
+            }
+
+            return Result.Failure("Unable to acquire security service token.");
+        }
+
+        private static Int32 GetSecurityServiceTokenRetryCount()
+        {
+            const Int32 DefaultSecurityServiceTokenRetryCount = 3;
+
+            String configuredRetryCount = ConfigurationReader.GetValue("AppSettings", "SecurityServiceTokenRetryCount");
+            if (Int32.TryParse(configuredRetryCount, out Int32 retryCount) && retryCount >= 0) {
+                return retryCount;
+            }
+
+            return DefaultSecurityServiceTokenRetryCount;
         }
 
         private SaleTransactionRequest BuildSaleTransactionRequest((Guid estateId, Guid merchantId) merchantData,
