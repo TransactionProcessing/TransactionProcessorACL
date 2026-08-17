@@ -63,7 +63,8 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             this.ScenarioContext = scenarioContext;
             this.TestingContext = testingContext;
             this.SecurityServiceSteps = new SecurityServiceSteps(testingContext.DockerHelper.SecurityServiceClient);
-            this.TransactionProcessorSteps = new TransactionProcessorSteps(testingContext.DockerHelper.TransactionProcessorClient, testingContext.DockerHelper.TestHostHttpClient, testingContext.DockerHelper.ProjectionManagementClient);
+            this.TransactionProcessorSteps = new TransactionProcessorSteps(testingContext.DockerHelper.TransactionProcessorClient, testingContext.DockerHelper.TestHostHttpClient, testingContext.DockerHelper.ProjectionManagementClient,
+                testingContext.DockerHelper.AgencyBankingClient);
             this.AclSteps = new ACLSteps(testingContext.DockerHelper.HttpClient, this.TestingContext.DockerHelper.TransactionProcessorClient);
         }
 
@@ -322,7 +323,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         [When(@"I create the following merchants")]
         public async Task WhenICreateTheFollowingMerchants(DataTable table){
             List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
-            List<(EstateDetails estate, CreateMerchantRequest)> requests = table.Rows.ToCreateMerchantRequests(estates);
+            List<(EstateDetails estate, CreateMerchantRequest, Boolean EnableAgencyBanking)> requests = table.Rows.ToCreateMerchantRequests(estates);
 
             List<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> verifiedMerchants = await this.TransactionProcessorSteps.WhenICreateTheFollowingMerchants(this.TestingContext.AccessToken, requests);
 
