@@ -12,6 +12,7 @@ namespace TransactionProcessor.IntegrationTests.Common
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using TestHosts.Clients;
 
     /// <summary>
     /// 
@@ -43,6 +44,8 @@ namespace TransactionProcessor.IntegrationTests.Common
         private readonly TestingContext TestingContext;
 
         public EventStoreProjectionManagementClient ProjectionManagementClient;
+
+        public IAgencyBankingClient AgencyBankingClient;
 
         #endregion
 
@@ -96,7 +99,8 @@ namespace TransactionProcessor.IntegrationTests.Common
             String SecurityServiceBaseAddressResolver(String api) => $"https://127.0.0.1:{this.SecurityServicePort}";
             String TransactionProcessorBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorPort}";
             String TransactionProcessorAclBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorAclPort}";
-
+            String TestHostServiceBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TestHostServicePort}";
+            
             HttpClientHandler clientHandler = new HttpClientHandler
                                               {
                                                   ServerCertificateCustomValidationCallback = (message,
@@ -113,6 +117,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             this.TransactionProcessorClient = new TransactionProcessorClient(TransactionProcessorBaseAddressResolver, httpClient, Serialise, Deserialise);
             this.TestHostHttpClient = new HttpClient(clientHandler);
             this.TestHostHttpClient.BaseAddress = new Uri($"http://127.0.0.1:{this.TestHostServicePort}");
+            this.AgencyBankingClient = new AgencyBankingClient(TestHostServiceBaseAddressResolver, httpClient, Serialise_CamelCase, this.Deserialise_CamelCase);
 
             this.HttpClient = new HttpClient();
             this.HttpClient.BaseAddress = new Uri(TransactionProcessorAclBaseAddressResolver(string.Empty));
@@ -129,6 +134,16 @@ namespace TransactionProcessor.IntegrationTests.Common
         Object Deserialise(String arg, Type type)
         {
             return StringSerialiser.DeserializeObject<Object>(arg, type, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+        }
+
+        String Serialise_CamelCase(Object arg)
+        {
+            return StringSerialiser.Serialise<Object>(arg, new SerialiserOptions(SerialiserPropertyFormat.CamelCase));
+        }
+
+        Object Deserialise_CamelCase(String arg, Type type)
+        {
+            return StringSerialiser.DeserializeObject<Object>(arg, type, new SerialiserOptions(SerialiserPropertyFormat.CamelCase));
         }
 
         public override Dictionary<String, String> GetAdditionalVariables(ContainerType containerType)
