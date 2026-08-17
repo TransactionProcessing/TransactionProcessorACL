@@ -32,7 +32,7 @@ jobs:
       run: docker build . --file TransactionProcessorACL/Dockerfile --tag transactionprocessoracl:latest
 
     - name: Run Integration Tests
-      run: dotnet test "TransactionProcessorACL.IntegrationTests\TransactionProcessorACL.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --results-directory "./TestResults" --report-trx --report-trx-filename "integration-test-results.trx"
+      run: dotnet test "TransactionProcessorACL.IntegrationTests\TransactionProcessorACL.IntegrationTests.csproj" --filter "TestCategory=PRTest" --configuration Release --no-build --verbosity normal --results-directory "./TestResults" --report-trx --report-trx-filename "integration-test-results.trx"
 
     - uses: actions/upload-artifact@v4.4.0
       if: always()
