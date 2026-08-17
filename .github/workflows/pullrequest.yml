@@ -25,14 +25,14 @@ jobs:
     - name: Run Unit Tests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "TransactionProcessorACL.Tests\TransactionProcessorACL.Tests.csproj" --configuration Release --no-build --verbosity normal --results-directory "./TestResults" --report-trx --report-trx-filename "acl-test-results.trx"
-        dotnet test "TransactionProcessorACL.BusinessLogic.Tests\TransactionProcessorACL.BusinessLogic.Tests.csproj" --configuration Release --no-build --verbosity normal --results-directory "./TestResults" --report-trx --report-trx-filename "bl-test-results.trx"
+        dotnet test "TransactionProcessorACL.Tests\TransactionProcessorACL.Tests.csproj" --configuration Release --verbosity normal --results-directory "./TestResults" --report-trx --report-trx-filename "acl-test-results.trx"
+        dotnet test "TransactionProcessorACL.BusinessLogic.Tests\TransactionProcessorACL.BusinessLogic.Tests.csproj" --configuration Release --verbosity normal --results-directory "./TestResults" --report-trx --report-trx-filename "bl-test-results.trx"
 
     - name: Build Docker Image
       run: docker build . --file TransactionProcessorACL/Dockerfile --tag transactionprocessoracl:latest
 
     - name: Run Integration Tests
-      run: dotnet test "TransactionProcessorACL.IntegrationTests\TransactionProcessorACL.IntegrationTests.csproj" --filter "TestCategory=PRTest" --configuration Release --no-build --verbosity normal --results-directory "./TestResults" --report-trx --report-trx-filename "integration-test-results.trx"
+      run: dotnet test "TransactionProcessorACL.IntegrationTests\TransactionProcessorACL.IntegrationTests.csproj" --filter "TestCategory=PRTest" --configuration Release --verbosity normal --results-directory "./TestResults" --report-trx --report-trx-filename "integration-test-results.trx"
 
     - uses: actions/upload-artifact@v4.4.0
       if: always()
