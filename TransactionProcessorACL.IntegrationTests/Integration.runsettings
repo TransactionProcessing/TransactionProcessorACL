@@ -1,0 +1,6 @@
+<RunSettings>
+  <NUnit>
+    <TestOutputXml>TransactionProcessorACL.IntegrationTests</TestOutputXml>
+    <OutputXmlFolderMode>UseResultDirectory</OutputXmlFolderMode>
+  </NUnit>
+</RunSettings>
