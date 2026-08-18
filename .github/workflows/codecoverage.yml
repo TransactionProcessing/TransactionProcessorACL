@@ -27,19 +27,12 @@ jobs:
     - name: Run Unit Tests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "TransactionProcessorACL.Tests\TransactionProcessorACL.Tests.csproj" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"        
-        dotnet test "TransactionProcessorACL.BusinessLogic.Tests\TransactionProcessorACL.BusinessLogic.Tests.csproj" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov2.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"        
-
-    - name: Install LCOV merger
-      run: npm install -g lcov-result-merger
-
-    - name: Merge LCOV reports
-      run: |
         mkdir -p coverage
-        lcov-result-merger "*.info" > lcov.info
+        dotnet test "TransactionProcessorACL.Tests/TransactionProcessorACL.Tests.csproj" --configuration Release --no-build --verbosity normal --coverage --coverage-output "coverage/TransactionProcessorACL.Tests.cobertura.xml" --coverage-output-format cobertura
+        dotnet test "TransactionProcessorACL.BusinessLogic.Tests/TransactionProcessorACL.BusinessLogic.Tests.csproj" --configuration Release --no-build --verbosity normal --coverage --coverage-output "coverage/TransactionProcessorACL.BusinessLogic.Tests.cobertura.xml" --coverage-output-format cobertura
 
     - name: Upload merged coverage to Codacy
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: ./lcov.info
+        coverage-reports: ./coverage/TransactionProcessorACL.Tests.cobertura.xml,./coverage/TransactionProcessorACL.BusinessLogic.Tests.cobertura.xml

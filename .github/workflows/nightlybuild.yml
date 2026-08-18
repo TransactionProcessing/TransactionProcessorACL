@@ -42,8 +42,8 @@ jobs:
     - name: Run Unit Tests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "TransactionProcessorACL.Tests/TransactionProcessorACL.Tests.csproj" --configuration Release --no-build --verbosity normal /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov" -- --report-trx
-        dotnet test "TransactionProcessorACL.BusinessLogic.Tests/TransactionProcessorACL.BusinessLogic.Tests.csproj" --configuration Release --no-build --verbosity normal /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov2.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov" -- --report-trx
+        dotnet test "TransactionProcessorACL.Tests/TransactionProcessorACL.Tests.csproj" --configuration Release --no-build --verbosity normal -- --report-trx
+        dotnet test "TransactionProcessorACL.BusinessLogic.Tests/TransactionProcessorACL.BusinessLogic.Tests.csproj" --configuration Release --no-build --verbosity normal -- --report-trx
         
     - name: Build Docker Image
       run: docker build . --file TransactionProcessorACL/Dockerfile --tag transactionprocessoracl:latest
