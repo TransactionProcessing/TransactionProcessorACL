@@ -121,6 +121,7 @@ namespace TransactionProcessor.IntegrationTests.Common
 
             this.HttpClient = new HttpClient();
             this.HttpClient.BaseAddress = new Uri(TransactionProcessorAclBaseAddressResolver(string.Empty));
+            this.HttpClient.Timeout = TimeSpan.FromMinutes(5);
 
             this.ProjectionManagementClient = new EventStoreProjectionManagementClient(ConfigureEventStoreSettings());
             
