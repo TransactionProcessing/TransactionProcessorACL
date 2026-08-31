@@ -262,22 +262,24 @@ public class ACLSteps{
         };
         
 
-        StringContent content = new StringContent(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
+        await Retry.For(async () => {
+            StringContent content = new(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
 
-        HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+            String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-        response.IsSuccessStatusCode.ShouldBeTrue();
+            response.IsSuccessStatusCode.ShouldBeTrue($"Daily performance summary request failed with {(Int32)response.StatusCode} {response.ReasonPhrase}. Body: {responseContent}");
 
-        String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-        responseContent.ShouldNotBeNullOrEmpty("No response message received");
+            responseContent.ShouldNotBeNullOrEmpty("No response message received");
 
-        ReportingDailyPerformanceSummaryResponse dailyPerformanceSummaryResponse =
-            StringSerialiser.Deserialise<ReportingDailyPerformanceSummaryResponse>(responseContent,
-                                                                                   new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+            ReportingDailyPerformanceSummaryResponse dailyPerformanceSummaryResponse =
+                StringSerialiser.Deserialise<ReportingDailyPerformanceSummaryResponse>(responseContent,
+                                                                                       new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
 
-        es1.AddMerchantDailyPerformanceSummaryResponse(merchantId, dailyPerformanceSummaryResponse);
-        this.LastMerchantDailyPerformanceSummaryEstateDetails = es1;
-        this.LastMerchantDailyPerformanceSummaryMerchantId = merchantId;
+            es1.AddMerchantDailyPerformanceSummaryResponse(merchantId, dailyPerformanceSummaryResponse);
+            this.LastMerchantDailyPerformanceSummaryEstateDetails = es1;
+            this.LastMerchantDailyPerformanceSummaryMerchantId = merchantId;
+        }, TimeSpan.FromMinutes(5), TimeSpan.FromSeconds(5));
     }
 
     public void ThenTheMerchantDailyPerformanceSummaryResponseShouldContainAtLeastOneMetricAndTheSaleAmount(Decimal saleAmount)
@@ -320,22 +322,24 @@ public class ACLSteps{
             TopN = 5,
         };
 
-        StringContent content = new StringContent(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
+        await Retry.For(async () => {
+            StringContent content = new(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
 
-        HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+            String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-        response.IsSuccessStatusCode.ShouldBeTrue();
+            response.IsSuccessStatusCode.ShouldBeTrue($"Transaction mix summary request failed with {(Int32)response.StatusCode} {response.ReasonPhrase}. Body: {responseContent}");
 
-        String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-        responseContent.ShouldNotBeNullOrEmpty("No response message received");
+            responseContent.ShouldNotBeNullOrEmpty("No response message received");
 
-        ReportingMerchantTransactionMixSummaryResponse transactionMixSummaryResponse =
-            StringSerialiser.Deserialise<ReportingMerchantTransactionMixSummaryResponse>(responseContent,
-                                                                                        new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+            ReportingMerchantTransactionMixSummaryResponse transactionMixSummaryResponse =
+                StringSerialiser.Deserialise<ReportingMerchantTransactionMixSummaryResponse>(responseContent,
+                                                                                            new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
 
-        es1.AddMerchantTransactionMixSummaryResponse(merchantId, transactionMixSummaryResponse);
-        this.LastMerchantTransactionMixSummaryEstateDetails = es1;
-        this.LastMerchantTransactionMixSummaryMerchantId = merchantId;
+            es1.AddMerchantTransactionMixSummaryResponse(merchantId, transactionMixSummaryResponse);
+            this.LastMerchantTransactionMixSummaryEstateDetails = es1;
+            this.LastMerchantTransactionMixSummaryMerchantId = merchantId;
+        }, TimeSpan.FromMinutes(5), TimeSpan.FromSeconds(5));
     }
 
     public async Task WhenIGetTheRecentActivityReceiptSearchForMerchantForEstate(String estateName,
@@ -364,22 +368,24 @@ public class ACLSteps{
             PageSize = pageSize
         };
 
-        StringContent content = new StringContent(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
+        await Retry.For(async () => {
+            StringContent content = new(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
 
-        HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+            String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-        response.IsSuccessStatusCode.ShouldBeTrue();
+            response.IsSuccessStatusCode.ShouldBeTrue($"Recent activity receipt search request failed with {(Int32)response.StatusCode} {response.ReasonPhrase}. Body: {responseContent}");
 
-        String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-        responseContent.ShouldNotBeNullOrEmpty("No response message received");
+            responseContent.ShouldNotBeNullOrEmpty("No response message received");
 
-        RecentActivityReceiptSearchResponse searchResponse =
-            StringSerialiser.Deserialise<RecentActivityReceiptSearchResponse>(responseContent,
-                                                                             new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+            RecentActivityReceiptSearchResponse searchResponse =
+                StringSerialiser.Deserialise<RecentActivityReceiptSearchResponse>(responseContent,
+                                                                                 new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
 
-        this.RecentActivityReceiptSearchResponses[pageNumber] = searchResponse;
-        this.LastRecentActivityReceiptSearchEstateDetails = es1;
-        this.LastRecentActivityReceiptSearchMerchantId = merchantId;
+            this.RecentActivityReceiptSearchResponses[pageNumber] = searchResponse;
+            this.LastRecentActivityReceiptSearchEstateDetails = es1;
+            this.LastRecentActivityReceiptSearchMerchantId = merchantId;
+        }, TimeSpan.FromMinutes(5), TimeSpan.FromSeconds(5));
     }
 
     public void ThenTheMerchantTransactionMixSummaryResponseShouldContainAtLeastOneItemAndTheSaleAmount(Decimal saleAmount)
