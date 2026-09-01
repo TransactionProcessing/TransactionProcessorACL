@@ -73,7 +73,6 @@ namespace TransactionProcessor.IntegrationTests.Common
 
             return base.SetupEstateReportingContainer();
         }
-
         public override async Task CreateSubscriptions(){
             List<(String streamName, String groupName, Int32 maxRetries)> subscriptions = new List<(String streamName, String groupName, Int32 maxRetries)>();
             subscriptions.AddRange(MessagingService.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
