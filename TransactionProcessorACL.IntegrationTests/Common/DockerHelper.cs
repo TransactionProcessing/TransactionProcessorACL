@@ -1,6 +1,7 @@
 ﻿using EventStore.Client;
 using Shared.IntegrationTesting;
 using System.Linq;
+using DotNet.Testcontainers.Builders;
 
 namespace TransactionProcessor.IntegrationTests.Common
 {
@@ -75,6 +76,17 @@ namespace TransactionProcessor.IntegrationTests.Common
 
             return base.SetupEstateReportingContainer();
         }
+
+        public override ContainerBuilder SetupTransactionProcessorContainer()
+        {
+            Dictionary<String, String> additionalVariables = new();
+            additionalVariables.Add("OperatorConfiguration:AgencyBanking:Url", $"http://{this.TestHostContainerName}:{DockerPorts.TestHostPort}/api/agencybanking");
+
+            this.AdditionalVariables.Add(ContainerType.TransactionProcessor, additionalVariables);
+
+            return base.SetupTransactionProcessorContainer();
+        }
+
         public override async Task CreateSubscriptions(){
             List<(String streamName, String groupName, Int32 maxRetries)> subscriptions = new List<(String streamName, String groupName, Int32 maxRetries)>();
             subscriptions.AddRange(MessagingService.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
