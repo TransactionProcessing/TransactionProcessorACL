@@ -9,6 +9,7 @@ namespace TransactionProcessor.IntegrationTests.Common
     using Shared.Serialisation;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
@@ -93,7 +94,15 @@ namespace TransactionProcessor.IntegrationTests.Common
         /// <param name="scenarioName">Name of the scenario.</param>
         public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
         {
-            await base.StartContainersForScenarioRun(scenarioName, dockerServices);
+            try
+            {
+                await base.StartContainersForScenarioRun(scenarioName, dockerServices);
+            }
+            catch
+            {
+                this.DumpDockerContainerState();
+                throw;
+            }
         
             // Setup the base address resolvers
             String SecurityServiceBaseAddressResolver(String api) => $"https://127.0.0.1:{this.SecurityServicePort}";
@@ -125,6 +134,38 @@ namespace TransactionProcessor.IntegrationTests.Common
 
             this.ProjectionManagementClient = new EventStoreProjectionManagementClient(ConfigureEventStoreSettings());
             
+        }
+
+        private void DumpDockerContainerState()
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = "docker",
+                Arguments = "ps -a --no-trunc --format \"table {{.ID}}\\t{{.Names}}\\t{{.Status}}\\t{{.Image}}\\t{{.Ports}}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using Process process = Process.Start(startInfo);
+            if (process == null)
+            {
+                Console.WriteLine("Unable to start docker diagnostics process.");
+                return;
+            }
+
+            String output = process.StandardOutput.ReadToEnd();
+            String error = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            Console.WriteLine("Docker containers at container startup failure:");
+            Console.WriteLine(output);
+            if (String.IsNullOrWhiteSpace(error) == false)
+            {
+                Console.WriteLine("Docker diagnostics error:");
+                Console.WriteLine(error);
+            }
         }
 
         String Serialise(Object arg)
