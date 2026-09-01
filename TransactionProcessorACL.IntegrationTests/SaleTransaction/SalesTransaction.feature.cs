@@ -260,7 +260,7 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "AccountNumber",
                         "BankCode",
                         "Currency",
-                        "Name"});
+                        "AccountName"});
             table10.AddRow(new string[] {
                         "999000001",
                         "001",

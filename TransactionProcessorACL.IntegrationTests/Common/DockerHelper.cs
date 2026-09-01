@@ -57,6 +57,7 @@ namespace TransactionProcessor.IntegrationTests.Common
         /// <param name="logger">The logger.</param>
         public DockerHelper()
         {
+            this.IsSecureEventStore = false;
             this.TestingContext = new TestingContext();
             StringSerialiser.Initialise((IStringSerialiser)new SystemTextJsonSerializer(SystemTextJsonSerializer.GetDefaultJsonSerializerOptions()));
         }
