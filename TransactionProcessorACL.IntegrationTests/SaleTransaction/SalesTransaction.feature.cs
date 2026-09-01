@@ -641,7 +641,8 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "Country",
                         "ContactName",
                         "EmailAddress",
-                        "EstateName"});
+                        "EstateName",
+                        "EnableAgencyBanking"});
             table18.AddRow(new string[] {
                         "Test Merchant 1",
                         "Address Line 1",
@@ -651,7 +652,8 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "United Kingdom",
                         "Test Contact 1",
                         "testcontact1@merchant1.co.uk",
-                        "Test Estate 1"});
+                        "Test Estate 1",
+                        "True"});
             table18.AddRow(new string[] {
                         "Test Merchant 2",
                         "Address Line 1",
@@ -661,7 +663,8 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "United Kingdom",
                         "Test Contact 2",
                         "testcontact2@merchant2.co.uk",
-                        "Test Estate 1"});
+                        "Test Estate 1",
+                        "False"});
             table18.AddRow(new string[] {
                         "Test Merchant 3",
                         "Address Line 1",
@@ -671,7 +674,8 @@ namespace TransactionProcessorACL.IntegrationTests.SaleTransaction
                         "United Kingdom",
                         "Test Contact 3",
                         "testcontact3@merchant2.co.uk",
-                        "Test Estate 2"});
+                        "Test Estate 2",
+                        "False"});
 #line 133
  await testRunner.GivenAsync("I create the following merchants", ((string)(null)), table18, "Given ");
 #line hidden
