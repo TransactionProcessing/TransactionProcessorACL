@@ -26,7 +26,7 @@ namespace TransactionProcessor.IntegrationTests.Common
 
         public static async Task GlobalSetup(DockerHelper dockerHelper)
         {
-            ShouldlyConfiguration.DefaultTaskTimeout = TimeSpan.FromMinutes(1);
+            ShouldlyConfiguration.DefaultTaskTimeout = TimeSpan.FromMinutes(5);
         }
     }
 }

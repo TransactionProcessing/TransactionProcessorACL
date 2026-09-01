@@ -19,6 +19,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
     using System.Text.Json;
     using System.Threading;
     using System.Threading.Tasks;
+    using TestHosts.DataTransferObjects.AgencyBanking;
     using TransactionProcessor.DataTransferObjects;
     using TransactionProcessor.IntegrationTesting.Helpers;
     using TransactionProcessor.IntegrationTests.Common;
@@ -324,7 +325,6 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         public async Task WhenICreateTheFollowingMerchants(DataTable table){
             List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails estate, CreateMerchantRequest, Boolean EnableAgencyBanking)> requests = table.Rows.ToCreateMerchantRequests(estates);
-
             List<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> verifiedMerchants = await this.TransactionProcessorSteps.WhenICreateTheFollowingMerchants(this.TestingContext.AccessToken, requests);
 
             foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse verifiedMerchant in verifiedMerchants){
@@ -533,7 +533,96 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                                                                                                                  expectedTotalCount);
         }
 
+        [Given(@"the following bills are available at the PataPawa PostPaid Host")]
+        public async Task GivenTheFollowingBillsAreAvailableAtThePataPawaPostPaidHost(DataTable table)
+        {
+            List<TransactionProcessor.IntegrationTesting.Helpers.ReqnrollExtensions.PataPawaBill> bills = table.Rows.ToPataPawaBills();
+            await this.TransactionProcessorSteps.GivenTheFollowingBillsAreAvailableAtThePataPawaPostPaidHost(bills);
+        }
 
+        [Given(@"the following users are available at the PataPawa PrePay Host")]
+        public async Task GivenTheFollowingUsersAreAvailableAtThePataPawaPrePayHost(DataTable table)
+        {
+            List<TransactionProcessor.IntegrationTesting.Helpers.ReqnrollExtensions.PataPawaUser> users = table.Rows.ToPataPawaUsers();
+            await this.TransactionProcessorSteps.GivenTheFollowingUsersAreAvailableAtThePataPawaPrePaidHost(users);
+        }
+
+        [Given(@"the following meters are available at the PataPawa PrePay Host")]
+        public async Task GivenTheFollowingMetersAreAvailableAtThePataPawaPrePayHost(DataTable table)
+        {
+            List<TransactionProcessor.IntegrationTesting.Helpers.ReqnrollExtensions.PataPawaMeter> meters = table.Rows.ToPataPawaMeters();
+            await this.TransactionProcessorSteps.GivenTheFollowingMetersAreAvailableAtThePataPawaPrePaidHost(meters);
+        }
+
+        [Given("I initialise the Agency Banking Host")]
+        public async Task GivenIInitialiseTheAgencyBankingHost()
+        {
+            SystemInitializationRequest request = new()
+            {
+                DefaultCurrency = "KES",
+                InstitutionCode = "BANK001",
+                InstitutionName = "Enterprise Bank",
+                Timezone = "Africa/Nairobi",
+                SettlementMode = "NET"
+            };
+            var result = await this.TestingContext.DockerHelper.AgencyBankingClient.InitializeSystem(request, CancellationToken.None);
+            result.IsSuccess.ShouldBeTrue("Error initializing Agency Banking Host");
+
+        }
+
+        [Given("I create the following accounts")]
+        public async Task GivenICreateTheFollowingAccounts(DataTable dataTable)
+        {
+            foreach (DataTableRow dataTableRow in dataTable.Rows)
+            {
+
+                CreateGlAccountRequest request = new()
+                {
+                    Currency = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "Currency"),
+                    GlCode = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "Code"),
+                    GlName = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "Name"),
+                    GlType = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "Type")
+                };
+                Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateGlAccount(request, CancellationToken.None);
+                result.IsSuccess.ShouldBeTrue($"Error creating GL account {request.GlCode}");
+            }
+        }
+
+        [Given("I create the following customers")]
+        public async Task GivenICreateTheFollowingCustomers(DataTable dataTable)
+        {
+            foreach (DataTableRow dataTableRow in dataTable.Rows)
+            {
+                //| CustomerId | FullName | PhoneNumber | NationalId | AccountNumber |
+                CreateCustomerRequest request = new CreateCustomerRequest
+                {
+                    AccountNumber = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "AccountNumber"),
+                    CustomerId = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "CustomerId"),
+                    FullName = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "FullName"),
+                    PhoneNumber = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "PhoneNumber"),
+                    NationalId = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "NationalId")
+                };
+                Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateCustomer(request, CancellationToken.None);
+                result.IsSuccess.ShouldBeTrue($"Error creating customer {request.AccountNumber}");
+            }
+        }
+
+        [Given("I create the settlement account")]
+        public async Task GivenICreateTheSettlementAccount(DataTable dataTable)
+        {
+            foreach (DataTableRow dataTableRow in dataTable.Rows)
+            {
+                CreateSettlementAccountRequest request = new()
+                {
+                    AccountNumber = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "AccountNumber"),
+                    AccountName = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "AccountName"),
+                    BankCode = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "BankCode"),
+                    Currency = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "Currency")
+                };
+                Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateSettlementAccount(request, CancellationToken.None);
+                result.IsSuccess.ShouldBeTrue($"Error creating settlement account {request.AccountNumber}");
+            }
+        }
 
         #endregion
 

@@ -84,10 +84,9 @@ public class ACLSteps{
         this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
-
-        response.IsSuccessStatusCode.ShouldBeTrue();
-
         String responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+
+        response.IsSuccessStatusCode.ShouldBeTrue($"HTTP {(Int32)response.StatusCode} {response.ReasonPhrase}. Response: {responseContent}");
 
         responseContent.ShouldNotBeNullOrEmpty("No response message received");
 
