@@ -12,7 +12,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using BusinessLogic.Services;
     using Microsoft.Extensions.Configuration;
     using Models;
-    using Moq;
+    using Imposter.Abstractions;
     using Shared.General;
     using Shouldly;
     using Testing;
@@ -49,15 +49,15 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task ProcessLogonTransactionRequestHandler_Handle_RequestIsHandled()
         {
-            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
-                .Setup(a => a.ProcessLogonTransaction(It.IsAny<Guid>(),
-                                                      It.IsAny<Guid>(),
-                                                      It.IsAny<DateTime>(),
-                                                      It.IsAny<String>(),
-                                                      It.IsAny<String>(),
-                                                      It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessLogonTransactionResponse);
-            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Object);
+                .ProcessLogonTransaction(Arg<Guid>.Any(),
+                                                      Arg<Guid>.Any(),
+                                                      Arg<DateTime>.Any(),
+                                                      Arg<String>.Any(),
+                                                      Arg<String>.Any(),
+                                                      Arg<CancellationToken>.Any()).ReturnsAsync(TestData.ProcessLogonTransactionResponse);
+            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
 
             TransactionCommands.ProcessLogonTransactionCommand command = TestData.ProcessLogonTransactionCommand;
             Result<ProcessLogonTransactionResponse> result = await requestHandler.Handle(command, CancellationToken.None);
@@ -73,18 +73,18 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task ProcessSaleTransactionRequestHandler_Handle_RequestIsHandled()
         {
-            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
-                .Setup(a => a.ProcessSaleTransaction(It.IsAny<(Guid, Guid)>(),
-                                                      It.IsAny<DateTime>(),
-                                                      It.IsAny<String>(),
-                                                      It.IsAny<String>(),
-                                                      It.IsAny<String>(),
-                                                      It.IsAny<(Guid, Guid, Guid)>(),
-                                                      It.IsAny<Dictionary<String,String>>(),
-                                                      It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessSaleTransactionResponse);
+                .ProcessSaleTransaction(Arg<(Guid, Guid)>.Any(),
+                                                      Arg<DateTime>.Any(),
+                                                      Arg<String>.Any(),
+                                                      Arg<String>.Any(),
+                                                      Arg<String>.Any(),
+                                                      Arg<(Guid, Guid, Guid)>.Any(),
+                                                      Arg<Dictionary<String,String>>.Any(),
+                                                      Arg<CancellationToken>.Any()).ReturnsAsync(TestData.ProcessSaleTransactionResponse);
 
-            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Object);
+            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
 
             TransactionCommands.ProcessSaleTransactionCommand command = TestData.ProcessSaleTransactionCommand;
             Result<ProcessSaleTransactionResponse> result = await requestHandler.Handle(command, CancellationToken.None);
@@ -98,16 +98,16 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task ProcessReconciliationRequestHandler_Handle_RequestIsHandled()
         {
-            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
-                .Setup(a => a.ProcessReconciliation(It.IsAny<Guid>(),
-                                                      It.IsAny<Guid>(),
-                                                      It.IsAny<DateTime>(),
-                                                      It.IsAny<String>(),
-                                                      It.IsAny<Int32>(),
-                                                      It.IsAny<Decimal>(),
-                                                      It.IsAny<CancellationToken>())).ReturnsAsync(TestData.ProcessReconciliationResponse);
-            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Object);
+                .ProcessReconciliation(Arg<Guid>.Any(),
+                                                      Arg<Guid>.Any(),
+                                                      Arg<DateTime>.Any(),
+                                                      Arg<String>.Any(),
+                                                      Arg<Int32>.Any(),
+                                                      Arg<Decimal>.Any(),
+                                                      Arg<CancellationToken>.Any()).ReturnsAsync(TestData.ProcessReconciliationResponse);
+            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
 
             TransactionCommands.ProcessReconciliationCommand command = TestData.ProcessReconciliationCommand;
             Result<ProcessReconciliationResponse> result = await requestHandler.Handle(command, CancellationToken.None);
@@ -178,8 +178,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task VoucherRequestHandler_GetVoucherRequest_Handle_RequestIsHandled()
         {
-            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
-            VoucherRequestHandler requestHandler = new VoucherRequestHandler(applicationService.Object);
+            ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
+            VoucherRequestHandler requestHandler = new VoucherRequestHandler(applicationService.Instance());
 
             Should.NotThrow(async () =>
                             {
@@ -190,8 +190,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task VoucherRequestHandler_RedeemVoucherRequest_Handle_RequestIsHandled()
         {
-            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
-            VoucherRequestHandler requestHandler = new VoucherRequestHandler(applicationService.Object);
+            ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
+            VoucherRequestHandler requestHandler = new VoucherRequestHandler(applicationService.Instance());
 
             Should.NotThrow(async () =>
                             {
@@ -202,14 +202,14 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task ReportingRequestHandler_GetMerchantTransactionMixSummaryQuery_Handle_RequestIsHandled()
         {
-            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
-                .Setup(a => a.GetMerchantTransactionMixSummary(It.IsAny<Guid>(),
-                                                               It.IsAny<MerchantTransactionMixSummaryRequest>(),
-                                                               It.IsAny<CancellationToken>()))
+                .GetMerchantTransactionMixSummary(Arg<Guid>.Any(),
+                                                               Arg<MerchantTransactionMixSummaryRequest>.Any(),
+                                                               Arg<CancellationToken>.Any())
                 .ReturnsAsync(new MerchantTransactionMixSummaryResponse());
 
-            ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Object);
+            ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Instance());
 
             ReportingQueries.GetMerchantTransactionMixSummaryQuery query = new(
                 TestData.EstateId,
@@ -232,14 +232,14 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task ReportingRequestHandler_GetMerchantDailyPerformanceSummaryQuery_Handle_RequestIsHandled()
         {
-            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
-                .Setup(a => a.GetMerchantDailyPerformanceSummary(It.IsAny<Guid>(),
-                                                                 It.IsAny<MerchantDailyPerformanceSummaryRequest>(),
-                                                                 It.IsAny<CancellationToken>()))
+                .GetMerchantDailyPerformanceSummary(Arg<Guid>.Any(),
+                                                                 Arg<MerchantDailyPerformanceSummaryRequest>.Any(),
+                                                                 Arg<CancellationToken>.Any())
                 .ReturnsAsync(new MerchantDailyPerformanceSummaryResponse());
 
-            ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Object);
+            ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Instance());
 
             ReportingQueries.GetMerchantDailyPerformanceSummaryQuery query = new(
                 TestData.EstateId,
@@ -259,14 +259,14 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task ReportingRequestHandler_GetRecentActivityReceiptSearchQuery_Handle_RequestIsHandled()
         {
-            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
-                .Setup(a => a.GetRecentActivityReceiptSearch(It.IsAny<Guid>(),
-                                                             It.IsAny<RecentActivityReceiptSearchRequest>(),
-                                                             It.IsAny<CancellationToken>()))
+                .GetRecentActivityReceiptSearch(Arg<Guid>.Any(),
+                                                             Arg<RecentActivityReceiptSearchRequest>.Any(),
+                                                             Arg<CancellationToken>.Any())
                 .ReturnsAsync(new RecentActivityReceiptSearchResponse());
 
-            ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Object);
+            ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Instance());
 
             ReportingQueries.GetRecentActivityReceiptSearchQuery query = new(
                 TestData.EstateId,
@@ -288,16 +288,16 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionRequestHandler_ResendReceiptCommand_Handle_RequestIsHandled()
         {
-            Mock<ITransactionProcessorACLApplicationService> applicationService = new Mock<ITransactionProcessorACLApplicationService>();
+            ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
-                .Setup(a => a.ResendReceipt(It.IsAny<Guid>(),
-                                            It.IsAny<Guid>(),
-                                            It.IsAny<String>(),
-                                            It.IsAny<String>(),
-                                            It.IsAny<CancellationToken>()))
+                .ResendReceipt(Arg<Guid>.Any(),
+                                            Arg<Guid>.Any(),
+                                            Arg<String>.Any(),
+                                            Arg<String>.Any(),
+                                            Arg<CancellationToken>.Any())
                 .ReturnsAsync(new ResendReceiptResponse { Success = true, Message = "Receipt resend requested." });
 
-            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Object);
+            TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
 
             TransactionCommands.ResendReceiptCommand command = new(
                 TestData.EstateId,

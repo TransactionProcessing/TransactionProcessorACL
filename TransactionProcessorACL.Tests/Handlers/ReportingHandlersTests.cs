@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Moq;
+using Imposter.Abstractions;
 using Shouldly;
 using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
@@ -32,19 +32,19 @@ public class ReportingHandlersTests
 
         ReportingQueries.GetMerchantDailyPerformanceSummaryQuery? capturedQuery = null;
 
-        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        var mediator = new IMediatorImposter(ImposterMode.Explicit);
         mediator
-            .Setup(m => m.Send(It.IsAny<ReportingQueries.GetMerchantDailyPerformanceSummaryQuery>(), It.IsAny<CancellationToken>()))
-            .Callback<object, CancellationToken>((payload, _) => capturedQuery = (ReportingQueries.GetMerchantDailyPerformanceSummaryQuery)payload)
-            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse()));
+            .Send<Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>>.Any(), Arg<CancellationToken>.Any())
+            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse()))
+            .Callback((payload, _) => { capturedQuery = (ReportingQueries.GetMerchantDailyPerformanceSummaryQuery)payload; return Task.CompletedTask; });
 
-        var result = await ReportingHandlers.GetMerchantDailyPerformanceSummary(user, request, mediator.Object, CancellationToken.None);
+        var result = await ReportingHandlers.GetMerchantDailyPerformanceSummary(user, request, mediator.Instance(), CancellationToken.None);
 
         result.ShouldNotBeNull();
         capturedQuery.ShouldNotBeNull();
         capturedQuery!.EstateId.ShouldBe(Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"));
         capturedQuery.Request.MerchantReportingId.ShouldBe(12345);
-        mediator.Verify(m => m.Send(It.IsAny<ReportingQueries.GetMerchantDailyPerformanceSummaryQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+        mediator.Send<Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
     }
 
     [Fact]
@@ -67,13 +67,13 @@ public class ReportingHandlersTests
 
         ReportingQueries.GetMerchantTransactionMixSummaryQuery? capturedQuery = null;
 
-        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        var mediator = new IMediatorImposter(ImposterMode.Explicit);
         mediator
-            .Setup(m => m.Send(It.IsAny<ReportingQueries.GetMerchantTransactionMixSummaryQuery>(), It.IsAny<CancellationToken>()))
-            .Callback<object, CancellationToken>((payload, _) => capturedQuery = (ReportingQueries.GetMerchantTransactionMixSummaryQuery)payload)
-            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse()));
+            .Send<Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>>.Any(), Arg<CancellationToken>.Any())
+            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse()))
+            .Callback((payload, _) => { capturedQuery = (ReportingQueries.GetMerchantTransactionMixSummaryQuery)payload; return Task.CompletedTask; });
 
-        var result = await ReportingHandlers.GetMerchantTransactionMixSummary(user, request, mediator.Object, CancellationToken.None);
+        var result = await ReportingHandlers.GetMerchantTransactionMixSummary(user, request, mediator.Instance(), CancellationToken.None);
 
         result.ShouldNotBeNull();
         capturedQuery.ShouldNotBeNull();
@@ -81,7 +81,7 @@ public class ReportingHandlersTests
         capturedQuery.Request.MerchantReportingId.ShouldBe(12345);
         capturedQuery.Request.Breakdown.ShouldBe(TransactionMixBreakdown.Product);
         capturedQuery.Request.Measure.ShouldBe(TransactionMixMeasure.Count);
-        mediator.Verify(m => m.Send(It.IsAny<ReportingQueries.GetMerchantTransactionMixSummaryQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+        mediator.Send<Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
     }
 
     [Fact]
@@ -103,13 +103,13 @@ public class ReportingHandlersTests
 
         ReportingQueries.GetRecentActivityReceiptSearchQuery? capturedQuery = null;
 
-        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        var mediator = new IMediatorImposter(ImposterMode.Explicit);
         mediator
-            .Setup(m => m.Send(It.IsAny<ReportingQueries.GetRecentActivityReceiptSearchQuery>(), It.IsAny<CancellationToken>()))
-            .Callback<object, CancellationToken>((payload, _) => capturedQuery = (ReportingQueries.GetRecentActivityReceiptSearchQuery)payload)
-            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse()));
+            .Send<Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>>.Any(), Arg<CancellationToken>.Any())
+            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse()))
+            .Callback((payload, _) => { capturedQuery = (ReportingQueries.GetRecentActivityReceiptSearchQuery)payload; return Task.CompletedTask; });
 
-        var result = await ReportingHandlers.GetRecentActivityReceiptSearch(user, request, mediator.Object, CancellationToken.None);
+        var result = await ReportingHandlers.GetRecentActivityReceiptSearch(user, request, mediator.Instance(), CancellationToken.None);
 
         result.ShouldNotBeNull();
         capturedQuery.ShouldNotBeNull();
@@ -119,6 +119,6 @@ public class ReportingHandlersTests
         capturedQuery.Request.SearchText.ShouldBe("abc");
         capturedQuery.Request.PageNumber.ShouldBe(2);
         capturedQuery.Request.PageSize.ShouldBe(5);
-        mediator.Verify(m => m.Send(It.IsAny<ReportingQueries.GetRecentActivityReceiptSearchQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+        mediator.Send<Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
     }
 }
