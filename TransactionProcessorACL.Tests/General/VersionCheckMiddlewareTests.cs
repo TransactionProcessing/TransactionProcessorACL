@@ -1,10 +1,10 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Moq;
+using Imposter.Abstractions;
 using Shouldly;
 using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
@@ -34,20 +34,20 @@ namespace TransactionProcessorACL.Tests.General
                 return Task.CompletedTask;
             };
 
-            var mediatorMock = new Mock<IMediator>(MockBehavior.Strict);
+            var mediatorMock = new IMediatorImposter(ImposterMode.Explicit);
             mediatorMock
-                .Setup(m => m.Send(It.IsAny<VersionCheckCommands.VersionCheckCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result.Success);
+                .Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
+                .ReturnsAsync(Result.Success());
 
             var middleware = new VersionCheckMiddleware(next);
 
             // Act
-            await middleware.InvokeAsync(context, mediatorMock.Object);
+            await middleware.InvokeAsync(context, mediatorMock.Instance());
 
             // Assert
             nextCalled.ShouldBeTrue();
             context.Response.StatusCode.ShouldBe(200);
-            mediatorMock.Verify(m => m.Send(It.IsAny<VersionCheckCommands.VersionCheckCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            mediatorMock.Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
         }
 
         [Fact]
@@ -69,20 +69,20 @@ namespace TransactionProcessorACL.Tests.General
                 return Task.CompletedTask;
             };
 
-            var mediatorMock = new Mock<IMediator>(MockBehavior.Strict);
+            var mediatorMock = new IMediatorImposter(ImposterMode.Explicit);
             mediatorMock
-                .Setup(m => m.Send(It.IsAny<VersionCheckCommands.VersionCheckCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result.Failure); // simulate old/invalid version
+                .Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
+                .ReturnsAsync(Result.Failure()); // simulate old/invalid version
 
             var middleware = new VersionCheckMiddleware(next);
 
             // Act
-            await middleware.InvokeAsync(context, mediatorMock.Object);
+            await middleware.InvokeAsync(context, mediatorMock.Instance());
 
             // Assert
             nextCalled.ShouldBeFalse();
             context.Response.StatusCode.ShouldBe(505);
-            mediatorMock.Verify(m => m.Send(It.IsAny<VersionCheckCommands.VersionCheckCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            mediatorMock.Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
         }
 
         [Fact]
@@ -100,18 +100,18 @@ namespace TransactionProcessorACL.Tests.General
                 return Task.CompletedTask;
             };
 
-            var mediatorMock = new Mock<IMediator>(MockBehavior.Strict);
+            var mediatorMock = new IMediatorImposter(ImposterMode.Explicit);
             // mediator should not be called for health paths
 
             var middleware = new VersionCheckMiddleware(next);
 
             // Act
-            await middleware.InvokeAsync(context, mediatorMock.Object);
+            await middleware.InvokeAsync(context, mediatorMock.Instance());
 
             // Assert
             nextCalled.ShouldBeTrue();
             context.Response.StatusCode.ShouldBe(200);
-            mediatorMock.Verify(m => m.Send(It.IsAny<VersionCheckCommands.VersionCheckCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+            mediatorMock.Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Never());
         }
 
         [Fact]
@@ -130,19 +130,19 @@ namespace TransactionProcessorACL.Tests.General
                 return Task.CompletedTask;
             };
 
-            var mediatorMock = new Mock<IMediator>(MockBehavior.Strict);
+            var mediatorMock = new IMediatorImposter(ImposterMode.Explicit);
             mediatorMock
-                .Setup(m => m.Send(It.Is<VersionCheckCommands.VersionCheckCommand>(cmd => cmd.VersionNumber == "9.9.9"), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result.Success);
+                .Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
+                .ReturnsAsync(Result.Success());
 
             var middleware = new VersionCheckMiddleware(next);
 
             // Act
-            await middleware.InvokeAsync(context, mediatorMock.Object);
+            await middleware.InvokeAsync(context, mediatorMock.Instance());
 
             // Assert
             nextCalled.ShouldBeTrue();
-            mediatorMock.Verify(m => m.Send(It.IsAny<VersionCheckCommands.VersionCheckCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            mediatorMock.Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
         }
     }
 }

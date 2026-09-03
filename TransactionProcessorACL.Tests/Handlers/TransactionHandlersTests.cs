@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Moq;
+using Imposter.Abstractions;
 using Shouldly;
 using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
@@ -43,13 +43,13 @@ public class TransactionHandlersTests
 
         TransactionCommands.ProcessSaleTransactionCommand? capturedCommand = null;
 
-        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        var mediator = new IMediatorImposter(ImposterMode.Explicit);
         mediator
-            .Setup(m => m.Send(It.IsAny<TransactionCommands.ProcessSaleTransactionCommand>(), It.IsAny<CancellationToken>()))
-            .Callback<object, CancellationToken>((command, _) => capturedCommand = (TransactionCommands.ProcessSaleTransactionCommand)command)
-            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.ProcessSaleTransactionResponse()));
+            .Send<Result<TransactionProcessorACL.Models.ProcessSaleTransactionResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.ProcessSaleTransactionResponse>>>.Any(), Arg<CancellationToken>.Any())
+            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.ProcessSaleTransactionResponse()))
+            .Callback((command, _) => { capturedCommand = (TransactionCommands.ProcessSaleTransactionCommand)command; return Task.CompletedTask; });
 
-        await TransactionHandlers.PerformSaleTransaction(mediator.Object, user, request, CancellationToken.None);
+        await TransactionHandlers.PerformSaleTransaction(mediator.Instance(), user, request, CancellationToken.None);
 
         capturedCommand.ShouldNotBeNull();
         capturedCommand!.EstateId.ShouldBe(System.Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"));
@@ -58,7 +58,7 @@ public class TransactionHandlersTests
         capturedCommand.DeviceIdentifier.ShouldBe("device-01");
         capturedCommand.CustomerEmailAddress.ShouldBe("customer@example.com");
         capturedCommand.AdditionalRequestMetadata["amount"].ShouldBe("1000.00");
-        mediator.Verify(m => m.Send(It.IsAny<TransactionCommands.ProcessSaleTransactionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        mediator.Send<Result<TransactionProcessorACL.Models.ProcessSaleTransactionResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.ProcessSaleTransactionResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
     }
 
     [Fact]
@@ -78,20 +78,20 @@ public class TransactionHandlersTests
 
         TransactionCommands.ResendReceiptCommand? capturedCommand = null;
 
-        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        var mediator = new IMediatorImposter(ImposterMode.Explicit);
         mediator
-            .Setup(m => m.Send(It.IsAny<TransactionCommands.ResendReceiptCommand>(), It.IsAny<CancellationToken>()))
-            .Callback<object, CancellationToken>((command, _) => capturedCommand = (TransactionCommands.ResendReceiptCommand)command)
-            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.ResendReceiptResponse { Success = true, Message = "Receipt resend requested." }));
+            .Send<Result<TransactionProcessorACL.Models.ResendReceiptResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.ResendReceiptResponse>>>.Any(), Arg<CancellationToken>.Any())
+            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.ResendReceiptResponse { Success = true, Message = "Receipt resend requested." }))
+            .Callback((command, _) => { capturedCommand = (TransactionCommands.ResendReceiptCommand)command; return Task.CompletedTask; });
 
-        await TransactionHandlers.ResendReceipt(mediator.Object, user, request, CancellationToken.None);
+        await TransactionHandlers.ResendReceipt(mediator.Instance(), user, request, CancellationToken.None);
 
         capturedCommand.ShouldNotBeNull();
         capturedCommand!.EstateId.ShouldBe(System.Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"));
         capturedCommand.MerchantId.ShouldBe(System.Guid.Parse("2C8354B7-B97A-46EA-9AD1-C43F33F7E3C4"));
         capturedCommand.Reference.ShouldBe("RCPT-0001");
         capturedCommand.RecipientEmailAddress.ShouldBe("recipient@example.com");
-        mediator.Verify(m => m.Send(It.IsAny<TransactionCommands.ResendReceiptCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        mediator.Send<Result<TransactionProcessorACL.Models.ResendReceiptResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.ResendReceiptResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
     }
 
     [Fact]
@@ -109,9 +109,9 @@ public class TransactionHandlersTests
             RecipientEmailAddress = "not-an-email"
         };
 
-        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        var mediator = new IMediatorImposter(ImposterMode.Explicit);
 
-        var result = await TransactionHandlers.ResendReceipt(mediator.Object, user, request, CancellationToken.None);
+        var result = await TransactionHandlers.ResendReceipt(mediator.Instance(), user, request, CancellationToken.None);
 
         result.ShouldNotBeNull();
     }
