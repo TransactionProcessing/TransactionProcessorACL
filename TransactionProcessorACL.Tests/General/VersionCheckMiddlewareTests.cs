@@ -132,7 +132,7 @@ namespace TransactionProcessorACL.Tests.General
 
             var mediatorMock = new IMediatorImposter(ImposterMode.Explicit);
             mediatorMock
-                .Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
+                .Send<Result>(Arg<MediatR.IRequest<Result>>.Is(request => request is VersionCheckCommands.VersionCheckCommand command && command.VersionNumber == "9.9.9"), Arg<CancellationToken>.Any())
                 .ReturnsAsync(Result.Success());
 
             var middleware = new VersionCheckMiddleware(next);
