@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Shared.Monitoring;
 using SimpleResults;
 using TransactionProcessorACL.Endpoints;
 
@@ -66,12 +67,20 @@ namespace TransactionProcessorACL
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory,
+                              IHostApplicationLifetime lifetime, IHost host)
         {
             UseDevelopmentExceptionPage(app, env);
             InitializeLogger(loggerFactory);
             ConfigureMiddleware(app);
             ConfigureEndpoints(app);
+
+            lifetime.ApplicationStarted.Register(() =>
+            {
+                host.RegisterWithUptimeKumaAsync()
+                    .GetAwaiter()
+                    .GetResult();
+            });
         }
 
         private static void UseDevelopmentExceptionPage(IApplicationBuilder app,

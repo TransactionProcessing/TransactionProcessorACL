@@ -1,5 +1,6 @@
 ﻿using Microsoft.OpenApi;
 using Shared.Authorisation;
+using Shared.Monitoring;
 
 namespace TransactionProcessorACL.Bootstrapper
 {
@@ -38,6 +39,7 @@ namespace TransactionProcessorACL.Bootstrapper
             this.ConfigurePasswordTokenHandling();
             this.ConfigureJsonOptions();
             this.ConfigureControllers();
+            this.AddUptimeKuma();
         }
 
         /// <summary>
