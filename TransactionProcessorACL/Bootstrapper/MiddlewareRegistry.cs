@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi;
+﻿using HealthMonitoring.Client;
+using Microsoft.OpenApi;
 using Shared.Authorisation;
 using Shared.Monitoring;
 
@@ -39,7 +40,7 @@ namespace TransactionProcessorACL.Bootstrapper
             this.ConfigurePasswordTokenHandling();
             this.ConfigureJsonOptions();
             this.ConfigureControllers();
-            this.AddUptimeKuma();
+            this.AddHealthMonitoringRegistration(Startup.Configuration);
         }
 
         /// <summary>
