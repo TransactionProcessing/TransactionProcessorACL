@@ -74,13 +74,6 @@ namespace TransactionProcessorACL
             InitializeLogger(loggerFactory);
             ConfigureMiddleware(app);
             ConfigureEndpoints(app);
-
-            lifetime.ApplicationStarted.Register(() =>
-            {
-                host.RegisterWithUptimeKumaAsync()
-                    .GetAwaiter()
-                    .GetResult();
-            });
         }
 
         private static void UseDevelopmentExceptionPage(IApplicationBuilder app,
