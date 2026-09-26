@@ -1,24 +1,16 @@
 ﻿using HealthMonitoring.Client;
-using Microsoft.OpenApi;
 using Shared.Authorisation;
-using Shared.Monitoring;
 
 namespace TransactionProcessorACL.Bootstrapper
 {
-    using DataTransferObjects;
-    using DataTransferObjects.Responses;
     using Lamar;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.Extensions.DependencyInjection;
     using OpenIddict.Validation.AspNetCore;
     using Shared.Extensions;
     using Shared.General;
     using Shared.Serialisation;
-    using Swashbuckle.AspNetCore.Filters;
     using System;
     using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Linq;
     using System.Net.Http;
     using System.Reflection;
     using System.Text.Json;

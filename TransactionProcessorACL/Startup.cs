@@ -4,17 +4,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Shared.Monitoring;
-using SimpleResults;
 using TransactionProcessorACL.Endpoints;
 
 namespace TransactionProcessorACL
 {
     using Bootstrapper;
-    using BusinessLogic.Requests;
     using HealthChecks.UI.Client;
     using Lamar;
-    using MediatR;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Routing;
@@ -26,9 +22,6 @@ namespace TransactionProcessorACL
     using Shared.Serialisation;
     using System;
     using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Text;
-    using System.Text.Json;
     using System.Threading.Tasks;
     using TransactionProcessorACL.Common;
     using TransactionProcessorACL.Middleware;
