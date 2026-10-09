@@ -232,6 +232,17 @@ namespace TransactionProcessor.IntegrationTests.Common
             return additionalVariables;
         }
 
+        public override ContainerBuilder SetupSecurityServiceContainer()
+        {
+            Dictionary<String, String> additionalVariables = new();
+            additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:1", "estateClient");
+            additionalVariables.Add("ServiceOptions:UserOptions:UseProvidedPasswordForEmailUsers", "true");
+
+            this.AdditionalVariables.Add(ContainerType.SecurityService, additionalVariables);
+
+            return base.SetupSecurityServiceContainer();
+        }
+
         #endregion
     }
 

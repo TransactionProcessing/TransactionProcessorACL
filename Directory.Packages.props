@@ -50,8 +50,8 @@
     <PackageVersion Include="Swashbuckle.AspNetCore.Swagger" Version="10.2.3" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.2.3" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
-    <PackageVersion Include="TransactionProcessor.Client" Version="2026.9.3.404" />
-    <PackageVersion Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2026.9.3.404" />
+    <PackageVersion Include="TransactionProcessor.Client" Version="2026.9.3.405" />
+    <PackageVersion Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2026.9.3.405" />
     <PackageVersion Include="Sentry.AspNetCore" Version="6.11.1" />
     <PackageVersion Include="xunit.v3" Version="4.0.1" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
