@@ -77,6 +77,16 @@ namespace TransactionProcessor.IntegrationTests.Common
             return base.SetupEstateReportingContainer();
         }
 
+        //public override ContainerBuilder SetupSecurityServiceContainer()
+        //{
+        //    Dictionary<String, String> additionalVariables = new();
+        //    additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:1", "estateClient");
+
+        //    this.AdditionalVariables.Add(ContainerType.SecurityService, additionalVariables);
+
+        //    return base.SetupSecurityServiceContainer();
+        //}
+
         public override ContainerBuilder SetupTransactionProcessorContainer()
         {
             Dictionary<String, String> additionalVariables = new();
@@ -145,8 +155,16 @@ namespace TransactionProcessor.IntegrationTests.Common
             this.HttpClient.Timeout = TimeSpan.FromMinutes(5);
 
             this.ProjectionManagementClient = new EventStoreProjectionManagementClient(ConfigureEventStoreSettings());
-            
+
+            SimpleResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
+            if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken))
+            {
+                throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
+            }
+            this.AccessToken = bootstrapToken.Data.AccessToken;
         }
+
+        public String AccessToken;
 
         private void DumpDockerContainerState()
         {
@@ -212,6 +230,17 @@ namespace TransactionProcessor.IntegrationTests.Common
             }
 
             return additionalVariables;
+        }
+
+        public override ContainerBuilder SetupSecurityServiceContainer()
+        {
+            Dictionary<String, String> additionalVariables = new();
+            additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:1", "estateClient");
+            additionalVariables.Add("ServiceOptions:UserOptions:UseProvidedPasswordForEmailUsers", "true");
+
+            this.AdditionalVariables.Add(ContainerType.SecurityService, additionalVariables);
+
+            return base.SetupSecurityServiceContainer();
         }
 
         #endregion

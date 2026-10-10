@@ -22,7 +22,7 @@ Background:
 	Given the following clients exist
 	| ClientId       | ClientName      | Secret  | Scopes                                                                   | GrantTypes  |
 	| serviceClient  | Service Client  | Secret1 | transactionProcessor,transactionProcessorACL, estateReporting | client_credentials |
-	| merchantClient | Merchant Client | Secret1 | transactionProcessorACL                                                         | password           |
+	| merchantClient | Merchant Client | Secret1 | transactionProcessorACL, estateReporting                                                         | password           |
 
 	Given I have a token to access the estate management and transaction processor acl resources
 	| ClientId      | 
