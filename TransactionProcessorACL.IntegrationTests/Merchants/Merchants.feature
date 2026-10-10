@@ -26,6 +26,22 @@ Background:
 	| ClientId      | 
 	| serviceClient | 
 
+	Given the following bills are available at the PataPawa PostPaid Host
+	| AccountNumber | AccountName    | DueDate | Amount |
+	| 12345678      | Test Account 1 | Today   | 100.00 |
+
+	Given the following users are available at the PataPawa PrePay Host
+	| Username | Password |
+	| operatora    | 1234567898   |
+
+	Given the following meters are available at the PataPawa PrePay Host
+	| MeterNumber | CustomerName |
+	| 00000001    | Customer 1   |
+	| 00000002    | Customer 2   |
+	| 00000003    | Customer 3   |
+
+	Given I initialise the Agency Banking Host
+
 	Given I have created the following estates
 	| EstateName    |
 	| Test Estate 1 |
