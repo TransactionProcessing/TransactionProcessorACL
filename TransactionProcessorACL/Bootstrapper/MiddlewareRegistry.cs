@@ -30,6 +30,7 @@ namespace TransactionProcessorACL.Bootstrapper
             this.ConfigureHealthChecks();
             this.ConfigureAuthentication();
             this.ConfigurePasswordTokenHandling();
+            this.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationMiddlewareResultHandler, TransactionProcessorACL.Middleware.AuthorizationFailureDiagnosticsHandler>();
             this.ConfigureJsonOptions();
             this.ConfigureControllers();
             this.AddHealthMonitoringRegistration(Startup.Configuration);

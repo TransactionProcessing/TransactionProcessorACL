@@ -52,7 +52,7 @@ public class ACLSteps{
                                                 CancellationToken cancellationToken) {
         String uri = "api/saletransactions";
         
-        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
+        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, "Sale", cancellationToken);
     }
 
     public async Task SendAclLogonRequestMessage((EstateDetails, String, Guid, String, LogonTransactionRequestMessage) requestMessage,
@@ -60,7 +60,7 @@ public class ACLSteps{
     {
         String uri = "api/logontransactions";
         
-        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
+        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, "Logon", cancellationToken);
     }
 
     public async Task SendAclReconciliationRequestMessage((EstateDetails, String, Guid, String, ReconciliationRequestMessage) requestMessage,
@@ -68,7 +68,7 @@ public class ACLSteps{
     {
         String uri = "api/reconciliationtransactions";
         
-        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
+        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, "Reconciliation", cancellationToken);
     }
 
     private async Task SendAclRequestMessage<T>(String uri, 
@@ -77,6 +77,7 @@ public class ACLSteps{
                                             Guid merchantId,
                                             EstateDetails estateDetails,
                                             String transactionNumber,
+                                             String expectedTransactionType,
                                             CancellationToken cancellationToken) {
         StringContent content = new StringContent(StringSerialiser.Serialise(request),
             Encoding.UTF8,
@@ -91,6 +92,11 @@ public class ACLSteps{
         responseContent.ShouldNotBeNullOrEmpty("No response message received");
 
         TransactionResponse transactionResponse = StringSerialiser.Deserialise<TransactionResponse>(responseContent);
+
+        TransactionResponseAssertions.Verify(transactionResponse,
+                                             estateDetails.EstateId,
+                                             merchantId,
+                                             expectedTransactionType);
 
         estateDetails.AddTransactionResponse(merchantId, transactionNumber, transactionResponse);
     }
@@ -139,7 +145,7 @@ public class ACLSteps{
         TransactionResponse transactionResponse = es1.EstateDetails.GetTransactionResponse(merchantId, transactionNumber.ToString());
 
         GetVoucherResponse voucher = null;
-        await Retry.For(async () => {
+        await Retry.ForEventually(async () => {
 
                             Result<GetVoucherResponse> voucherResult = await this.TransactionProcessorClient.GetVoucherByTransactionId(accessToken,
                                                                                                       es1.EstateDetails.EstateId,
@@ -222,7 +228,7 @@ public class ACLSteps{
 
         this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAccessToken);
 
-        await Retry.For(async () => {
+        await Retry.ForEventually(async () => {
             HttpResponseMessage response = await this.HttpClient.GetAsync(uri, CancellationToken.None);
             response.IsSuccessStatusCode.ShouldBeTrue();
 
@@ -261,7 +267,7 @@ public class ACLSteps{
         };
         
 
-        await Retry.For(async () => {
+        await Retry.ForEventually(async () => {
             StringContent content = new(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
@@ -321,7 +327,7 @@ public class ACLSteps{
             TopN = 5,
         };
 
-        await Retry.For(async () => {
+        await Retry.ForEventually(async () => {
             StringContent content = new(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
@@ -367,7 +373,7 @@ public class ACLSteps{
             PageSize = pageSize
         };
 
-        await Retry.For(async () => {
+        await Retry.ForEventually(async () => {
             StringContent content = new(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);

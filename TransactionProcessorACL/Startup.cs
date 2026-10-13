@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TransactionProcessorACL.Endpoints;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TransactionProcessorACL
 {
@@ -93,6 +95,29 @@ namespace TransactionProcessorACL
             app.AddExceptionHandler();
             app.UseRouting();
             app.UseAuthentication();
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path.StartsWithSegments("/api/reporting") &&
+                    context.User.Identity?.IsAuthenticated == true)
+                {
+                    ILogger logger = context.RequestServices.GetRequiredService<ILoggerFactory>()
+                        .CreateLogger("TransactionProcessorACL.AuthenticationDiagnostics");
+
+                    String claims = String.Join("; ", context.User.Claims.Select(claim => $"{claim.Type}={claim.Value}"));
+                    String authorizationMetadata = String.Join(", ", context.GetEndpoint()?.Metadata
+                        .GetOrderedMetadata<IAuthorizeData>()
+                        .Select(metadata => $"Policy={metadata.Policy ?? "<default>"}; Roles={metadata.Roles ?? "<none>"}")
+                        ?? Enumerable.Empty<String>());
+                    logger.LogWarning("Temporary authentication diagnostics: AuthenticationType={AuthenticationType}; Claims={Claims}",
+                                     context.User.Identity.AuthenticationType,
+                                     claims);
+                    logger.LogWarning("Temporary endpoint authorization diagnostics: Endpoint={Endpoint}; Metadata={Metadata}",
+                                     context.GetEndpoint()?.DisplayName,
+                                     authorizationMetadata);
+                }
+
+                await next();
+            });
             app.UseAuthorization();
             app.UseMiddleware<RequestAuditMiddleware>();
             app.UseMiddleware<VersionCheckMiddleware>();

@@ -32,9 +32,9 @@ namespace TransactionProcessor.IntegrationTests.Common
         /// <param name="retryFor">The retry for.</param>
         /// <param name="retryInterval">The retry interval.</param>
         /// <returns></returns>
-        public static async Task For(Func<Task> action,
-                                     TimeSpan? retryFor = null,
-                                     TimeSpan? retryInterval = null)
+        public static async Task ForEventually(Func<Task> action,
+                                               TimeSpan? retryFor = null,
+                                               TimeSpan? retryInterval = null)
         {
             DateTime startTime = DateTime.Now;
             Exception lastException = null;
@@ -57,7 +57,7 @@ namespace TransactionProcessor.IntegrationTests.Common
                     lastException = e;
 
                     // wait before retrying
-                    Thread.Sleep(retryInterval ?? Retry.DefaultRetryInterval);
+                    await Task.Delay(retryInterval ?? Retry.DefaultRetryInterval).ConfigureAwait(false);
                 }
             }
 

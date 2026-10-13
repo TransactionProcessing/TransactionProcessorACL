@@ -97,7 +97,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             return base.SetupTransactionProcessorContainer();
         }
 
-        public override async Task CreateSubscriptions(){
+        public override async Task CreateSubscriptions(CancellationToken cancellationToken){
             List<(String streamName, String groupName, Int32 maxRetries)> subscriptions = new List<(String streamName, String groupName, Int32 maxRetries)>();
             subscriptions.AddRange(MessagingService.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
             subscriptions.AddRange(TransactionProcessor.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
@@ -114,11 +114,11 @@ namespace TransactionProcessor.IntegrationTests.Common
         /// Starts the containers for scenario run.
         /// </summary>
         /// <param name="scenarioName">Name of the scenario.</param>
-        public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
+        public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices, CancellationToken cancellationToken)
         {
             try
             {
-                await base.StartContainersForScenarioRun(scenarioName, dockerServices);
+                await base.StartContainersForScenarioRun(scenarioName, dockerServices, cancellationToken);
             }
             catch
             {
@@ -229,6 +229,11 @@ namespace TransactionProcessor.IntegrationTests.Common
                     $"http://{this.EstateReportingContainerName}:{DockerPorts.EstateReportingDockerPort}";
             }
 
+            if (containerType == ContainerType.TransactionProcessorAcl)
+            {
+                additionalVariables["Logging:LogLevel:Microsoft.AspNetCore.Authorization"] = "Debug";
+            }
+
             return additionalVariables;
         }
 
@@ -236,6 +241,7 @@ namespace TransactionProcessor.IntegrationTests.Common
         {
             Dictionary<String, String> additionalVariables = new();
             additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:1", "estateClient");
+            additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:2", "redemptionClient");
             additionalVariables.Add("ServiceOptions:UserOptions:UseProvidedPasswordForEmailUsers", "true");
 
             this.AdditionalVariables.Add(ContainerType.SecurityService, additionalVariables);
