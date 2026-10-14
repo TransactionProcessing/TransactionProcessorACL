@@ -111,7 +111,7 @@ namespace TransactionProcessorACL.Bootstrapper
         private void ConfigurePasswordTokenHandling()
         {
             this.AddPasswordTokenPolicy();
-            this.AddPasswordTokenHandler();
+            this.AddPasswordTokenHandler();            
         }
     }
 

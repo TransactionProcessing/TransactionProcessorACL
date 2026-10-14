@@ -420,7 +420,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 return ResultHelpers.CreateFailure(accessTokenResult);
             }
 
-            BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest apiRequest = new BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest { StartDate = request.StartDate, EndDate = request.EndDate, MerchantReportingId = request.MerchantReportingId };
+            BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest apiRequest = new BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest { StartDate = DateOnly.FromDateTime(request.StartDate), EndDate = DateOnly.FromDateTime(request.EndDate), MerchantReportingId = request.MerchantReportingId };
 
             TokenResponse accessToken = accessTokenResult.Data;
             Result<BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryResponse> apiResponse = await this.EstateReportingApiClient.GetMerchantDailyPerformanceSummary(accessToken.AccessToken, estateId, apiRequest, cancellationToken);
@@ -452,8 +452,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
 
             var apiRequest = new BackendAPI.DataTransferObjects.TransactionMixSummaryRequest {
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
+                StartDate = DateOnly.FromDateTime(request.StartDate),
+                EndDate = DateOnly.FromDateTime(request.EndDate),
                 Breakdown = Enum.Parse<BackendAPI.DataTransferObjects.TransactionMixBreakdown>(request.Breakdown.ToString()),
                 Measure = Enum.Parse<BackendAPI.DataTransferObjects.TransactionMixMeasure>(request.Measure.ToString()),
                 MerchantReportingId = request.MerchantReportingId,
@@ -501,7 +501,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             var apiRequest = new BackendAPI.DataTransferObjects.RecentActivityReceiptSearchRequest
             {
                 MerchantReportingId = request.MerchantReportingId,
-                ReportDate = request.ReportDate.Date,
+                ReportDate = DateOnly.FromDateTime(request.ReportDate.Date),
                 SearchText = string.IsNullOrWhiteSpace(request.SearchText) ? null : request.SearchText.Trim(),
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize
@@ -516,9 +516,9 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             RecentActivityReceiptSearchResponse response = new()
             {
                 ReportDate = apiResponse.Data.ReportDate,
-                PageNumber = apiResponse.Data.PageNumber,
-                PageSize = apiResponse.Data.PageSize,
-                TotalCount = apiResponse.Data.TotalCount,
+                PageNumber = apiResponse.Data.Pagination.PageNumber,
+                PageSize = apiResponse.Data.Pagination.PageSize,
+                TotalCount = apiResponse.Data.Pagination.TotalItems,
                 Items = apiResponse.Data.Items.Select(i => new RecentActivityReceiptSearchItem
                 {
                     Amount = i.Amount,
@@ -807,6 +807,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 ResponseCode = reconciliationResponse.ResponseCode,
                 ResponseMessage = reconciliationResponse.ResponseMessage,
                 TransactionId = reconciliationResponse.TransactionId,
+                EstateId = reconciliationResponse.EstateId,
+                MerchantId = reconciliationResponse.MerchantId,
             };
         }
 

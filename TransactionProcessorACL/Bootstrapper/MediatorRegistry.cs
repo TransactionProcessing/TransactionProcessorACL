@@ -35,8 +35,8 @@ namespace TransactionProcessorACL.Bootstrapper
             {
                 RequestAuditStreamLifetimeDays = requestAuditStreamLifetimeDays
             });
-            this.AddSingleton<IRequestAuditRecorder, LoggingRequestAuditRecorder.KurrentDbRequestAuditRecorder>();
-            this.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditPipelineBehavior<,>));
+            //this.AddSingleton<IRequestAuditRecorder, LoggingRequestAuditRecorder.KurrentDbRequestAuditRecorder>();
+            //this.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditPipelineBehavior<,>));
             this.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(VersionCheckRequestHandler).Assembly));
         }
 

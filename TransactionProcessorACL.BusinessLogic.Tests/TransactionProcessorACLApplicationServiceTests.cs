@@ -767,9 +767,13 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 .ReturnsAsync(Result.Success(new TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.RecentActivityReceiptSearchResponse
                 {
                     ReportDate = new DateTime(2026, 7, 8),
-                    PageNumber = 2,
-                    PageSize = 5,
-                    TotalCount = 1,
+                    Pagination = new TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.PaginationMetadata
+                    {
+                        PageNumber = 2,
+                        PageSize = 5,
+                        TotalItems = 1,
+                        TotalPages = 1
+                    },
                     Items =
                     [
                         new TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects.RecentActivityReceiptSearchItem
@@ -805,7 +809,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             result.Data.Items[0].ReceiptReference.ShouldBe("RCPT-1");
             capturedRequest.ShouldNotBeNull();
             capturedRequest.MerchantReportingId.ShouldBe(12345);
-            capturedRequest.ReportDate.ShouldBe(new DateTime(2026, 7, 8));
+            capturedRequest.ReportDate.ShouldBe(new DateOnly(2026, 7, 8));
             capturedRequest.SearchText.ShouldBe("abc");
             capturedRequest.PageNumber.ShouldBe(2);
             capturedRequest.PageSize.ShouldBe(5);

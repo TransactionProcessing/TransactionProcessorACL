@@ -90,7 +90,11 @@ public class ACLSteps{
 
         responseContent.ShouldNotBeNullOrEmpty("No response message received");
 
-        TransactionResponse transactionResponse = StringSerialiser.Deserialise<TransactionResponse>(responseContent);
+        TransactionResponse transactionResponse = StringSerialiser.Deserialise<TransactionResponse>(responseContent, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+        
+        TransactionResponseAssertions.Verify(transactionResponse,
+                                             estateDetails.EstateId,
+                                             merchantId);
 
         estateDetails.AddTransactionResponse(merchantId, transactionNumber, transactionResponse);
     }
@@ -139,7 +143,7 @@ public class ACLSteps{
         TransactionResponse transactionResponse = es1.EstateDetails.GetTransactionResponse(merchantId, transactionNumber.ToString());
 
         GetVoucherResponse voucher = null;
-        await Retry.For(async () => {
+        await Retry.ForEventually(async () => {
 
                             Result<GetVoucherResponse> voucherResult = await this.TransactionProcessorClient.GetVoucherByTransactionId(accessToken,
                                                                                                       es1.EstateDetails.EstateId,
@@ -222,7 +226,7 @@ public class ACLSteps{
 
         this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAccessToken);
 
-        await Retry.For(async () => {
+        await Retry.ForEventually(async () => {
             HttpResponseMessage response = await this.HttpClient.GetAsync(uri, CancellationToken.None);
             response.IsSuccessStatusCode.ShouldBeTrue();
 
@@ -261,7 +265,7 @@ public class ACLSteps{
         };
         
 
-        await Retry.For(async () => {
+        await Retry.ForEventually(async () => {
             StringContent content = new(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
@@ -321,7 +325,7 @@ public class ACLSteps{
             TopN = 5,
         };
 
-        await Retry.For(async () => {
+        await Retry.ForEventually(async () => {
             StringContent content = new(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
@@ -345,6 +349,7 @@ public class ACLSteps{
                                                                                  String merchantName,
                                                                                  Int32 pageNumber,
                                                                                  Int32 pageSize,
+                                                                                 Int32 expectedTotalCount,
                                                                                  List<EstateDetails1> estateDetailsList,
                                                                                  CancellationToken cancellationToken)
     {
@@ -367,7 +372,7 @@ public class ACLSteps{
             PageSize = pageSize
         };
 
-        await Retry.For(async () => {
+        await Retry.ForEventually(async () => {
             StringContent content = new(StringSerialiser.Serialise(request), Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await this.HttpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
@@ -380,6 +385,10 @@ public class ACLSteps{
             RecentActivityReceiptSearchResponse searchResponse =
                 StringSerialiser.Deserialise<RecentActivityReceiptSearchResponse>(responseContent,
                                                                                  new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+
+            // The reporting read model is eventually consistent with transaction writes.
+            // Do not complete the retry until this page can be expected to be complete.
+            searchResponse.TotalCount.ShouldBe(expectedTotalCount);
 
             this.RecentActivityReceiptSearchResponses[pageNumber] = searchResponse;
             this.LastRecentActivityReceiptSearchEstateDetails = es1;

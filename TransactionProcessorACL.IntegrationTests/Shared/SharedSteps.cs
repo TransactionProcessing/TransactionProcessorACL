@@ -63,7 +63,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                            TestingContext testingContext){
             this.ScenarioContext = scenarioContext;
             this.TestingContext = testingContext;
-            this.SecurityServiceSteps = new SecurityServiceSteps(testingContext.DockerHelper.SecurityServiceClient);
+            this.SecurityServiceSteps = new SecurityServiceSteps(testingContext.DockerHelper.SecurityServiceClient, testingContext.DockerHelper.AccessToken);
             this.TransactionProcessorSteps = new TransactionProcessorSteps(testingContext.DockerHelper.TransactionProcessorClient, testingContext.DockerHelper.TestHostHttpClient, testingContext.DockerHelper.ProjectionManagementClient,
                 testingContext.DockerHelper.AgencyBankingClient);
             this.AclSteps = new ACLSteps(testingContext.DockerHelper.HttpClient, this.TestingContext.DockerHelper.TransactionProcessorClient);
@@ -94,7 +94,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             Guid merchantId = estateDetails.EstateDetails.GetMerchantId(merchantName);
             ClientDetails clientDetails = this.TestingContext.GetClientDetails(clientId);
             string? accessToken = null;
-            await Retry.For(async () => {
+            await Retry.ForEventually(async () => {
                 Result<TokenResponse> tokenResponseResult = await this.TestingContext.DockerHelper.SecurityServiceClient
                                                                                     .GetToken(username, password, clientId, clientDetails.ClientSecret, CancellationToken.None).ConfigureAwait(false);
                 tokenResponseResult.IsSuccess.ShouldBeTrue($"Failed to get merchant user token for '{username}' using client '{clientId}': {tokenResponseResult.Message}");
@@ -205,7 +205,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
 
                 await this.TransactionProcessorSteps.GivenIMakeTheFollowingManualMerchantDeposits(this.TestingContext.AccessToken, request);
 
-                await Retry.For(async () => {
+                await Retry.ForEventually(async () => {
                     Decimal currentMerchantBalance = await this.GetMerchantBalance(request.Item2);
 
                     currentMerchantBalance.ShouldBe(previousMerchantBalance + request.Item3.Amount);
@@ -325,7 +325,8 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         public async Task WhenICreateTheFollowingMerchants(DataTable table){
             List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails estate, CreateMerchantRequest, Boolean EnableAgencyBanking)> requests = table.Rows.ToCreateMerchantRequests(estates);
-            List<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> verifiedMerchants = await this.TransactionProcessorSteps.WhenICreateTheFollowingMerchants(this.TestingContext.AccessToken, requests);
+            List<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> verifiedMerchants =
+                await this.TransactionProcessorSteps.WhenICreateTheFollowingMerchants(this.TestingContext.AccessToken, requests);
 
             foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse verifiedMerchant in verifiedMerchants){
                 EstateDetails1 estateDetails = this.TestingContext.GetEstateDetails(verifiedMerchant.EstateId);
@@ -389,6 +390,24 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             var estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<CreateNewUserRequest> createUserRequests = table.Rows.ToCreateNewUserRequests(estates);
             await this.TransactionProcessorSteps.WhenICreateTheFollowingSecurityUsers(this.TestingContext.AccessToken, createUserRequests, estates);
+
+            foreach (CreateNewUserRequest request in createUserRequests)
+            {
+                await Retry.ForEventually(async () => {
+                    Result<List<UserResponse>> usersResult =
+                        await this.TestingContext.DockerHelper.SecurityServiceClient.GetUsers(
+                            this.TestingContext.DockerHelper.AccessToken,
+                            request.EmailAddress,
+                            CancellationToken.None);
+
+                    usersResult.IsSuccess.ShouldBeTrue(usersResult.Message);
+                    UserResponse user = usersResult.Data.ShouldHaveSingleItem();
+                    user.EmailAddress.ShouldBe(request.EmailAddress);
+                    user.GivenName.ShouldBe(request.GivenName);
+                    user.MiddleName.ShouldBe(request.MiddleName);
+                    user.FamilyName.ShouldBe(request.FamilyName);
+                });
+            }
         }
 
         [Given(@"I have created the following security users for voucher redemption")]
@@ -509,16 +528,18 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             this.AclSteps.ThenTheMerchantTransactionMixSummaryResponseShouldContainAtLeastOneItemAndTheSaleAmount(saleAmount);
         }
 
-        [When("I get the recent activity receipt search for Merchant {string} for Estate {string} page {int} size {int}")]
+        [When("I get the recent activity receipt search for Merchant {string} for Estate {string} page {int} size {int} expecting total count {int}")]
         public async Task WhenIGetTheRecentActivityReceiptSearchForMerchantForEstatePageSize(string merchantName,
                                                                                             string estateName,
                                                                                             int pageNumber,
-                                                                                            int pageSize)
+                                                                                            int pageSize,
+                                                                                            int expectedTotalCount)
         {
             await this.AclSteps.WhenIGetTheRecentActivityReceiptSearchForMerchantForEstate(estateName,
                                                                                            merchantName,
                                                                                            pageNumber,
                                                                                            pageSize,
+                                                                                           expectedTotalCount,
                                                                                            this.TestingContext.Estates,
                                                                                            CancellationToken.None);
         }
@@ -568,6 +589,12 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             var result = await this.TestingContext.DockerHelper.AgencyBankingClient.InitializeSystem(request, CancellationToken.None);
             result.IsSuccess.ShouldBeTrue("Error initializing Agency Banking Host");
 
+            await Retry.ForEventually(async () => {
+                Result<SystemConfigurationDto> configurationResult =
+                    await this.TestingContext.DockerHelper.AgencyBankingClient.GetSystemConfiguration(CancellationToken.None);
+                configurationResult.IsSuccess.ShouldBeTrue(configurationResult.Message);
+                AgencyBankingAssertions.VerifySystemConfiguration(configurationResult.Data, request);
+            });
         }
 
         [Given("I create the following accounts")]
@@ -585,6 +612,13 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                 };
                 Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateGlAccount(request, CancellationToken.None);
                 result.IsSuccess.ShouldBeTrue($"Error creating GL account {request.GlCode}");
+
+                await Retry.ForEventually(async () => {
+                    Result<GlAccountResponse> accountResult =
+                        await this.TestingContext.DockerHelper.AgencyBankingClient.GetGlAccountByCode(request.GlCode, CancellationToken.None);
+                    accountResult.IsSuccess.ShouldBeTrue(accountResult.Message);
+                    AgencyBankingAssertions.VerifyGlAccount(accountResult.Data, request);
+                });
             }
         }
 
@@ -604,6 +638,13 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                 };
                 Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateCustomer(request, CancellationToken.None);
                 result.IsSuccess.ShouldBeTrue($"Error creating customer {request.AccountNumber}");
+
+                await Retry.ForEventually(async () => {
+                    Result<CustomerResponse> customerResult =
+                        await this.TestingContext.DockerHelper.AgencyBankingClient.GetCustomerByAccountNumber(request.AccountNumber, CancellationToken.None);
+                    customerResult.IsSuccess.ShouldBeTrue(customerResult.Message);
+                    AgencyBankingAssertions.VerifyCustomer(customerResult.Data, request);
+                });
             }
         }
 
@@ -621,6 +662,13 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                 };
                 Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateSettlementAccount(request, CancellationToken.None);
                 result.IsSuccess.ShouldBeTrue($"Error creating settlement account {request.AccountNumber}");
+
+                await Retry.ForEventually(async () => {
+                    Result<SettlementAccountResponse> accountResult =
+                        await this.TestingContext.DockerHelper.AgencyBankingClient.GetSettlementAccountByNumber(request.AccountNumber, CancellationToken.None);
+                    accountResult.IsSuccess.ShouldBeTrue(accountResult.Message);
+                    AgencyBankingAssertions.VerifySettlementAccount(accountResult.Data, request);
+                });
             }
         }
 
