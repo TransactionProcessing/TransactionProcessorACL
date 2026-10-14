@@ -16,11 +16,10 @@ public class TransactionResponseAssertionsTests
         {
             EstateId = estateId,
             MerchantId = Guid.NewGuid(),
-            TransactionId = Guid.NewGuid(),
-            TransactionType = "Sale"
+            TransactionId = Guid.NewGuid()
         };
 
         Assert.Throws<Shouldly.ShouldAssertException>(() =>
-            TransactionResponseAssertions.Verify(response, estateId, requestedMerchantId, "Sale"));
+            TransactionResponseAssertions.Verify(response, estateId, requestedMerchantId));
     }
 }

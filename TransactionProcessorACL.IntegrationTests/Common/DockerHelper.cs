@@ -1,16 +1,18 @@
-﻿using EventStore.Client;
+﻿using DotNet.Testcontainers.Builders;
+using EventStore.Client;
 using Shared.IntegrationTesting;
 using System.Linq;
-using DotNet.Testcontainers.Builders;
 
 namespace TransactionProcessor.IntegrationTests.Common
 {
     using Client;
     using SecurityService.Client;
+    using Shared.IntegrationTesting.TestContainers;
     using Shared.Serialisation;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
@@ -68,6 +70,56 @@ namespace TransactionProcessor.IntegrationTests.Common
 
         #region Methods
 
+        public override ContainerBuilder SetupEventStoreContainer()
+        {
+            this.Trace("About to Start Event Store Container");
+
+            Dictionary<String, String> environmentVariables = new(){
+            {"EVENTSTORE_RUN_PROJECTIONS","all"},
+            {"EVENTSTORE_START_STANDARD_PROJECTIONS","true"},
+            {"EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP","true"},
+            {"EVENTSTORE_PROJECTION_EXECUTION_TIMEOUT","5000"},
+            {"KURRENTDB_PREPARE_TIMEOUT_MS","30000"},
+            {"KURRENTDB_COMMIT_TIMEOUT_MS","30000"},
+        };
+            ContainerBuilder eventStoreContainer = new ContainerBuilder();
+
+            if (!this.IsSecureEventStore)
+            {
+                environmentVariables.Add("EVENTSTORE_INSECURE", "true");
+            }
+            else
+            {
+                String certsPath = "/etc/eventstore/certs";
+
+                // Copy these to the container
+                String path = Path.Combine(Directory.GetCurrentDirectory(), "certs");
+
+                eventStoreContainer = eventStoreContainer.MountHostFolder(path, certsPath);
+
+                // Certificates configuration
+                environmentVariables.Add("EVENTSTORE_CertificateFile", $"{certsPath}/node1/node.crt");
+                environmentVariables.Add("EVENTSTORE_CertificatePrivateKeyFile", $"{certsPath}/node1/node.key");
+                environmentVariables.Add("EVENTSTORE_TrustedRootCertificatesPath", $"{certsPath}/ca");
+                environmentVariables.Add("EVENTSTORE_INSECURE", "false");
+            }
+
+            String logfilePath = "/var/log/kurrentdb";
+            eventStoreContainer = eventStoreContainer.MountHostFolder(this.HostTraceFolder, logfilePath);
+
+            (String imageName, Boolean useLatest) imageDetails = this.GetImageDetails(ContainerType.EventStore).Data;
+            this.Trace($"About to Start Event Store Container using image [{imageDetails.imageName}]");
+
+
+
+            eventStoreContainer = eventStoreContainer.WithName(this.EventStoreContainerName)  // similar to WithName()
+                .WithImage(imageDetails.imageName)
+                .WithEnvironment(environmentVariables)
+                .WithPortBinding(DockerPorts.EventStoreHttpDockerPort, true);
+
+            return eventStoreContainer;
+        }
+
         public override DotNet.Testcontainers.Builders.ContainerBuilder SetupEstateReportingContainer()
         {
             Dictionary<String, String> environmentVariables = new();
@@ -90,11 +142,17 @@ namespace TransactionProcessor.IntegrationTests.Common
         public override ContainerBuilder SetupTransactionProcessorContainer()
         {
             Dictionary<String, String> additionalVariables = new();
-            additionalVariables.Add("OperatorConfiguration:AgencyBanking:Url", $"http://{this.TestHostContainerName}:{DockerPorts.TestHostPort}/api/agencybanking");
-
+            additionalVariables.Add("OperatorConfiguration:AgencyBanking:Url", $"http://{this.TestHostContainerName}:{DockerPorts.TestHostPort}/api/agencybanking");            
             this.AdditionalVariables.Add(ContainerType.TransactionProcessor, additionalVariables);
 
             return base.SetupTransactionProcessorContainer();
+        }
+
+        protected override String GenerateEventStoreConnectionString(String userName = "admin", String password = "changeit")
+        {
+            String eventStoreAddress = $"esdb://{userName}:{password}@{this.EventStoreContainerName}:{DockerPorts.EventStoreHttpDockerPort}?tls=false&defaultDeadline=240000";
+
+            return eventStoreAddress;
         }
 
         public override async Task CreateSubscriptions(CancellationToken cancellationToken){

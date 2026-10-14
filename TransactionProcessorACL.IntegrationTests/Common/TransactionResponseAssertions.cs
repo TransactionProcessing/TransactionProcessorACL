@@ -8,13 +8,11 @@ public static class TransactionResponseAssertions
 {
     public static void Verify(TransactionResponse response,
                               Guid expectedEstateId,
-                              Guid expectedMerchantId,
-                              string expectedTransactionType)
+                              Guid expectedMerchantId)
     {
         response.ShouldNotBeNull();
         response.TransactionId.ShouldNotBe(Guid.Empty);
         response.EstateId.ShouldBe(expectedEstateId);
         response.MerchantId.ShouldBe(expectedMerchantId);
-        response.TransactionType.ShouldBe(expectedTransactionType);
     }
 }

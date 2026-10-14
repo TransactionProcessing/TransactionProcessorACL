@@ -528,16 +528,18 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             this.AclSteps.ThenTheMerchantTransactionMixSummaryResponseShouldContainAtLeastOneItemAndTheSaleAmount(saleAmount);
         }
 
-        [When("I get the recent activity receipt search for Merchant {string} for Estate {string} page {int} size {int}")]
+        [When("I get the recent activity receipt search for Merchant {string} for Estate {string} page {int} size {int} expecting total count {int}")]
         public async Task WhenIGetTheRecentActivityReceiptSearchForMerchantForEstatePageSize(string merchantName,
                                                                                             string estateName,
                                                                                             int pageNumber,
-                                                                                            int pageSize)
+                                                                                            int pageSize,
+                                                                                            int expectedTotalCount)
         {
             await this.AclSteps.WhenIGetTheRecentActivityReceiptSearchForMerchantForEstate(estateName,
                                                                                            merchantName,
                                                                                            pageNumber,
                                                                                            pageSize,
+                                                                                           expectedTotalCount,
                                                                                            this.TestingContext.Estates,
                                                                                            CancellationToken.None);
         }

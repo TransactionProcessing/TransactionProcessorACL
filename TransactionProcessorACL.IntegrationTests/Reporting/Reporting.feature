@@ -28,6 +28,20 @@ Background:
 	| ClientId      | 
 	| serviceClient | 
 
+	Given the following bills are available at the PataPawa PostPaid Host
+	| AccountNumber | AccountName    | DueDate | Amount |
+	| 12345678      | Test Account 1 | Today   | 100.00 |
+
+	Given the following users are available at the PataPawa PrePay Host
+	| Username | Password |
+	| operatora    | 1234567898   |
+
+	Given the following meters are available at the PataPawa PrePay Host
+	| MeterNumber | CustomerName |
+	| 00000001    | Customer 1   |
+	| 00000002    | Customer 2   |
+	| 00000003    | Customer 3   |
+
 	Given I have created the following estates
 	| EstateName    |
 	| Test Estate 1 |
@@ -144,8 +158,8 @@ Scenario: Recent activity receipt search supports paging
 	| Today    | 1009              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 18.00             | 123456789             | test9@customer.co.uk    | Safaricom Contract  | Variable Topup |                |                 |
 	| Today    | 1010              | Sale            | Test Merchant 1 | 123456780        | Test Estate 1 | Safaricom    | 19.00             | 123456789             | test10@customer.co.uk   | Safaricom Contract  | Variable Topup |                |                 |
 
-	When I get the recent activity receipt search for Merchant "Test Merchant 1" for Estate "Test Estate 1" page 1 size 5
+	When I get the recent activity receipt search for Merchant "Test Merchant 1" for Estate "Test Estate 1" page 1 size 5 expecting total count 10
 	Then the recent activity receipt search response for page 1 should contain 5 items and total count 10
 
-	When I get the recent activity receipt search for Merchant "Test Merchant 1" for Estate "Test Estate 1" page 2 size 5
+	When I get the recent activity receipt search for Merchant "Test Merchant 1" for Estate "Test Estate 1" page 2 size 5 expecting total count 10
 	Then the recent activity receipt search response for page 2 should contain 5 items and total count 10

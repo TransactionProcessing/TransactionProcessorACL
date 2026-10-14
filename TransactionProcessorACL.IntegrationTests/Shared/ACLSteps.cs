@@ -52,7 +52,7 @@ public class ACLSteps{
                                                 CancellationToken cancellationToken) {
         String uri = "api/saletransactions";
         
-        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, "Sale", cancellationToken);
+        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
     }
 
     public async Task SendAclLogonRequestMessage((EstateDetails, String, Guid, String, LogonTransactionRequestMessage) requestMessage,
@@ -60,7 +60,7 @@ public class ACLSteps{
     {
         String uri = "api/logontransactions";
         
-        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, "Logon", cancellationToken);
+        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
     }
 
     public async Task SendAclReconciliationRequestMessage((EstateDetails, String, Guid, String, ReconciliationRequestMessage) requestMessage,
@@ -68,7 +68,7 @@ public class ACLSteps{
     {
         String uri = "api/reconciliationtransactions";
         
-        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, "Reconciliation", cancellationToken);
+        await this.SendAclRequestMessage(uri, requestMessage.Item5, requestMessage.Item2, requestMessage.Item3, requestMessage.Item1, requestMessage.Item4, cancellationToken);
     }
 
     private async Task SendAclRequestMessage<T>(String uri, 
@@ -77,7 +77,6 @@ public class ACLSteps{
                                             Guid merchantId,
                                             EstateDetails estateDetails,
                                             String transactionNumber,
-                                             String expectedTransactionType,
                                             CancellationToken cancellationToken) {
         StringContent content = new StringContent(StringSerialiser.Serialise(request),
             Encoding.UTF8,
@@ -91,12 +90,11 @@ public class ACLSteps{
 
         responseContent.ShouldNotBeNullOrEmpty("No response message received");
 
-        TransactionResponse transactionResponse = StringSerialiser.Deserialise<TransactionResponse>(responseContent);
-
+        TransactionResponse transactionResponse = StringSerialiser.Deserialise<TransactionResponse>(responseContent, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+        
         TransactionResponseAssertions.Verify(transactionResponse,
                                              estateDetails.EstateId,
-                                             merchantId,
-                                             expectedTransactionType);
+                                             merchantId);
 
         estateDetails.AddTransactionResponse(merchantId, transactionNumber, transactionResponse);
     }
@@ -351,6 +349,7 @@ public class ACLSteps{
                                                                                  String merchantName,
                                                                                  Int32 pageNumber,
                                                                                  Int32 pageSize,
+                                                                                 Int32 expectedTotalCount,
                                                                                  List<EstateDetails1> estateDetailsList,
                                                                                  CancellationToken cancellationToken)
     {
@@ -386,6 +385,10 @@ public class ACLSteps{
             RecentActivityReceiptSearchResponse searchResponse =
                 StringSerialiser.Deserialise<RecentActivityReceiptSearchResponse>(responseContent,
                                                                                  new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+
+            // The reporting read model is eventually consistent with transaction writes.
+            // Do not complete the retry until this page can be expected to be complete.
+            searchResponse.TotalCount.ShouldBe(expectedTotalCount);
 
             this.RecentActivityReceiptSearchResponses[pageNumber] = searchResponse;
             this.LastRecentActivityReceiptSearchEstateDetails = es1;

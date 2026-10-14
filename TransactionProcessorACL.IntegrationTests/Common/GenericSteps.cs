@@ -52,7 +52,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             this.TestingContext.DockerHelper.DockerCredentials = Setup.DockerCredentials;
             this.TestingContext.DockerHelper.SqlCredentials = Setup.SqlCredentials;
             this.TestingContext.DockerHelper.SqlServerContainerName = "sharedsqlserver";
-
+           
             this.TestingContext.DockerHelper.SetImageDetails(ContainerType.TransactionProcessorAcl, ("transactionprocessoracl", false));
             this.TestingContext.DockerHelper.SetImageDetails(ContainerType.EstateReporting
                 , ("stuartferguson/estatereportingapi:master", true));

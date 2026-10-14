@@ -9,7 +9,7 @@ public class RecentActivityReceiptSearchRequest
 
     public int? MerchantReportingId { get; set; }
 
-    public DateTime ReportDate { get; set; }
+    public DateOnly ReportDate { get; set; }
 
     public string? SearchText { get; set; }
 
@@ -22,13 +22,20 @@ public class RecentActivityReceiptSearchResponse
 {
     public DateTime ReportDate { get; set; }
 
+    public PaginationMetadata Pagination { get; set; } = new();
+
+    public List<RecentActivityReceiptSearchItem> Items { get; set; } = [];
+}
+
+public class PaginationMetadata
+{
     public int PageNumber { get; set; }
 
     public int PageSize { get; set; }
 
-    public int TotalCount { get; set; }
+    public int TotalItems { get; set; }
 
-    public List<RecentActivityReceiptSearchItem> Items { get; set; } = [];
+    public int TotalPages { get; set; }
 }
 
 public class RecentActivityReceiptSearchItem
