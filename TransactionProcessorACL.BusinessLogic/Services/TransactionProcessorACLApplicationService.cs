@@ -807,6 +807,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 ResponseCode = reconciliationResponse.ResponseCode,
                 ResponseMessage = reconciliationResponse.ResponseMessage,
                 TransactionId = reconciliationResponse.TransactionId,
+                EstateId = reconciliationResponse.EstateId,
+                MerchantId = reconciliationResponse.MerchantId,
             };
         }
 
