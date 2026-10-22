@@ -164,15 +164,15 @@ public class Program
             .WithTags("Health")
             .WithSummary("Check service health")
             .WithDescription("Runs the configured service health checks and returns their aggregate status. This route does not require an applicationVersion.")
-            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status200OK, typeof(object), new[] { "application/json" }))
-            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status503ServiceUnavailable, typeof(object), new[] { "application/json" }));
+            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status200OK, typeof(object), new[] { EndpointDocumentationConstants.JsonMediaType }))
+            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status503ServiceUnavailable, typeof(object), new[] { EndpointDocumentationConstants.JsonMediaType }));
         endpoints.MapHealthChecks("healthui", CreateHealthCheckOptions(UIResponseWriter.WriteHealthCheckUIResponse))
             .WithName("HealthUi")
             .WithTags("Health")
             .WithSummary("Get health check details")
             .WithDescription("Runs all configured service health checks and returns the detailed Health Checks UI response. This route does not require an applicationVersion.")
-            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status200OK, typeof(object), new[] { "application/json" }))
-            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status503ServiceUnavailable, typeof(object), new[] { "application/json" }));
+            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status200OK, typeof(object), new[] { EndpointDocumentationConstants.JsonMediaType }))
+            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status503ServiceUnavailable, typeof(object), new[] { EndpointDocumentationConstants.JsonMediaType }));
     }
 
     private static HealthCheckOptions CreateHealthCheckOptions(Func<HttpContext, HealthReport, Task> responseWriter)
