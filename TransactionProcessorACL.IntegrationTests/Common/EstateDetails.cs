@@ -1,6 +1,7 @@
 using TransactionProcessor.IntegrationTesting.Helpers;
 using TransactionProcessorACL.DataTransferObjects.Responses;
 using TransactionProcessorACL.IntegrationTests.Shared;
+using ReportingMixResponse = TransactionProcessorACL.IntegrationTests.Shared.MerchantTransactionMixSummaryResponse;
 
 namespace TransactionProcessor.IntegrationTests.Common
 {
@@ -15,7 +16,7 @@ namespace TransactionProcessor.IntegrationTests.Common
         private readonly Dictionary<Guid, Dictionary<String, String>> MerchantUsersTokens;
         private readonly Dictionary<Guid, Int32> MerchantReportingIds;
         private readonly Dictionary<Guid, MerchantDailyPerformanceSummaryResponse> MerchantDailyPerformanceSummaryResponses;
-        private readonly Dictionary<Guid, MerchantTransactionMixSummaryResponse> MerchantTransactionMixSummaryResponses;
+        private readonly Dictionary<Guid, ReportingMixResponse> MerchantTransactionMixSummaryResponses;
         private Dictionary<String, Dictionary<String, String>> VoucherRedemptionUsersTokens;
 
         public EstateDetails1(EstateDetails estateDetails)
@@ -24,7 +25,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             this.MerchantUsersTokens = new Dictionary<Guid, Dictionary<String, String>>();
             this.MerchantReportingIds = new Dictionary<Guid, Int32>();
             this.MerchantDailyPerformanceSummaryResponses = new Dictionary<Guid, MerchantDailyPerformanceSummaryResponse>();
-            this.MerchantTransactionMixSummaryResponses = new Dictionary<Guid, MerchantTransactionMixSummaryResponse>();
+            this.MerchantTransactionMixSummaryResponses = new Dictionary<Guid, ReportingMixResponse>();
             this.VoucherRedemptionUsersTokens = new Dictionary<String, Dictionary<String, String>>();
         }
 
@@ -75,7 +76,7 @@ namespace TransactionProcessor.IntegrationTests.Common
         }
 
         public void AddMerchantTransactionMixSummaryResponse(Guid merchantId,
-                                                             MerchantTransactionMixSummaryResponse response)
+                                                               ReportingMixResponse response)
         {
             if (this.MerchantTransactionMixSummaryResponses.ContainsKey(merchantId))
             {
@@ -129,7 +130,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             return this.MerchantDailyPerformanceSummaryResponses.SingleOrDefault(x => x.Key == merchantId).Value;
         }
 
-        public MerchantTransactionMixSummaryResponse GetMerchantTransactionMixSummaryResponse(Guid merchantId)
+        public ReportingMixResponse GetMerchantTransactionMixSummaryResponse(Guid merchantId)
         {
             return this.MerchantTransactionMixSummaryResponses.SingleOrDefault(x => x.Key == merchantId).Value;
         }

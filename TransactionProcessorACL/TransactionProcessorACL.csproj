@@ -31,14 +31,9 @@
     <PackageReference Include="NLog.Extensions.Logging" />
     <PackageReference Include="Shared" />
     <PackageReference Include="Shared.Results.Web" />
-    <PackageReference Include="Swashbuckle.AspNetCore" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Filters" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
       <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
       <PackageReference Include="Sentry.AspNetCore" />
+      <PackageReference Include="TransactionProcessing.ApiDefaults" />
   </ItemGroup>
 
   <ItemGroup>

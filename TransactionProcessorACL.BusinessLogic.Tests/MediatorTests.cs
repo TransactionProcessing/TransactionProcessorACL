@@ -11,6 +11,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SimpleResults;
+using Shared.General;
+using Shared.Serialisation;
 using TransactionProcessorACL.Testing;
 using Xunit;
 
@@ -53,14 +55,21 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
             hostingEnvironment.ApplicationName.Getter().Returns("Test Application");
 
             ServiceRegistry services = new ServiceRegistry();
-            Startup s = new Startup(hostingEnvironment.Instance());
-            Startup.Configuration = this.SetupMemoryConfiguration();
+            IConfigurationRoot configuration = this.SetupMemoryConfiguration();
+            ConfigurationReader.Initialise(configuration);
 
-            this.AddTestRegistrations(services, hostingEnvironment.Instance());
-            s.ConfigureContainer(services);
+            this.AddTestRegistrations(services, hostingEnvironment.Instance(), configuration);
+            services.IncludeRegistry(new TransactionProcessorACL.Bootstrapper.MiddlewareRegistry(configuration));
+            services.IncludeRegistry(new TransactionProcessorACL.Bootstrapper.ApplicationServiceRegistry());
+            services.IncludeRegistry(new TransactionProcessorACL.Bootstrapper.ClientRegistry());
+            services.IncludeRegistry(new TransactionProcessorACL.Bootstrapper.MediatorRegistry(configuration));
+            services.IncludeRegistry(new TransactionProcessorACL.Bootstrapper.MiscRegistry());
+            services.IncludeRegistry(new TransactionProcessorACL.Bootstrapper.SerialiserRegistry());
 
+            using Container container = new(services);
+            StringSerialiser.Initialise(container.GetRequiredService<IStringSerialiser>());
             List<String> errors = new List<String>();
-            IMediator mediator = Startup.Container.GetService<IMediator>();
+            IMediator mediator = container.GetService<IMediator>();
             foreach (IBaseRequest baseRequest in this.Requests)
             {
                 try
@@ -92,7 +101,8 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
         }
 
         private void AddTestRegistrations(ServiceRegistry services,
-                                          IWebHostEnvironment hostingEnvironment)
+                                          IWebHostEnvironment hostingEnvironment,
+                                          IConfiguration configuration)
         {
             services.AddLogging();
             DiagnosticListener diagnosticSource = new DiagnosticListener(hostingEnvironment.ApplicationName);
@@ -100,7 +110,7 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
             services.AddSingleton<DiagnosticListener>(diagnosticSource);
             services.AddSingleton<IWebHostEnvironment>(hostingEnvironment);
             services.AddSingleton<IHostEnvironment>(hostingEnvironment);
-            services.AddSingleton<IConfiguration>(Startup.Configuration);
+            services.AddSingleton(configuration);
 
             services.OverrideServices(s => { s.AddSingleton<ITransactionProcessorACLApplicationService, DummyTransactionProcessorACLApplicationService>(); });
         }

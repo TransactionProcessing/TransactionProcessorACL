@@ -1,5 +1,6 @@
 ﻿using DotNet.Testcontainers.Builders;
 using EventStore.Client;
+using KurrentDB.Client;
 using Shared.IntegrationTesting;
 using System.Linq;
 
@@ -47,7 +48,7 @@ namespace TransactionProcessor.IntegrationTests.Common
 
         private readonly TestingContext TestingContext;
 
-        public EventStoreProjectionManagementClient ProjectionManagementClient;
+        public KurrentDBProjectionManagementClient ProjectionManagementClient;
 
         public IAgencyBankingClient AgencyBankingClient;
 
@@ -61,7 +62,7 @@ namespace TransactionProcessor.IntegrationTests.Common
         /// <param name="logger">The logger.</param>
         public DockerHelper()
         {
-            this.IsSecureEventStore = false;
+            this.IsSecureKurrentDb = false;
             this.TestingContext = new TestingContext();
             StringSerialiser.Initialise((IStringSerialiser)new SystemTextJsonSerializer(SystemTextJsonSerializer.GetDefaultJsonSerializerOptions()));
         }
@@ -70,9 +71,9 @@ namespace TransactionProcessor.IntegrationTests.Common
 
         #region Methods
 
-        public override ContainerBuilder SetupEventStoreContainer()
+        public override ContainerBuilder SetupKurrentDbContainer()
         {
-            this.Trace("About to Start Event Store Container");
+            this.Trace("About to Start Kurrent Db Container");
 
             Dictionary<String, String> environmentVariables = new(){
             {"EVENTSTORE_RUN_PROJECTIONS","all"},
@@ -82,9 +83,9 @@ namespace TransactionProcessor.IntegrationTests.Common
             {"KURRENTDB_PREPARE_TIMEOUT_MS","30000"},
             {"KURRENTDB_COMMIT_TIMEOUT_MS","30000"},
         };
-            ContainerBuilder eventStoreContainer = new ContainerBuilder();
+            ContainerBuilder eventStoreContainer = new();
 
-            if (!this.IsSecureEventStore)
+            if (!this.IsSecureKurrentDb)
             {
                 environmentVariables.Add("EVENTSTORE_INSECURE", "true");
             }
@@ -107,15 +108,15 @@ namespace TransactionProcessor.IntegrationTests.Common
             String logfilePath = "/var/log/kurrentdb";
             eventStoreContainer = eventStoreContainer.MountHostFolder(this.HostTraceFolder, logfilePath);
 
-            (String imageName, Boolean useLatest) imageDetails = this.GetImageDetails(ContainerType.EventStore).Data;
-            this.Trace($"About to Start Event Store Container using image [{imageDetails.imageName}]");
+            (String imageName, Boolean useLatest) imageDetails = this.GetImageDetails(ContainerType.KurrentDb).Data;
+            this.Trace($"About to Start Kurrent Db Container using image [{imageDetails.imageName}]");
 
 
 
-            eventStoreContainer = eventStoreContainer.WithName(this.EventStoreContainerName)  // similar to WithName()
+            eventStoreContainer = eventStoreContainer.WithName(this.KurrentDbContainerName)  // similar to WithName()
                 .WithImage(imageDetails.imageName)
                 .WithEnvironment(environmentVariables)
-                .WithPortBinding(DockerPorts.EventStoreHttpDockerPort, true);
+                .WithPortBinding(DockerPorts.KurrentDbHttpDockerPort, true);
 
             return eventStoreContainer;
         }
@@ -148,9 +149,9 @@ namespace TransactionProcessor.IntegrationTests.Common
             return base.SetupTransactionProcessorContainer();
         }
 
-        protected override String GenerateEventStoreConnectionString(String userName = "admin", String password = "changeit")
+        protected override String GenerateKurrentDbConnectionString(String userName = "admin", String password = "changeit")
         {
-            String eventStoreAddress = $"esdb://{userName}:{password}@{this.EventStoreContainerName}:{DockerPorts.EventStoreHttpDockerPort}?tls=false&defaultDeadline=240000";
+            String eventStoreAddress = $"esdb://{userName}:{password}@{this.KurrentDbContainerName}:{DockerPorts.KurrentDbHttpDockerPort}?tls=false&defaultDeadline=240000";
 
             return eventStoreAddress;
         }
@@ -212,7 +213,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             this.HttpClient.BaseAddress = new Uri(TransactionProcessorAclBaseAddressResolver(string.Empty));
             this.HttpClient.Timeout = TimeSpan.FromMinutes(5);
 
-            this.ProjectionManagementClient = new EventStoreProjectionManagementClient(ConfigureEventStoreSettings());
+            this.ProjectionManagementClient = new KurrentDBProjectionManagementClient(this.ConfigureKurrentDbSettings());
 
             SimpleResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
             if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken))
