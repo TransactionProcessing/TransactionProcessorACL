@@ -12,6 +12,7 @@ using System.Net.Mail;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects;
 using TransactionProcessorACL.DataTransferObjects.Requests;
+using ApiResponses = TransactionProcessorACL.DataTransferObjects.Responses;
 using TransactionProcessorACL.Factories;
 using TransactionProcessorACL.Models;
 
@@ -79,18 +80,18 @@ namespace TransactionProcessorACL.Handlers;
         }
 
         if (string.IsNullOrWhiteSpace(transactionRequest.Reference)) {
-            return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "A transaction reference or receipt reference is required." });
+            return Results.BadRequest(new ApiResponses.ResendReceiptResponse { Success = false, Message = "A transaction reference or receipt reference is required." });
         }
 
         if (string.IsNullOrWhiteSpace(transactionRequest.RecipientEmailAddress)) {
-            return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "Recipient email address is required." });
+            return Results.BadRequest(new ApiResponses.ResendReceiptResponse { Success = false, Message = "Recipient email address is required." });
         }
 
         try {
             _ = new MailAddress(transactionRequest.RecipientEmailAddress);
         }
         catch (FormatException) {
-            return Results.BadRequest(new ResendReceiptResponse { Success = false, Message = "Recipient email address is not valid." });
+            return Results.BadRequest(new ApiResponses.ResendReceiptResponse { Success = false, Message = "Recipient email address is not valid." });
         }
 
         TransactionCommands.ResendReceiptCommand resendCommand = new(claimsResult.Data.estateId,
@@ -100,10 +101,21 @@ namespace TransactionProcessorACL.Handlers;
         Result<ResendReceiptResponse> resendResponse = await mediator.Send(resendCommand, cancellationToken);
 
         if (resendResponse.IsFailed && resendResponse.Status == ResultStatus.NotFound) {
-            return Results.NotFound(new ResendReceiptResponse { Success = false, Message = resendResponse.Message });
+            return Results.NotFound(new ApiResponses.ResendReceiptResponse
+            {
+                Success = false,
+                Message = resendResponse.Message
+            });
         }
 
-        return ResponseFactory.FromResult(resendResponse, response => response);
+        return ResponseFactory.FromResult(resendResponse, response => new ApiResponses.ResendReceiptResponse
+        {
+            Success = response.Success,
+            Message = response.Message,
+            Reference = response.Reference,
+            ReceiptReference = response.ReceiptReference,
+            TransactionReference = response.TransactionReference
+        });
     }
 
         private static TransactionCommands.ProcessLogonTransactionCommand CreateLogonCommand(Guid estateId, Guid merchantId, LogonTransactionRequestMessage msg)

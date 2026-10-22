@@ -1,104 +1,186 @@
+using Lamar;
+using Lamar.Microsoft.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Shared.Logger;
-using Shared.Middleware;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace TransactionProcessorACL;
-
-using Lamar.Microsoft.DependencyInjection;
 using NLog;
 using NLog.Extensions.Logging;
-using Sentry.Extensibility;
 using Shared.General;
+using Shared.Extensions;
+using Shared.Logger;
+using Shared.Middleware;
+using Shared.Serialisation;
+using Sentry.Extensibility;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
+using TransactionProcessorACL.Bootstrapper;
+using TransactionProcessorACL.Endpoints;
+using TransactionProcessorACL.Middleware;
+using HealthChecks.UI.Client;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using TransactionProcessing.ApiDefaults;
+using TransactionProcessorACL.Common;
+
+namespace TransactionProcessorACL;
 
 [ExcludeFromCodeCoverage]
-public class Program {
-    public static void Main(string[] args) {
-        Program.CreateHostBuilder(args).Build().Run();
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        WebApplication app = CreateWebApplication(args);
+        app.Run();
     }
 
-    public static IHostBuilder CreateHostBuilder(string[] args) {
-        String contentRoot = Directory.GetCurrentDirectory();
-        String nlogConfigPath = Path.Combine(contentRoot, "nlog.config");
+    public static WebApplication CreateWebApplication(string[] args)
+    {
+        string contentRoot = Directory.GetCurrentDirectory();
+        string nlogConfigPath = Path.Combine(contentRoot, "nlog.config");
 
-        LogManager.Setup(b => {
-            b.SetupLogFactory(setup => {
+        LogManager.Setup(builder =>
+        {
+            builder.SetupLogFactory(setup =>
+            {
                 setup.AddCallSiteHiddenAssembly(typeof(NlogLogger).Assembly);
                 setup.AddCallSiteHiddenAssembly(typeof(Shared.Logger.Logger).Assembly);
                 setup.AddCallSiteHiddenAssembly(typeof(TenantMiddleware).Assembly);
             });
-            b.LoadConfigurationFromFile(nlogConfigPath);
+            builder.LoadConfigurationFromFile(nlogConfigPath);
         });
 
-        IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args);
-        hostBuilder.UseWindowsService();
-        hostBuilder.UseLamar();
-        hostBuilder.ConfigureLogging(logging => {
-            logging.AddConsole();
-            logging.AddNLog();
-        });
-        ConfigureWebHost(hostBuilder);
+        WebApplicationBuilder appBuilder = WebApplication.CreateBuilder(args);
+        appBuilder.Host.UseWindowsService();
+        appBuilder.Host.UseLamar();
+        appBuilder.Logging.AddConsole();
+        appBuilder.Logging.AddNLog();
+        appBuilder.WebHost.UseKestrel();
 
-        return hostBuilder;
+        ConfigureApplicationConfiguration(appBuilder);
+
+        IConfigurationRoot configuration = appBuilder.Configuration;
+        ConfigurationReader.Initialise(configuration);
+        ConfigureServices(appBuilder, configuration);
+        ConfigureSentry(appBuilder, configuration);
+
+        WebApplication app = appBuilder.Build();
+        StringSerialiser.Initialise(app.Services.GetRequiredService<IStringSerialiser>());
+        ConfigurePipeline(app, configuration);
+
+        return app;
     }
 
-    private static void ConfigureWebHost(IHostBuilder hostBuilder) {
+    private static void ConfigureApplicationConfiguration(WebApplicationBuilder appBuilder)
+    {
+        FileInfo assemblyFile = new(Assembly.GetExecutingAssembly().Location);
 
-        FileInfo fi = new(Assembly.GetExecutingAssembly().Location);
-        hostBuilder.ConfigureWebHostDefaults(webBuilder => {
-            webBuilder.ConfigureAppConfiguration((context,
-                                                  configBuilder) => {
-                var env = context.HostingEnvironment;
-
-                configBuilder.SetBasePath(fi.Directory.FullName)
-                    .AddJsonFile("hosting.json", optional: true)
-                    .AddJsonFile($"hosting.{env.EnvironmentName}.json", optional: true)
-                    .AddJsonFile("/home/txnproc/config/appsettings.json", optional: true, reloadOnChange: true)
-                    .AddJsonFile($"/home/txnproc/config/appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                    .AddJsonFile($"/home/txnproc/config/appsettings.local.json", optional: true, reloadOnChange: true)
-                    .AddEnvironmentVariables()
-                    .AddInMemoryCollection(new Dictionary<string, string?>
-                    {
-                        ["HealthMonitoring:Service:Version"] = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0.0.0.0"
-                    });
-
-                                                      // Build a snapshot of configuration so we can use it immediately (e.g. for Sentry)
-                                                      var builtConfig = configBuilder.Build();
-
-                // Keep existing static usage (if you must), and initialise the ConfigurationReader now.
-                Startup.Configuration = builtConfig;
-                ConfigurationReader.Initialise(Startup.Configuration);
-
-                // Configure Sentry on the webBuilder using the config snapshot.
-                var sentrySection = builtConfig.GetSection("SentryConfiguration");
-                if (sentrySection.Exists()) {
-                    // Replace the condition below if you intended to only enable Sentry in certain environments.
-                    if (env.IsDevelopment() == false) {
-                        webBuilder.UseSentry(o => {
-                            o.Dsn = builtConfig["SentryConfiguration:Dsn"];
-                            o.SendDefaultPii = true;
-                            o.MaxRequestBodySize = RequestSize.Always;
-                            o.CaptureBlockingCalls = ConfigurationReader.GetValueOrDefault("SentryConfiguration", "CaptureBlockingCalls", false);
-                            o.IncludeActivityData = ConfigurationReader.GetValueOrDefault("SentryConfiguration", "IncludeActivityData", false);
-                            o.Release = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
-                        });
-                    }
-                }
+        appBuilder.Configuration
+            .SetBasePath(assemblyFile.Directory!.FullName)
+            .AddJsonFile("hosting.json", optional: true)
+            .AddJsonFile($"hosting.{appBuilder.Environment.EnvironmentName}.json", optional: true)
+            .AddJsonFile("/home/txnproc/config/appsettings.json", optional: true, reloadOnChange: true)
+            .AddJsonFile($"/home/txnproc/config/appsettings.{appBuilder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{appBuilder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("/home/txnproc/config/appsettings.local.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .AddInMemoryCollection(new Dictionary<string, string>
+            {
+                ["HealthMonitoring:Service:Version"] = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0.0.0.0"
             });
+    }
 
-            webBuilder.UseStartup<Startup>();
-            webBuilder.UseKestrel();
+    private static void ConfigureServices(WebApplicationBuilder appBuilder, IConfiguration configuration)
+    {
+        appBuilder.Host.ConfigureContainer<ServiceRegistry>((_, services) =>
+        {
+            services.IncludeRegistry(new MiddlewareRegistry(configuration));
+            services.IncludeRegistry<ApplicationServiceRegistry>();
+            services.IncludeRegistry<ClientRegistry>();
+            services.IncludeRegistry(new MediatorRegistry(configuration));
+            services.IncludeRegistry<MiscRegistry>();
+            services.IncludeRegistry<SerialiserRegistry>();
         });
+    }
+
+    private static void ConfigureSentry(WebApplicationBuilder appBuilder, IConfiguration configuration)
+    {
+        IConfigurationSection sentrySection = configuration.GetSection("SentryConfiguration");
+        if (sentrySection.Exists() && appBuilder.Environment.IsDevelopment() == false)
+        {
+            appBuilder.WebHost.UseSentry(options =>
+            {
+                options.Dsn = configuration["SentryConfiguration:Dsn"];
+                options.SendDefaultPii = true;
+                options.MaxRequestBodySize = RequestSize.Always;
+                options.CaptureBlockingCalls = ConfigurationReader.GetValueOrDefault("SentryConfiguration", "CaptureBlockingCalls", false);
+                options.IncludeActivityData = ConfigurationReader.GetValueOrDefault("SentryConfiguration", "IncludeActivityData", false);
+                options.Release = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
+            });
+        }
+    }
+
+    private static void ConfigurePipeline(WebApplication app, IConfigurationRoot configuration)
+    {
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+
+        Microsoft.Extensions.Logging.ILogger logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("TransactionProcessor");
+        Shared.Logger.Logger.Initialise(logger);
+        configuration.LogConfiguration(Shared.Logger.Logger.LogWarning);
+
+        app.UseMiddleware<TenantMiddleware>();
+        app.AddRequestResponseLogging();
+        app.AddExceptionHandler();
+        app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseMiddleware<RequestAuditMiddleware>();
+        app.UseMiddleware<VersionCheckMiddleware>();
+
+        MapEndpoints(app);
+        app.UseApiDefaults();
+    }
+
+    private static void MapEndpoints(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapMerchantEndpoints();
+        endpoints.MapReportingEndpoints();
+        endpoints.MapTransactionEndpoints();
+        endpoints.MapVoucherEndpoints();
+        endpoints.MapHealthChecks("health", CreateHealthCheckOptions(Shared.HealthChecks.HealthCheckMiddleware.WriteResponse))
+            .WithName("Health")
+            .WithTags("Health")
+            .WithSummary("Check service health")
+            .WithDescription("Runs the configured service health checks and returns their aggregate status. This route does not require an applicationVersion.")
+            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status200OK, typeof(object), new[] { "application/json" }))
+            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status503ServiceUnavailable, typeof(object), new[] { "application/json" }));
+        endpoints.MapHealthChecks("healthui", CreateHealthCheckOptions(UIResponseWriter.WriteHealthCheckUIResponse))
+            .WithName("HealthUi")
+            .WithTags("Health")
+            .WithSummary("Get health check details")
+            .WithDescription("Runs all configured service health checks and returns the detailed Health Checks UI response. This route does not require an applicationVersion.")
+            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status200OK, typeof(object), new[] { "application/json" }))
+            .WithMetadata(new ProducesResponseTypeMetadata(StatusCodes.Status503ServiceUnavailable, typeof(object), new[] { "application/json" }));
+    }
+
+    private static HealthCheckOptions CreateHealthCheckOptions(Func<HttpContext, HealthReport, Task> responseWriter)
+    {
+        return new HealthCheckOptions
+        {
+            Predicate = _ => true,
+            ResponseWriter = responseWriter
+        };
     }
 }

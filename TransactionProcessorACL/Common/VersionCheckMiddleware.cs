@@ -21,7 +21,10 @@ public sealed class VersionCheckMiddleware {
                                   IMediator mediator) {
         var path = context.Request.Path;
 
-        if (path.StartsWithSegments("/health") || path.StartsWithSegments("/healthui")) {
+        if (path.StartsWithSegments("/health") ||
+            path.StartsWithSegments("/healthui") ||
+            path.StartsWithSegments("/scalar") ||
+            path.StartsWithSegments("/openapi")) {
             await _next(context).ConfigureAwait(false);
             return;
         }

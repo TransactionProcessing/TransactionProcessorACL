@@ -1,5 +1,7 @@
-﻿using HealthMonitoring.Client;
+using HealthMonitoring.Client;
+using Microsoft.Extensions.Configuration;
 using Shared.Authorisation;
+using TransactionProcessing.ApiDefaults;
 
 namespace TransactionProcessorACL.Bootstrapper
 {
@@ -10,10 +12,14 @@ namespace TransactionProcessorACL.Bootstrapper
     using Shared.General;
     using Shared.Serialisation;
     using System;
+    using System.ComponentModel;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
     using System.Net.Http;
     using System.Reflection;
     using System.Text.Json;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.OpenApi;
 
     /// <summary>
     /// 
@@ -25,14 +31,30 @@ namespace TransactionProcessorACL.Bootstrapper
         /// <summary>
         /// Initializes a new instance of the <see cref="MiddlewareRegistry"/> class.
         /// </summary>
-        public MiddlewareRegistry()
+        public MiddlewareRegistry(IConfiguration configuration)
         {
             this.ConfigureHealthChecks();
             this.ConfigureAuthentication();
             this.ConfigurePasswordTokenHandling();
             this.ConfigureJsonOptions();
             this.ConfigureControllers();
-            this.AddHealthMonitoringRegistration(Startup.Configuration);
+            this.AddHealthMonitoringRegistration(configuration);
+            this.AddApiDefaults(options => {
+                options.Title = "Transaction Processor ACL";
+                options.Description = "Anti Corruption Layer for Transaction Processing";
+            });
+            this.ConfigureAll<OpenApiOptions>(options => options.AddSchemaTransformer((schema, context, _) =>
+            {
+                DescriptionAttribute? description = context.JsonPropertyInfo?.AttributeProvider?
+                    .GetCustomAttributes(typeof(DescriptionAttribute), inherit: true)
+                    .OfType<DescriptionAttribute>()
+                    .FirstOrDefault();
+
+                if (description is not null)
+                    schema.Description = description.Description;
+
+                return Task.CompletedTask;
+            }));
         }
 
         /// <summary>

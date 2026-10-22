@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using SimpleResults;
 using System.Collections.Generic;
 
@@ -25,10 +25,10 @@ namespace TransactionProcessorACL.Bootstrapper
         /// <summary>
         /// Initializes a new instance of the <see cref="MediatorRegistry"/> class.
         /// </summary>
-        public MediatorRegistry()
+        public MediatorRegistry(IConfiguration configuration)
         {
-            string eventStoreConnectionString = Startup.Configuration.GetValue<string>("EventStoreSettings:ConnectionString");
-            int requestAuditStreamLifetimeDays = Startup.Configuration.GetValue<int?>("AuditSettings:RequestAuditStreamLifetimeDays") ?? 7;
+            string eventStoreConnectionString = configuration.GetValue<string>("EventStoreSettings:ConnectionString");
+            int requestAuditStreamLifetimeDays = configuration.GetValue<int?>("AuditSettings:RequestAuditStreamLifetimeDays") ?? 7;
             this.AddKurrentDBClient(eventStoreConnectionString);
 
             this.AddSingleton(new RequestAuditStreamOptions

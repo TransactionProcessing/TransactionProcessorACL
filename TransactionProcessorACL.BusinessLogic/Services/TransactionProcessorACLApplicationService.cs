@@ -428,7 +428,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             if (apiResponse.IsFailed)
                 return ResultHelpers.CreateFailure(apiResponse);
 
-            MerchantDailyPerformanceSummaryResponse response = new MerchantDailyPerformanceSummaryResponse {
+            MerchantDailyPerformanceSummaryResponse response = new() {
                 Metrics = apiResponse.Data.Metrics.Select(m => new MetricItem { Category = m.Category, Description = m.Description, Title = m.Title, Value = m.Value }).ToList(),
                 DrillDownTransactions = apiResponse.Data.DrillDownTransactions.Select(d => new DrillDownTransaction {
                     Amount = d.Amount,
@@ -466,7 +466,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             if (apiResponse.IsFailed)
                 return ResultHelpers.CreateFailure(apiResponse);
 
-            MerchantTransactionMixSummaryResponse response = new MerchantTransactionMixSummaryResponse() {
+            MerchantTransactionMixSummaryResponse response = new() {
                 Breakdown = Enum.Parse<Models.TransactionMixBreakdown>(apiResponse.Data.Breakdown.ToString()),
                 Measure = Enum.Parse<Models.TransactionMixMeasure>(apiResponse.Data.Measure.ToString()),
                 FromDate = apiResponse.Data.FromDate,
