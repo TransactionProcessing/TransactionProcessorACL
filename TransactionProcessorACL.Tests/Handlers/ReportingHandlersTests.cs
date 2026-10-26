@@ -1,9 +1,11 @@
+using Ductus.FluentDocker.Common;
 using System;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Imposter.Abstractions;
+using Shared.Logger;
 using Shouldly;
 using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
@@ -15,6 +17,9 @@ namespace TransactionProcessorACL.Tests.Handlers;
 
 public class ReportingHandlersTests
 {
+    public ReportingHandlersTests() {
+        Shared.Logger.Logger.Initialise(new NullLogger());
+    }
     [Fact]
     public async Task GetMerchantDailyPerformanceSummary_PassesEstateClaimAndRequestToMediator()
     {
@@ -34,7 +39,7 @@ public class ReportingHandlersTests
 
         var mediator = new IMediatorImposter(ImposterMode.Explicit);
         mediator
-            .Send<Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>>.Any(), Arg<CancellationToken>.Any())
+            .Send<SimpleResults.Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>(Arg<MediatR.IRequest<SimpleResults.Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse()))
             .Callback((payload, _) => { capturedQuery = (ReportingQueries.GetMerchantDailyPerformanceSummaryQuery)payload; return Task.CompletedTask; });
 
@@ -44,7 +49,7 @@ public class ReportingHandlersTests
         capturedQuery.ShouldNotBeNull();
         capturedQuery!.EstateId.ShouldBe(Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"));
         capturedQuery.Request.MerchantReportingId.ShouldBe(12345);
-        mediator.Send<Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
+        mediator.Send<SimpleResults.Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>(Arg<MediatR.IRequest<SimpleResults.Result<TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
     }
 
     [Fact]
@@ -69,7 +74,7 @@ public class ReportingHandlersTests
 
         var mediator = new IMediatorImposter(ImposterMode.Explicit);
         mediator
-            .Send<Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>>.Any(), Arg<CancellationToken>.Any())
+            .Send<SimpleResults.Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>(Arg<MediatR.IRequest<SimpleResults.Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse()))
             .Callback((payload, _) => { capturedQuery = (ReportingQueries.GetMerchantTransactionMixSummaryQuery)payload; return Task.CompletedTask; });
 
@@ -81,7 +86,7 @@ public class ReportingHandlersTests
         capturedQuery.Request.MerchantReportingId.ShouldBe(12345);
         capturedQuery.Request.Breakdown.ShouldBe(TransactionMixBreakdown.Product);
         capturedQuery.Request.Measure.ShouldBe(TransactionMixMeasure.Count);
-        mediator.Send<Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
+        mediator.Send<SimpleResults.Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>(Arg<MediatR.IRequest<SimpleResults.Result<TransactionProcessorACL.Models.MerchantTransactionMixSummaryResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
     }
 
     [Fact]
@@ -105,7 +110,7 @@ public class ReportingHandlersTests
 
         var mediator = new IMediatorImposter(ImposterMode.Explicit);
         mediator
-            .Send<Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>>.Any(), Arg<CancellationToken>.Any())
+            .Send<SimpleResults.Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>(Arg<MediatR.IRequest<SimpleResults.Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse()))
             .Callback((payload, _) => { capturedQuery = (ReportingQueries.GetRecentActivityReceiptSearchQuery)payload; return Task.CompletedTask; });
 
@@ -119,6 +124,6 @@ public class ReportingHandlersTests
         capturedQuery.Request.SearchText.ShouldBe("abc");
         capturedQuery.Request.PageNumber.ShouldBe(2);
         capturedQuery.Request.PageSize.ShouldBe(5);
-        mediator.Send<Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
+        mediator.Send<SimpleResults.Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>(Arg<MediatR.IRequest<SimpleResults.Result<TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Once());
     }
 }

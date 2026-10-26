@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.General;
+using Shared.Logger;
 using Shared.Results.Web;
 using SimpleResults;
 using System;
@@ -29,6 +30,8 @@ namespace TransactionProcessorACL.Handlers;
                                                              SaleTransactionRequestMessage transactionRequest,
                                                              CancellationToken cancellationToken)
     {
+        Logger.LogInformation("Application version {ApplicationVersion}", transactionRequest.ApplicationVersion);
+
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
             return ResponseFactory.FromResult(Result.Forbidden());
@@ -44,6 +47,8 @@ namespace TransactionProcessorACL.Handlers;
                                                               LogonTransactionRequestMessage transactionRequest,
                                                               CancellationToken cancellationToken)
     {
+        Logger.LogInformation("Application version {ApplicationVersion}", transactionRequest.ApplicationVersion);
+
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
             return ResponseFactory.FromResult(Result.Forbidden());
@@ -59,6 +64,8 @@ namespace TransactionProcessorACL.Handlers;
                                                                        ReconciliationRequestMessage transactionRequest,
                                                                        CancellationToken cancellationToken)
     {
+        Logger.LogInformation("Application version {ApplicationVersion}", transactionRequest.ApplicationVersion);
+
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
             return ResponseFactory.FromResult(Result.Forbidden());
