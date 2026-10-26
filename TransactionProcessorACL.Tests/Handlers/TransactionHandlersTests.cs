@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Imposter.Abstractions;
+using Shared.Logger;
 using Shouldly;
 using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
@@ -17,6 +18,10 @@ namespace TransactionProcessorACL.Tests.Handlers;
 
 public class TransactionHandlersTests
 {
+    public TransactionHandlersTests() {
+        Shared.Logger.Logger.Initialise(new NullLogger());
+    }
+
     [Fact]
     public async Task PerformSaleTransaction_PassesBusinessFieldsIntoCommand()
     {
