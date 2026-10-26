@@ -75,6 +75,8 @@ namespace TransactionProcessor.IntegrationTests.Common
         {
             this.Trace("About to Start Kurrent Db Container");
 
+            (String imageName, Boolean useLatest) imageDetails = this.GetImageDetails(ContainerType.KurrentDb).Data;
+
             Dictionary<String, String> environmentVariables = new(){
             {"EVENTSTORE_RUN_PROJECTIONS","all"},
             {"EVENTSTORE_START_STANDARD_PROJECTIONS","true"},
@@ -83,7 +85,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             {"KURRENTDB_PREPARE_TIMEOUT_MS","30000"},
             {"KURRENTDB_COMMIT_TIMEOUT_MS","30000"},
         };
-            ContainerBuilder eventStoreContainer = new();
+            ContainerBuilder eventStoreContainer = new(imageDetails.imageName);
 
             if (!this.IsSecureKurrentDb)
             {
@@ -108,13 +110,12 @@ namespace TransactionProcessor.IntegrationTests.Common
             String logfilePath = "/var/log/kurrentdb";
             eventStoreContainer = eventStoreContainer.MountHostFolder(this.HostTraceFolder, logfilePath);
 
-            (String imageName, Boolean useLatest) imageDetails = this.GetImageDetails(ContainerType.KurrentDb).Data;
+            
             this.Trace($"About to Start Kurrent Db Container using image [{imageDetails.imageName}]");
 
 
 
             eventStoreContainer = eventStoreContainer.WithName(this.KurrentDbContainerName)  // similar to WithName()
-                .WithImage(imageDetails.imageName)
                 .WithEnvironment(environmentVariables)
                 .WithPortBinding(DockerPorts.KurrentDbHttpDockerPort, true);
 

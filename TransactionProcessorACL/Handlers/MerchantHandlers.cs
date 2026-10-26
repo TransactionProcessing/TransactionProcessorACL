@@ -24,7 +24,7 @@ namespace TransactionProcessorACL.Handlers
                                                                string applicationVersion,
                                                                CancellationToken cancellationToken)
         {
-            Logger.LogInformation($"Application version {applicationVersion}");
+            Logger.LogInformation("Application version {ApplicationVersion}", applicationVersion);
 
             Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
             if (claimsResult.IsFailed)
@@ -41,6 +41,7 @@ namespace TransactionProcessorACL.Handlers
                                                       string applicationVersion,
                                                       CancellationToken cancellationToken)
         {
+            Logger.LogInformation("Application version {ApplicationVersion}", applicationVersion);
             Logger.LogWarning("In GetMerchant Handler");
 
             Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
@@ -59,6 +60,7 @@ namespace TransactionProcessorACL.Handlers
                                                       [FromQuery] Int32 year,
                                                       CancellationToken cancellationToken)
         {
+            Logger.LogInformation("Application version {ApplicationVersion}", applicationVersion);
             Logger.LogWarning("In GetMerchantSchedule Handler");
 
             Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);

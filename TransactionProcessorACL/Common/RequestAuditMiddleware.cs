@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using NLog;
+using System;
 
 namespace TransactionProcessorACL.Common;
 
@@ -19,7 +20,8 @@ public sealed class RequestAuditMiddleware
     {
         RequestAuditContext requestAuditContext = RequestAuditContextFactory.CreateForRequest(context);
         _accessor.Current = requestAuditContext;
-        MappedDiagnosticsLogicalContext.Set("CorrelationId", requestAuditContext.RequestId);
+        IDisposable pushResult = ScopeContext.PushProperty("CorrelationId", requestAuditContext.RequestId);
+        
         try
         {
             await _next(context).ConfigureAwait(false);
@@ -27,7 +29,7 @@ public sealed class RequestAuditMiddleware
         finally
         {
             _accessor.Current = null;
-            MappedDiagnosticsLogicalContext.Remove("CorrelationId");
+            pushResult.Dispose();
         }
     }
 }

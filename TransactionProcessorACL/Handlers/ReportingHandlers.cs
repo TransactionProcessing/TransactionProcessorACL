@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.General;
+using Shared.Logger;
 using Shared.Results.Web;
 using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
@@ -22,6 +23,8 @@ public static class ReportingHandlers
                                                                          IMediator mediator,
                                                                          CancellationToken cancellationToken)
     {
+        Logger.LogInformation("Application version {ApplicationVersion}", request.ApplicationVersion);
+
         Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
         if (estateIdResult.IsFailed)
             return ResponseFactory.FromResult(Result.Forbidden());
@@ -54,6 +57,8 @@ public static class ReportingHandlers
                                                                        IMediator mediator,
                                                                        CancellationToken cancellationToken)
     {
+        Logger.LogInformation("Application version {ApplicationVersion}", request.ApplicationVersion);
+
         Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
         if (estateIdResult.IsFailed)
             return ResponseFactory.FromResult(Result.Forbidden());
@@ -93,6 +98,8 @@ public static class ReportingHandlers
                                                                      IMediator mediator,
                                                                      CancellationToken cancellationToken)
     {
+        Logger.LogInformation("Application version {ApplicationVersion}", request.ApplicationVersion);
+
         Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
         if (estateIdResult.IsFailed)
             return ResponseFactory.FromResult(Result.Forbidden());

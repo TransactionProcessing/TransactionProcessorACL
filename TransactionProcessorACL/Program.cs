@@ -136,8 +136,9 @@ public class Program
             app.UseDeveloperExceptionPage();
         }
 
-        Microsoft.Extensions.Logging.ILogger logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("TransactionProcessor");
-        Shared.Logger.Logger.Initialise(logger);
+        LogManager.Setup().LoadConfigurationFromFile("NLog.config");
+        NLog.Logger logger = LogManager.GetLogger("TransactionProcessorACL");
+        Shared.Logger.Logger.Initialise(logger, "TransactionProcessorACL");
         configuration.LogConfiguration(Shared.Logger.Logger.LogWarning);
 
         app.UseMiddleware<TenantMiddleware>();
