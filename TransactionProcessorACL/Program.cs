@@ -87,11 +87,11 @@ public class Program
             .SetBasePath(assemblyFile.Directory!.FullName)
             .AddJsonFile("hosting.json", optional: true)
             .AddJsonFile($"hosting.{appBuilder.Environment.EnvironmentName}.json", optional: true)
-            .AddJsonFile("/home/txnproc/config/appsettings.json", optional: true, reloadOnChange: true)
-            .AddJsonFile($"/home/txnproc/config/appsettings.{appBuilder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{appBuilder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
-            .AddJsonFile("/home/txnproc/config/appsettings.local.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("/home/txnproc/config/appsettings.json", optional: true)
+            .AddJsonFile($"/home/txnproc/config/appsettings.{appBuilder.Environment.EnvironmentName}.json", optional: true)
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddJsonFile($"appsettings.{appBuilder.Environment.EnvironmentName}.json", optional: true)
+            .AddJsonFile("/home/txnproc/config/appsettings.local.json", optional: true)
             .AddEnvironmentVariables()
             .AddInMemoryCollection(new Dictionary<string, string>
             {
