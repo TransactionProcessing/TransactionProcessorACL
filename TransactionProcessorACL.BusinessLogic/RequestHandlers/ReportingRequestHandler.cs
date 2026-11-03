@@ -4,7 +4,6 @@ using MediatR;
 using SimpleResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.BusinessLogic.Services;
-using TransactionProcessorACL.DataTransferObjects.Requests;
 using TransactionProcessorACL.Models;
 
 namespace TransactionProcessorACL.BusinessLogic.RequestHandlers;

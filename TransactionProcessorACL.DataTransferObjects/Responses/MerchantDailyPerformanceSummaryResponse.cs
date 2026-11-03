@@ -44,6 +44,6 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses
         public decimal Amount { get; set; }
 
         [Description("Date and time when the transaction occurred.")]
-        public DateTime TransactionDateTime { get; set; }
+        public DateTimeOffset TransactionDateTime { get; set; }
     }
 }

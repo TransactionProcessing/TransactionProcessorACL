@@ -1,18 +1,16 @@
 ﻿using SecurityService.DataTransferObjects;
+using TransactionProcessor.DataTransferObjects.Responses.Transaction;
 
 namespace TransactionProcessorACL.Testing
 {
     using System;
     using System.Collections.Generic;
     using Models;
-    using TransactionProcessor.DataTransferObjects;
     using TransactionProcessorACL.BusinessLogic.Requests;
     using TransactionProcessorACL.Common;
     using TransactionProcessorACL.DataTransferObjects;
     using TransactionProcessorACL.DataTransferObjects.Requests;
-    using GetVoucherResponse = TransactionProcessor.DataTransferObjects.GetVoucherResponse;
-    using RedeemVoucherResponse = TransactionProcessor.DataTransferObjects.RedeemVoucherResponse;
-
+    
     /// <summary>
     /// 
     /// </summary>
@@ -33,7 +31,8 @@ namespace TransactionProcessorACL.Testing
         /// <summary>
         /// The transaction date time
         /// </summary>
-        public static DateTime TransactionDateTime = DateTime.Now;
+        public static DateTimeOffset TransactionDateTime = DateTime.Now;
+        public static DateTimeOffset HostDateTime = DateTime.Now;
 
         /// <summary>
         /// The transaction number
@@ -77,6 +76,7 @@ namespace TransactionProcessorACL.Testing
             new(TestData.EstateId,
                                                   TestData.MerchantId,
                                                   TestData.TransactionDateTime,
+                                                  TestData.HostDateTime,
                                                   TestData.TransactionNumber,
                                                   TestData.DeviceIdentifier);
 
@@ -148,6 +148,7 @@ namespace TransactionProcessorACL.Testing
         public static TransactionCommands.ProcessSaleTransactionCommand ProcessSaleTransactionCommand = new(TestData.EstateId,
             TestData.MerchantId,
             TestData.TransactionDateTime,
+            TestData.HostDateTime,
             TestData.TransactionNumber,
             TestData.DeviceIdentifier,
             TestData.OperatorId,
@@ -163,6 +164,7 @@ namespace TransactionProcessorACL.Testing
         public static TransactionCommands.ProcessReconciliationCommand ProcessReconciliationCommand = new(TestData.EstateId,
              TestData.MerchantId,
              TestData.TransactionDateTime,
+             TestData.HostDateTime,
              TestData.DeviceIdentifier,
              TestData.ReconciliationTransactionCount,
              TestData.ReconciliationTransactionValue);
@@ -175,7 +177,7 @@ namespace TransactionProcessorACL.Testing
                                                                                         MerchantId = TestData.MerchantId
         };
 
-        public static TransactionProcessor.DataTransferObjects.ReconciliationResponse ClientReconciliationResponse = new ReconciliationResponse
+        public static TransactionProcessor.DataTransferObjects.Responses.Transaction.ReconciliationResponse ClientReconciliationResponse = new ReconciliationResponse
                                                                                     {
                                                                                         ResponseMessage = TestData.ResponseMessage,
                                                                                         ResponseCode = TestData.ResponseCode,
@@ -252,7 +254,7 @@ namespace TransactionProcessorACL.Testing
         public static VoucherQueries.GetVoucherQuery GetVoucherQuery => new(TestData.EstateId, TestData.ContractId, TestData.VoucherCode);
 
         public static String VoucherCode = "1231231234";
-        public static DateTime ExpiryDate = new DateTime(2021, 1, 11);
+        public static DateOnly ExpiryDate = new DateOnly(2021, 1, 11);
         public static Decimal Value = 20.00m;
         public static Guid VoucherId = Guid.Parse("C12665AC-1301-47AA-B292-281EC4DE9721");
         public static Decimal Balance = 10.00m;
@@ -282,13 +284,13 @@ namespace TransactionProcessorACL.Testing
                 ResponseMessage = TestData.ResponseMessage
             };
 
-        public static GetVoucherResponse GetVoucherResponse =>
-            new GetVoucherResponse
+        public static TransactionProcessor.DataTransferObjects.Responses.Voucher.GetVoucherResponse GetVoucherResponse =>
+            new()
             {
                 VoucherCode = TestData.VoucherCode,
                 Balance = TestData.Balance,
-                ExpiryDate = TestData.ExpiryDate,
-                GeneratedDateTime = TestData.GeneratedDateTime,
+                ExpiryDate = TestData.ExpiryDate.ToDateTime(TimeOnly.MinValue),
+                GeneratedDateTime = TestData.GeneratedDateTime.ToDateTime(TimeOnly.MinValue),
                 IsGenerated = TestData.IsGenerated,
                 IsIssued = TestData.IsIssued,
                 IsRedeemed = TestData.IsRedeemed,
@@ -299,15 +301,15 @@ namespace TransactionProcessorACL.Testing
                 VoucherId = TestData.VoucherId
             };
 
-        public static RedeemVoucherResponse RedeemVoucherResponse =>
-            new RedeemVoucherResponse
+        public static TransactionProcessor.DataTransferObjects.Responses.Voucher.RedeemVoucherResponse RedeemVoucherResponse =>
+            new ()
             {
                 VoucherCode = TestData.VoucherCode,
                 RemainingBalance = TestData.Balance,
-                ExpiryDate = TestData.ExpiryDate
+                ExpiryDate = TestData.ExpiryDate.ToDateTime(TimeOnly.MinValue)
             };
 
-        public static DateTime GeneratedDateTime = new DateTime(2020, 12, 11);
+        public static DateOnly GeneratedDateTime = new DateOnly(2020, 12, 11);
 
         public static Boolean IsGenerated = true;
 

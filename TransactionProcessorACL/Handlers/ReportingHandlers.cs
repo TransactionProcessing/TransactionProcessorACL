@@ -9,10 +9,15 @@ using Shared.General;
 using Shared.Logger;
 using Shared.Results.Web;
 using SimpleResults;
+using TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects.Requests;
-using ApiResponses = TransactionProcessorACL.DataTransferObjects.Responses;
 using TransactionProcessorACL.Models;
+using ApiResponses = TransactionProcessorACL.DataTransferObjects.Responses;
+using MerchantDailyPerformanceSummaryRequest = TransactionProcessorACL.DataTransferObjects.Requests.MerchantDailyPerformanceSummaryRequest;
+using MerchantDailyPerformanceSummaryResponse = TransactionProcessorACL.Models.MerchantDailyPerformanceSummaryResponse;
+using RecentActivityReceiptSearchRequest = TransactionProcessorACL.DataTransferObjects.Requests.RecentActivityReceiptSearchRequest;
+using RecentActivityReceiptSearchResponse = TransactionProcessorACL.Models.RecentActivityReceiptSearchResponse;
 
 namespace TransactionProcessorACL.Handlers;
 

@@ -118,28 +118,13 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
 
     public class DummyTransactionProcessorACLApplicationService : ITransactionProcessorACLApplicationService
     {
-        public async Task<Result<ProcessLogonTransactionResponse>> ProcessLogonTransaction(Guid estateId,
-                                                                                           Guid merchantId,
-                                                                                           DateTime transactionDateTime,
-                                                                                           String transactionNumber,
-                                                                                           String deviceIdentifier,
+        public async Task<Result<ProcessLogonTransactionResponse>> ProcessLogonTransaction(TransactionCommands.ProcessLogonTransactionCommand command,
                                                                                            CancellationToken cancellationToken) => Result.Success(new ProcessLogonTransactionResponse());
         
-        public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction((Guid estateId, Guid merchantId) merchantData,
-                                                                                         DateTime transactionDateTime,
-                                                                                         String transactionNumber,
-                                                                                         String deviceIdentifier,
-                                                                                         String customerEmailAddress,
-                                                                                         (Guid operatorId, Guid contractId, Guid productId) productData,
-                                                                                         Dictionary<String, String> additionalRequestMetadata,
+        public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction(TransactionCommands.ProcessSaleTransactionCommand command,
                                                                                          CancellationToken cancellationToken) => Result.Success(new ProcessSaleTransactionResponse());
 
-        public async Task<Result<ProcessReconciliationResponse>> ProcessReconciliation(Guid estateId,
-                                                                                       Guid merchantId,
-                                                                                       DateTime transactionDateTime,
-                                                                                       String deviceIdentifier,
-                                                                                       Int32 transactionCount,
-                                                                                       Decimal transactionValue,
+        public async Task<Result<ProcessReconciliationResponse>> ProcessReconciliation(TransactionCommands.ProcessReconciliationCommand command,
                                                                                        CancellationToken cancellationToken) => Result.Success(new ProcessReconciliationResponse());
 
         public async Task<Result<GetVoucherResponse>> GetVoucher(Guid estateId,

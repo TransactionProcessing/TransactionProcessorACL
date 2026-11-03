@@ -51,11 +51,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
-                .ProcessLogonTransaction(Arg<Guid>.Any(),
-                                                      Arg<Guid>.Any(),
-                                                      Arg<DateTime>.Any(),
-                                                      Arg<String>.Any(),
-                                                      Arg<String>.Any(),
+                .ProcessLogonTransaction(Arg<TransactionCommands.ProcessLogonTransactionCommand>.Any(),
                                                       Arg<CancellationToken>.Any()).ReturnsAsync(TestData.ProcessLogonTransactionResponse);
             TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
 
@@ -75,13 +71,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
-                .ProcessSaleTransaction(Arg<(Guid, Guid)>.Any(),
-                                                      Arg<DateTime>.Any(),
-                                                      Arg<String>.Any(),
-                                                      Arg<String>.Any(),
-                                                      Arg<String>.Any(),
-                                                      Arg<(Guid, Guid, Guid)>.Any(),
-                                                      Arg<Dictionary<String,String>>.Any(),
+                .ProcessSaleTransaction(Arg<TransactionCommands.ProcessSaleTransactionCommand>.Any(),
                                                       Arg<CancellationToken>.Any()).ReturnsAsync(TestData.ProcessSaleTransactionResponse);
 
             TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
@@ -100,12 +90,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
-                .ProcessReconciliation(Arg<Guid>.Any(),
-                                                      Arg<Guid>.Any(),
-                                                      Arg<DateTime>.Any(),
-                                                      Arg<String>.Any(),
-                                                      Arg<Int32>.Any(),
-                                                      Arg<Decimal>.Any(),
+                .ProcessReconciliation(Arg<TransactionCommands.ProcessReconciliationCommand>.Any(),
                                                       Arg<CancellationToken>.Any()).ReturnsAsync(TestData.ProcessReconciliationResponse);
             TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
 

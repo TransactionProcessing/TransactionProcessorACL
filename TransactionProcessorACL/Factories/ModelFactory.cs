@@ -282,7 +282,7 @@ namespace TransactionProcessorACL.Factories
                 ResponseMessage = model.ResponseMessage,
                 ContractId = model.ContractId,
                 EstateId = model.EstateId,
-                ExpiryDate = model.ExpiryDate,
+                ExpiryDate = model.ExpiryDate.ToDateTime(TimeOnly.MinValue),
                 ResponseCode = model.ResponseCode
             };
 

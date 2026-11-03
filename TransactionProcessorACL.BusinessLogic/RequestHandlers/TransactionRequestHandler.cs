@@ -42,37 +42,19 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
         public async Task<Result<ProcessLogonTransactionResponse>> Handle(TransactionCommands.ProcessLogonTransactionCommand command,
                                                                           CancellationToken cancellationToken)
         {
-            return await this.ApplicationService.ProcessLogonTransaction(command.EstateId,
-                command.MerchantId,
-                command.TransactionDateTime,
-                command.TransactionNumber,
-                command.DeviceIdentifier,
-                                                                         cancellationToken);
+            return await this.ApplicationService.ProcessLogonTransaction(command, cancellationToken);
         }
 
         public async Task<Result<ProcessReconciliationResponse>> Handle(TransactionCommands.ProcessReconciliationCommand command,
                                                                         CancellationToken cancellationToken)
         {
-            return await this.ApplicationService.ProcessReconciliation(command.EstateId,
-                command.MerchantId,
-                command.TransactionDateTime,
-                command.DeviceIdentifier,
-                command.TransactionCount,
-                command.TransactionValue,
-                cancellationToken);
+            return await this.ApplicationService.ProcessReconciliation(command, cancellationToken);
         }
 
         public async Task<Result<ProcessSaleTransactionResponse>> Handle(TransactionCommands.ProcessSaleTransactionCommand command,
                                                                           CancellationToken cancellationToken)
         {
-            return await this.ApplicationService.ProcessSaleTransaction((command.EstateId, command.MerchantId),
-                command.TransactionDateTime,
-                command.TransactionNumber,
-                command.DeviceIdentifier,
-                command.CustomerEmailAddress,
-                (command.OperatorId, command.ContractId, command.ProductId),
-                command.AdditionalRequestMetadata,
-                cancellationToken);
+            return await this.ApplicationService.ProcessSaleTransaction(command, cancellationToken);
         }
 
         public async Task<Result<ResendReceiptResponse>> Handle(TransactionCommands.ResendReceiptCommand command,

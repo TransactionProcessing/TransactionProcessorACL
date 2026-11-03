@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Shared.Authorisation;
+using System;
 using TransactionProcessorACL.Handlers;
 
 namespace TransactionProcessorACL.Endpoints
@@ -21,7 +22,7 @@ namespace TransactionProcessorACL.Endpoints
                 .RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
 
             // POST /api/saletransactions
-            saleGroup.MapPost("", TransactionHandlers.PerformSaleTransaction)
+            saleGroup.MapPost(String.Empty, TransactionHandlers.PerformSaleTransaction)
                 .WithName("ProcessSaleTransaction")
                 .WithSummary("Process a sale transaction")
                 .WithDescription("Submits a sale for the authenticated merchant. Estate and merchant identifiers are resolved from token claims. The request includes transaction details, contract, operator, product, and optional customer and metadata fields. Provide applicationVersion as a query parameter for minimum-version validation; the middleware also reads application_version from the JSON body.")

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TransactionProcessor.DataTransferObjects.Requests.Merchant;
 using TransactionProcessorACL.Models;
 using ContractContactResponse = TransactionProcessor.DataTransferObjects.Responses.Contract.ContactResponse;
 using ModelContactResponse = TransactionProcessorACL.Models.ContactResponse;
-using OpeningHoursResponse = TransactionProcessor.DataTransferObjects.Requests.Merchant.OpeningHoursResponse;
+using OpeningHoursResponse = TransactionProcessor.DataTransferObjects.Responses.Merchant.OpeningHoursResponse;
 
 namespace TransactionProcessorACL.BusinessLogic.Services
 {
@@ -19,7 +18,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 MerchantName = merchant.MerchantName,
                 EstateReportingId = merchant.EstateReportingId,
                 MerchantReference = merchant.MerchantReference,
-                NextStatementDate = merchant.NextStatementDate,
+                NextStatementDate = DateOnly.FromDateTime(merchant.NextStatementDate.DateTime),
                 SettlementSchedule = merchant.SettlementSchedule switch {
                     TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Immediate => SettlementSchedule.Immediate,
                     TransactionProcessor.DataTransferObjects.Responses.Merchant.SettlementSchedule.Weekly => SettlementSchedule.Weekly,
@@ -146,15 +145,15 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 return null;
             }
 
-            var response = new MerchantScheduleResponse
-            {
-                Year = resultData.Year,
-                Months = resultData.Months.Select(m => new MerchantScheduleMonthResponse
-                {
-                    Month = m.Month,
-                    ClosedDays = m.ClosedDays
-                }).ToList() ?? new List<MerchantScheduleMonthResponse>()
-            };
+            MerchantScheduleResponse response = new MerchantScheduleResponse
+                                                {
+                                                    Year = resultData.Year,
+                                                    Months = resultData.Months.Select(m => new MerchantScheduleMonthResponse
+                                                                                           {
+                                                                                               Month = m.Month,
+                                                                                               ClosedDays = m.ClosedDays
+                                                                                           }).ToList() ?? new List<MerchantScheduleMonthResponse>()
+                                                };
 
             return response;
         }

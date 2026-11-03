@@ -4,7 +4,11 @@ using Shared.Exceptions;
 using Shared.Results;
 using SimpleResults;
 using TransactionProcessor.DataTransferObjects.Requests.Merchant;
+using TransactionProcessor.DataTransferObjects.Requests.Transaction;
+using TransactionProcessor.DataTransferObjects.Requests.Voucher;
 using TransactionProcessor.DataTransferObjects.Responses.Contract;
+using TransactionProcessor.DataTransferObjects.Responses.Transaction;
+using TransactionProcessorACL.BusinessLogic.Requests;
 
 namespace TransactionProcessorACL.BusinessLogic.Services
 {
@@ -41,11 +45,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             this.EstateReportingApiClient = estateReportingApiClient;
         }
         
-        public async Task<Result<ProcessLogonTransactionResponse>> ProcessLogonTransaction(Guid estateId,
-                                                                                           Guid merchantId,
-                                                                                           DateTime transactionDateTime,
-                                                                                           String transactionNumber,
-                                                                                           String deviceIdentifier,
+        public async Task<Result<ProcessLogonTransactionResponse>> ProcessLogonTransaction(TransactionCommands.ProcessLogonTransactionCommand command,
                                                                                            CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
@@ -54,7 +54,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
 
             TokenResponse accessToken = accessTokenResult.Data;
-            LogonTransactionRequest logonTransactionRequest = CreateLogonRequestMessage(estateId, merchantId, transactionDateTime, transactionNumber, deviceIdentifier);
+            LogonTransactionRequest logonTransactionRequest = CreateLogonRequestMessage(command);
 
             try {
                 Result<LogonTransactionResponse> transactionResult = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, logonTransactionRequest, cancellationToken);
@@ -62,20 +62,14 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
                 
-                return Result.Success(CreateProcessLogonTransactionResponse(estateId, merchantId, transactionResult.Data));
+                return Result.Success(CreateProcessLogonTransactionResponse(command.EstateId, command.MerchantId, transactionResult.Data));
             }
             catch (Exception ex) {
-                return Result.Success(CreateLogonErrorResponse(estateId, merchantId, ex));
+                return Result.Success(CreateLogonErrorResponse(command.EstateId, command.MerchantId, ex));
             }
         }
 
-        public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction((Guid estateId, Guid merchantId) merchantData,
-                                                                                         DateTime transactionDateTime,
-                                                                                         String transactionNumber,
-                                                                                         String deviceIdentifier,
-                                                                                         String customerEmailAddress,
-                                                                                         (Guid operatorId, Guid contractId, Guid productId) productData,
-                                                                                         Dictionary<String, String> additionalRequestMetadata, CancellationToken cancellationToken)
+        public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction(TransactionCommands.ProcessSaleTransactionCommand command, CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
             if (accessTokenResult.IsFailed) {
@@ -83,13 +77,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
             TokenResponse accessToken = accessTokenResult.Data;
 
-            SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(merchantData,
-                                                                                            transactionNumber,
-                                                                                            deviceIdentifier,
-                                                                                            transactionDateTime,
-                                                                                            productData,
-                                                                                            customerEmailAddress,
-                                                                                            additionalRequestMetadata);
+            SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(command);
 
             ProcessSaleTransactionResponse response = null;
 
@@ -100,11 +88,11 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
 
-                response = this.CreateSaleTransactionResponse(transactionResult.Data, merchantData.estateId, merchantData.merchantId);
+                response = this.CreateSaleTransactionResponse(transactionResult.Data, command.EstateId, command.MerchantId);
             }
             catch (Exception ex)
             {
-                response = this.CreateSaleTransactionErrorResponse(merchantData.estateId, merchantData.merchantId, ex);
+                response = this.CreateSaleTransactionErrorResponse(command.EstateId, command.MerchantId, ex);
             }
 
             return Result.Success(response);
@@ -161,28 +149,23 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             return DefaultSecurityServiceTokenRetryCount;
         }
 
-        private SaleTransactionRequest BuildSaleTransactionRequest((Guid estateId, Guid merchantId) merchantData,
-                                                                   String transactionNumber,
-                                                                   String deviceIdentifier, 
-                                                                   DateTime transactionDateTime,
-                                                                   (Guid operatorId, Guid contractId, Guid productId) productData,
-                                                                   String customerEmailAddress,
-                                                                   Dictionary<String, String> additionalRequestMetadata)
+        private SaleTransactionRequest BuildSaleTransactionRequest(TransactionCommands.ProcessSaleTransactionCommand command)
         {
             return new SaleTransactionRequest
             {
-                TransactionNumber = transactionNumber,
-                DeviceIdentifier = deviceIdentifier,
-                TransactionDateTime = transactionDateTime,
+                TransactionNumber = command.TransactionNumber,
+                DeviceIdentifier = command.DeviceIdentifier,
+                TransactionDateTime = command.TransactionDateTime,
+                HostDateTime = command.HostDateTime,
                 TransactionType = "SALE",
-                OperatorId = productData.operatorId,
-                CustomerEmailAddress = customerEmailAddress,
+                OperatorId = command.OperatorId,
+                CustomerEmailAddress = command.CustomerEmailAddress,
                 TransactionSource = 1,
-                ContractId = productData.contractId,
-                ProductId = productData.productId,
-                AdditionalTransactionMetadata = additionalRequestMetadata,
-                EstateId = merchantData.estateId,
-                MerchantId = merchantData.merchantId,
+                ContractId = command.ContractId,
+                ProductId = command.ProductId,
+                AdditionalTransactionMetadata = command.AdditionalRequestMetadata,
+                EstateId = command.EstateId,
+                MerchantId = command.MerchantId,
             };
         }
 
@@ -216,12 +199,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             };
         }
 
-        public async Task<Result<ProcessReconciliationResponse>> ProcessReconciliation(Guid estateId,
-                                                                                       Guid merchantId,
-                                                                                       DateTime transactionDateTime,
-                                                                                       String deviceIdentifier,
-                                                                                       Int32 transactionCount,
-                                                                                       Decimal transactionValue,
+        public async Task<Result<ProcessReconciliationResponse>> ProcessReconciliation(TransactionCommands.ProcessReconciliationCommand command,
                                                                                        CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
@@ -230,12 +208,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
 
             TokenResponse accessToken = accessTokenResult.Data;
-            ReconciliationRequest reconciliationRequest = CreateReconciliationRequestMessage(estateId,
-                                                                                            merchantId,
-                                                                                            transactionDateTime,
-                                                                                            deviceIdentifier,
-                                                                                            transactionCount,
-                                                                                            transactionValue);
+            ReconciliationRequest reconciliationRequest = CreateReconciliationRequestMessage(command);
 
             try
             {
@@ -247,7 +220,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             }
             catch (Exception ex)
             {
-                return Result.Success(CreateReconciliationErrorResponse(estateId, merchantId, ex));
+                return Result.Success(CreateReconciliationErrorResponse(command.EstateId, command.MerchantId, ex));
             }
         }
 
@@ -264,7 +237,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             TokenResponse accessToken = accessTokenResult.Data;
 
             try {
-                Result<TransactionProcessor.DataTransferObjects.GetVoucherResponse> getVoucherResult = await this.TransactionProcessorClient.GetVoucherByCode(accessToken.AccessToken, estateId, voucherCode, cancellationToken);
+                Result<TransactionProcessor.DataTransferObjects.Responses.Voucher.GetVoucherResponse> getVoucherResult = await this.TransactionProcessorClient.GetVoucherByCode(accessToken.AccessToken, estateId, voucherCode, cancellationToken);
                 if (getVoucherResult.IsFailed) {
                     return ResultHelpers.CreateFailure(getVoucherResult);
                 }
@@ -814,14 +787,14 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
         private static GetVoucherResponse CreateGetVoucherSuccessResponse(Guid estateId,
                                                                           Guid contractId,
-                                                                          TransactionProcessor.DataTransferObjects.GetVoucherResponse getVoucherResponse)
+                                                                          TransactionProcessor.DataTransferObjects.Responses.Voucher.GetVoucherResponse getVoucherResponse)
         {
             return new GetVoucherResponse
             {
                 ResponseCode = "0000", // Success
                 ContractId = contractId,
                 EstateId = estateId,
-                ExpiryDate = getVoucherResponse.ExpiryDate,
+                ExpiryDate = DateOnly.FromDateTime(getVoucherResponse.ExpiryDate.DateTime),
                 Value = getVoucherResponse.Value,
                 VoucherCode = getVoucherResponse.VoucherCode,
                 VoucherId = getVoucherResponse.VoucherId,
@@ -843,21 +816,17 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             };
         }
 
-        private static ReconciliationRequest CreateReconciliationRequestMessage(Guid estateId,
-                                                                                Guid merchantId,
-                                                                                DateTime transactionDateTime,
-                                                                                String deviceIdentifier,
-                                                                                Int32 transactionCount,
-                                                                                Decimal transactionValue)
+        private static ReconciliationRequest CreateReconciliationRequestMessage(TransactionCommands.ProcessReconciliationCommand command)
         {
             ReconciliationRequest reconciliationRequest = new ReconciliationRequest
             {
-                DeviceIdentifier = deviceIdentifier,
-                TransactionDateTime = transactionDateTime,
-                TransactionCount = transactionCount,
-                TransactionValue = transactionValue,
-                EstateId = estateId,
-                MerchantId = merchantId
+                DeviceIdentifier = command.DeviceIdentifier,
+                TransactionDateTime = command.TransactionDateTime,
+                HostDateTime = command.HostDateTime,
+                TransactionCount = command.TransactionCount,
+                TransactionValue = command.TransactionValue,
+                EstateId = command.EstateId,
+                MerchantId = command.MerchantId
             };
 
             return reconciliationRequest;
@@ -891,20 +860,17 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             };
         }
 
-        private static LogonTransactionRequest CreateLogonRequestMessage(Guid estateId,
-                                                                         Guid merchantId,
-                                                                         DateTime transactionDateTime,
-                                                                         String transactionNumber,
-                                                                         String deviceIdentifier)
+        private static LogonTransactionRequest CreateLogonRequestMessage(TransactionCommands.ProcessLogonTransactionCommand command)
         {
             LogonTransactionRequest logonTransactionRequest = new LogonTransactionRequest
             {
-                TransactionNumber = transactionNumber,
-                DeviceIdentifier = deviceIdentifier,
-                TransactionDateTime = transactionDateTime,
+                TransactionNumber = command.TransactionNumber,
+                DeviceIdentifier = command.DeviceIdentifier,
+                TransactionDateTime = command.TransactionDateTime,
+                HostDateTime = command.HostDateTime,
                 TransactionType = "LOGON",
-                EstateId = estateId,
-                MerchantId = merchantId
+                EstateId = command.EstateId,
+                MerchantId = command.MerchantId
             };
             
             return logonTransactionRequest;

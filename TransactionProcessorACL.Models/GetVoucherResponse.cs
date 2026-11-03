@@ -17,7 +17,7 @@ public class GetVoucherResponse
 
     public Guid EstateId { get; set; }
 
-    public DateTime ExpiryDate { get; set; }
+    public DateOnly ExpiryDate { get; set; }
 
     public Decimal Value { get; set; }
 

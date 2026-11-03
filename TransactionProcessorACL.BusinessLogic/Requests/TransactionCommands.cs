@@ -12,34 +12,33 @@ namespace TransactionProcessorACL.BusinessLogic.Requests;
 public record TransactionCommands {
     public record ProcessLogonTransactionCommand(Guid EstateId,
                                                  Guid MerchantId,
-                                                 DateTime TransactionDateTime,
+                                                 DateTimeOffset TransactionDateTime,
+                                                 DateTimeOffset HostDateTime,
                                                  String TransactionNumber,
-                                                 String DeviceIdentifier)
-        : IRequest<Result<ProcessLogonTransactionResponse>>;
+                                                 String DeviceIdentifier) : IRequest<Result<ProcessLogonTransactionResponse>>;
 
     public record ProcessSaleTransactionCommand(Guid EstateId,
                                                 Guid MerchantId,
-                                                DateTime TransactionDateTime,
+                                                DateTimeOffset TransactionDateTime,
+                                                DateTimeOffset HostDateTime,
                                                 String TransactionNumber,
                                                 String DeviceIdentifier,
                                                 Guid OperatorId,
                                                 String CustomerEmailAddress,
                                                 Guid ContractId,
                                                 Guid ProductId,
-                                                Dictionary<String, String> AdditionalRequestMetadata)
-        : IRequest<Result<ProcessSaleTransactionResponse>>;
+                                                Dictionary<String, String> AdditionalRequestMetadata) : IRequest<Result<ProcessSaleTransactionResponse>>;
 
     public record ProcessReconciliationCommand(Guid EstateId,
                                                Guid MerchantId,
-                                               DateTime TransactionDateTime,
+                                               DateTimeOffset TransactionDateTime,
+                                               DateTimeOffset HostDateTime,
                                                String DeviceIdentifier,
                                                Int32 TransactionCount,
-                                               Decimal TransactionValue)
-        : IRequest<Result<ProcessReconciliationResponse>>;
+                                               Decimal TransactionValue) : IRequest<Result<ProcessReconciliationResponse>>;
 
     public record ResendReceiptCommand(Guid EstateId,
                                        Guid MerchantId,
                                        String Reference,
-                                       String RecipientEmailAddress)
-        : IRequest<Result<ResendReceiptResponse>>;
+                                       String RecipientEmailAddress) : IRequest<Result<ResendReceiptResponse>>;
 }

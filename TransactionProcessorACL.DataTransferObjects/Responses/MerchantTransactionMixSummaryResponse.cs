@@ -8,10 +8,10 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses;
 public class MerchantTransactionMixSummaryResponse
 {
     [Description("Start of the reporting period represented by the result.")]
-    public DateTime FromDate { get; set; }
+    public DateOnly FromDate { get; set; }
 
     [Description("End of the reporting period represented by the result.")]
-    public DateTime ToDate { get; set; }
+    public DateOnly ToDate { get; set; }
 
     [Description("Dimension used to group the results.")]
     public TransactionMixBreakdown Breakdown { get; set; }
@@ -68,5 +68,5 @@ public class TransactionMixDrillDownTransaction
     public decimal Amount { get; set; }
 
     [Description("Date and time when the transaction occurred.")]
-    public DateTime TransactionDateTime { get; set; }
+    public DateTimeOffset TransactionDateTime { get; set; }
 }
