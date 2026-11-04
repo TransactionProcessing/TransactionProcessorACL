@@ -1,4 +1,5 @@
-﻿using TransactionProcessor.IntegrationTesting.Helpers;
+﻿using TransactionProcessor.DataTransferObjects.Requests.Transaction;
+using TransactionProcessor.IntegrationTesting.Helpers;
 
 namespace TransactionProcessorACL.IntegrationTests.Shared;
 

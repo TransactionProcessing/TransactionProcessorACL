@@ -11,7 +11,7 @@
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.12.0" />
     <PackageVersion Include="Ductus.FluentDocker" Version="2.85.0" />
     <PackageVersion Include="EventStoreProjections" Version="2023.12.3" />
-    <PackageVersion Include="KurrentDB.Client" Version="1.6.0" />
+    <PackageVersion Include="KurrentDB.Client" Version="1.6.1" />
     <PackageVersion Include="Lamar" Version="16.0.0" />
     <PackageVersion Include="Lamar.Microsoft.DependencyInjection" Version="16.0.0" />
     <PackageVersion Include="MediatR" Version="14.2.0" />
@@ -26,10 +26,10 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.14" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
-    <PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="2.5.1" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="2.5.2" />
     <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
     <PackageVersion Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
-    <PackageVersion Include="Imposter" Version="1.0.8" />
+    <PackageVersion Include="Imposter" Version="1.0.10" />
     <PackageVersion Include="NLog.Extensions.Logging" Version="6.2.2" />
     <PackageVersion Include="NUnit" Version="5.0.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="6.3.1" />
@@ -38,15 +38,15 @@
     <PackageVersion Include="Reqnroll" Version="3.3.4" />
     <PackageVersion Include="Reqnroll.NUnit" Version="3.3.4" />
     <PackageVersion Include="Reqnroll.Tools.MsBuild.Generation" Version="3.3.4" />
-    <PackageVersion Include="SecurityService.Client" Version="2026.10.3.204" />
-    <PackageVersion Include="SecurityService.IntegrationTesting.Helpers" Version="2026.10.3.204" />
+    <PackageVersion Include="SecurityService.Client" Version="2026.10.3.207" />
+    <PackageVersion Include="SecurityService.IntegrationTesting.Helpers" Version="2026.10.3.207" />
     <PackageVersion Include="Shared" Version="2026.11.2" />
     <PackageVersion Include="Shared.IntegrationTesting" Version="2026.11.2" />
     <PackageVersion Include="Shared.Results.Web" Version="2026.11.2" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="TransactionProcessing.ApiDefaults" Version="2026.11.2" />
-    <PackageVersion Include="TransactionProcessor.Client" Version="2026.10.3.412" />
-    <PackageVersion Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2026.10.3.412" />
+    <PackageVersion Include="TransactionProcessor.Client" Version="2026.10.3.418" />
+    <PackageVersion Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2026.10.3.418" />
     <PackageVersion Include="Sentry.AspNetCore" Version="6.12.1" />
     <PackageVersion Include="xunit.v3" Version="4.0.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />

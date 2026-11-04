@@ -39,6 +39,7 @@ public class AuditPipelineBehaviorTests
             Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"),
             Guid.Parse("2C8354B7-B97A-46EA-9AD1-C43F33F7E3C4"),
             new System.DateTime(2026, 6, 30, 10, 15, 0),
+            new System.DateTime(2026, 6, 30, 10, 15, 0),
             "TX-0001",
             "device-01",
             Guid.Parse("5C8354B7-B97A-46EA-9AD1-C43F33F7E3C7"),

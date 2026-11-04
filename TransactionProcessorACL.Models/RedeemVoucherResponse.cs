@@ -17,7 +17,7 @@ public class RedeemVoucherResponse
 
     public Guid EstateId { get; set; }
 
-    public DateTime ExpiryDate { get; set; }
+    public DateOnly ExpiryDate { get; set; }
 
     public Decimal Balance { get; set; }
 

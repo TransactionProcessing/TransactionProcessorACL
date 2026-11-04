@@ -22,7 +22,7 @@
         public String DeviceIdentifier { get; set; }
 
         [Description("Date and time when the transaction occurred.")]
-        public DateTime TransactionDateTime { get; set; }
+        public DateTimeOffset TransactionDateTime { get; set; }
 
         [Description("Client supplied transaction reference or number.")]
         public String TransactionNumber { get; set; }

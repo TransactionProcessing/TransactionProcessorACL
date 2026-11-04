@@ -127,7 +127,7 @@ namespace TransactionProcessorACL.Handlers;
 
         private static TransactionCommands.ProcessLogonTransactionCommand CreateLogonCommand(Guid estateId, Guid merchantId, LogonTransactionRequestMessage msg)
         {
-            return new TransactionCommands.ProcessLogonTransactionCommand(estateId, merchantId, msg.TransactionDateTime, msg.TransactionNumber, msg.DeviceIdentifier);
+            return new TransactionCommands.ProcessLogonTransactionCommand(estateId, merchantId, msg.TransactionDateTime, DateTimeOffset.UtcNow, msg.TransactionNumber, msg.DeviceIdentifier);
         }
 
     private static TransactionCommands.ProcessSaleTransactionCommand CreateSaleCommand(Guid estateId, Guid merchantId, SaleTransactionRequestMessage msg)
@@ -136,6 +136,7 @@ namespace TransactionProcessorACL.Handlers;
             estateId,
             merchantId,
             msg.TransactionDateTime,
+            DateTimeOffset.UtcNow,
             msg.TransactionNumber,
             msg.DeviceIdentifier,
             msg.OperatorId,
@@ -151,6 +152,7 @@ namespace TransactionProcessorACL.Handlers;
             estateId,
             merchantId,
             msg.TransactionDateTime,
+            DateTimeOffset.UtcNow,
             msg.DeviceIdentifier,
             msg.TransactionCount,
             msg.TransactionValue);

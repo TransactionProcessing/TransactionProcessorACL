@@ -1,5 +1,7 @@
 ﻿using Shared.Serialisation;
 using SimpleResults;
+using TransactionProcessor.DataTransferObjects.Responses.Transaction;
+using TransactionProcessor.DataTransferObjects.Responses.Voucher;
 using TransactionProcessor.IntegrationTesting.Helpers;
 using TransactionProcessorACL.DataTransferObjects.Requests;
 

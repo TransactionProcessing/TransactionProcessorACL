@@ -27,7 +27,7 @@ namespace TransactionProcessorACL.Models
 
         public string MerchantReference { get; set; }
 
-        public DateTime NextStatementDate { get; set; }
+        public DateOnly NextStatementDate { get; set; }
 
         public List<MerchantOperatorResponse> Operators { get; set; }
 

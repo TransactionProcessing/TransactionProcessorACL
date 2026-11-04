@@ -5,9 +5,9 @@ namespace TransactionProcessorACL.Models;
 
 public class MerchantTransactionMixSummaryResponse
 {
-    public DateTime FromDate { get; set; }
+    public DateOnly FromDate { get; set; }
 
-    public DateTime ToDate { get; set; }
+    public DateOnly ToDate { get; set; }
 
     public TransactionMixBreakdown Breakdown { get; set; }
 
@@ -47,7 +47,7 @@ public class TransactionMixDrillDownTransaction
 
     public decimal Amount { get; set; }
 
-    public DateTime TransactionDateTime { get; set; }
+    public DateTimeOffset TransactionDateTime { get; set; }
 }
 
 public enum TransactionMixBreakdown

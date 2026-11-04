@@ -20,7 +20,7 @@
         public Guid EstateId{ get; set; }
 
         [Description("Voucher expiry date and time.")]
-        public DateTime ExpiryDate{ get; set; }
+        public DateOnly ExpiryDate{ get; set; }
 
         [Description("Original value of the voucher.")]
         public Decimal Value{ get; set; }

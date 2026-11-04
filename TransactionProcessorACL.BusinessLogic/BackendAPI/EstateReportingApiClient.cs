@@ -115,3 +115,5 @@ public class EstateReportingApiClient : ClientProxyBase.ClientProxyBase, IEstate
         return $"{baseAddress.TrimEnd('/')}{relativePath}";
     }
 }
+
+

@@ -1,6 +1,6 @@
 using Shouldly;
 using System;
-using TransactionProcessor.DataTransferObjects;
+using TransactionProcessor.DataTransferObjects.Responses.Transaction;
 
 namespace TransactionProcessor.IntegrationTests.Common;
 

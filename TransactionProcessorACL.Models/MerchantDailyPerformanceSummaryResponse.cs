@@ -31,5 +31,5 @@ public class DrillDownTransaction
 
     public decimal Amount { get; set; }
 
-    public DateTime TransactionDateTime { get; set; }
+    public DateTimeOffset TransactionDateTime { get; set; }
 }

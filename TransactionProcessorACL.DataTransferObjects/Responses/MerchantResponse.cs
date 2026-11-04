@@ -35,7 +35,7 @@ namespace TransactionProcessorACL.DataTransferObjects.Responses {
         public string MerchantReference { get; set; }
 
         [Description("Date of the merchant's next statement.")]
-        public DateTime NextStatementDate { get; set; }
+        public DateOnly NextStatementDate { get; set; }
 
         [Description("Operators registered for the merchant.")]
         public List<MerchantOperatorResponse> Operators { get; set; }

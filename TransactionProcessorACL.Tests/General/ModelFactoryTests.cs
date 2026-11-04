@@ -123,7 +123,7 @@ namespace TransactionProcessorACL.Tests.General
             dto.VoucherCode.ShouldBe(model.VoucherCode);
             dto.EstateId.ShouldBe(model.EstateId);
             dto.Balance.ShouldBe(model.Balance);
-            dto.ExpiryDate.ShouldBe(model.ExpiryDate);
+            dto.ExpiryDate.ShouldBe(model.ExpiryDate.ToDateTime(TimeOnly.MinValue));
             dto.ResponseMessage.ShouldBe(model.ResponseMessage);
             dto.ResponseCode.ShouldBe(model.ResponseCode);
         }

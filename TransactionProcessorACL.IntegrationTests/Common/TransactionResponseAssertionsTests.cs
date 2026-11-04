@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using TransactionProcessor.DataTransferObjects;
 using System;
+using TransactionProcessor.DataTransferObjects.Responses.Transaction;
 
 namespace TransactionProcessor.IntegrationTests.Common;
 
