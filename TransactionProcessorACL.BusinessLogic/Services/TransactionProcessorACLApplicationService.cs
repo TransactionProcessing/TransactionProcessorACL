@@ -264,7 +264,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             try {
                 RedeemVoucherRequest redeemVoucherRequest = new() { EstateId = estateId, VoucherCode = voucherCode };
 
-                Result redeemVoucherResponseResult = await this.TransactionProcessorClient.RedeemVoucher(accessToken.AccessToken, redeemVoucherRequest, cancellationToken);
+                Result<TransactionProcessor.DataTransferObjects.Responses.Voucher.RedeemVoucherResponse> redeemVoucherResponseResult = await this.TransactionProcessorClient.RedeemVoucher(accessToken.AccessToken, redeemVoucherRequest, cancellationToken);
 
                 if (redeemVoucherResponseResult.IsFailed) {
                     return ResultHelpers.CreateFailure(redeemVoucherResponseResult);

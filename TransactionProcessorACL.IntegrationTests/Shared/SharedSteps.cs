@@ -6,6 +6,7 @@ using TransactionProcessor.DataTransferObjects.Requests.Merchant;
 using TransactionProcessor.DataTransferObjects.Requests.Operator;
 using TransactionProcessor.DataTransferObjects.Requests.Transaction;
 using TransactionProcessor.DataTransferObjects.Responses.Estate;
+using TransactionProcessor.DataTransferObjects.Responses.Merchant;
 using AssignOperatorRequest = TransactionProcessor.DataTransferObjects.Requests.Merchant.AssignOperatorRequest;
 
 namespace TransactionProcessorACL.IntegrationTests.Shared{
@@ -326,14 +327,14 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
         public async Task WhenICreateTheFollowingMerchants(DataTable table){
             List<EstateDetails> estates = this.TestingContext.Estates.Select(e => e.EstateDetails).ToList();
             List<(EstateDetails estate, CreateMerchantRequest, Boolean EnableAgencyBanking)> requests = table.Rows.ToCreateMerchantRequests(estates);
-            List<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> verifiedMerchants =
+            Dictionary<Guid, MerchantResponse> verifiedMerchants =
                 await this.TransactionProcessorSteps.WhenICreateTheFollowingMerchants(this.TestingContext.AccessToken, requests);
 
-            foreach (TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse verifiedMerchant in verifiedMerchants){
-                EstateDetails1 estateDetails = this.TestingContext.GetEstateDetails(verifiedMerchant.EstateId);
-                estateDetails.EstateDetails.AddMerchant(verifiedMerchant);
-                estateDetails.AddMerchantReportingId(verifiedMerchant.MerchantId, verifiedMerchant.MerchantReportingId);
-                this.TestingContext.Logger.LogInformation($"Merchant {verifiedMerchant.MerchantName} created with Id {verifiedMerchant.MerchantId} for Estate {estateDetails.EstateDetails.EstateName}");
+            foreach (KeyValuePair<Guid, MerchantResponse> verifiedMerchant in verifiedMerchants){
+                EstateDetails1 estateDetails = this.TestingContext.GetEstateDetails(verifiedMerchant.Value.EstateId);
+                estateDetails.EstateDetails.AddMerchant(verifiedMerchant.Value);
+                estateDetails.AddMerchantReportingId(verifiedMerchant.Key, verifiedMerchant.Value.MerchantReportingId);
+                this.TestingContext.Logger.LogInformation($"Merchant {verifiedMerchant.Value.MerchantName} created with Id {verifiedMerchant.Key} for Estate {estateDetails.EstateDetails.EstateName}");
             }
         }
 
@@ -349,7 +350,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             List<(EstateDetails estate, CreateOperatorRequest request)> newRequests = new();
             foreach ((EstateDetails estate, CreateOperatorRequest request) r in requests) {
                 newRequests.Add((r.estate, new CreateOperatorRequest {
-                    OperatorId = Guid.NewGuid(), Name = r.request.Name, RequireCustomMerchantNumber = r.request.RequireCustomMerchantNumber, RequireCustomTerminalNumber = r.request.RequireCustomTerminalNumber,
+                    Name = r.request.Name, RequireCustomMerchantNumber = r.request.RequireCustomMerchantNumber, RequireCustomTerminalNumber = r.request.RequireCustomTerminalNumber,
                 }));
             }
 
