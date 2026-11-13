@@ -48,8 +48,6 @@ namespace TransactionProcessor.IntegrationTests.Common
 
         private const String MinimumSupportedApplicationVersion = "1.0.5";
 
-        private readonly String KurrentDbAdminPassword = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-
         private readonly String ManagementBootstrapClientId = $"transactionprocessoracl-{Guid.NewGuid():N}";
 
         private readonly String ManagementBootstrapClientSecret = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
@@ -115,9 +113,6 @@ namespace TransactionProcessor.IntegrationTests.Common
                 environmentVariables.Add("EVENTSTORE_INSECURE", "false");
             }
 
-            environmentVariables.Add("KURRENTDB_DEFAULT_ADMIN_PASSWORD", this.KurrentDbAdminPassword);
-            environmentVariables.Add("KURRENTDB_DEFAULT_OPS_PASSWORD", Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)));
-
             String logfilePath = "/var/log/kurrentdb";
             eventStoreContainer = eventStoreContainer.MountHostFolder(this.HostTraceFolder, logfilePath);
 
@@ -159,13 +154,6 @@ namespace TransactionProcessor.IntegrationTests.Common
             this.AdditionalVariables.Add(ContainerType.TransactionProcessor, additionalVariables);
 
             return base.SetupTransactionProcessorContainer();
-        }
-
-        protected override String GenerateKurrentDbConnectionString(String userName = "admin", String password = "")
-        {
-            String eventStoreAddress = $"esdb://{userName}:{this.KurrentDbAdminPassword}@{this.KurrentDbContainerName}:{DockerPorts.KurrentDbHttpDockerPort}?tls=false&defaultDeadline=240000";
-
-            return eventStoreAddress;
         }
 
         public override async Task CreateSubscriptions(CancellationToken cancellationToken){
