@@ -33,7 +33,7 @@ namespace TransactionProcessorACL.Handlers;
 
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
+            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden(ForbiddenRequestMessage)));
         }
 
         TransactionCommands.ProcessSaleTransactionCommand saleCommand = CreateSaleCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
@@ -50,7 +50,7 @@ namespace TransactionProcessorACL.Handlers;
 
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
+            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden(ForbiddenRequestMessage)));
         }
 
         TransactionCommands.ProcessLogonTransactionCommand logonCommand = CreateLogonCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
@@ -67,7 +67,7 @@ namespace TransactionProcessorACL.Handlers;
 
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
+            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden(ForbiddenRequestMessage)));
         }
 
         TransactionCommands.ProcessReconciliationCommand reconCommand = CreateReconciliationCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
@@ -82,7 +82,7 @@ namespace TransactionProcessorACL.Handlers;
     {
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
+            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden(ForbiddenRequestMessage)));
         }
 
         if (string.IsNullOrWhiteSpace(transactionRequest.Reference)) {
