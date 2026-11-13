@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     name: "Release"
+    permissions:
+      contents: read
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
@@ -84,6 +86,7 @@ jobs:
         dotnet nuget push Nugets/TransactionProcessorACL.DataTransferObjects.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }} --skip-duplicate
 
   deploystaging:
+    permissions: {}
     runs-on: [stagingserver,windows]
     needs: build
     environment: staging
@@ -117,6 +120,7 @@ jobs:
           Start-Service -Name $serviceName  
 
   deployproduction:
+    permissions: {}
     runs-on: [productionserver, windows]
     needs: [build, deploystaging]
     environment: production

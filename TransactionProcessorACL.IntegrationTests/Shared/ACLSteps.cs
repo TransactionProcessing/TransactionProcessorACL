@@ -23,8 +23,8 @@ using TransactionProcessor.Client;
 using TransactionProcessor.DataTransferObjects;
 using TransactionProcessor.IntegrationTests.Common;
 using ReportingDailyPerformanceSummaryResponse = TransactionProcessorACL.DataTransferObjects.Responses.MerchantDailyPerformanceSummaryResponse;
-using ReportingMerchantTransactionMixSummaryResponse = TransactionProcessorACL.IntegrationTests.TransactionProcessing.Shared.MerchantTransactionMixSummaryResponse;
-using static TransactionProcessorACL.IntegrationTests.TransactionProcessing.Shared.ReqnrollExtensions;
+using ReportingMerchantTransactionMixSummaryResponse = global::TransactionProcessorACL.IntegrationTests.Shared.MerchantTransactionMixSummaryResponse;
+using static global::TransactionProcessorACL.IntegrationTests.Shared.ReqnrollExtensions;
 
 public class ACLSteps{
     private readonly HttpClient HttpClient;

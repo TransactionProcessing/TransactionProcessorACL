@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     name: "Publish Pre-Release Nuget and Docker"
+    permissions:
+      contents: read
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
@@ -78,6 +80,7 @@ jobs:
         path: transactionprocessoracl.zip
 
   deploydevelopment:
+    permissions: {}
     runs-on: [developmentserver,windows]
     needs: build
     environment: development

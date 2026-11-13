@@ -1,7 +1,7 @@
 using TransactionProcessor.IntegrationTesting.Helpers;
 using TransactionProcessorACL.DataTransferObjects.Responses;
 using TransactionProcessorACL.IntegrationTests.Shared;
-using ReportingMixResponse = TransactionProcessorACL.IntegrationTests.TransactionProcessing.Shared.MerchantTransactionMixSummaryResponse;
+using ReportingMixResponse = global::TransactionProcessorACL.IntegrationTests.Shared.MerchantTransactionMixSummaryResponse;
 
 namespace TransactionProcessor.IntegrationTests.Common
 {

@@ -25,7 +25,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
     using TransactionProcessor.DataTransferObjects;
     using TransactionProcessor.IntegrationTesting.Helpers;
     using TransactionProcessor.IntegrationTests.Common;
-    using static TransactionProcessorACL.IntegrationTests.TransactionProcessing.Shared.ReqnrollExtensions;
+    using static global::TransactionProcessorACL.IntegrationTests.Shared.ReqnrollExtensions;
     using ClientDetails = TransactionProcessor.IntegrationTests.Common.ClientDetails;
     
     /// <summary>
