@@ -301,6 +301,23 @@ namespace TransactionProcessor.IntegrationTests.Common
             return base.SetupSecurityServiceContainer();
         }
 
+        public override ContainerBuilder SetupTransactionProcessorAclContainer()
+        {
+            if (this.IntegrationTestCertificate is null)
+            {
+                throw new InvalidOperationException("Integration test certificate was not initialised before container setup.");
+            }
+
+            X509Certificate2 rootCertificate = X509CertificateLoader.LoadCertificateFromFile(this.IntegrationTestCertificate.RootCertificatePath);
+            String trustedRootPath = Path.Combine(this.IntegrationTestCertificate.CertificateDirectory, "securityservice-integration-test-root.crt");
+            File.WriteAllText(trustedRootPath, PemEncoding.WriteString("CERTIFICATE", rootCertificate.RawData));
+
+            return base.SetupTransactionProcessorAclContainer()
+                .MountHostFolder(this.IntegrationTestCertificate.CertificateDirectory, this.IntegrationTestCertificate.ContainerCertificateDirectory)
+                .WithEntrypoint("sh", "-c")
+                .WithCommand("cp /app/test-certs/securityservice-integration-test-root.crt /usr/local/share/ca-certificates/securityservice-integration-test-root.crt && update-ca-certificates && exec dotnet TransactionProcessorACL.dll");
+        }
+
         private HttpClient CreatePinnedHttpClient()
         {
             if (this.IntegrationTestCertificate is null)
