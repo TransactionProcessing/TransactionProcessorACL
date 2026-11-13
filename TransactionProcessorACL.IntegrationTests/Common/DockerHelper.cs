@@ -15,7 +15,6 @@ namespace TransactionProcessor.IntegrationTests.Common
     using System.Diagnostics;
     using System.IO;
     using System.Net.Http;
-    using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using System.Threading.Tasks;
@@ -48,9 +47,9 @@ namespace TransactionProcessor.IntegrationTests.Common
 
         private const String MinimumSupportedApplicationVersion = "1.0.5";
 
-        private readonly String ManagementBootstrapClientId = $"transactionprocessoracl-{Guid.NewGuid():N}";
+        private const String ManagementBootstrapClientId = "management-bootstrap";
 
-        private readonly String ManagementBootstrapClientSecret = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        private const String ManagementBootstrapClientSecret = "management-bootstrap-secret";
 
         private readonly TestingContext TestingContext;
 
@@ -296,13 +295,8 @@ namespace TransactionProcessor.IntegrationTests.Common
             additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:1", "estateClient");
             additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:2", "redemptionClient");
             additionalVariables.Add("ServiceOptions:UserOptions:UseProvidedPasswordForEmailUsers", "true");
-            additionalVariables.Add("ServiceOptions:KestrelOptions:Path", this.IntegrationTestCertificate.GetContainerCertificatePath());
-            additionalVariables.Add("ServiceOptions:KestrelOptions:Password", this.IntegrationTestCertificate.Password);
-            additionalVariables.Add("ServiceOptions:ManagementBootstrap:Enabled", "true");
-            additionalVariables.Add("ServiceOptions:ManagementBootstrap:ClientId", this.ManagementBootstrapClientId);
-            additionalVariables.Add("ServiceOptions:ManagementBootstrap:ClientSecret", this.ManagementBootstrapClientSecret);
 
-            this.AdditionalVariables.Add(ContainerType.SecurityService, additionalVariables);
+            this.AdditionalVariables[ContainerType.SecurityService] = additionalVariables;
 
             return base.SetupSecurityServiceContainer();
         }
@@ -329,3 +323,4 @@ namespace TransactionProcessor.IntegrationTests.Common
 
 
 }
+
