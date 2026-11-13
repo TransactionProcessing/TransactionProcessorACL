@@ -4,9 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.General;
-using Shared.Results.Web;
-using SimpleResults;
+using TransactionProcessing.Shared.General;
+using TransactionProcessing.UnionResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.Factories;
 
@@ -18,14 +17,14 @@ namespace TransactionProcessorACL.Handlers
     /// </summary>
     public static class VoucherHandlers
     {
-        public static async Task<IResult> GetVoucher(IMediator mediator,
+        public static async Task<IResultOutcome> GetVoucher(IMediator mediator,
                                                           ClaimsPrincipal user,
                                                           string voucherCode,
                                                           string applicationVersion,
                                                           CancellationToken cancellationToken)
         {
 
-            // NOTE: original controller had the version check commented out — preserving that behaviour.
+            // NOTE: original controller had the version check commented out ï¿½ preserving that behaviour.
             Result<Claim> estateClaim = ClaimsHelper.GetUserClaim(user, "estateId");
             if (estateClaim.IsFailed)
                 return ResponseFactory.FromResult(Result.Failure("No Claim found for Estate Id"));
@@ -43,13 +42,13 @@ namespace TransactionProcessorACL.Handlers
             return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
 
-        public static async Task<IResult> RedeemVoucher(IMediator mediator,
+        public static async Task<IResultOutcome> RedeemVoucher(IMediator mediator,
                                                              ClaimsPrincipal user,
                                                              string voucherCode,
                                                              string applicationVersion,
                                                              CancellationToken cancellationToken)
         {
-            // NOTE: original controller had authentication/version checks commented out for redeem — preserve behaviour.
+            // NOTE: original controller had authentication/version checks commented out for redeem ï¿½ preserve behaviour.
             Result<Claim> estateClaim = ClaimsHelper.GetUserClaim(user, "estateId");
             if (estateClaim.IsFailed)
                 return ResponseFactory.FromResult(Result.Failure("No Claim found for Estate Id"));

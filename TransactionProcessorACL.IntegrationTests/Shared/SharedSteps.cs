@@ -1,4 +1,4 @@
-﻿using SimpleResults;
+using TransactionProcessing.UnionResults;
 using System.Diagnostics.CodeAnalysis;
 using TransactionProcessor.DataTransferObjects.Requests.Contract;
 using TransactionProcessor.DataTransferObjects.Requests.Estate;
@@ -25,7 +25,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
     using TransactionProcessor.DataTransferObjects;
     using TransactionProcessor.IntegrationTesting.Helpers;
     using TransactionProcessor.IntegrationTests.Common;
-    using static TransactionProcessorACL.IntegrationTests.Shared.ReqnrollExtensions;
+    using static TransactionProcessorACL.IntegrationTests.TransactionProcessing.Shared.ReqnrollExtensions;
     using ClientDetails = TransactionProcessor.IntegrationTests.Common.ClientDetails;
     
     /// <summary>

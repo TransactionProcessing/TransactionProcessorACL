@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Shared.Authorisation;
+using TransactionProcessing.Shared.Authorisation;
+using TransactionProcessing.UnionResults.AspNetCore;
 using System;
 using TransactionProcessorACL.Handlers;
 
@@ -20,6 +21,7 @@ namespace TransactionProcessorACL.Endpoints
                 .WithTags(EndpointDocumentationConstants.TransactionsTag)
                 .RequireAuthorization()
                 .RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+            saleGroup.AddUnionResultFilter();
 
             // POST /api/saletransactions
             saleGroup.MapPost(String.Empty, TransactionHandlers.PerformSaleTransaction)
@@ -39,6 +41,7 @@ namespace TransactionProcessorACL.Endpoints
                 .WithTags(EndpointDocumentationConstants.TransactionsTag)
                 .RequireAuthorization()
                 .RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+            logonGroup.AddUnionResultFilter();
 
             // POST /api/logontransactions
             logonGroup.MapPost("", TransactionHandlers.PerformLogonTransaction)
@@ -58,6 +61,7 @@ namespace TransactionProcessorACL.Endpoints
                 .WithTags(EndpointDocumentationConstants.TransactionsTag)
                 .RequireAuthorization()
                 .RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+            reconciliationGroup.AddUnionResultFilter();
 
             // POST /api/reconciliationtransactions
             reconciliationGroup.MapPost("", TransactionHandlers.PerformReconciliationTransaction)
@@ -77,6 +81,7 @@ namespace TransactionProcessorACL.Endpoints
                 .WithTags(EndpointDocumentationConstants.TransactionsTag)
                 .RequireAuthorization()
                 .RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+            transactionGroup.AddUnionResultFilter();
 
             // POST /api/transactions/resendreceipt
             transactionGroup.MapPost("resendreceipt", TransactionHandlers.ResendReceipt)

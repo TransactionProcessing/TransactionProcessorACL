@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,12 +7,13 @@ namespace TransactionProcessor.IntegrationTests.Common
     using System.Data;
     using System.IO;
     using System.Net;
+    using System.Security.Cryptography;
     using System.Threading;
     using System.Threading.Tasks;
     using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
-    using global::Shared.Logger;
+    using global::TransactionProcessing.Shared.Logger;
     using Microsoft.Data.SqlClient;
     using NLog;
     using Reqnroll;
@@ -21,8 +22,20 @@ namespace TransactionProcessor.IntegrationTests.Common
     [Binding]
     public class Setup
     {
-        public static (String usename, String password) SqlCredentials = ("sa", "thisisalongpassword123!");
-        public static (String url, String username, String password) DockerCredentials = ("https://www.docker.com", "stuartferguson", "Sc0tland");
+        public static (String usename, String password) SqlCredentials = ("sa", $"Aa1!{Convert.ToHexString(RandomNumberGenerator.GetBytes(24))}");
+
+        public static (String url, String username, String password)? DockerCredentials
+        {
+            get
+            {
+                String? username = Environment.GetEnvironmentVariable("DOCKER_USERNAME");
+                String? password = Environment.GetEnvironmentVariable("DOCKER_PASSWORD");
+
+                return String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password)
+                    ? null
+                    : ("https://www.docker.com", username, password);
+            }
+        }
 
         public static async Task GlobalSetup(DockerHelper dockerHelper)
         {

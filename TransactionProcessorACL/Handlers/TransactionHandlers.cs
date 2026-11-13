@@ -1,9 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.General;
-using Shared.Logger;
-using Shared.Results.Web;
-using SimpleResults;
+using TransactionProcessing.Shared.General;
+using TransactionProcessing.Shared.Logger;
+using TransactionProcessing.UnionResults;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -21,11 +20,11 @@ namespace TransactionProcessorACL.Handlers;
 
 /// <summary>
 /// Static handler methods for transaction processing; callable from minimal endpoints or controllers.
-/// Returns IResult so endpoints can return directly.
+/// Returns UnionResults outcomes for endpoint filter mapping.
 /// </summary>
     public static class TransactionHandlers
 {
-    public static async Task<IResult> PerformSaleTransaction(IMediator mediator,
+    public static async Task<IResultOutcome> PerformSaleTransaction(IMediator mediator,
                                                              ClaimsPrincipal user,
                                                              SaleTransactionRequestMessage transactionRequest,
                                                              CancellationToken cancellationToken)
@@ -34,7 +33,7 @@ namespace TransactionProcessorACL.Handlers;
 
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Forbidden());
+            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
         }
 
         TransactionCommands.ProcessSaleTransactionCommand saleCommand = CreateSaleCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
@@ -42,7 +41,7 @@ namespace TransactionProcessorACL.Handlers;
         return ResponseFactory.FromResult(saleResponse, ModelFactory.ConvertFrom);
     }
 
-    public static async Task<IResult> PerformLogonTransaction(IMediator mediator,
+    public static async Task<IResultOutcome> PerformLogonTransaction(IMediator mediator,
                                                               ClaimsPrincipal user,
                                                               LogonTransactionRequestMessage transactionRequest,
                                                               CancellationToken cancellationToken)
@@ -51,7 +50,7 @@ namespace TransactionProcessorACL.Handlers;
 
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Forbidden());
+            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
         }
 
         TransactionCommands.ProcessLogonTransactionCommand logonCommand = CreateLogonCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
@@ -59,7 +58,7 @@ namespace TransactionProcessorACL.Handlers;
         return ResponseFactory.FromResult(logonResponse, ModelFactory.ConvertFrom);
     }
 
-    public static async Task<IResult> PerformReconciliationTransaction(IMediator mediator,
+    public static async Task<IResultOutcome> PerformReconciliationTransaction(IMediator mediator,
                                                                        ClaimsPrincipal user,
                                                                        ReconciliationRequestMessage transactionRequest,
                                                                        CancellationToken cancellationToken)
@@ -68,7 +67,7 @@ namespace TransactionProcessorACL.Handlers;
 
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Forbidden());
+            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
         }
 
         TransactionCommands.ProcessReconciliationCommand reconCommand = CreateReconciliationCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
@@ -76,29 +75,29 @@ namespace TransactionProcessorACL.Handlers;
         return ResponseFactory.FromResult(reconResponse, ModelFactory.ConvertFrom);
     }
 
-    public static async Task<IResult> ResendReceipt(IMediator mediator,
+    public static async Task<IResultOutcome> ResendReceipt(IMediator mediator,
                                                     ClaimsPrincipal user,
                                                     ResendReceiptRequestMessage transactionRequest,
                                                     CancellationToken cancellationToken)
     {
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
         if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Forbidden());
+            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
         }
 
         if (string.IsNullOrWhiteSpace(transactionRequest.Reference)) {
-            return Results.BadRequest(new ApiResponses.ResendReceiptResponse { Success = false, Message = "A transaction reference or receipt reference is required." });
+            return Result<ResendReceiptResponse>.Fail(Error.Validation("A transaction reference or receipt reference is required."));
         }
 
         if (string.IsNullOrWhiteSpace(transactionRequest.RecipientEmailAddress)) {
-            return Results.BadRequest(new ApiResponses.ResendReceiptResponse { Success = false, Message = "Recipient email address is required." });
+            return Result<ResendReceiptResponse>.Fail(Error.Validation("Recipient email address is required."));
         }
 
         try {
             _ = new MailAddress(transactionRequest.RecipientEmailAddress);
         }
         catch (FormatException) {
-            return Results.BadRequest(new ApiResponses.ResendReceiptResponse { Success = false, Message = "Recipient email address is not valid." });
+            return Result<ResendReceiptResponse>.Fail(Error.Validation("Recipient email address is not valid."));
         }
 
         TransactionCommands.ResendReceiptCommand resendCommand = new(claimsResult.Data.estateId,
@@ -106,14 +105,6 @@ namespace TransactionProcessorACL.Handlers;
                                                                      transactionRequest.Reference,
                                                                      transactionRequest.RecipientEmailAddress);
         Result<ResendReceiptResponse> resendResponse = await mediator.Send(resendCommand, cancellationToken);
-
-        if (resendResponse.IsFailed && resendResponse.Status == ResultStatus.NotFound) {
-            return Results.NotFound(new ApiResponses.ResendReceiptResponse
-            {
-                Success = false,
-                Message = resendResponse.Message
-            });
-        }
 
         return ResponseFactory.FromResult(resendResponse, response => new ApiResponses.ResendReceiptResponse
         {

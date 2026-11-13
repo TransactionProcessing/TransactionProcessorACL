@@ -1,13 +1,13 @@
-﻿using TransactionProcessor.IntegrationTesting.Helpers;
+using TransactionProcessor.IntegrationTesting.Helpers;
 
 namespace TransactionProcessor.IntegrationTests.Common
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using global::Shared.Logger;
+    using global::TransactionProcessing.Shared.Logger;
     using Reqnroll;
-    using Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.IntegrationTesting;
     using Shouldly;
 
     /// <summary>

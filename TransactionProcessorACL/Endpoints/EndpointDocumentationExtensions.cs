@@ -15,8 +15,9 @@ internal static class EndpointDocumentationExtensions
     {
         return endpoint.AddOpenApiOperationTransformer((operation, _, _) =>
         {
-            if (operation.RequestBody?.Content.TryGetValue("application/json", out OpenApiMediaType? mediaType) == true)
-                mediaType.Example = JsonNode.Parse(exampleJson);
+            if (operation.RequestBody?.Content.TryGetValue("application/json", out IOpenApiMediaType? mediaType) == true &&
+                mediaType is OpenApiMediaType openApiMediaType)
+                openApiMediaType.Example = JsonNode.Parse(exampleJson);
 
             return Task.CompletedTask;
         });
@@ -31,9 +32,10 @@ internal static class EndpointDocumentationExtensions
         {
             if (operation.Responses?.TryGetValue(statusCode.ToString(), out IOpenApiResponse? response) == true &&
                 response is OpenApiResponse openApiResponse &&
-                openApiResponse.Content?.TryGetValue("application/json", out OpenApiMediaType? jsonMediaType) == true)
+                openApiResponse.Content?.TryGetValue("application/json", out IOpenApiMediaType? jsonMediaType) == true &&
+                jsonMediaType is OpenApiMediaType openApiMediaType)
             {
-                jsonMediaType.Example = JsonNode.Parse(exampleJson);
+                openApiMediaType.Example = JsonNode.Parse(exampleJson);
             }
 
             return Task.CompletedTask;

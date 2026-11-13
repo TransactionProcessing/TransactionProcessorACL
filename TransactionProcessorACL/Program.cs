@@ -12,11 +12,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Extensions.Logging;
-using Shared.General;
-using Shared.Extensions;
-using Shared.Logger;
-using Shared.Middleware;
-using Shared.Serialisation;
+using TransactionProcessing.Shared.General;
+using TransactionProcessing.Shared.Extensions;
+using TransactionProcessing.Shared.Logger;
+using TransactionProcessing.Shared.Middleware;
+using TransactionProcessing.Shared.Serialisation;
 using Sentry.Extensibility;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TransactionProcessing.ApiDefaults;
+using TransactionProcessing.UnionResults.AspNetCore;
 using TransactionProcessorACL.Common;
 
 namespace TransactionProcessorACL;
@@ -52,7 +53,7 @@ public class Program
             builder.SetupLogFactory(setup =>
             {
                 setup.AddCallSiteHiddenAssembly(typeof(NlogLogger).Assembly);
-                setup.AddCallSiteHiddenAssembly(typeof(Shared.Logger.Logger).Assembly);
+                setup.AddCallSiteHiddenAssembly(typeof(TransactionProcessing.Shared.Logger.Logger).Assembly);
                 setup.AddCallSiteHiddenAssembly(typeof(TenantMiddleware).Assembly);
             });
             builder.LoadConfigurationFromFile(nlogConfigPath);
@@ -101,6 +102,7 @@ public class Program
 
     private static void ConfigureServices(WebApplicationBuilder appBuilder, IConfiguration configuration)
     {
+        appBuilder.Services.AddUnionResults();
         appBuilder.Host.ConfigureContainer<ServiceRegistry>((_, services) =>
         {
             services.IncludeRegistry(new MiddlewareRegistry(configuration));
@@ -138,8 +140,8 @@ public class Program
 
         LogManager.Setup().LoadConfigurationFromFile("NLog.config");
         NLog.Logger logger = LogManager.GetLogger("TransactionProcessorACL");
-        Shared.Logger.Logger.Initialise(logger, "TransactionProcessorACL");
-        configuration.LogConfiguration(Shared.Logger.Logger.LogWarning);
+        TransactionProcessing.Shared.Logger.Logger.Initialise(logger, "TransactionProcessorACL");
+        configuration.LogConfiguration(TransactionProcessing.Shared.Logger.Logger.LogWarning);
 
         app.UseMiddleware<TenantMiddleware>();
         app.AddRequestResponseLogging();
@@ -160,7 +162,7 @@ public class Program
         endpoints.MapReportingEndpoints();
         endpoints.MapTransactionEndpoints();
         endpoints.MapVoucherEndpoints();
-        endpoints.MapHealthChecks("health", CreateHealthCheckOptions(Shared.HealthChecks.HealthCheckMiddleware.WriteResponse))
+        endpoints.MapHealthChecks("health", CreateHealthCheckOptions(TransactionProcessing.Shared.HealthChecks.HealthCheckMiddleware.WriteResponse))
             .WithName("Health")
             .WithTags("Health")
             .WithSummary("Check service health")

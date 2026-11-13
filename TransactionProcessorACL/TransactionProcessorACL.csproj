@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	  <DockerfileTag>transactionprocessoracl:latest</DockerfileTag>
   </PropertyGroup>
@@ -15,7 +15,7 @@
     <PackageReference Include="KurrentDB.Client" />
     <PackageReference Include="OpenIddict.Validation.AspNetCore" />
       <PackageReference Include="OpenIddict.Validation.SystemNetHttp" />
-      <PackageReference Include="ClientProxyBase" />
+    <PackageReference Include="TransactionProcessing.ClientProxyBase" />
       <PackageReference Include="Lamar" />
       <PackageReference Include="MediatR" />
       <PackageReference Include="Lamar.Microsoft.DependencyInjection" />
@@ -29,8 +29,9 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" />
     <PackageReference Include="NLog.Extensions.Logging" />
-    <PackageReference Include="Shared" />
-    <PackageReference Include="Shared.Results.Web" />
+    <PackageReference Include="TransactionProcessing.Shared" />
+    <PackageReference Include="TransactionProcessing.Shared.Logger" />
+    <PackageReference Include="TransactionProcessing.UnionResults.AspNetCore" />
       <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
       <PackageReference Include="Sentry.AspNetCore" />
       <PackageReference Include="TransactionProcessing.ApiDefaults" />

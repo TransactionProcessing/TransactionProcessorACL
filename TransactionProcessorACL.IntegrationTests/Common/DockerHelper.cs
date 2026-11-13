@@ -1,20 +1,22 @@
-﻿using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Builders;
 using EventStore.Client;
 using KurrentDB.Client;
-using Shared.IntegrationTesting;
+using TransactionProcessing.Shared.IntegrationTesting;
 using System.Linq;
 
 namespace TransactionProcessor.IntegrationTests.Common
 {
     using Client;
     using SecurityService.Client;
-    using Shared.IntegrationTesting.TestContainers;
-    using Shared.Serialisation;
+    using TransactionProcessing.Shared.IntegrationTesting.TestContainers;
+    using TransactionProcessing.Shared.Serialisation;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Net.Http;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using System.Threading.Tasks;
     using TestHosts.Clients;
@@ -22,8 +24,8 @@ namespace TransactionProcessor.IntegrationTests.Common
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Shared.IntegrationTesting.DockerHelper" />
-    public class DockerHelper : global::Shared.IntegrationTesting.TestContainers.DockerHelper
+    /// <seealso cref="TransactionProcessing.Shared.IntegrationTesting.DockerHelper" />
+    public class DockerHelper : global::TransactionProcessing.Shared.IntegrationTesting.TestContainers.DockerHelper
     {
         #region Fields
 
@@ -45,6 +47,12 @@ namespace TransactionProcessor.IntegrationTests.Common
         public ITransactionProcessorClient TransactionProcessorClient;
 
         private const String MinimumSupportedApplicationVersion = "1.0.5";
+
+        private readonly String KurrentDbAdminPassword = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+
+        private readonly String ManagementBootstrapClientId = $"transactionprocessoracl-{Guid.NewGuid():N}";
+
+        private readonly String ManagementBootstrapClientSecret = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
 
         private readonly TestingContext TestingContext;
 
@@ -107,6 +115,9 @@ namespace TransactionProcessor.IntegrationTests.Common
                 environmentVariables.Add("EVENTSTORE_INSECURE", "false");
             }
 
+            environmentVariables.Add("KURRENTDB_DEFAULT_ADMIN_PASSWORD", this.KurrentDbAdminPassword);
+            environmentVariables.Add("KURRENTDB_DEFAULT_OPS_PASSWORD", Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)));
+
             String logfilePath = "/var/log/kurrentdb";
             eventStoreContainer = eventStoreContainer.MountHostFolder(this.HostTraceFolder, logfilePath);
 
@@ -150,9 +161,9 @@ namespace TransactionProcessor.IntegrationTests.Common
             return base.SetupTransactionProcessorContainer();
         }
 
-        protected override String GenerateKurrentDbConnectionString(String userName = "admin", String password = "changeit")
+        protected override String GenerateKurrentDbConnectionString(String userName = "admin", String password = "")
         {
-            String eventStoreAddress = $"esdb://{userName}:{password}@{this.KurrentDbContainerName}:{DockerPorts.KurrentDbHttpDockerPort}?tls=false&defaultDeadline=240000";
+            String eventStoreAddress = $"esdb://{userName}:{this.KurrentDbAdminPassword}@{this.KurrentDbContainerName}:{DockerPorts.KurrentDbHttpDockerPort}?tls=false&defaultDeadline=240000";
 
             return eventStoreAddress;
         }
@@ -187,26 +198,15 @@ namespace TransactionProcessor.IntegrationTests.Common
             }
         
             // Setup the base address resolvers
-            String SecurityServiceBaseAddressResolver(String api) => $"https://127.0.0.1:{this.SecurityServicePort}";
+            String SecurityServiceBaseAddressResolver(String api) => $"https://localhost:{this.SecurityServicePort}";
             String TransactionProcessorBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorPort}";
             String TransactionProcessorAclBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorAclPort}";
             String TestHostServiceBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TestHostServicePort}";
             
-            HttpClientHandler clientHandler = new HttpClientHandler
-                                              {
-                                                  ServerCertificateCustomValidationCallback = (message,
-                                                                                               certificate2,
-                                                                                               arg3,
-                                                                                               arg4) =>
-                                                                                              {
-                                                                                                  return true;
-                                                                                              }
-
-                                              };
-            HttpClient httpClient = new HttpClient(clientHandler);
+            HttpClient httpClient = this.CreatePinnedHttpClient();
             this.SecurityServiceClient = new SecurityServiceClient(SecurityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
             this.TransactionProcessorClient = new TransactionProcessorClient(TransactionProcessorBaseAddressResolver, httpClient, Serialise, Deserialise);
-            this.TestHostHttpClient = new HttpClient(clientHandler);
+            this.TestHostHttpClient = new HttpClient();
             this.TestHostHttpClient.BaseAddress = new Uri($"http://127.0.0.1:{this.TestHostServicePort}");
             this.AgencyBankingClient = new AgencyBankingClient(TestHostServiceBaseAddressResolver, httpClient, Serialise_CamelCase, this.Deserialise_CamelCase);
 
@@ -216,7 +216,7 @@ namespace TransactionProcessor.IntegrationTests.Common
 
             this.ProjectionManagementClient = new KurrentDBProjectionManagementClient(this.ConfigureKurrentDbSettings());
 
-            SimpleResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
+            TransactionProcessing.UnionResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken(this.ManagementBootstrapClientId, this.ManagementBootstrapClientSecret, CancellationToken.None);
             if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken))
             {
                 throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
@@ -299,14 +299,41 @@ namespace TransactionProcessor.IntegrationTests.Common
 
         public override ContainerBuilder SetupSecurityServiceContainer()
         {
+            if (this.IntegrationTestCertificate is null)
+            {
+                throw new InvalidOperationException("Integration test certificate was not initialised before container setup.");
+            }
+
             Dictionary<String, String> additionalVariables = new();
             additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:1", "estateClient");
             additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:2", "redemptionClient");
             additionalVariables.Add("ServiceOptions:UserOptions:UseProvidedPasswordForEmailUsers", "true");
+            additionalVariables.Add("ServiceOptions:KestrelOptions:Path", this.IntegrationTestCertificate.GetContainerCertificatePath());
+            additionalVariables.Add("ServiceOptions:KestrelOptions:Password", this.IntegrationTestCertificate.Password);
+            additionalVariables.Add("ServiceOptions:ManagementBootstrap:Enabled", "true");
+            additionalVariables.Add("ServiceOptions:ManagementBootstrap:ClientId", this.ManagementBootstrapClientId);
+            additionalVariables.Add("ServiceOptions:ManagementBootstrap:ClientSecret", this.ManagementBootstrapClientSecret);
 
             this.AdditionalVariables.Add(ContainerType.SecurityService, additionalVariables);
 
             return base.SetupSecurityServiceContainer();
+        }
+
+        private HttpClient CreatePinnedHttpClient()
+        {
+            if (this.IntegrationTestCertificate is null)
+            {
+                throw new InvalidOperationException("Integration test certificate was not initialised before HttpClient creation.");
+            }
+
+            HttpClientHandler handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
+                    certificate is X509Certificate2 certificate2 &&
+                    String.Equals(certificate2.Thumbprint, this.IntegrationTestCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase)
+            };
+
+            return new HttpClient(handler, disposeHandler: true);
         }
 
         #endregion

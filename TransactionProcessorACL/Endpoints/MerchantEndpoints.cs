@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Shared.Authorisation;
+using TransactionProcessing.Shared.Authorisation;
+using TransactionProcessing.UnionResults.AspNetCore;
 using TransactionProcessorACL.Handlers;
 
 namespace TransactionProcessorACL.Endpoints
@@ -16,6 +17,7 @@ namespace TransactionProcessorACL.Endpoints
                 .WithTags("Merchants")
                 .RequireAuthorization()
                 .RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+        group.AddUnionResultFilter();
 
             group.MapGet("", MerchantHandlers.GetMerchant)
                 .WithName("GetMerchant")

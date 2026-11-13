@@ -1,4 +1,4 @@
-﻿using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
 {
@@ -7,7 +7,7 @@ namespace TransactionProcessorACL.BusinessLogic.RequestHandlers
     using System.Threading.Tasks;
     using MediatR;
     using Requests;
-    using Shared.General;
+    using TransactionProcessing.Shared.General;
 
     public class VersionCheckRequestHandler : IRequestHandler<VersionCheckCommands.VersionCheckCommand, Result>
     {

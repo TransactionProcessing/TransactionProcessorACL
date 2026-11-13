@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +7,8 @@ namespace TransactionProcessor.IntegrationTests.Common
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using global::Shared.IntegrationTesting;
-    using global::Shared.Logger;
+    using global::TransactionProcessing.Shared.IntegrationTesting;
+    using global::TransactionProcessing.Shared.Logger;
     using NLog;
     using Reqnroll;
 
@@ -50,7 +50,10 @@ namespace TransactionProcessor.IntegrationTests.Common
 
             await Setup.GlobalSetup(this.TestingContext.DockerHelper);
 
-            this.TestingContext.DockerHelper.DockerCredentials = Setup.DockerCredentials;
+            if (Setup.DockerCredentials is { } dockerCredentials)
+            {
+                this.TestingContext.DockerHelper.DockerCredentials = dockerCredentials;
+            }
             this.TestingContext.DockerHelper.SqlCredentials = Setup.SqlCredentials;
             this.TestingContext.DockerHelper.SqlServerContainerName = "sharedsqlserver";
            

@@ -1,6 +1,6 @@
 using KurrentDB.Client;
 using Microsoft.AspNetCore.Http;
-using Shared.Logger;
+using TransactionProcessing.Shared.Logger;
 using System;
 using System.Collections.Generic;
 using System.Text;

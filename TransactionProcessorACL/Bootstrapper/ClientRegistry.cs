@@ -1,11 +1,11 @@
 namespace TransactionProcessorACL.Bootstrapper
 {
-    using ClientProxyBase;
+    using TransactionProcessing.ClientProxyBase;
     using Lamar;
     using Microsoft.Extensions.DependencyInjection;
     using SecurityService.Client;
-    using Shared.General;
-    using Shared.Serialisation;
+    using TransactionProcessing.Shared.General;
+    using TransactionProcessing.Shared.Serialisation;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using TransactionProcessorACL.BusinessLogic.BackendAPI;

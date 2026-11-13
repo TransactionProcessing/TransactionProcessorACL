@@ -1,8 +1,7 @@
-﻿using System.Linq;
+using System.Linq;
 using SecurityService.DataTransferObjects;
-using Shared.Exceptions;
-using Shared.Results;
-using SimpleResults;
+using TransactionProcessing.Shared.Exceptions;
+using TransactionProcessing.UnionResults;
 using TransactionProcessor.DataTransferObjects.Requests.Merchant;
 using TransactionProcessor.DataTransferObjects.Requests.Transaction;
 using TransactionProcessor.DataTransferObjects.Requests.Voucher;
@@ -21,8 +20,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
     using TransactionProcessorACL.DataTransferObjects.Requests;
     using Models;
     using SecurityService.Client;
-    using Shared.General;
-    using Shared.Logger;
+    using TransactionProcessing.Shared.General;
+    using TransactionProcessing.Shared.Logger;
     using TransactionProcessor.Client;
     using TransactionProcessor.DataTransferObjects;
     using GetVoucherResponse = Models.GetVoucherResponse;
@@ -83,8 +82,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             try
             {
-                Result<SaleTransactionResponse> transactionResult = 
-                    await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, saleTransactionRequest, cancellationToken);
+                Result<SaleTransactionResponse> transactionResult = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, saleTransactionRequest, cancellationToken);
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
 
@@ -212,8 +210,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             try
             {
-                Result<ReconciliationResponse> transactionResult = 
-                    await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, reconciliationRequest, cancellationToken);
+                Result<ReconciliationResponse> transactionResult = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, reconciliationRequest, cancellationToken);
                 if (transactionResult.IsFailed)
                     return ResultHelpers.CreateFailure(transactionResult);
                 return Result.Success(CreateProcessReconciliationResponse(transactionResult.Data));
@@ -412,7 +409,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 }).ToList()
             };
 
-            return response;
+            return Result<MerchantDailyPerformanceSummaryResponse>.Ok(response);
         }
 
         public async Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(Guid estateId,
@@ -459,7 +456,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             };
 
-            return response;
+            return Result<MerchantTransactionMixSummaryResponse>.Ok(response);
         }
 
         public async Task<Result<RecentActivityReceiptSearchResponse>> GetRecentActivityReceiptSearch(Guid estateId,
@@ -505,7 +502,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 }).ToList()
             };
 
-            return response;
+            return Result<RecentActivityReceiptSearchResponse>.Ok(response);
         }
 
         public async Task<Result<ResendReceiptResponse>> ResendReceipt(Guid estateId,

@@ -1,6 +1,6 @@
 using HealthMonitoring.Client;
 using Microsoft.Extensions.Configuration;
-using Shared.Authorisation;
+using TransactionProcessing.Shared.Authorisation;
 using TransactionProcessing.ApiDefaults;
 
 namespace TransactionProcessorACL.Bootstrapper
@@ -8,9 +8,9 @@ namespace TransactionProcessorACL.Bootstrapper
     using Lamar;
     using Microsoft.Extensions.DependencyInjection;
     using OpenIddict.Validation.AspNetCore;
-    using Shared.Extensions;
-    using Shared.General;
-    using Shared.Serialisation;
+    using TransactionProcessing.Shared.Extensions;
+    using TransactionProcessing.Shared.General;
+    using TransactionProcessing.Shared.Serialisation;
     using System;
     using System.ComponentModel;
     using System.Diagnostics.CodeAnalysis;
@@ -64,16 +64,7 @@ namespace TransactionProcessorACL.Bootstrapper
         /// <returns></returns>
         private HttpClientHandler ApiEndpointHttpHandler(IServiceProvider serviceProvider)
         {
-            return new HttpClientHandler
-                   {
-                       ServerCertificateCustomValidationCallback = (message,
-                                                                    cert,
-                                                                    chain,
-                                                                    errors) =>
-                                                                   {
-                                                                       return true;
-                                                                   }
-                   };
+            return new HttpClientHandler();
         }
 
         private void ConfigureAuthentication()
@@ -90,13 +81,7 @@ namespace TransactionProcessorACL.Bootstrapper
                     options.SetIssuer(new Uri(ConfigurationReader.GetValue("SecurityConfiguration", "Authority")));
 
                     // Enables discovery and HTTP backchannel support
-                    options.UseSystemNetHttp()
-                        .ConfigureHttpClientHandler(handler =>
-                        {
-                            // DEV ONLY: bypass all certificate errors
-                            handler.ServerCertificateCustomValidationCallback =
-                                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-                        });
+                    options.UseSystemNetHttp();
 
                     // Register the ASP.NET Core integration
                     options.UseAspNetCore();

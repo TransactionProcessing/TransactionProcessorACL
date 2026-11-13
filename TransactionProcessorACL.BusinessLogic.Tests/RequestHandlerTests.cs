@@ -1,4 +1,4 @@
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace TransactionProcessorACL.BusinesssLogic.Tests
 {
@@ -13,7 +13,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using Microsoft.Extensions.Configuration;
     using Models;
     using Imposter.Abstractions;
-    using Shared.General;
+    using TransactionProcessing.Shared.General;
     using Shouldly;
     using Testing;
     using TransactionProcessorACL.DataTransferObjects.Requests;
@@ -52,7 +52,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
                 .ProcessLogonTransaction(Arg<TransactionCommands.ProcessLogonTransactionCommand>.Any(),
-                                                      Arg<CancellationToken>.Any()).ReturnsAsync(TestData.ProcessLogonTransactionResponse);
+                                                      Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.ProcessLogonTransactionResponse));
             TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
 
             TransactionCommands.ProcessLogonTransactionCommand command = TestData.ProcessLogonTransactionCommand;
@@ -72,7 +72,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
                 .ProcessSaleTransaction(Arg<TransactionCommands.ProcessSaleTransactionCommand>.Any(),
-                                                      Arg<CancellationToken>.Any()).ReturnsAsync(TestData.ProcessSaleTransactionResponse);
+                                                      Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.ProcessSaleTransactionResponse));
 
             TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
 
@@ -91,7 +91,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             ITransactionProcessorACLApplicationServiceImposter applicationService = new ITransactionProcessorACLApplicationServiceImposter();
             applicationService
                 .ProcessReconciliation(Arg<TransactionCommands.ProcessReconciliationCommand>.Any(),
-                                                      Arg<CancellationToken>.Any()).ReturnsAsync(TestData.ProcessReconciliationResponse);
+                                                      Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.ProcessReconciliationResponse));
             TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
 
             TransactionCommands.ProcessReconciliationCommand command = TestData.ProcessReconciliationCommand;
@@ -123,7 +123,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             VersionCheckCommands.VersionCheckCommand command = new(TestData.OldApplicationVersion);
             var result = await requestHandler.Handle(command, CancellationToken.None);
             result.IsFailed.ShouldBeTrue();
-            result.Status.ShouldBe(ResultStatus.Conflict);
+            result.Errors[0].ErrorType.ShouldBe(ErrorType.Conflict);
         }
 
         [Fact]
@@ -157,7 +157,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             VersionCheckCommands.VersionCheckCommand command = new(null);
             var result = await requestHandler.Handle(command, CancellationToken.None);
             result.IsFailed.ShouldBeTrue();
-            result.Status.ShouldBe(ResultStatus.Conflict);
+            result.Errors[0].ErrorType.ShouldBe(ErrorType.Conflict);
         }
 
         [Fact]
@@ -192,7 +192,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 .GetMerchantTransactionMixSummary(Arg<Guid>.Any(),
                                                                Arg<MerchantTransactionMixSummaryRequest>.Any(),
                                                                Arg<CancellationToken>.Any())
-                .ReturnsAsync(new MerchantTransactionMixSummaryResponse());
+                .ReturnsAsync(Result.Success(new MerchantTransactionMixSummaryResponse()));
 
             ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Instance());
 
@@ -222,7 +222,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 .GetMerchantDailyPerformanceSummary(Arg<Guid>.Any(),
                                                                  Arg<MerchantDailyPerformanceSummaryRequest>.Any(),
                                                                  Arg<CancellationToken>.Any())
-                .ReturnsAsync(new MerchantDailyPerformanceSummaryResponse());
+                .ReturnsAsync(Result.Success(new MerchantDailyPerformanceSummaryResponse()));
 
             ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Instance());
 
@@ -249,7 +249,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                 .GetRecentActivityReceiptSearch(Arg<Guid>.Any(),
                                                              Arg<RecentActivityReceiptSearchRequest>.Any(),
                                                              Arg<CancellationToken>.Any())
-                .ReturnsAsync(new RecentActivityReceiptSearchResponse());
+                .ReturnsAsync(Result.Success(new RecentActivityReceiptSearchResponse()));
 
             ReportingRequestHandler requestHandler = new ReportingRequestHandler(applicationService.Instance());
 
@@ -280,7 +280,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
                                             Arg<String>.Any(),
                                             Arg<String>.Any(),
                                             Arg<CancellationToken>.Any())
-                .ReturnsAsync(new ResendReceiptResponse { Success = true, Message = "Receipt resend requested." });
+                .ReturnsAsync(Result.Success(new ResendReceiptResponse { Success = true, Message = "Receipt resend requested." }));
 
             TransactionRequestHandler requestHandler = new TransactionRequestHandler(applicationService.Instance());
 

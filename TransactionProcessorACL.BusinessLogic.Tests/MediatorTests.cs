@@ -10,9 +10,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SimpleResults;
-using Shared.General;
-using Shared.Serialisation;
+using TransactionProcessing.UnionResults;
+using TransactionProcessing.Shared.General;
+using TransactionProcessing.Shared.Serialisation;
 using TransactionProcessorACL.Testing;
 using Xunit;
 

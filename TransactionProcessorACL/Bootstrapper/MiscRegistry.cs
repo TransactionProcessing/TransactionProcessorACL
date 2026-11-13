@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace TransactionProcessorACL.Bootstrapper
 {
     using Factories;
     using Lamar;
     using Microsoft.Extensions.DependencyInjection;
-    using Shared.General;
-    using Shared.Middleware;
+    using TransactionProcessing.Shared.General;
+    using TransactionProcessing.Shared.Middleware;
     using System.Collections.Generic;
     using System;
     using System.Diagnostics.CodeAnalysis;

@@ -1,5 +1,5 @@
-﻿using Shared.Serialisation;
-using SimpleResults;
+using TransactionProcessing.Shared.Serialisation;
+using TransactionProcessing.UnionResults;
 using TransactionProcessor.DataTransferObjects.Responses.Transaction;
 using TransactionProcessor.DataTransferObjects.Responses.Voucher;
 using TransactionProcessor.IntegrationTesting.Helpers;
@@ -23,8 +23,8 @@ using TransactionProcessor.Client;
 using TransactionProcessor.DataTransferObjects;
 using TransactionProcessor.IntegrationTests.Common;
 using ReportingDailyPerformanceSummaryResponse = TransactionProcessorACL.DataTransferObjects.Responses.MerchantDailyPerformanceSummaryResponse;
-using ReportingMerchantTransactionMixSummaryResponse = TransactionProcessorACL.IntegrationTests.Shared.MerchantTransactionMixSummaryResponse;
-using static TransactionProcessorACL.IntegrationTests.Shared.ReqnrollExtensions;
+using ReportingMerchantTransactionMixSummaryResponse = TransactionProcessorACL.IntegrationTests.TransactionProcessing.Shared.MerchantTransactionMixSummaryResponse;
+using static TransactionProcessorACL.IntegrationTests.TransactionProcessing.Shared.ReqnrollExtensions;
 
 public class ACLSteps{
     private readonly HttpClient HttpClient;

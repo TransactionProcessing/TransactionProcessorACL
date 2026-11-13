@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Shared.Results;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects;
 
 namespace TransactionProcessorACL.BusinessLogic.BackendAPI;
 
-public class EstateReportingApiClient : ClientProxyBase.ClientProxyBase, IEstateReportingApiClient
+public class EstateReportingApiClient : TransactionProcessing.ClientProxyBase.ClientProxyBase, IEstateReportingApiClient
 {
     private readonly Func<string, string> BaseAddressResolver;
     private const string EstateIdHeaderName = "EstateId";
