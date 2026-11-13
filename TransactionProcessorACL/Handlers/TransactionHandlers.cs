@@ -24,6 +24,8 @@ namespace TransactionProcessorACL.Handlers;
 /// </summary>
     public static class TransactionHandlers
 {
+    private const String ForbiddenRequestMessage = "The request is forbidden.";
+
     public static async Task<IResultOutcome> PerformSaleTransaction(IMediator mediator,
                                                              ClaimsPrincipal user,
                                                              SaleTransactionRequestMessage transactionRequest,
