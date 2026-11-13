@@ -592,7 +592,7 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             result.IsSuccess.ShouldBeTrue("Error initializing Agency Banking Host");
 
             await Retry.ForEventually(async () => {
-                Result<SystemConfigurationDto> configurationResult =
+                global::SimpleResults.Result<SystemConfigurationDto> configurationResult =
                     await this.TestingContext.DockerHelper.AgencyBankingClient.GetSystemConfiguration(CancellationToken.None);
                 configurationResult.IsSuccess.ShouldBeTrue(configurationResult.Message);
                 AgencyBankingAssertions.VerifySystemConfiguration(configurationResult.Data, request);
@@ -612,11 +612,11 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                     GlName = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "Name"),
                     GlType = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "Type")
                 };
-                Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateGlAccount(request, CancellationToken.None);
+                global::SimpleResults.Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateGlAccount(request, CancellationToken.None);
                 result.IsSuccess.ShouldBeTrue($"Error creating GL account {request.GlCode}");
 
                 await Retry.ForEventually(async () => {
-                    Result<GlAccountResponse> accountResult =
+                    global::SimpleResults.Result<GlAccountResponse> accountResult =
                         await this.TestingContext.DockerHelper.AgencyBankingClient.GetGlAccountByCode(request.GlCode, CancellationToken.None);
                     accountResult.IsSuccess.ShouldBeTrue(accountResult.Message);
                     AgencyBankingAssertions.VerifyGlAccount(accountResult.Data, request);
@@ -638,11 +638,11 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                     PhoneNumber = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "PhoneNumber"),
                     NationalId = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "NationalId")
                 };
-                Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateCustomer(request, CancellationToken.None);
+                global::SimpleResults.Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateCustomer(request, CancellationToken.None);
                 result.IsSuccess.ShouldBeTrue($"Error creating customer {request.AccountNumber}");
 
                 await Retry.ForEventually(async () => {
-                    Result<CustomerResponse> customerResult =
+                    global::SimpleResults.Result<CustomerResponse> customerResult =
                         await this.TestingContext.DockerHelper.AgencyBankingClient.GetCustomerByAccountNumber(request.AccountNumber, CancellationToken.None);
                     customerResult.IsSuccess.ShouldBeTrue(customerResult.Message);
                     AgencyBankingAssertions.VerifyCustomer(customerResult.Data, request);
@@ -662,11 +662,11 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                     BankCode = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "BankCode"),
                     Currency = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "Currency")
                 };
-                Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateSettlementAccount(request, CancellationToken.None);
+                global::SimpleResults.Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateSettlementAccount(request, CancellationToken.None);
                 result.IsSuccess.ShouldBeTrue($"Error creating settlement account {request.AccountNumber}");
 
                 await Retry.ForEventually(async () => {
-                    Result<SettlementAccountResponse> accountResult =
+                    global::SimpleResults.Result<SettlementAccountResponse> accountResult =
                         await this.TestingContext.DockerHelper.AgencyBankingClient.GetSettlementAccountByNumber(request.AccountNumber, CancellationToken.None);
                     accountResult.IsSuccess.ShouldBeTrue(accountResult.Message);
                     AgencyBankingAssertions.VerifySettlementAccount(accountResult.Data, request);
