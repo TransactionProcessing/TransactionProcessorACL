@@ -280,6 +280,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             if (containerType == ContainerType.TransactionProcessorAcl)
             {
                 additionalVariables["ASPNETCORE_ENVIRONMENT"] = "Production";
+                additionalVariables["DOTNET_ENVIRONMENT"] = "Production";
                 additionalVariables["Logging:LogLevel:Microsoft.AspNetCore.Authorization"] = "Debug";
             }
 
