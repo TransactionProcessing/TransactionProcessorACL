@@ -1,5 +1,6 @@
 using HealthMonitoring.Client;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using TransactionProcessing.Shared.Authorisation;
 using TransactionProcessing.ApiDefaults;
 
@@ -64,7 +65,15 @@ namespace TransactionProcessorACL.Bootstrapper
         /// <returns></returns>
         private HttpClientHandler ApiEndpointHttpHandler(IServiceProvider serviceProvider)
         {
-            return new HttpClientHandler();
+            return new HttpClientHandler {
+                                             ServerCertificateCustomValidationCallback = (message,
+                                                                                          cert,
+                                                                                          chain,
+                                                                                          errors) =>
+                                             {
+                                                 return true;
+                                             }
+                                         };
         }
 
         private void ConfigureAuthentication()
@@ -81,7 +90,13 @@ namespace TransactionProcessorACL.Bootstrapper
                     options.SetIssuer(new Uri(ConfigurationReader.GetValue("SecurityConfiguration", "Authority")));
 
                     // Enables discovery and HTTP backchannel support
-                    options.UseSystemNetHttp();
+                    //options.UseSystemNetHttp();
+                    options.UseSystemNetHttp()
+                           .ConfigureHttpClientHandler(handler => {
+                               // DEV ONLY: bypass all certificate errors
+                               handler.ServerCertificateCustomValidationCallback =
+                                   HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+                           });
 
                     // Register the ASP.NET Core integration
                     options.UseAspNetCore();
