@@ -6,7 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Imposter.Abstractions;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.Middleware;
 using Xunit;
@@ -72,7 +72,7 @@ namespace TransactionProcessorACL.Tests.General
             var mediatorMock = new IMediatorImposter(ImposterMode.Explicit);
             mediatorMock
                 .Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Failure()); // simulate old/invalid version
+                .ReturnsAsync(Result.Failure("Test failure")); // simulate old/invalid version
 
             var middleware = new VersionCheckMiddleware(next);
 

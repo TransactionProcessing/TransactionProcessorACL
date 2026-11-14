@@ -1,10 +1,10 @@
-﻿using MediatR;
+using MediatR;
 using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
 
 namespace TransactionProcessorACL.BusinessLogic.RequestHandlers

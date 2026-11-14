@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using TransactionProcessing.UnionResults.AspNetCore;
 using TransactionProcessorACL.Factories;
 using Microsoft.AspNetCore.Mvc;
 using TransactionProcessorACL.Handlers;
@@ -20,6 +21,7 @@ namespace TransactionProcessorACL.Endpoints
             var group = app.MapGroup(BaseRoute)
                 .WithTags("Vouchers")
                 .RequireAuthorization();
+            group.AddUnionResultFilter();
 
             group.MapGet("", VoucherHandlers.GetVoucher)
                 .WithName("GetVoucher")

@@ -8,9 +8,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Logger;
-using Shared.Results.Web;
-using SimpleResults;
+using TransactionProcessing.Shared.Logger;
+using TransactionProcessing.UnionResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.Factories;
 using TransactionProcessorACL.Models;
@@ -19,7 +18,7 @@ namespace TransactionProcessorACL.Handlers
 {
     public static class MerchantHandlers
     {
-        public static async Task<IResult> GetMerchantContracts(IMediator mediator,
+        public static async Task<IResultOutcome> GetMerchantContracts(IMediator mediator,
                                                                ClaimsPrincipal user,
                                                                string applicationVersion,
                                                                CancellationToken cancellationToken)
@@ -28,7 +27,7 @@ namespace TransactionProcessorACL.Handlers
 
             Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
             if (claimsResult.IsFailed)
-                return ResponseFactory.FromResult(Result.Forbidden());
+                return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
 
             MerchantQueries.GetMerchantContractsQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
             Result<List<ContractResponse>> result = await mediator.Send(query, cancellationToken);
@@ -36,7 +35,7 @@ namespace TransactionProcessorACL.Handlers
             return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
 
-        public static async Task<IResult> GetMerchant(IMediator mediator,
+        public static async Task<IResultOutcome> GetMerchant(IMediator mediator,
                                                       ClaimsPrincipal user,
                                                       string applicationVersion,
                                                       CancellationToken cancellationToken)
@@ -46,7 +45,7 @@ namespace TransactionProcessorACL.Handlers
 
             Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
             if (claimsResult.IsFailed)
-                return ResponseFactory.FromResult(Result.Forbidden());
+                return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
 
             MerchantQueries.GetMerchantQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId);
             Result<MerchantResponse> result = await mediator.Send(query, cancellationToken);
@@ -54,7 +53,7 @@ namespace TransactionProcessorACL.Handlers
             return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
 
-        public static async Task<IResult> GetMerchantSchedule(IMediator mediator,
+        public static async Task<IResultOutcome> GetMerchantSchedule(IMediator mediator,
                                                       ClaimsPrincipal user,
                                                       string applicationVersion,
                                                       [FromQuery] Int32 year,
@@ -65,7 +64,7 @@ namespace TransactionProcessorACL.Handlers
 
             Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
             if (claimsResult.IsFailed)
-                return ResponseFactory.FromResult(Result.Forbidden());
+                return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
 
             MerchantQueries.GetMerchantScheduleQuery query = new(claimsResult.Data.estateId, claimsResult.Data.merchantId, year);
             Result<MerchantScheduleResponse> result = await mediator.Send(query, cancellationToken);

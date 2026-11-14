@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using Shared.Authorisation;
+using TransactionProcessing.Shared.Authorisation;
+using TransactionProcessing.UnionResults.AspNetCore;
 using TransactionProcessorACL.Handlers;
 
 namespace TransactionProcessorACL.Endpoints;
@@ -16,6 +17,7 @@ public static class ReportingEndpoints
             .WithTags("Reporting")
             .RequireAuthorization()
             .RequireAuthorization(AuthorizationExtensions.PolicyNames.PasswordTokenOnlyPolicy);
+        group.AddUnionResultFilter();
 
         // POST /api/reporting/dailymerchantperformancesummary
         group.MapPost("dailymerchantperformancesummary", ReportingHandlers.GetMerchantDailyPerformanceSummary)

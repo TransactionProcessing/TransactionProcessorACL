@@ -5,10 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.General;
-using Shared.Logger;
-using Shared.Results.Web;
-using SimpleResults;
+using TransactionProcessing.Shared.General;
+using TransactionProcessing.Shared.Logger;
+using TransactionProcessing.UnionResults;
 using TransactionProcessorACL.BusinessLogic.BackendAPI.DataTransferObjects;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects.Requests;
@@ -23,7 +22,7 @@ namespace TransactionProcessorACL.Handlers;
 
 public static class ReportingHandlers
 {
-    public static async Task<IResult> GetMerchantDailyPerformanceSummary(ClaimsPrincipal user,
+    public static async Task<IResultOutcome> GetMerchantDailyPerformanceSummary(ClaimsPrincipal user,
                                                                          MerchantDailyPerformanceSummaryRequest request,
                                                                          IMediator mediator,
                                                                          CancellationToken cancellationToken)
@@ -32,7 +31,7 @@ public static class ReportingHandlers
 
         Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
         if (estateIdResult.IsFailed)
-            return ResponseFactory.FromResult(Result.Forbidden());
+                return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
 
         ReportingQueries.GetMerchantDailyPerformanceSummaryQuery query = new(estateIdResult.Data, request);
         Result<MerchantDailyPerformanceSummaryResponse> result =
@@ -57,7 +56,7 @@ public static class ReportingHandlers
         });
     }
 
-    public static async Task<IResult> GetMerchantTransactionMixSummary(ClaimsPrincipal user,
+    public static async Task<IResultOutcome> GetMerchantTransactionMixSummary(ClaimsPrincipal user,
                                                                        MerchantTransactionMixSummaryRequest request,
                                                                        IMediator mediator,
                                                                        CancellationToken cancellationToken)
@@ -66,7 +65,7 @@ public static class ReportingHandlers
 
         Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
         if (estateIdResult.IsFailed)
-            return ResponseFactory.FromResult(Result.Forbidden());
+                return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
 
         ReportingQueries.GetMerchantTransactionMixSummaryQuery query = new(estateIdResult.Data, request);
         Result<MerchantTransactionMixSummaryResponse> result = await mediator.Send(query, cancellationToken);
@@ -98,7 +97,7 @@ public static class ReportingHandlers
         });
     }
 
-    public static async Task<IResult> GetRecentActivityReceiptSearch(ClaimsPrincipal user,
+    public static async Task<IResultOutcome> GetRecentActivityReceiptSearch(ClaimsPrincipal user,
                                                                      RecentActivityReceiptSearchRequest request,
                                                                      IMediator mediator,
                                                                      CancellationToken cancellationToken)
@@ -107,7 +106,7 @@ public static class ReportingHandlers
 
         Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
         if (estateIdResult.IsFailed)
-            return ResponseFactory.FromResult(Result.Forbidden());
+                return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
 
         ReportingQueries.GetRecentActivityReceiptSearchQuery query = new(estateIdResult.Data, request);
         Result<RecentActivityReceiptSearchResponse> result =

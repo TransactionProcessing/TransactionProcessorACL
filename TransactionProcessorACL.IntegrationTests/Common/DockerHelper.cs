@@ -1,15 +1,16 @@
-﻿using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Builders;
 using EventStore.Client;
 using KurrentDB.Client;
-using Shared.IntegrationTesting;
+using SecurityService.DataTransferObjects;
 using System.Linq;
+using TransactionProcessing.Shared.IntegrationTesting;
+using TransactionProcessing.Shared.IntegrationTesting.TestContainers;
+using TransactionProcessing.Shared.Serialisation;
+using TransactionProcessing.UnionResults;
 
-namespace TransactionProcessor.IntegrationTests.Common
-{
+namespace TransactionProcessor.IntegrationTests.Common {
     using Client;
     using SecurityService.Client;
-    using Shared.IntegrationTesting.TestContainers;
-    using Shared.Serialisation;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -23,8 +24,7 @@ namespace TransactionProcessor.IntegrationTests.Common
     /// 
     /// </summary>
     /// <seealso cref="Shared.IntegrationTesting.DockerHelper" />
-    public class DockerHelper : global::Shared.IntegrationTesting.TestContainers.DockerHelper
-    {
+    public class DockerHelper : global::TransactionProcessing.Shared.IntegrationTesting.TestContainers.DockerHelper {
         #region Fields
 
         /// <summary>
@@ -60,8 +60,7 @@ namespace TransactionProcessor.IntegrationTests.Common
         /// Initializes a new instance of the <see cref="DockerHelper"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        public DockerHelper()
-        {
+        public DockerHelper() {
             this.IsSecureKurrentDb = false;
             this.TestingContext = new TestingContext();
             StringSerialiser.Initialise((IStringSerialiser)new SystemTextJsonSerializer(SystemTextJsonSerializer.GetDefaultJsonSerializerOptions()));
@@ -71,8 +70,7 @@ namespace TransactionProcessor.IntegrationTests.Common
 
         #region Methods
 
-        public override ContainerBuilder SetupKurrentDbContainer()
-        {
+        public override ContainerBuilder SetupKurrentDbContainer() {
             this.Trace("About to Start Kurrent Db Container");
 
             (String imageName, Boolean useLatest) imageDetails = this.GetImageDetails(ContainerType.KurrentDb).Data;
@@ -87,12 +85,10 @@ namespace TransactionProcessor.IntegrationTests.Common
         };
             ContainerBuilder eventStoreContainer = new(imageDetails.imageName);
 
-            if (!this.IsSecureKurrentDb)
-            {
+            if (!this.IsSecureKurrentDb) {
                 environmentVariables.Add("EVENTSTORE_INSECURE", "true");
             }
-            else
-            {
+            else {
                 String certsPath = "/etc/eventstore/certs";
 
                 // Copy these to the container
@@ -110,7 +106,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             String logfilePath = "/var/log/kurrentdb";
             eventStoreContainer = eventStoreContainer.MountHostFolder(this.HostTraceFolder, logfilePath);
 
-            
+
             this.Trace($"About to Start Kurrent Db Container using image [{imageDetails.imageName}]");
 
 
@@ -122,8 +118,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             return eventStoreContainer;
         }
 
-        public override DotNet.Testcontainers.Builders.ContainerBuilder SetupEstateReportingContainer()
-        {
+        public override DotNet.Testcontainers.Builders.ContainerBuilder SetupEstateReportingContainer() {
             Dictionary<String, String> environmentVariables = new();
             environmentVariables.Add("ConnectionStrings:TransactionProcessorReadModel", this.SetConnectionString("TransactionProcessorReadModel", this.UseSecureSqlServerDatabase));
             this.AdditionalVariables.Add(ContainerType.EstateReporting, environmentVariables);
@@ -141,29 +136,26 @@ namespace TransactionProcessor.IntegrationTests.Common
         //    return base.SetupSecurityServiceContainer();
         //}
 
-        public override ContainerBuilder SetupTransactionProcessorContainer()
-        {
+        public override ContainerBuilder SetupTransactionProcessorContainer() {
             Dictionary<String, String> additionalVariables = new();
-            additionalVariables.Add("OperatorConfiguration:AgencyBanking:Url", $"http://{this.TestHostContainerName}:{DockerPorts.TestHostPort}/api/agencybanking");            
+            additionalVariables.Add("OperatorConfiguration:AgencyBanking:Url", $"http://{this.TestHostContainerName}:{DockerPorts.TestHostPort}/api/agencybanking");
             this.AdditionalVariables.Add(ContainerType.TransactionProcessor, additionalVariables);
 
             return base.SetupTransactionProcessorContainer();
         }
 
-        protected override String GenerateKurrentDbConnectionString(String userName = "admin", String password = "changeit")
-        {
+        protected override String GenerateKurrentDbConnectionString(String userName = "admin", String password = "changeit") {
             String eventStoreAddress = $"esdb://{userName}:{password}@{this.KurrentDbContainerName}:{DockerPorts.KurrentDbHttpDockerPort}?tls=false&defaultDeadline=240000";
 
             return eventStoreAddress;
         }
 
-        public override async Task CreateSubscriptions(CancellationToken cancellationToken){
+        public override async Task CreateSubscriptions(CancellationToken cancellationToken) {
             List<(String streamName, String groupName, Int32 maxRetries)> subscriptions = new List<(String streamName, String groupName, Int32 maxRetries)>();
             subscriptions.AddRange(MessagingService.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
             subscriptions.AddRange(TransactionProcessor.IntegrationTesting.Helpers.SubscriptionsHelper.GetSubscriptions());
 
-            foreach ((String streamName, String groupName, Int32 maxRetries) subscription in subscriptions)
-            {
+            foreach ((String streamName, String groupName, Int32 maxRetries) subscription in subscriptions) {
                 var x = subscription;
                 x.maxRetries = 2;
                 await this.CreatePersistentSubscription(x);
@@ -174,35 +166,31 @@ namespace TransactionProcessor.IntegrationTests.Common
         /// Starts the containers for scenario run.
         /// </summary>
         /// <param name="scenarioName">Name of the scenario.</param>
-        public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices, CancellationToken cancellationToken)
-        {
-            try
-            {
+        public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices, CancellationToken cancellationToken) {
+            try {
                 await base.StartContainersForScenarioRun(scenarioName, dockerServices, cancellationToken);
             }
-            catch
-            {
+            catch {
                 this.DumpDockerContainerState();
                 throw;
             }
-        
+
             // Setup the base address resolvers
             String SecurityServiceBaseAddressResolver(String api) => $"https://127.0.0.1:{this.SecurityServicePort}";
             String TransactionProcessorBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorPort}";
             String TransactionProcessorAclBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorAclPort}";
             String TestHostServiceBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TestHostServicePort}";
-            
-            HttpClientHandler clientHandler = new HttpClientHandler
-                                              {
-                                                  ServerCertificateCustomValidationCallback = (message,
-                                                                                               certificate2,
-                                                                                               arg3,
-                                                                                               arg4) =>
-                                                                                              {
-                                                                                                  return true;
-                                                                                              }
 
-                                              };
+            HttpClientHandler clientHandler = new HttpClientHandler {
+                ServerCertificateCustomValidationCallback = (message,
+                                                             certificate2,
+                                                             arg3,
+                                                             arg4) =>
+                {
+                    return true;
+                }
+
+            };
             HttpClient httpClient = new HttpClient(clientHandler);
             this.SecurityServiceClient = new SecurityServiceClient(SecurityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
             this.TransactionProcessorClient = new TransactionProcessorClient(TransactionProcessorBaseAddressResolver, httpClient, Serialise, Deserialise);
@@ -216,9 +204,8 @@ namespace TransactionProcessor.IntegrationTests.Common
 
             this.ProjectionManagementClient = new KurrentDBProjectionManagementClient(this.ConfigureKurrentDbSettings());
 
-            SimpleResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
-            if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken))
-            {
+            Result<TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
+            if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken)) {
                 throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
             }
             this.AccessToken = bootstrapToken.Data.AccessToken;
@@ -226,10 +213,8 @@ namespace TransactionProcessor.IntegrationTests.Common
 
         public String AccessToken;
 
-        private void DumpDockerContainerState()
-        {
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
+        private void DumpDockerContainerState() {
+            ProcessStartInfo startInfo = new ProcessStartInfo {
                 FileName = "docker",
                 Arguments = "ps -a --no-trunc --format \"table {{.ID}}\\t{{.Names}}\\t{{.Status}}\\t{{.Image}}\\t{{.Ports}}\"",
                 RedirectStandardOutput = true,
@@ -239,8 +224,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             };
 
             using Process process = Process.Start(startInfo);
-            if (process == null)
-            {
+            if (process == null) {
                 Console.WriteLine("Unable to start docker diagnostics process.");
                 return;
             }
@@ -251,54 +235,45 @@ namespace TransactionProcessor.IntegrationTests.Common
 
             Console.WriteLine("Docker containers at container startup failure:");
             Console.WriteLine(output);
-            if (String.IsNullOrWhiteSpace(error) == false)
-            {
+            if (String.IsNullOrWhiteSpace(error) == false) {
                 Console.WriteLine("Docker diagnostics error:");
                 Console.WriteLine(error);
             }
         }
 
-        String Serialise(Object arg)
-        {
+        String Serialise(Object arg) {
             return StringSerialiser.Serialise<Object>(arg, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
         }
 
-        Object Deserialise(String arg, Type type)
-        {
+        Object Deserialise(String arg, Type type) {
             return StringSerialiser.DeserializeObject<Object>(arg, type, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
         }
 
-        String Serialise_CamelCase(Object arg)
-        {
+        String Serialise_CamelCase(Object arg) {
             return StringSerialiser.Serialise<Object>(arg, new SerialiserOptions(SerialiserPropertyFormat.CamelCase));
         }
 
-        Object Deserialise_CamelCase(String arg, Type type)
-        {
+        Object Deserialise_CamelCase(String arg, Type type) {
             return StringSerialiser.DeserializeObject<Object>(arg, type, new SerialiserOptions(SerialiserPropertyFormat.CamelCase));
         }
 
-        public override Dictionary<String, String> GetAdditionalVariables(ContainerType containerType)
-        {
+        public override Dictionary<String, String> GetAdditionalVariables(ContainerType containerType) {
             Dictionary<String, String> additionalVariables = base.GetAdditionalVariables(containerType);
 
             if (containerType == ContainerType.TransactionProcessorAcl &&
-                (this.RequiredDockerServices & DockerServices.EstateReporting) == DockerServices.EstateReporting)
-            {
+                (this.RequiredDockerServices & DockerServices.EstateReporting) == DockerServices.EstateReporting) {
                 additionalVariables["AppSettings:EstateReportingApi"] =
                     $"http://{this.EstateReportingContainerName}:{DockerPorts.EstateReportingDockerPort}";
             }
 
-            if (containerType == ContainerType.TransactionProcessorAcl)
-            {
+            if (containerType == ContainerType.TransactionProcessorAcl) {
                 additionalVariables["Logging:LogLevel:Microsoft.AspNetCore.Authorization"] = "Debug";
             }
 
             return additionalVariables;
         }
 
-        public override ContainerBuilder SetupSecurityServiceContainer()
-        {
+        public override ContainerBuilder SetupSecurityServiceContainer() {
             Dictionary<String, String> additionalVariables = new();
             additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:1", "estateClient");
             additionalVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:2", "redemptionClient");

@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.BusinessLogic.Services;
 using TransactionProcessorACL.Models;

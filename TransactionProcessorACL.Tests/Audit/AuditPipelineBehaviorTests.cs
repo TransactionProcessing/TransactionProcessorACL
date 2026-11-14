@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.Common;
 using TransactionProcessorACL.Models;

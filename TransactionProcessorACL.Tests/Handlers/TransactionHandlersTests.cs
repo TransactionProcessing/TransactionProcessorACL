@@ -5,9 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Imposter.Abstractions;
-using Shared.Logger;
+using TransactionProcessing.Shared.Logger;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.DataTransferObjects;
 using TransactionProcessorACL.DataTransferObjects.Requests;
@@ -19,7 +19,7 @@ namespace TransactionProcessorACL.Tests.Handlers;
 public class TransactionHandlersTests
 {
     public TransactionHandlersTests() {
-        Shared.Logger.Logger.Initialise(new NullLogger());
+        TransactionProcessing.Shared.Logger.Logger.Initialise(new NullLogger());
     }
 
     [Fact]

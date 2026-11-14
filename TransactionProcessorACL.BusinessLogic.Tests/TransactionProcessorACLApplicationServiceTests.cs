@@ -1,5 +1,5 @@
 using System;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using TransactionProcessor.DataTransferObjects.Requests.Transaction;
 using TransactionProcessor.DataTransferObjects.Requests.Voucher;
 
@@ -15,8 +15,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
     using Models;
     using Imposter.Abstractions;
     using SecurityService.Client;
-    using Shared.General;
-    using Shared.Logger;
+    using TransactionProcessing.Shared.General;
+    using TransactionProcessing.Shared.Logger;
     using Shouldly;
     using Testing;
     using TransactionProcessorACL.DataTransferObjects.Requests;
@@ -70,7 +70,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_TransactionIsSuccessful()
         {
             transactionProcessorClient.PerformTransaction(Arg<String>.Any(), Arg<LogonTransactionRequest>.Any(), Arg<CancellationToken>.Any())
-                                      .ReturnsAsync(TestData.ClientLogonTransactionResponse);
+                                      .ReturnsAsync(Result.Success(TestData.ClientLogonTransactionResponse));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync( Result.Success(TestData.TokenResponse));
 
             Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.ProcessLogonTransactionCommand,
@@ -88,7 +88,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             LogonTransactionRequest capturedMessage = null;
 
             transactionProcessorClient.PerformTransaction(Arg<String>.Any(), Arg<LogonTransactionRequest>.Any(), Arg<CancellationToken>.Any())
-                                      .ReturnsAsync(TestData.ClientLogonTransactionResponse).Callback((_, message, _) => { capturedMessage = message; return Task.CompletedTask; });
+                                      .ReturnsAsync(Result.Success(TestData.ClientLogonTransactionResponse)).Callback((_, message, _) => { capturedMessage = message; return Task.CompletedTask; });
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any())
                                  .ReturnsAsync(Result.Success(TestData.TokenResponse));
 
@@ -107,7 +107,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionProcessorACLApplicationService_ProcessLogonTransaction_GetTokenFailed_ResultFailed()
         {
-            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure());
+            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure("Test failure"));
 
             Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.ProcessLogonTransactionCommand,
                 CancellationToken.None);
@@ -120,7 +120,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
             transactionProcessorClient.PerformTransaction(Arg<String>.Any(), Arg<LogonTransactionRequest>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Failure());
+                .ReturnsAsync(Result.Failure("Test failure"));
             Result<ProcessLogonTransactionResponse> result = await applicationService.ProcessLogonTransaction(TestData.ProcessLogonTransactionCommand,
                 CancellationToken.None);
 
@@ -147,7 +147,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_TransactionIsSuccessful()
         {
             transactionProcessorClient.PerformTransaction(Arg<String>.Any(), Arg<SaleTransactionRequest>.Any(), Arg<CancellationToken>.Any())
-                                      .ReturnsAsync(TestData.ClientSaleTransactionResponse);
+                                      .ReturnsAsync(Result.Success(TestData.ClientSaleTransactionResponse));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.ProcessSaleTransactionCommand,
@@ -165,7 +165,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             SaleTransactionRequest capturedRequest = null;
             transactionProcessorClient.PerformTransaction(Arg<String>.Any(), Arg<SaleTransactionRequest>.Any(), Arg<CancellationToken>.Any())
-                                      .ReturnsAsync(TestData.ClientSaleTransactionResponse).Callback((accessToken, request, cancellationToken) => { capturedRequest = request; return Task.CompletedTask; });
+                                      .ReturnsAsync(Result.Success(TestData.ClientSaleTransactionResponse)).Callback((accessToken, request, cancellationToken) => { capturedRequest = request; return Task.CompletedTask; });
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.ProcessSaleTransactionCommand,
@@ -193,7 +193,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_GetTokenFailed_ResultFailed()
         {
-            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure());
+            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure("Test failure"));
 
             Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.ProcessSaleTransactionCommand,
                                                                                                              CancellationToken.None);
@@ -205,7 +205,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_ProcessSaleTransaction_PerformTransactionFailed_ResultFailed()
         {
             transactionProcessorClient.PerformTransaction(Arg<String>.Any(), Arg<SaleTransactionRequest>.Any(), Arg<CancellationToken>.Any())
-                                      .ReturnsAsync(Result.Failure());
+                                      .ReturnsAsync(Result.Failure("Test failure"));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<ProcessSaleTransactionResponse> result = await applicationService.ProcessSaleTransaction(TestData.ProcessSaleTransactionCommand,
@@ -234,7 +234,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_TransactionIsSuccessful()
         {
             transactionProcessorClient.PerformTransaction(Arg<String>.Any(), Arg<ReconciliationRequest>.Any(), Arg<CancellationToken>.Any())
-                                      .ReturnsAsync(TestData.ClientReconciliationResponse);
+                                      .ReturnsAsync(Result.Success(TestData.ClientReconciliationResponse));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<ProcessReconciliationResponse> result = await applicationService.ProcessReconciliation(TestData.ProcessReconciliationCommand,
@@ -253,7 +253,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
             ReconciliationRequest capturedMessage = null;
 
             transactionProcessorClient.PerformTransaction(Arg<String>.Any(), Arg<ReconciliationRequest>.Any(), Arg<CancellationToken>.Any())
-                                      .ReturnsAsync(TestData.ClientReconciliationResponse).Callback((_, message, _) => { capturedMessage = message; return Task.CompletedTask; });
+                                      .ReturnsAsync(Result.Success(TestData.ClientReconciliationResponse)).Callback((_, message, _) => { capturedMessage = message; return Task.CompletedTask; });
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             await applicationService.ProcessReconciliation(TestData.ProcessReconciliationCommand,
@@ -272,7 +272,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionProcessorACLApplicationService_ProcessReconciliation_GetTokenFailed_ResultFailed()
         {
-            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure());
+            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure("Test failure"));
 
             Result<ProcessReconciliationResponse> result = await applicationService.ProcessReconciliation(TestData.ProcessReconciliationCommand,
                 CancellationToken.None);
@@ -285,7 +285,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         {
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
             transactionProcessorClient.PerformTransaction(Arg<String>.Any(), Arg<ReconciliationRequest>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Failure());
+                .ReturnsAsync(Result.Failure("Test failure"));
 
             Result<ProcessReconciliationResponse> result = await applicationService.ProcessReconciliation(TestData.ProcessReconciliationCommand,
                 CancellationToken.None);
@@ -314,7 +314,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_GetVoucher_VoucherRetrieved()
         {
             this.transactionProcessorClient.GetVoucherByCode(Arg<String>.Any(), Arg<Guid>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(TestData.GetVoucherResponse);
+                .ReturnsAsync(Result.Success(TestData.GetVoucherResponse));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<GetVoucherResponse> voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
@@ -332,7 +332,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionProcessorACLApplicationService_GetVoucher_GetTokenFailed_ResultIsFailed()
         {
-            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure());
+            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure("Test failure"));
 
             Result<GetVoucherResponse> voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
@@ -343,7 +343,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_GetVoucher_GetVoucherFailed_ResultIsFailed()
         {
             this.transactionProcessorClient.GetVoucherByCode(Arg<String>.Any(), Arg<Guid>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Failure());
+                .ReturnsAsync(Result.Failure("Test failure"));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<GetVoucherResponse> voucherResponse = await applicationService.GetVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
@@ -367,7 +367,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_RedeemVoucher_VoucherRedeemed()
         {
             transactionProcessorClient.RedeemVoucher(Arg<String>.Any(), Arg<RedeemVoucherRequest>.Any(), Arg<CancellationToken>.Any())
-                                      .ReturnsAsync(Result.Success());
+                                      .ReturnsAsync(Result<TransactionProcessor.DataTransferObjects.Responses.Voucher.RedeemVoucherResponse>.Ok(new()));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<RedeemVoucherResponse> voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
@@ -381,8 +381,8 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_RedeemVoucher_GetTokenFailed_ResultIsFailed()
         {
             transactionProcessorClient.RedeemVoucher(Arg<String>.Any(), Arg<RedeemVoucherRequest>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Failure());
-            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure());
+                .ReturnsAsync(Result.Failure("Test failure"));
+            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure("Test failure"));
 
             Result<RedeemVoucherResponse> voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
 
@@ -393,7 +393,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_RedeemVoucher_RedeemVoucherFailed_ResultIsFailed()
         {
             transactionProcessorClient.RedeemVoucher(Arg<String>.Any(), Arg<RedeemVoucherRequest>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Failure());
+                .ReturnsAsync(Result.Failure("Test failure"));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<RedeemVoucherResponse> voucherResponse = await applicationService.RedeemVoucher(TestData.EstateId, TestData.ContractId, TestData.VoucherCode, CancellationToken.None);
@@ -447,7 +447,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionProcessorACLApplicationService_GetMerchant_GetTokenFailed_ResultIsFailed()
         {
-            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure());
+            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure("Test failure"));
 
             Result<MerchantResponse> merchantResponse = await applicationService.GetMerchant(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
             merchantResponse.IsFailed.ShouldBeTrue();
@@ -512,7 +512,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_GetMerchant_GetMerchantFailed_ResultIsFailed()
         {
             transactionProcessorClient.GetMerchant(Arg<String>.Any(), Arg<Guid>.Any(), Arg<Guid>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Failure());
+                .ReturnsAsync(Result.Failure("Test failure"));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             Result<MerchantResponse> merchantResponse = await applicationService.GetMerchant(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
@@ -535,7 +535,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionProcessorACLApplicationService_GetMerchantContracts_GetTokenFailed_ResultIsFailed()
         {
-            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure());
+            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure("Test failure"));
 
             var merchantContractsResponse = await applicationService.GetMerchantContracts(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
             merchantContractsResponse.IsFailed.ShouldBeTrue();
@@ -545,7 +545,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_GetMerchantContracts_GetMerchantContractsFailed_ResultIsFailed()
         {
             transactionProcessorClient.GetMerchantContracts(Arg<String>.Any(), Arg<Guid>.Any(), Arg<Guid>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Failure());
+                .ReturnsAsync(Result.Failure("Test failure"));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             var merchantContractsResponse = await applicationService.GetMerchantContracts(TestData.EstateId, TestData.MerchantId, CancellationToken.None);
@@ -566,7 +566,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionProcessorACLApplicationService_GetMerchantSchedule_GetTokenFailed_ResultIsFailed()
         {
-            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure());
+            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure("Test failure"));
 
             var merchantScheduleResponse = await applicationService.GetMerchantSchedule(TestData.EstateId, TestData.MerchantId, TestData.ScheduleYear, CancellationToken.None);
             merchantScheduleResponse.IsFailed.ShouldBeTrue();
@@ -576,7 +576,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         public async Task TransactionProcessorACLApplicationService_GetMerchantSchedule_GetMerchantScheduleFailed_ResultIsFailed()
         {
             transactionProcessorClient.GetMerchantSchedule(Arg<String>.Any(), Arg<Guid>.Any(), Arg<Guid>.Any(), Arg<Int32>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Failure());
+                .ReturnsAsync(Result.Failure("Test failure"));
             securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Success(TestData.TokenResponse));
 
             var merchantScheduleResponse = await applicationService.GetMerchantSchedule(TestData.EstateId, TestData.MerchantId, TestData.ScheduleYear, CancellationToken.None);
@@ -624,7 +624,7 @@ namespace TransactionProcessorACL.BusinesssLogic.Tests
         [Fact]
         public async Task TransactionProcessorACLApplicationService_GetMerchantDailyPerformanceSummary_GetTokenFailed_ResultIsFailed()
         {
-            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure());
+            securityServiceClient.GetToken(Arg<String>.Any(), Arg<String>.Any(), Arg<CancellationToken>.Any()).ReturnsAsync(Result.Failure("Test failure"));
 
             Result<MerchantDailyPerformanceSummaryResponse> result = await applicationService.GetMerchantDailyPerformanceSummary(
                 TestData.EstateId,

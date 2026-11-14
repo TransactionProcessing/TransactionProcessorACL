@@ -1,4 +1,4 @@
-﻿using TransactionProcessor.DataTransferObjects.Requests.Transaction;
+using TransactionProcessor.DataTransferObjects.Requests.Transaction;
 using TransactionProcessor.IntegrationTesting.Helpers;
 
 namespace TransactionProcessorACL.IntegrationTests.Shared;
@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DataTransferObjects;
-using global::Shared.IntegrationTesting;
+using global::TransactionProcessing.Shared.IntegrationTesting;
 using Reqnroll;
 using SecurityService.DataTransferObjects;
 using Shouldly;
