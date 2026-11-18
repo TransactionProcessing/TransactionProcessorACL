@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NuGet.Packaging" />
+    <PackageReference Include="NuGet.Protocol" />
     <PackageReference Include="TransactionProcessing.ClientProxyBase" />
     <PackageReference Include="TransactionProcessing.UnionResults" />
     <PackageReference Include="TransactionProcessing.Shared.Logger" />
