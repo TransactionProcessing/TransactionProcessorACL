@@ -13,6 +13,8 @@
   <ItemGroup>
     <PackageReference Include="HealthMonitoring.Client" />
     <PackageReference Include="KurrentDB.Client" />
+    <PackageReference Include="NuGet.Packaging" />
+    <PackageReference Include="NuGet.Protocol" />
     <PackageReference Include="OpenIddict.Validation.AspNetCore" />
       <PackageReference Include="OpenIddict.Validation.SystemNetHttp" />
     <PackageReference Include="TransactionProcessing.ClientProxyBase" />
