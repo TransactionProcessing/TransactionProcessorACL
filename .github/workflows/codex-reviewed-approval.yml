@@ -4,6 +4,10 @@ name: Codex reviewed PR approval
 on:
   issue_comment:
     types: [created, edited]
+  # Re-check open PRs when CI completes, even if Codex reviewed before CI finished.
+  workflow_run:
+    workflows: ["Build and Test Pull Requests"]
+    types: [completed]
   schedule:
     - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
