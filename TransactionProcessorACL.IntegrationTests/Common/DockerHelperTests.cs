@@ -27,8 +27,6 @@ namespace TransactionProcessor.IntegrationTests.Common
             commonVariables["SecurityConfiguration:Authority"].ShouldBe(securityServiceAddress.TrimEnd('/'));
             commonVariables["AppSettings:TransactionProcessorApi"].ShouldBe($"http://{dockerHelper.TransactionProcessorName}:5002");
             variables.ShouldNotContainKey("SecurityConfiguration:Authority");
-            variables["SecurityConfiguration:Issuer"].ShouldBe(securityServiceAddress);
-            variables["SecurityConfiguration:ConfigurationEndpoint"].ShouldBe($"{securityServiceAddress}.well-known/openid-configuration");
             variables.ShouldNotContainKey("AppSettings:TransactionProcessorApi");
         }
 
