@@ -48,33 +48,33 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                            CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<ProcessLogonTransactionResponse>(accessTokenResult.Value);
             }
 
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
             LogonTransactionRequest logonTransactionRequest = CreateLogonRequestMessage(command);
 
             try {
                 Result<LogonTransactionResponse> transactionResult = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, logonTransactionRequest, cancellationToken);
 
-                if (transactionResult.IsFailed)
-                    return ResultHelpers.CreateFailure(transactionResult);
+                if (transactionResult.Value is not Success<LogonTransactionResponse> transaction)
+                    return ForwardFailure<ProcessLogonTransactionResponse>(transactionResult.Value);
                 
-                return Result.Success(CreateProcessLogonTransactionResponse(command.EstateId, command.MerchantId, transactionResult.Data));
+                return Results.Ok(CreateProcessLogonTransactionResponse(command.EstateId, command.MerchantId, transaction.Value));
             }
             catch (Exception ex) {
-                return Result.Success(CreateLogonErrorResponse(command.EstateId, command.MerchantId, ex));
+                return Results.Ok(CreateLogonErrorResponse(command.EstateId, command.MerchantId, ex));
             }
         }
 
         public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction(TransactionCommands.ProcessSaleTransactionCommand command, CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<ProcessSaleTransactionResponse>(accessTokenResult.Value);
             }
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
 
             SaleTransactionRequest saleTransactionRequest = this.BuildSaleTransactionRequest(command);
 
@@ -83,17 +83,17 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             try
             {
                 Result<SaleTransactionResponse> transactionResult = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, saleTransactionRequest, cancellationToken);
-                if (transactionResult.IsFailed)
-                    return ResultHelpers.CreateFailure(transactionResult);
+                if (transactionResult.Value is not Success<SaleTransactionResponse> transaction)
+                    return ForwardFailure<ProcessSaleTransactionResponse>(transactionResult.Value);
 
-                response = this.CreateSaleTransactionResponse(transactionResult.Data, command.EstateId, command.MerchantId);
+                response = this.CreateSaleTransactionResponse(transaction.Value, command.EstateId, command.MerchantId);
             }
             catch (Exception ex)
             {
                 response = this.CreateSaleTransactionErrorResponse(command.EstateId, command.MerchantId, ex);
             }
 
-            return Result.Success(response);
+            return Results.Ok(response);
         }
 
         private async Task<Result<TokenResponse>> GetAccessToken(CancellationToken cancellationToken)
@@ -108,7 +108,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
                 try {
                     Result<TokenResponse> accessTokenResult = await this.SecurityServiceClient.GetToken(clientId, clientSecret, cancellationToken);
-                    if (accessTokenResult.IsSuccess) {
+                    if (accessTokenResult.IsSuccess()) {
                         return accessTokenResult;
                     }
 
@@ -116,7 +116,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                         return accessTokenResult;
                     }
 
-                    Logger.LogWarning($"Security service token request failed on attempt {attempt + 1} of {retryCount + 1}: {accessTokenResult.Message}");
+                    Logger.LogWarning($"Security service token request failed on attempt {attempt + 1} of {retryCount + 1}: {accessTokenResult.GetErrorMessage()}");
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) {
                     throw;
@@ -125,14 +125,14 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                     if (attempt == retryCount) {
                         String errorMessage = String.Join(" | ", ex.GetExceptionMessages());
                         Logger.LogWarning($"Security service token request failed after {retryCount + 1} attempts: {errorMessage}");
-                        return Result.Failure(errorMessage);
+                        return new Error(ErrorType.Failure, errorMessage);
                     }
 
                     Logger.LogWarning($"Security service token request threw on attempt {attempt + 1} of {retryCount + 1}: {ex.GetExceptionMessages()}");
                 }
             }
 
-            return Result.Failure("Unable to acquire security service token.");
+            return new Error(ErrorType.Failure, "Unable to acquire security service token.");
         }
 
         private static Int32 GetSecurityServiceTokenRetryCount()
@@ -201,23 +201,23 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                        CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<ProcessReconciliationResponse>(accessTokenResult.Value);
             }
 
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
             ReconciliationRequest reconciliationRequest = CreateReconciliationRequestMessage(command);
 
             try
             {
                 Result<ReconciliationResponse> transactionResult = await this.TransactionProcessorClient.PerformTransaction(accessToken.AccessToken, reconciliationRequest, cancellationToken);
-                if (transactionResult.IsFailed)
-                    return ResultHelpers.CreateFailure(transactionResult);
-                return Result.Success(CreateProcessReconciliationResponse(transactionResult.Data));
+                if (transactionResult.Value is not Success<ReconciliationResponse> transaction)
+                    return ForwardFailure<ProcessReconciliationResponse>(transactionResult.Value);
+                return Results.Ok(CreateProcessReconciliationResponse(transaction.Value));
             }
             catch (Exception ex)
             {
-                return Result.Success(CreateReconciliationErrorResponse(command.EstateId, command.MerchantId, ex));
+                return Results.Ok(CreateReconciliationErrorResponse(command.EstateId, command.MerchantId, ex));
             }
         }
 
@@ -227,22 +227,22 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                  CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<GetVoucherResponse>(accessTokenResult.Value);
             }
 
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
 
             try {
                 Result<TransactionProcessor.DataTransferObjects.Responses.Voucher.GetVoucherResponse> getVoucherResult = await this.TransactionProcessorClient.GetVoucherByCode(accessToken.AccessToken, estateId, voucherCode, cancellationToken);
-                if (getVoucherResult.IsFailed) {
-                    return ResultHelpers.CreateFailure(getVoucherResult);
+                if (getVoucherResult.Value is not Success<TransactionProcessor.DataTransferObjects.Responses.Voucher.GetVoucherResponse> voucher) {
+                    return ForwardFailure<GetVoucherResponse>(getVoucherResult.Value);
                 }
 
-                return Result.Success(CreateGetVoucherSuccessResponse(estateId, contractId, getVoucherResult.Data));
+                return Results.Ok(CreateGetVoucherSuccessResponse(estateId, contractId, voucher.Value));
             }
             catch (Exception ex) {
-                return Result.Failure(ex.GetExceptionMessages());
+                return new ErrorList(ex.GetExceptionMessages().Select(message => new Error(ErrorType.Failure, message)));
             }
         }
 
@@ -252,22 +252,22 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                        CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<RedeemVoucherResponse>(accessTokenResult.Value);
             }
             
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
 
             try {
                 RedeemVoucherRequest redeemVoucherRequest = new() { EstateId = estateId, VoucherCode = voucherCode };
 
                 Result<TransactionProcessor.DataTransferObjects.Responses.Voucher.RedeemVoucherResponse> redeemVoucherResponseResult = await this.TransactionProcessorClient.RedeemVoucher(accessToken.AccessToken, redeemVoucherRequest, cancellationToken);
 
-                if (redeemVoucherResponseResult.IsFailed) {
-                    return ResultHelpers.CreateFailure(redeemVoucherResponseResult);
+                if (redeemVoucherResponseResult.Value is not Success<TransactionProcessor.DataTransferObjects.Responses.Voucher.RedeemVoucherResponse>) {
+                    return ForwardFailure<RedeemVoucherResponse>(redeemVoucherResponseResult.Value);
                 }
 
-                return Result.Success(new RedeemVoucherResponse {
+                return Results.Ok(new RedeemVoucherResponse {
                     ResponseCode = "0000", // Success
                     ResponseMessage = "SUCCESS",
                     ContractId = contractId,
@@ -275,7 +275,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 });
             }
             catch (Exception ex) {
-                return Result.Failure(ex.GetExceptionMessages());
+                return new ErrorList(ex.GetExceptionMessages().Select(message => new Error(ErrorType.Failure, message)));
             }
         }
 
@@ -285,21 +285,21 @@ namespace TransactionProcessorACL.BusinessLogic.Services
             Logger.LogInformation($"GetMerchantContracts: {estateId} {merchantId}");
 
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<List<Models.ContractResponse>>(accessTokenResult.Value);
             }
 
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
 
             Result<List<TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse>> result = await this.TransactionProcessorClient.GetMerchantContracts(accessToken.AccessToken, estateId, merchantId, cancellationToken);
 
-            if (result.IsFailed)
-                return Result.Failure($"Error getting merchant contracts {result.Message}");
+            if (result.Value is not Success<List<TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse>> backendResponse)
+                return new Error(ErrorType.Failure, $"Error getting merchant contracts {result.GetErrorMessage()}");
 
-            Logger.LogInformation($"Got the merchant contracts {result.Data.Count}");
+            Logger.LogInformation($"Got the merchant contracts {backendResponse.Value.Count}");
             List<Models.ContractResponse> models = new();
 
-            foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse contractResponse in result.Data) {
+            foreach (TransactionProcessor.DataTransferObjects.Responses.Contract.ContractResponse contractResponse in backendResponse.Value) {
                 Logger.LogInformation($"Processing contract {contractResponse.OperatorName}");
 
                 ContractResponse contractModel = new ContractResponse {
@@ -336,27 +336,27 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 models.Add(contractModel);
             }
 
-            return Result.Success(models);
+            return Results.Ok(models);
         }
 
         public async Task<Result<MerchantResponse>> GetMerchant(Guid estateId,
                                                                 Guid merchantId,
                                                                 CancellationToken cancellationToken) {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<MerchantResponse>(accessTokenResult.Value);
             }
 
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
             
             Result<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> result = await this.TransactionProcessorClient.GetMerchant(accessToken.AccessToken, estateId, merchantId, cancellationToken);
 
-            if (result.IsFailed)
-                return Result.Failure($"Error getting merchant {result.Message}");
+            if (result.Value is not Success<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantResponse> backendResponse)
+                return new Error(ErrorType.Failure, $"Error getting merchant {result.GetErrorMessage()}");
             
-            MerchantResponse merchantResponse = ResponseFactory.Build(result.Data);
+            MerchantResponse merchantResponse = ResponseFactory.Build(backendResponse.Value);
 
-            return Result.Success(merchantResponse);
+            return Results.Ok(merchantResponse);
         }
 
         public async Task<Result<MerchantScheduleResponse>> GetMerchantSchedule(Guid estateId,
@@ -364,21 +364,21 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                 Int32 year,
                                                                                 CancellationToken cancellationToken) {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed)
+            if (accessTokenResult.Value is not Success<TokenResponse> token)
             {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+                return ForwardFailure<MerchantScheduleResponse>(accessTokenResult.Value);
             }
 
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
 
             Result<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantScheduleResponse> result = await this.TransactionProcessorClient.GetMerchantSchedule(accessToken.AccessToken, estateId, merchantId, year, cancellationToken);
 
-            if (result.IsFailed)
-                return Result.Failure($"Error getting merchant schedule {result.Message}");
+            if (result.Value is not Success<TransactionProcessor.DataTransferObjects.Responses.Merchant.MerchantScheduleResponse> backendResponse)
+                return new Error(ErrorType.Failure, $"Error getting merchant schedule {result.GetErrorMessage()}");
 
-            MerchantScheduleResponse merchantScheduleResponse = ResponseFactory.Build(result.Data);
+            MerchantScheduleResponse merchantScheduleResponse = ResponseFactory.Build(backendResponse.Value);
 
-            return Result.Success(merchantScheduleResponse);
+            return Results.Ok(merchantScheduleResponse);
         }
 
         public async Task<Result<MerchantDailyPerformanceSummaryResponse>> GetMerchantDailyPerformanceSummary(Guid estateId,
@@ -386,21 +386,21 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                                                CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<MerchantDailyPerformanceSummaryResponse>(accessTokenResult.Value);
             }
 
             BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest apiRequest = new BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryRequest { StartDate = DateOnly.FromDateTime(request.StartDate), EndDate = DateOnly.FromDateTime(request.EndDate), MerchantReportingId = request.MerchantReportingId };
 
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
             Result<BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryResponse> apiResponse = await this.EstateReportingApiClient.GetMerchantDailyPerformanceSummary(accessToken.AccessToken, estateId, apiRequest, cancellationToken);
 
-            if (apiResponse.IsFailed)
-                return ResultHelpers.CreateFailure(apiResponse);
+            if (apiResponse.Value is not Success<BackendAPI.DataTransferObjects.MerchantDailyPerformanceSummaryResponse> report)
+                return ForwardFailure<MerchantDailyPerformanceSummaryResponse>(apiResponse.Value);
 
             MerchantDailyPerformanceSummaryResponse response = new() {
-                Metrics = apiResponse.Data.Metrics.Select(m => new MetricItem { Category = m.Category, Description = m.Description, Title = m.Title, Value = m.Value }).ToList(),
-                DrillDownTransactions = apiResponse.Data.DrillDownTransactions.Select(d => new DrillDownTransaction {
+                Metrics = report.Value.Metrics.Select(m => new MetricItem { Category = m.Category, Description = m.Description, Title = m.Title, Value = m.Value }).ToList(),
+                DrillDownTransactions = report.Value.DrillDownTransactions.Select(d => new DrillDownTransaction {
                     Amount = d.Amount,
                     Product = d.Product,
                     Reference = d.Reference,
@@ -409,7 +409,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 }).ToList()
             };
 
-            return Result<MerchantDailyPerformanceSummaryResponse>.Ok(response);
+            return Results.Ok(response);
         }
 
         public async Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(Guid estateId,
@@ -417,8 +417,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                                           CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<MerchantTransactionMixSummaryResponse>(accessTokenResult.Value);
             }
 
             var apiRequest = new BackendAPI.DataTransferObjects.TransactionMixSummaryRequest {
@@ -430,21 +430,21 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 TopN = request.TopN
             };
 
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
             var apiResponse = await this.EstateReportingApiClient.GetMerchantTransactionMixSummary(accessToken.AccessToken, estateId, apiRequest, cancellationToken);
 
-            if (apiResponse.IsFailed)
-                return ResultHelpers.CreateFailure(apiResponse);
+            if (apiResponse.Value is not Success<BackendAPI.DataTransferObjects.TransactionMixSummaryResponse> report)
+                return ForwardFailure<MerchantTransactionMixSummaryResponse>(apiResponse.Value);
 
             MerchantTransactionMixSummaryResponse response = new() {
-                Breakdown = Enum.Parse<Models.TransactionMixBreakdown>(apiResponse.Data.Breakdown.ToString()),
-                Measure = Enum.Parse<Models.TransactionMixMeasure>(apiResponse.Data.Measure.ToString()),
-                FromDate = apiResponse.Data.FromDate,
-                ToDate = apiResponse.Data.ToDate,
-                TotalCount = apiResponse.Data.TotalCount,
-                TotalValue = apiResponse.Data.TotalValue,
-                Items = apiResponse.Data.Groups.Select(g => new TransactionMixSummaryItem { Value = g.TransactionValue, Count = g.TransactionCount, Key = g.GroupKey, Label = g.GroupName }).ToList(),
-                DrillDownTransactions = apiResponse.Data.Transactions.Select(t => new TransactionMixDrillDownTransaction {
+                Breakdown = Enum.Parse<Models.TransactionMixBreakdown>(report.Value.Breakdown.ToString()),
+                Measure = Enum.Parse<Models.TransactionMixMeasure>(report.Value.Measure.ToString()),
+                FromDate = report.Value.FromDate,
+                ToDate = report.Value.ToDate,
+                TotalCount = report.Value.TotalCount,
+                TotalValue = report.Value.TotalValue,
+                Items = report.Value.Groups.Select(g => new TransactionMixSummaryItem { Value = g.TransactionValue, Count = g.TransactionCount, Key = g.GroupKey, Label = g.GroupName }).ToList(),
+                DrillDownTransactions = report.Value.Transactions.Select(t => new TransactionMixDrillDownTransaction {
                     Amount = t.Value,
                     Operator = t.Operator,
                     Product = t.Product,
@@ -456,7 +456,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
 
             };
 
-            return Result<MerchantTransactionMixSummaryResponse>.Ok(response);
+            return Results.Ok(response);
         }
 
         public async Task<Result<RecentActivityReceiptSearchResponse>> GetRecentActivityReceiptSearch(Guid estateId,
@@ -464,8 +464,8 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                                                        CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<RecentActivityReceiptSearchResponse>(accessTokenResult.Value);
             }
 
             var apiRequest = new BackendAPI.DataTransferObjects.RecentActivityReceiptSearchRequest
@@ -477,19 +477,19 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 PageSize = request.PageSize
             };
 
-            TokenResponse accessToken = accessTokenResult.Data;
+            TokenResponse accessToken = token.Value;
             var apiResponse = await this.EstateReportingApiClient.GetRecentActivityReceiptSearch(accessToken.AccessToken, estateId, apiRequest, cancellationToken);
 
-            if (apiResponse.IsFailed)
-                return ResultHelpers.CreateFailure(apiResponse);
+            if (apiResponse.Value is not Success<BackendAPI.DataTransferObjects.RecentActivityReceiptSearchResponse> report)
+                return ForwardFailure<RecentActivityReceiptSearchResponse>(apiResponse.Value);
 
             RecentActivityReceiptSearchResponse response = new()
             {
-                ReportDate = apiResponse.Data.ReportDate,
-                PageNumber = apiResponse.Data.Pagination.PageNumber,
-                PageSize = apiResponse.Data.Pagination.PageSize,
-                TotalCount = apiResponse.Data.Pagination.TotalItems,
-                Items = apiResponse.Data.Items.Select(i => new RecentActivityReceiptSearchItem
+                ReportDate = report.Value.ReportDate,
+                PageNumber = report.Value.Pagination.PageNumber,
+                PageSize = report.Value.Pagination.PageSize,
+                TotalCount = report.Value.Pagination.TotalItems,
+                Items = report.Value.Items.Select(i => new RecentActivityReceiptSearchItem
                 {
                     Amount = i.Amount,
                     Operator = i.Operator,
@@ -502,7 +502,7 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                 }).ToList()
             };
 
-            return Result<RecentActivityReceiptSearchResponse>.Ok(response);
+            return Results.Ok(response);
         }
 
         public async Task<Result<ResendReceiptResponse>> ResendReceipt(Guid estateId,
@@ -512,37 +512,31 @@ namespace TransactionProcessorACL.BusinessLogic.Services
                                                                        CancellationToken cancellationToken)
         {
             Result<TokenResponse> accessTokenResult = await this.GetAccessToken(cancellationToken);
-            if (accessTokenResult.IsFailed) {
-                return ResultHelpers.CreateFailure(accessTokenResult);
+            if (accessTokenResult.Value is not Success<TokenResponse> token) {
+                return ForwardFailure<ResendReceiptResponse>(accessTokenResult.Value);
             }
 
             if (string.IsNullOrWhiteSpace(reference)) {
-                return Result.Invalid("A transaction reference or receipt reference is required.");
+                return new Error(ErrorType.Validation, "A transaction reference or receipt reference is required.");
             }
 
             if (string.IsNullOrWhiteSpace(recipientEmailAddress)) {
-                return Result.Invalid("Recipient email address is required.");
+                return new Error(ErrorType.Validation, "Recipient email address is required.");
             }
 
             try {
                 _ = new System.Net.Mail.MailAddress(recipientEmailAddress);
             }
             catch (FormatException) {
-                return Result.Invalid("Recipient email address is not valid.");
+                return new Error(ErrorType.Validation, "Recipient email address is not valid.");
             }
 
-            Result<ResendReceiptResponse> resendResult = await this.InvokeResendReceipt(accessTokenResult.Data.AccessToken,
+            return await this.InvokeResendReceipt(token.Value.AccessToken,
                                                                                          estateId,
                                                                                          merchantId,
                                                                                          reference,
                                                                                          recipientEmailAddress,
                                                                                          cancellationToken);
-
-            if (resendResult.IsFailed) {
-                return resendResult;
-            }
-
-            return resendResult;
         }
 
         private async Task<Result<ResendReceiptResponse>> InvokeResendReceipt(String accessToken,
@@ -554,17 +548,17 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         {
             System.Reflection.MethodInfo? method = FindResendEmailReceiptMethod();
             if (method == null) {
-                return Result.Failure("Receipt resend is not supported by the transaction client.");
+                return new Error(ErrorType.Failure, "Receipt resend is not supported by the transaction client.");
             }
 
             object?[]? args = BuildResendReceiptArguments(method, accessToken, estateId, merchantId, reference, recipientEmailAddress, cancellationToken);
             if (args == null) {
-                return Result.Failure("Unable to prepare receipt resend request.");
+                return new Error(ErrorType.Failure, "Unable to prepare receipt resend request.");
             }
 
             object? invocationResult = method.Invoke(this.TransactionProcessorClient, args);
             if (invocationResult is not Task task) {
-                return Result.Failure("Receipt resend call did not return a task.");
+                return new Error(ErrorType.Failure, "Receipt resend call did not return a task.");
             }
 
             await task.ConfigureAwait(false);
@@ -637,36 +631,25 @@ namespace TransactionProcessorACL.BusinessLogic.Services
         {
             object? taskResult = task.GetType().GetProperty("Result")?.GetValue(task);
             if (taskResult == null) {
-                return Result.Failure("Receipt resend call returned no result.");
+                return new Error(ErrorType.Failure, "Receipt resend call returned no result.");
             }
 
-            if (IsFailedResult(taskResult, out String? message, out String? status)) {
-                return MapResendReceiptFailure(status, message);
+            if (taskResult is not System.Runtime.CompilerServices.IUnion result) {
+                return new Error(ErrorType.Failure, "Receipt resend call returned an unexpected result.");
             }
 
-            object? data = taskResult.GetType().GetProperty("Data")?.GetValue(taskResult);
-            return Result.Success(MapResendReceiptResponse(data, reference));
+            return result.Value switch {
+                Success => Results.Ok(MapResendReceiptResponse(null, reference)),
+                IResultSuccess success => Results.Ok(MapResendReceiptResponse(success.Value, reference)),
+                _ => ForwardFailure<ResendReceiptResponse>(result.Value)
+            };
         }
 
-        private static bool IsFailedResult(object taskResult, out String? message, out String? status)
-        {
-            message = taskResult.GetType().GetProperty("Message")?.GetValue(taskResult)?.ToString();
-            status = taskResult.GetType().GetProperty("Status")?.GetValue(taskResult)?.ToString();
-            return (bool)(taskResult.GetType().GetProperty("IsFailed")?.GetValue(taskResult) ?? true);
-        }
-
-        private static Result<ResendReceiptResponse> MapResendReceiptFailure(String? status, String? message)
-        {
-            if (string.Equals(status, "NotFound", StringComparison.OrdinalIgnoreCase)) {
-                return Result.NotFound(message ?? "Receipt could not be found.");
-            }
-
-            if (string.Equals(status, "Invalid", StringComparison.OrdinalIgnoreCase)) {
-                return Result.Invalid(message ?? "Receipt resend request was invalid.");
-            }
-
-            return Result.Failure(message ?? "Receipt resend failed.");
-        }
+        private static Result<T> ForwardFailure<T>(object? outcome) => outcome switch {
+            Error error => error,
+            ErrorList errors => errors,
+            _ => new Error(ErrorType.Critical, "An uninitialized result has no outcome.")
+        };
 
         private static void PopulateResendReceiptRequest(object request,
                                                          Guid estateId,

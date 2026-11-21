@@ -8,6 +8,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shouldly;
 using TransactionProcessing.UnionResults;
+using Results = TransactionProcessing.UnionResults.Results;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.Common;
 using TransactionProcessorACL.Models;
@@ -48,9 +49,9 @@ public class AuditPipelineBehaviorTests
             Guid.Parse("4C8354B7-B97A-46EA-9AD1-C43F33F7E3C6"),
             new Dictionary<string, string> { ["amount"] = "1000.00" });
 
-        Result<ProcessSaleTransactionResponse> response = await behavior.Handle(request, cancellationToken => Task.FromResult(Result.Success(new ProcessSaleTransactionResponse())), CancellationToken.None);
+        Result<ProcessSaleTransactionResponse> response = await behavior.Handle(request, cancellationToken => Task.FromResult(Results.Ok(new ProcessSaleTransactionResponse())), CancellationToken.None);
 
-        response.IsSuccess.ShouldBeTrue();
+        response.IsSuccess().ShouldBeTrue();
         recorder.CallCount.ShouldBe(1);
         recorder.LastEvent.ShouldNotBeNull();
         Guid.TryParse(recorder.LastEvent!.Context.RequestId, out _).ShouldBeTrue();
@@ -78,9 +79,9 @@ public class AuditPipelineBehaviorTests
         var behavior = new AuditPipelineBehavior<VersionCheckCommands.VersionCheckCommand, Result>(accessor, recorder);
         var request = new VersionCheckCommands.VersionCheckCommand("9.9.9");
 
-        Result response = await behavior.Handle(request, cancellationToken => Task.FromResult(Result.Success()), CancellationToken.None);
+        Result response = await behavior.Handle(request, cancellationToken => Task.FromResult(Results.Ok()), CancellationToken.None);
 
-        response.IsSuccess.ShouldBeTrue();
+        response.IsSuccess().ShouldBeTrue();
         recorder.CallCount.ShouldBe(1);
         recorder.LastEvent.ShouldNotBeNull();
         recorder.LastEvent!.Context.EstateId.ShouldBe(Guid.Parse("1C8354B7-B97A-46EA-9AD1-C43F33F7E3C3"));

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Imposter.Abstractions;
 using Shouldly;
 using TransactionProcessing.UnionResults;
+using Results = TransactionProcessing.UnionResults.Results;
 using TransactionProcessorACL.BusinessLogic.Requests;
 using TransactionProcessorACL.Middleware;
 using Xunit;
@@ -37,7 +38,7 @@ namespace TransactionProcessorACL.Tests.General
             var mediatorMock = new IMediatorImposter(ImposterMode.Explicit);
             mediatorMock
                 .Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Success());
+                .ReturnsAsync(Results.Ok());
 
             var middleware = new VersionCheckMiddleware(next);
 
@@ -72,7 +73,7 @@ namespace TransactionProcessorACL.Tests.General
             var mediatorMock = new IMediatorImposter(ImposterMode.Explicit);
             mediatorMock
                 .Send<Result>(Arg<MediatR.IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Failure("Test failure")); // simulate old/invalid version
+                .ReturnsAsync(new Error(ErrorType.Failure, "Test failure")); // simulate old/invalid version
 
             var middleware = new VersionCheckMiddleware(next);
 
@@ -133,7 +134,7 @@ namespace TransactionProcessorACL.Tests.General
             var mediatorMock = new IMediatorImposter(ImposterMode.Explicit);
             mediatorMock
                 .Send<Result>(Arg<MediatR.IRequest<Result>>.Is(request => request is VersionCheckCommands.VersionCheckCommand command && command.VersionNumber == "9.9.9"), Arg<CancellationToken>.Any())
-                .ReturnsAsync(Result.Success());
+                .ReturnsAsync(Results.Ok());
 
             var middleware = new VersionCheckMiddleware(next);
 

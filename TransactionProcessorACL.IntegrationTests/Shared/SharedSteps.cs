@@ -82,8 +82,8 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
 
             Result<TokenResponse> tokenResponseResult = await this.TestingContext.DockerHelper.SecurityServiceClient
                                                     .GetToken(username, password, clientId, clientDetails.ClientSecret, CancellationToken.None).ConfigureAwait(false);
-            tokenResponseResult.IsSuccess.ShouldBeTrue();
-            estateDetails.AddVoucherRedemptionUserToken("Voucher", username, tokenResponseResult.Data.AccessToken);
+            tokenResponseResult.IsSuccess().ShouldBeTrue();
+            estateDetails.AddVoucherRedemptionUserToken("Voucher", username, tokenResponseResult.Value.ShouldBeOfType<Success<TokenResponse>>().Value.AccessToken);
         }
 
         [Given(@"I am logged in as ""([^""]*)"" with password ""([^""]*)"" for Merchant ""([^""]*)"" for Estate ""([^""]*)"" with client ""([^""]*)""")]
@@ -99,8 +99,8 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
             await Retry.ForEventually(async () => {
                 Result<TokenResponse> tokenResponseResult = await this.TestingContext.DockerHelper.SecurityServiceClient
                                                                                     .GetToken(username, password, clientId, clientDetails.ClientSecret, CancellationToken.None).ConfigureAwait(false);
-                tokenResponseResult.IsSuccess.ShouldBeTrue($"Failed to get merchant user token for '{username}' using client '{clientId}': {tokenResponseResult.Message}");
-                accessToken = tokenResponseResult.Data.AccessToken;
+                tokenResponseResult.IsSuccess().ShouldBeTrue($"Failed to get merchant user token for '{username}' using client '{clientId}': {tokenResponseResult.GetErrorMessage()}");
+                accessToken = tokenResponseResult.Value.ShouldBeOfType<Success<TokenResponse>>().Value.AccessToken;
             });
             accessToken.ShouldNotBeNull();
             estateDetails.AddMerchantUserToken(merchantId, username, accessToken);
@@ -402,8 +402,8 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                             request.EmailAddress,
                             CancellationToken.None);
 
-                    usersResult.IsSuccess.ShouldBeTrue(usersResult.Message);
-                    UserResponse user = usersResult.Data.ShouldHaveSingleItem();
+                    usersResult.IsSuccess().ShouldBeTrue(usersResult.GetErrorMessage());
+                    UserResponse user = usersResult.Value.ShouldBeOfType<Success<List<UserResponse>>>().Value.ShouldHaveSingleItem();
                     user.EmailAddress.ShouldBe(request.EmailAddress);
                     user.GivenName.ShouldBe(request.GivenName);
                     user.MiddleName.ShouldBe(request.MiddleName);
@@ -589,13 +589,13 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                 SettlementMode = "NET"
             };
             var result = await this.TestingContext.DockerHelper.AgencyBankingClient.InitializeSystem(request, CancellationToken.None);
-            result.IsSuccess.ShouldBeTrue("Error initializing Agency Banking Host");
+            result.IsSuccess().ShouldBeTrue("Error initializing Agency Banking Host");
 
             await Retry.ForEventually(async () => {
                 Result<SystemConfigurationDto> configurationResult =
                     await this.TestingContext.DockerHelper.AgencyBankingClient.GetSystemConfiguration(CancellationToken.None);
-                configurationResult.IsSuccess.ShouldBeTrue(configurationResult.Message);
-                AgencyBankingAssertions.VerifySystemConfiguration(configurationResult.Data, request);
+                configurationResult.IsSuccess().ShouldBeTrue(configurationResult.GetErrorMessage());
+                AgencyBankingAssertions.VerifySystemConfiguration(configurationResult.Value.ShouldBeOfType<Success<SystemConfigurationDto>>().Value, request);
             });
         }
 
@@ -613,13 +613,13 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                     GlType = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "Type")
                 };
                 Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateGlAccount(request, CancellationToken.None);
-                result.IsSuccess.ShouldBeTrue($"Error creating GL account {request.GlCode}");
+                result.IsSuccess().ShouldBeTrue($"Error creating GL account {request.GlCode}");
 
                 await Retry.ForEventually(async () => {
                     Result<GlAccountResponse> accountResult =
                         await this.TestingContext.DockerHelper.AgencyBankingClient.GetGlAccountByCode(request.GlCode, CancellationToken.None);
-                    accountResult.IsSuccess.ShouldBeTrue(accountResult.Message);
-                    AgencyBankingAssertions.VerifyGlAccount(accountResult.Data, request);
+                    accountResult.IsSuccess().ShouldBeTrue(accountResult.GetErrorMessage());
+                    AgencyBankingAssertions.VerifyGlAccount(accountResult.Value.ShouldBeOfType<Success<GlAccountResponse>>().Value, request);
                 });
             }
         }
@@ -639,13 +639,13 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                     NationalId = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "NationalId")
                 };
                 Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateCustomer(request, CancellationToken.None);
-                result.IsSuccess.ShouldBeTrue($"Error creating customer {request.AccountNumber}");
+                result.IsSuccess().ShouldBeTrue($"Error creating customer {request.AccountNumber}");
 
                 await Retry.ForEventually(async () => {
                     Result<CustomerResponse> customerResult =
                         await this.TestingContext.DockerHelper.AgencyBankingClient.GetCustomerByAccountNumber(request.AccountNumber, CancellationToken.None);
-                    customerResult.IsSuccess.ShouldBeTrue(customerResult.Message);
-                    AgencyBankingAssertions.VerifyCustomer(customerResult.Data, request);
+                    customerResult.IsSuccess().ShouldBeTrue(customerResult.GetErrorMessage());
+                    AgencyBankingAssertions.VerifyCustomer(customerResult.Value.ShouldBeOfType<Success<CustomerResponse>>().Value, request);
                 });
             }
         }
@@ -663,13 +663,13 @@ namespace TransactionProcessorACL.IntegrationTests.Shared{
                     Currency = ReqnrollTableHelper.GetStringRowValue(dataTableRow, "Currency")
                 };
                 Result result = await this.TestingContext.DockerHelper.AgencyBankingClient.CreateSettlementAccount(request, CancellationToken.None);
-                result.IsSuccess.ShouldBeTrue($"Error creating settlement account {request.AccountNumber}");
+                result.IsSuccess().ShouldBeTrue($"Error creating settlement account {request.AccountNumber}");
 
                 await Retry.ForEventually(async () => {
                     Result<SettlementAccountResponse> accountResult =
                         await this.TestingContext.DockerHelper.AgencyBankingClient.GetSettlementAccountByNumber(request.AccountNumber, CancellationToken.None);
-                    accountResult.IsSuccess.ShouldBeTrue(accountResult.Message);
-                    AgencyBankingAssertions.VerifySettlementAccount(accountResult.Data, request);
+                    accountResult.IsSuccess().ShouldBeTrue(accountResult.GetErrorMessage());
+                    AgencyBankingAssertions.VerifySettlementAccount(accountResult.Value.ShouldBeOfType<Success<SettlementAccountResponse>>().Value, request);
                 });
             }
         }

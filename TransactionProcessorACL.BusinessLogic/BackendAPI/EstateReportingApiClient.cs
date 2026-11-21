@@ -35,18 +35,12 @@ public class EstateReportingApiClient : TransactionProcessing.ClientProxyBase.Cl
                 (EstateIdHeaderName, estateId.ToString())
             ];
 
-            Result<MerchantDailyPerformanceSummaryResponse> result =
-                await this.Post<MerchantDailyPerformanceSummaryRequest, MerchantDailyPerformanceSummaryResponse>(requestUri, request, accessToken, additionalHeaders, cancellationToken);
-
-            if (result.IsFailed)
-                return ResultHelpers.CreateFailure(result);
-
-            return result;
+            return await this.Post<MerchantDailyPerformanceSummaryRequest, MerchantDailyPerformanceSummaryResponse>(requestUri, request, accessToken, additionalHeaders, cancellationToken);
         }
         catch (Exception ex)
         {
             Exception exception = new($"Error getting merchant daily performance summary for estate {estateId}.", ex);
-            return Result.Failure(exception.Message);
+            return new Error(ErrorType.Failure, exception.Message);
         }
     }
 
@@ -64,18 +58,12 @@ public class EstateReportingApiClient : TransactionProcessing.ClientProxyBase.Cl
                 (EstateIdHeaderName, estateId.ToString())
             ];
 
-            Result<TransactionMixSummaryResponse> result =
-                await this.Post<TransactionMixSummaryRequest, TransactionMixSummaryResponse>(requestUri, request, accessToken, additionalHeaders, cancellationToken);
-
-            if (result.IsFailed)
-                return ResultHelpers.CreateFailure(result);
-
-            return result;
+            return await this.Post<TransactionMixSummaryRequest, TransactionMixSummaryResponse>(requestUri, request, accessToken, additionalHeaders, cancellationToken);
         }
         catch (Exception ex)
         {
             Exception exception = new($"Error getting merchant transaction mix summary for estate {estateId}.", ex);
-            return Result.Failure(exception.Message);
+            return new Error(ErrorType.Failure, exception.Message);
         }
     }
 
@@ -93,18 +81,12 @@ public class EstateReportingApiClient : TransactionProcessing.ClientProxyBase.Cl
                 (EstateIdHeaderName, estateId.ToString())
             ];
 
-            Result<RecentActivityReceiptSearchResponse> result =
-                await this.Post<RecentActivityReceiptSearchRequest, RecentActivityReceiptSearchResponse>(requestUri, request, accessToken, additionalHeaders, cancellationToken);
-
-            if (result.IsFailed)
-                return ResultHelpers.CreateFailure(result);
-
-            return result;
+            return await this.Post<RecentActivityReceiptSearchRequest, RecentActivityReceiptSearchResponse>(requestUri, request, accessToken, additionalHeaders, cancellationToken);
         }
         catch (Exception ex)
         {
             Exception exception = new($"Error getting recent activity receipt search for estate {estateId}.", ex);
-            return Result.Failure(exception.Message);
+            return new Error(ErrorType.Failure, exception.Message);
         }
     }
 

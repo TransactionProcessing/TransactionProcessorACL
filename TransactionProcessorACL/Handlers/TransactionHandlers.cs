@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using TransactionProcessing.Shared.General;
 using TransactionProcessing.Shared.Logger;
 using TransactionProcessing.UnionResults;
+using Results = TransactionProcessing.UnionResults.Results;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -26,7 +27,7 @@ namespace TransactionProcessorACL.Handlers;
 {
     private const String ForbiddenRequestMessage = "The request is forbidden.";
 
-    public static async Task<IResultOutcome> PerformSaleTransaction(IMediator mediator,
+    public static async Task<Result<ApiResponses.SaleTransactionResponseMessage>> PerformSaleTransaction(IMediator mediator,
                                                              ClaimsPrincipal user,
                                                              SaleTransactionRequestMessage transactionRequest,
                                                              CancellationToken cancellationToken)
@@ -34,16 +35,16 @@ namespace TransactionProcessorACL.Handlers;
         Logger.LogInformation("Application version {ApplicationVersion}", transactionRequest.ApplicationVersion);
 
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-        if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden(ForbiddenRequestMessage)));
+        if (claimsResult.Value is not Success<(Guid estateId, Guid merchantId)> claims) {
+            return new Error(ErrorType.Forbidden, ForbiddenRequestMessage);
         }
 
-        TransactionCommands.ProcessSaleTransactionCommand saleCommand = CreateSaleCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
+        TransactionCommands.ProcessSaleTransactionCommand saleCommand = CreateSaleCommand(claims.Value.estateId, claims.Value.merchantId, transactionRequest);
         Result<ProcessSaleTransactionResponse> saleResponse = await mediator.Send(saleCommand, cancellationToken);
         return ResponseFactory.FromResult(saleResponse, ModelFactory.ConvertFrom);
     }
 
-    public static async Task<IResultOutcome> PerformLogonTransaction(IMediator mediator,
+    public static async Task<Result<ApiResponses.LogonTransactionResponseMessage>> PerformLogonTransaction(IMediator mediator,
                                                               ClaimsPrincipal user,
                                                               LogonTransactionRequestMessage transactionRequest,
                                                               CancellationToken cancellationToken)
@@ -51,16 +52,16 @@ namespace TransactionProcessorACL.Handlers;
         Logger.LogInformation("Application version {ApplicationVersion}", transactionRequest.ApplicationVersion);
 
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-        if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden(ForbiddenRequestMessage)));
+        if (claimsResult.Value is not Success<(Guid estateId, Guid merchantId)> claims) {
+            return new Error(ErrorType.Forbidden, ForbiddenRequestMessage);
         }
 
-        TransactionCommands.ProcessLogonTransactionCommand logonCommand = CreateLogonCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
+        TransactionCommands.ProcessLogonTransactionCommand logonCommand = CreateLogonCommand(claims.Value.estateId, claims.Value.merchantId, transactionRequest);
         Result<ProcessLogonTransactionResponse> logonResponse = await mediator.Send(logonCommand, cancellationToken);
         return ResponseFactory.FromResult(logonResponse, ModelFactory.ConvertFrom);
     }
 
-    public static async Task<IResultOutcome> PerformReconciliationTransaction(IMediator mediator,
+    public static async Task<Result<ApiResponses.ReconciliationResponseMessage>> PerformReconciliationTransaction(IMediator mediator,
                                                                        ClaimsPrincipal user,
                                                                        ReconciliationRequestMessage transactionRequest,
                                                                        CancellationToken cancellationToken)
@@ -68,42 +69,42 @@ namespace TransactionProcessorACL.Handlers;
         Logger.LogInformation("Application version {ApplicationVersion}", transactionRequest.ApplicationVersion);
 
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-        if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden(ForbiddenRequestMessage)));
+        if (claimsResult.Value is not Success<(Guid estateId, Guid merchantId)> claims) {
+            return new Error(ErrorType.Forbidden, ForbiddenRequestMessage);
         }
 
-        TransactionCommands.ProcessReconciliationCommand reconCommand = CreateReconciliationCommand(claimsResult.Data.estateId, claimsResult.Data.merchantId, transactionRequest);
+        TransactionCommands.ProcessReconciliationCommand reconCommand = CreateReconciliationCommand(claims.Value.estateId, claims.Value.merchantId, transactionRequest);
         Result<ProcessReconciliationResponse> reconResponse = await mediator.Send(reconCommand, cancellationToken);
         return ResponseFactory.FromResult(reconResponse, ModelFactory.ConvertFrom);
     }
 
-    public static async Task<IResultOutcome> ResendReceipt(IMediator mediator,
+    public static async Task<Result<ApiResponses.ResendReceiptResponse>> ResendReceipt(IMediator mediator,
                                                     ClaimsPrincipal user,
                                                     ResendReceiptRequestMessage transactionRequest,
                                                     CancellationToken cancellationToken)
     {
         Result<(Guid estateId, Guid merchantId)> claimsResult = Helpers.GetRequiredClaims(user);
-        if (claimsResult.IsFailed) {
-            return ResponseFactory.FromResult(Result.Fail(Error.Forbidden(ForbiddenRequestMessage)));
+        if (claimsResult.Value is not Success<(Guid estateId, Guid merchantId)> claims) {
+            return new Error(ErrorType.Forbidden, ForbiddenRequestMessage);
         }
 
         if (string.IsNullOrWhiteSpace(transactionRequest.Reference)) {
-            return Result<ResendReceiptResponse>.Fail(Error.Validation("A transaction reference or receipt reference is required."));
+            return new Error(ErrorType.Validation, "A transaction reference or receipt reference is required.");
         }
 
         if (string.IsNullOrWhiteSpace(transactionRequest.RecipientEmailAddress)) {
-            return Result<ResendReceiptResponse>.Fail(Error.Validation("Recipient email address is required."));
+            return new Error(ErrorType.Validation, "Recipient email address is required.");
         }
 
         try {
             _ = new MailAddress(transactionRequest.RecipientEmailAddress);
         }
         catch (FormatException) {
-            return Result<ResendReceiptResponse>.Fail(Error.Validation("Recipient email address is not valid."));
+            return new Error(ErrorType.Validation, "Recipient email address is not valid.");
         }
 
-        TransactionCommands.ResendReceiptCommand resendCommand = new(claimsResult.Data.estateId,
-                                                                     claimsResult.Data.merchantId,
+        TransactionCommands.ResendReceiptCommand resendCommand = new(claims.Value.estateId,
+                                                                     claims.Value.merchantId,
                                                                      transactionRequest.Reference,
                                                                      transactionRequest.RecipientEmailAddress);
         Result<ResendReceiptResponse> resendResponse = await mediator.Send(resendCommand, cancellationToken);
@@ -158,21 +159,21 @@ public static class Helpers
     {
         Claim? estateClaim = user.Claims.FirstOrDefault(c => string.Equals(c.Type, "estateId", StringComparison.OrdinalIgnoreCase));
         if (!Guid.TryParse(estateClaim?.Value, out Guid estateId))
-            return Result.Failure("No Claim found for Estate Id");
+            return new Error(ErrorType.Failure, "No Claim found for Estate Id");
 
         Claim? merchantClaim = user.Claims.FirstOrDefault(c => string.Equals(c.Type, "merchantId", StringComparison.OrdinalIgnoreCase));
         if (!Guid.TryParse(merchantClaim?.Value, out Guid merchantId))
-            return Result.Failure("No Claim found for Merchant Id");
+            return new Error(ErrorType.Failure, "No Claim found for Merchant Id");
 
-        return Result.Success((estateId, merchantId));
+        return Results.Ok((estateId, merchantId));
     }
 
     public static Result<Guid> GetRequiredEstateClaim(ClaimsPrincipal user)
     {
         Claim? estateClaim = user.Claims.FirstOrDefault(c => string.Equals(c.Type, "estateId", StringComparison.OrdinalIgnoreCase));
         if (!Guid.TryParse(estateClaim?.Value, out Guid estateId))
-            return Result.Failure("No Claim found for Estate Id");
+            return new Error(ErrorType.Failure, "No Claim found for Estate Id");
 
-        return Result.Success(estateId);
+        return Results.Ok(estateId);
     }
 }

@@ -22,7 +22,7 @@ namespace TransactionProcessorACL.Handlers;
 
 public static class ReportingHandlers
 {
-    public static async Task<IResultOutcome> GetMerchantDailyPerformanceSummary(ClaimsPrincipal user,
+    public static async Task<Result<ApiResponses.MerchantDailyPerformanceSummaryResponse>> GetMerchantDailyPerformanceSummary(ClaimsPrincipal user,
                                                                          MerchantDailyPerformanceSummaryRequest request,
                                                                          IMediator mediator,
                                                                          CancellationToken cancellationToken)
@@ -30,10 +30,10 @@ public static class ReportingHandlers
         Logger.LogInformation("Application version {ApplicationVersion}", request.ApplicationVersion);
 
         Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
-        if (estateIdResult.IsFailed)
-                return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
+        if (estateIdResult.Value is not Success<Guid> estate)
+                return new Error(ErrorType.Forbidden, "The request is forbidden.");
 
-        ReportingQueries.GetMerchantDailyPerformanceSummaryQuery query = new(estateIdResult.Data, request);
+        ReportingQueries.GetMerchantDailyPerformanceSummaryQuery query = new(estate.Value, request);
         Result<MerchantDailyPerformanceSummaryResponse> result =
             await mediator.Send(query, cancellationToken);
         return ResponseFactory.FromResult(result, response => new ApiResponses.MerchantDailyPerformanceSummaryResponse
@@ -56,7 +56,7 @@ public static class ReportingHandlers
         });
     }
 
-    public static async Task<IResultOutcome> GetMerchantTransactionMixSummary(ClaimsPrincipal user,
+    public static async Task<Result<ApiResponses.MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(ClaimsPrincipal user,
                                                                        MerchantTransactionMixSummaryRequest request,
                                                                        IMediator mediator,
                                                                        CancellationToken cancellationToken)
@@ -64,10 +64,10 @@ public static class ReportingHandlers
         Logger.LogInformation("Application version {ApplicationVersion}", request.ApplicationVersion);
 
         Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
-        if (estateIdResult.IsFailed)
-                return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
+        if (estateIdResult.Value is not Success<Guid> estate)
+                return new Error(ErrorType.Forbidden, "The request is forbidden.");
 
-        ReportingQueries.GetMerchantTransactionMixSummaryQuery query = new(estateIdResult.Data, request);
+        ReportingQueries.GetMerchantTransactionMixSummaryQuery query = new(estate.Value, request);
         Result<MerchantTransactionMixSummaryResponse> result = await mediator.Send(query, cancellationToken);
         return ResponseFactory.FromResult(result, response => new ApiResponses.MerchantTransactionMixSummaryResponse
         {
@@ -97,7 +97,7 @@ public static class ReportingHandlers
         });
     }
 
-    public static async Task<IResultOutcome> GetRecentActivityReceiptSearch(ClaimsPrincipal user,
+    public static async Task<Result<ApiResponses.RecentActivityReceiptSearchResponse>> GetRecentActivityReceiptSearch(ClaimsPrincipal user,
                                                                      RecentActivityReceiptSearchRequest request,
                                                                      IMediator mediator,
                                                                      CancellationToken cancellationToken)
@@ -105,10 +105,10 @@ public static class ReportingHandlers
         Logger.LogInformation("Application version {ApplicationVersion}", request.ApplicationVersion);
 
         Result<System.Guid> estateIdResult = Helpers.GetRequiredEstateClaim(user);
-        if (estateIdResult.IsFailed)
-                return ResponseFactory.FromResult(Result.Fail(Error.Forbidden("The request is forbidden.")));
+        if (estateIdResult.Value is not Success<Guid> estate)
+                return new Error(ErrorType.Forbidden, "The request is forbidden.");
 
-        ReportingQueries.GetRecentActivityReceiptSearchQuery query = new(estateIdResult.Data, request);
+        ReportingQueries.GetRecentActivityReceiptSearchQuery query = new(estate.Value, request);
         Result<RecentActivityReceiptSearchResponse> result =
             await mediator.Send(query, cancellationToken);
         return ResponseFactory.FromResult(result, response => new ApiResponses.RecentActivityReceiptSearchResponse

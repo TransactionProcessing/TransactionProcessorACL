@@ -2,6 +2,7 @@ using DotNet.Testcontainers.Builders;
 using EventStore.Client;
 using KurrentDB.Client;
 using SecurityService.DataTransferObjects;
+using Shouldly;
 using System.Linq;
 using TransactionProcessing.Shared.IntegrationTesting;
 using TransactionProcessing.Shared.IntegrationTesting.TestContainers;
@@ -73,7 +74,7 @@ namespace TransactionProcessor.IntegrationTests.Common {
         public override ContainerBuilder SetupKurrentDbContainer() {
             this.Trace("About to Start Kurrent Db Container");
 
-            (String imageName, Boolean useLatest) imageDetails = this.GetImageDetails(ContainerType.KurrentDb).Data;
+            (String imageName, Boolean useLatest) imageDetails = this.GetImageDetails(ContainerType.KurrentDb).Value.ShouldBeOfType<Success<(String imageName, Boolean useLatest)>>().Value;
 
             Dictionary<String, String> environmentVariables = new(){
             {"EVENTSTORE_RUN_PROJECTIONS","all"},
@@ -205,10 +206,10 @@ namespace TransactionProcessor.IntegrationTests.Common {
             this.ProjectionManagementClient = new KurrentDBProjectionManagementClient(this.ConfigureKurrentDbSettings());
 
             Result<TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
-            if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken)) {
+            if (bootstrapToken.Value is not Success<TokenResponse> token || String.IsNullOrWhiteSpace(token.Value?.AccessToken)) {
                 throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
             }
-            this.AccessToken = bootstrapToken.Data.AccessToken;
+            this.AccessToken = token.Value.AccessToken;
         }
 
         public String AccessToken;

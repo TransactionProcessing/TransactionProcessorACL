@@ -51,7 +51,7 @@ public class TransactionHandlersTests
         var mediator = new IMediatorImposter(ImposterMode.Explicit);
         mediator
             .Send<Result<TransactionProcessorACL.Models.ProcessSaleTransactionResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.ProcessSaleTransactionResponse>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.ProcessSaleTransactionResponse()))
+            .ReturnsAsync(Results.Ok(new TransactionProcessorACL.Models.ProcessSaleTransactionResponse()))
             .Callback((command, _) => { capturedCommand = (TransactionCommands.ProcessSaleTransactionCommand)command; return Task.CompletedTask; });
 
         await TransactionHandlers.PerformSaleTransaction(mediator.Instance(), user, request, CancellationToken.None);
@@ -86,7 +86,7 @@ public class TransactionHandlersTests
         var mediator = new IMediatorImposter(ImposterMode.Explicit);
         mediator
             .Send<Result<TransactionProcessorACL.Models.ResendReceiptResponse>>(Arg<MediatR.IRequest<Result<TransactionProcessorACL.Models.ResendReceiptResponse>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success(new TransactionProcessorACL.Models.ResendReceiptResponse { Success = true, Message = "Receipt resend requested." }))
+            .ReturnsAsync(Results.Ok(new TransactionProcessorACL.Models.ResendReceiptResponse { Success = true, Message = "Receipt resend requested." }))
             .Callback((command, _) => { capturedCommand = (TransactionCommands.ResendReceiptCommand)command; return Task.CompletedTask; });
 
         await TransactionHandlers.ResendReceipt(mediator.Instance(), user, request, CancellationToken.None);
@@ -118,7 +118,7 @@ public class TransactionHandlersTests
 
         var result = await TransactionHandlers.ResendReceipt(mediator.Instance(), user, request, CancellationToken.None);
 
-        result.ShouldNotBeNull();
+        result.GetErrors().ShouldHaveSingleItem().ShouldBe(new Error(ErrorType.Validation, "Recipient email address is not valid."));
     }
 
 }

@@ -119,20 +119,20 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
     public class DummyTransactionProcessorACLApplicationService : ITransactionProcessorACLApplicationService
     {
         public async Task<Result<ProcessLogonTransactionResponse>> ProcessLogonTransaction(TransactionCommands.ProcessLogonTransactionCommand command,
-                                                                                           CancellationToken cancellationToken) => Result.Success(new ProcessLogonTransactionResponse());
+                                                                                           CancellationToken cancellationToken) => Results.Ok(new ProcessLogonTransactionResponse());
         
         public async Task<Result<ProcessSaleTransactionResponse>> ProcessSaleTransaction(TransactionCommands.ProcessSaleTransactionCommand command,
-                                                                                         CancellationToken cancellationToken) => Result.Success(new ProcessSaleTransactionResponse());
+                                                                                         CancellationToken cancellationToken) => Results.Ok(new ProcessSaleTransactionResponse());
 
         public async Task<Result<ProcessReconciliationResponse>> ProcessReconciliation(TransactionCommands.ProcessReconciliationCommand command,
-                                                                                       CancellationToken cancellationToken) => Result.Success(new ProcessReconciliationResponse());
+                                                                                       CancellationToken cancellationToken) => Results.Ok(new ProcessReconciliationResponse());
 
         public async Task<Result<GetVoucherResponse>> GetVoucher(Guid estateId,
                                                                  Guid contractId,
                                                                  String voucherCode,
                                                                  CancellationToken cancellationToken)
         {
-            return Result.Success(new GetVoucherResponse());
+            return Results.Ok(new GetVoucherResponse());
         }
 
         public async Task<Result<RedeemVoucherResponse>> RedeemVoucher(Guid estateId,
@@ -140,47 +140,47 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
                                                                        String voucherCode,
                                                                CancellationToken cancellationToken)
         {
-            return Result.Success(new RedeemVoucherResponse());
+            return Results.Ok(new RedeemVoucherResponse());
         }
 
         public async Task<Result<List<ContractResponse>>> GetMerchantContracts(Guid estateId,
                                                                                Guid merchantId,
                                                                                CancellationToken cancellationToken) {
-            return Result.Success(new List<ContractResponse>());
+            return Results.Ok(new List<ContractResponse>());
         }
 
         public async Task<Result<MerchantResponse>> GetMerchant(Guid estateId,
                                                                 Guid merchantId,
                                                                 CancellationToken cancellationToken) {
-            return Result.Success(new MerchantResponse());
+            return Results.Ok(new MerchantResponse());
         }
 
         public async Task<Result<MerchantScheduleResponse>> GetMerchantSchedule(Guid estateId,
                                                                                 Guid merchantId,
                                                                                 Int32 year,
                                                                                 CancellationToken cancellationToken) {
-            return Result.Success(new MerchantScheduleResponse());
+            return Results.Ok(new MerchantScheduleResponse());
         }
 
         public async Task<Result<MerchantDailyPerformanceSummaryResponse>> GetMerchantDailyPerformanceSummary(Guid estateId,
                                                                                                                MerchantDailyPerformanceSummaryRequest request,
                                                                                                                CancellationToken cancellationToken)
         {
-            return Result.Success(new MerchantDailyPerformanceSummaryResponse());
+            return Results.Ok(new MerchantDailyPerformanceSummaryResponse());
         }
 
         public async Task<Result<MerchantTransactionMixSummaryResponse>> GetMerchantTransactionMixSummary(Guid estateId,
                                                                                                          MerchantTransactionMixSummaryRequest request,
                                                                                                          CancellationToken cancellationToken)
         {
-            return Result.Success(new MerchantTransactionMixSummaryResponse());
+            return Results.Ok(new MerchantTransactionMixSummaryResponse());
         }
 
         public async Task<Result<RecentActivityReceiptSearchResponse>> GetRecentActivityReceiptSearch(Guid estateId,
                                                                                                       RecentActivityReceiptSearchRequest request,
                                                                                                       CancellationToken cancellationToken)
         {
-            return Result.Success(new RecentActivityReceiptSearchResponse());
+            return Results.Ok(new RecentActivityReceiptSearchResponse());
         }
 
         public async Task<Result<ResendReceiptResponse>> ResendReceipt(Guid estateId,
@@ -189,7 +189,7 @@ namespace TransactionProcessorACL.BusinessLogic.Tests
                                                                         String recipientEmailAddress,
                                                                         CancellationToken cancellationToken)
         {
-            return Result.Success(new ResendReceiptResponse { Success = true, Message = "Receipt resend requested." });
+            return Results.Ok(new ResendReceiptResponse { Success = true, Message = "Receipt resend requested." });
         }
     }
 }
