@@ -151,8 +151,8 @@ public class ACLSteps{
                                                                                                       es1.EstateDetails.EstateId,
                                                                                                       transactionResponse.TransactionId,
                                                                                                       CancellationToken.None);
-                            voucherResult.IsSuccess.ShouldBeTrue("Failed to retrieve voucher by transaction id");
-                            voucher = voucherResult.Data;
+                            voucherResult.IsSuccess().ShouldBeTrue("Failed to retrieve voucher by transaction id");
+                            voucher = voucherResult.Value.ShouldBeOfType<Success<GetVoucherResponse>>().Value;
                             voucher.ShouldNotBeNull();
                         });
                 

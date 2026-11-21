@@ -38,7 +38,7 @@ public sealed class VersionCheckMiddleware {
         var versionCheckCommand = new VersionCheckCommands.VersionCheckCommand(applicationVersion);
         Result versionCheckResult = await mediator.Send(versionCheckCommand, cancellationToken).ConfigureAwait(false);
 
-        if (versionCheckResult.IsFailed) {
+        if (!versionCheckResult.IsSuccess()) {
             context.Response.StatusCode = 505;
             return; // stop the pipeline
         }
