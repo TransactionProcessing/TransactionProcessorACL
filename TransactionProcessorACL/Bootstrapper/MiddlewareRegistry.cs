@@ -90,7 +90,6 @@ namespace TransactionProcessorACL.Bootstrapper
                     options.SetIssuer(new Uri(ConfigurationReader.GetValue("SecurityConfiguration", "Authority")));
 
                     // Enables discovery and HTTP backchannel support
-                    //options.UseSystemNetHttp();
                     options.UseSystemNetHttp()
                            .ConfigureHttpClientHandler(handler => {
                                // DEV ONLY: bypass all certificate errors
