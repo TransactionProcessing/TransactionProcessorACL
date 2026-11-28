@@ -35,6 +35,7 @@ namespace TransactionProcessor.IntegrationTests.Common
             public string SecurityServiceName => this.SecurityServiceContainerName;
 
             public string TransactionProcessorName => this.TransactionProcessorContainerName;
+
         }
     }
 }

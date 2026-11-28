@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TransactionProcessing.ApiDefaults;
+using TransactionProcessing.CertificateDefaults;
 using TransactionProcessing.UnionResults.AspNetCore;
 using TransactionProcessorACL.Common;
 
@@ -65,6 +66,7 @@ public class Program
         appBuilder.Logging.AddConsole();
         appBuilder.Logging.AddNLog();
         appBuilder.WebHost.UseKestrel();
+        appBuilder.WebHost.ConfigureTransactionProcessingHttps();
 
         ConfigureApplicationConfiguration(appBuilder);
 
