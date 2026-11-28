@@ -279,7 +279,7 @@ namespace TransactionProcessor.IntegrationTests.Common {
                     DateTimeOffset startedAt = DateTimeOffset.UtcNow;
                     this.Trace($"Starting container [{service}]");
 
-                    if (RequiresLocalHttpsHealthCheck(service)) {
+                    if (RequiresLocalHttpsHealthCheck(service) || service == DockerServices.FileProcessor) {
                         Boolean skipHealthChecks = this.SkipHealthChecks;
                         this.SkipHealthChecks = true;
                         try {
@@ -288,7 +288,11 @@ namespace TransactionProcessor.IntegrationTests.Common {
                             this.SkipHealthChecks = skipHealthChecks;
                         }
 
-                        await this.WaitForHttpsHealthCheck(service, GetHttpsPort(service), cancellationToken);
+                        if (RequiresLocalHttpsHealthCheck(service)) {
+                            await this.WaitForHttpsHealthCheck(service, GetHttpsPort(service), cancellationToken);
+                        } else {
+                            await this.WaitForFileProcessorResponse(cancellationToken);
+                        }
                     } else {
                         await this.StartContainer2(setupContainer, networks, service, cancellationToken);
                     }
@@ -442,6 +446,36 @@ namespace TransactionProcessor.IntegrationTests.Common {
             }
 
             throw new InvalidOperationException($"{service} did not become healthy over HTTPS within three minutes.", lastException);
+        }
+
+        private async Task WaitForFileProcessorResponse(CancellationToken cancellationToken) {
+            DateTimeOffset deadline = DateTimeOffset.UtcNow.AddMinutes(3);
+            Exception lastException = null;
+
+            using HttpClient client = new();
+            while (DateTimeOffset.UtcNow < deadline) {
+                cancellationToken.ThrowIfCancellationRequested();
+                try {
+                    using HttpResponseMessage response = await client.GetAsync(
+                        $"http://127.0.0.1:{this.FileProcessorPort}/healthui",
+                        cancellationToken);
+
+                    if ((Int32)response.StatusCode < 500 || (Int32)response.StatusCode == 503) {
+                        return;
+                    }
+
+                    lastException = new HttpRequestException(
+                        $"FileProcessor readiness endpoint returned HTTP {(Int32)response.StatusCode}.");
+                } catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) {
+                    throw;
+                } catch (Exception exception) {
+                    lastException = exception;
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+            }
+
+            throw new InvalidOperationException("FileProcessor did not respond over HTTP within three minutes.", lastException);
         }
 
         private void DumpDockerContainerState() {
