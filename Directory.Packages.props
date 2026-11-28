@@ -7,7 +7,7 @@
     <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="9.0.0" />
     <PackageVersion Include="NuGet.Packaging" Version="8.0.0" />
     <PackageVersion Include="NuGet.Protocol" Version="8.0.0" />
-    <PackageVersion Include="TransactionProcessing.ClientProxyBase" Version="2026.11.7" />
+    <PackageVersion Include="TransactionProcessing.ClientProxyBase" Version="2026.11.8" />
     <PackageVersion Include="coverlet.collector" Version="10.1.1" />
     <PackageVersion Include="HealthMonitoring.Client" Version="2026.10.3.76" />
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.12.0" />
@@ -42,13 +42,14 @@
     <PackageVersion Include="Reqnroll.Tools.MsBuild.Generation" Version="3.3.4" />
     <PackageVersion Include="SecurityService.Client" Version="2026.10.3.219" />
     <PackageVersion Include="SecurityService.IntegrationTesting.Helpers" Version="2026.10.3.219" />
-    <PackageVersion Include="TransactionProcessing.Shared" Version="2026.11.7" />
-    <PackageVersion Include="TransactionProcessing.Shared.Logger" Version="2026.11.7" />
-    <PackageVersion Include="TransactionProcessing.Shared.IntegrationTesting" Version="2026.11.7" />
-    <PackageVersion Include="TransactionProcessing.UnionResults" Version="2026.11.7" />
-    <PackageVersion Include="TransactionProcessing.UnionResults.AspNetCore" Version="2026.11.7" />
+    <PackageVersion Include="TransactionProcessing.Shared" Version="2026.11.8" />
+    <PackageVersion Include="TransactionProcessing.Shared.Logger" Version="2026.11.8" />
+    <PackageVersion Include="TransactionProcessing.Shared.IntegrationTesting" Version="2026.11.8" />
+    <PackageVersion Include="TransactionProcessing.UnionResults" Version="2026.11.8" />
+    <PackageVersion Include="TransactionProcessing.UnionResults.AspNetCore" Version="2026.11.8" />
+    <PackageVersion Include="TransactionProcessing.CertificateDefaults" Version="2026.11.8" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
-    <PackageVersion Include="TransactionProcessing.ApiDefaults" Version="2026.11.7" />
+    <PackageVersion Include="TransactionProcessing.ApiDefaults" Version="2026.11.8" />
     <PackageVersion Include="TransactionProcessor.Client" Version="2026.10.3.448" />
     <PackageVersion Include="TransactionProcessor.IntegrationTesting.Helpers" Version="2026.10.3.448" />
     <PackageVersion Include="Sentry.AspNetCore" Version="7.0.1" />

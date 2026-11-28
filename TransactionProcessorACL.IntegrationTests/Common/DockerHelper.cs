@@ -4,6 +4,7 @@ using KurrentDB.Client;
 using SecurityService.DataTransferObjects;
 using Shouldly;
 using System.Linq;
+using System.Text.Json;
 using TransactionProcessing.Shared.IntegrationTesting;
 using TransactionProcessing.Shared.IntegrationTesting.TestContainers;
 using TransactionProcessing.Shared.Serialisation;
@@ -20,6 +21,7 @@ namespace TransactionProcessor.IntegrationTests.Common {
     using System.Threading;
     using System.Threading.Tasks;
     using TestHosts.Clients;
+    using DotNet.Testcontainers.Networks;
 
     /// <summary>
     /// 
@@ -119,12 +121,42 @@ namespace TransactionProcessor.IntegrationTests.Common {
             return eventStoreContainer;
         }
 
+        public override ContainerBuilder SetupTransactionProcessorAclContainer() {
+            this.Trace("About to Start Transaction Processor ACL Container");
+
+            IntegrationTestCertificate certificate = this.IntegrationTestCertificate
+                ?? throw new InvalidOperationException("The integration test certificate was not initialized before ACL container setup.");
+
+            Dictionary<String, String> environmentVariables = this.GetCommonEnvironmentVariables();
+            environmentVariables.Add("ASPNETCORE_ENVIRONMENT", "IntegrationTest");
+            environmentVariables.Add("urls", $"https://*:{DockerPorts.TransactionProcessorAclDockerPort}");
+            environmentVariables.Add("ServiceOptions__KestrelOptions__Path", certificate.GetContainerCertificatePath());
+            environmentVariables.Add("ServiceOptions__KestrelOptions__Password", certificate.Password);
+
+            Dictionary<String, String> additionalEnvironmentVariables = this.GetAdditionalVariables(ContainerType.TransactionProcessorAcl);
+            foreach (KeyValuePair<String, String> additionalEnvironmentVariable in additionalEnvironmentVariables) {
+                environmentVariables.Add(additionalEnvironmentVariable.Key, additionalEnvironmentVariable.Value);
+            }
+
+            (String imageName, Boolean useLatest) imageDetails = this.GetImageDetails(ContainerType.TransactionProcessorAcl)
+                .Value.ShouldBeOfType<Success<(String imageName, Boolean useLatest)>>().Value;
+
+            return new ContainerBuilder(imageDetails.imageName)
+                .WithName(this.TransactionProcessorAclContainerName)
+                .WithEnvironment(environmentVariables)
+                .MountHostFolder(this.HostTraceFolder)
+                .MountHostFolder(certificate.CertificateDirectory, certificate.ContainerCertificateDirectory)
+                .WithPortBinding(DockerPorts.TransactionProcessorAclDockerPort, true);
+        }
+
         public override DotNet.Testcontainers.Builders.ContainerBuilder SetupEstateReportingContainer() {
             Dictionary<String, String> environmentVariables = new();
             environmentVariables.Add("ConnectionStrings:TransactionProcessorReadModel", this.SetConnectionString("TransactionProcessorReadModel", this.UseSecureSqlServerDatabase));
             this.AdditionalVariables.Add(ContainerType.EstateReporting, environmentVariables);
 
-            return base.SetupEstateReportingContainer();
+            return this.ConfigureHttpsContainer(
+                base.SetupEstateReportingContainer(),
+                DockerPorts.EstateReportingDockerPort);
         }
 
         //public override ContainerBuilder SetupSecurityServiceContainer()
@@ -142,7 +174,27 @@ namespace TransactionProcessor.IntegrationTests.Common {
             additionalVariables.Add("OperatorConfiguration:AgencyBanking:Url", $"http://{this.TestHostContainerName}:{DockerPorts.TestHostPort}/api/agencybanking");
             this.AdditionalVariables.Add(ContainerType.TransactionProcessor, additionalVariables);
 
-            return base.SetupTransactionProcessorContainer();
+            return this.ConfigureHttpsContainer(
+                base.SetupTransactionProcessorContainer(),
+                DockerPorts.TransactionProcessorDockerPort);
+        }
+
+        public override ContainerBuilder SetupCallbackHandlerContainer() =>
+            this.ConfigureHttpsContainer(base.SetupCallbackHandlerContainer(), DockerPorts.CallbackHandlerDockerPort);
+
+        public override ContainerBuilder SetupMessagingServiceContainer() =>
+            this.ConfigureHttpsContainer(base.SetupMessagingServiceContainer(), DockerPorts.MessagingServiceDockerPort);
+
+        private ContainerBuilder ConfigureHttpsContainer(ContainerBuilder container, Int32 port) {
+            IntegrationTestCertificate certificate = this.IntegrationTestCertificate
+                ?? throw new InvalidOperationException("The integration test certificate was not initialized before container setup.");
+
+            return container
+                .WithEnvironment("urls", $"https://*:{port}")
+                .WithEnvironment("ServiceOptions__KestrelOptions__Path", certificate.GetContainerCertificatePath())
+                .WithEnvironment("ServiceOptions__KestrelOptions__Password", certificate.Password)
+                .WithEnvironment("HealthMonitoring__Service__HealthUrl", $"https://localhost:{port}/healthui")
+                .MountHostFolder(certificate.CertificateDirectory, certificate.ContainerCertificateDirectory);
         }
 
         protected override String GenerateKurrentDbConnectionString(String userName = "admin", String password = "changeit") {
@@ -163,23 +215,165 @@ namespace TransactionProcessor.IntegrationTests.Common {
             }
         }
 
+        public override Dictionary<String, String> GetCommonEnvironmentVariables() {
+            Dictionary<String, String> environmentVariables = base.GetCommonEnvironmentVariables();
+            environmentVariables["AppSettings:TransactionProcessorApi"] =
+                $"https://{this.TransactionProcessorContainerName}:{DockerPorts.TransactionProcessorDockerPort}";
+            environmentVariables["AppSettings:MessagingServiceApi"] =
+                $"https://{this.MessagingServiceContainerName}:{DockerPorts.MessagingServiceDockerPort}";
+            return environmentVariables;
+        }
+
         /// <summary>
         /// Starts the containers for scenario run.
         /// </summary>
         /// <param name="scenarioName">Name of the scenario.</param>
         public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            this.IntegrationTestCertificate = IntegrationTestCertificate.Create();
             try {
-                await base.StartContainersForScenarioRun(scenarioName, dockerServices, cancellationToken);
+                this.RequiredDockerServices = dockerServices;
+                this.IsSecureKurrentDb = Environment.GetEnvironmentVariable("IsSecureEventStore") switch {
+                    null => false,
+                    { Length: 0 } => false,
+                    "false" => false,
+                    _ => true
+                };
+                this.SetHostTraceFolder(scenarioName, this.SharedSqlServerFixture?.StartedAt);
+                this.TestId = Guid.NewGuid();
+                this.Trace($"Test Id is {this.TestId}");
+                this.SetupContainerNames();
+                if (this.SharedSqlServerFixture is not null) {
+                    this.SqlServerContainerName = this.SharedSqlServerFixture.ContainerName;
+                }
+
+                this.ClientDetails = ("serviceClient", "Secret1");
+
+                INetwork testNetwork;
+                if (this.SharedSqlServerFixture is null) {
+                    testNetwork = await this.SetupTestNetwork();
+                    this.TestNetworks.Add(testNetwork);
+                } else {
+                    testNetwork = this.SharedSqlServerFixture.Network;
+                }
+
+                List<INetwork> networks = [testNetwork];
+
+                Boolean RequiresLocalHttpsHealthCheck(DockerServices service) => service is
+                    DockerServices.CallbackHandler or
+                    DockerServices.MessagingService or
+                    DockerServices.TransactionProcessor or
+                    DockerServices.EstateReporting or
+                    DockerServices.TransactionProcessorAcl;
+
+                Int32 GetHttpsPort(DockerServices service) => service switch {
+                    DockerServices.CallbackHandler => this.CallbackHandlerPort,
+                    DockerServices.MessagingService => this.MessagingServicePort,
+                    DockerServices.TransactionProcessor => this.TransactionProcessorPort,
+                    DockerServices.EstateReporting => this.EstateReportingPort,
+                    DockerServices.TransactionProcessorAcl => this.TransactionProcessorAclPort,
+                    _ => throw new InvalidOperationException($"No HTTPS health check port exists for [{service}].")
+                };
+
+                async Task StartWithTrace(Func<ContainerBuilder> setupContainer, DockerServices service) {
+                    DateTimeOffset startedAt = DateTimeOffset.UtcNow;
+                    this.Trace($"Starting container [{service}]");
+
+                    if (RequiresLocalHttpsHealthCheck(service) || service == DockerServices.FileProcessor) {
+                        Boolean skipHealthChecks = this.SkipHealthChecks;
+                        this.SkipHealthChecks = true;
+                        try {
+                            await this.StartContainer2(setupContainer, networks, service, cancellationToken);
+                        } finally {
+                            this.SkipHealthChecks = skipHealthChecks;
+                        }
+
+                        if (RequiresLocalHttpsHealthCheck(service)) {
+                            await this.WaitForHttpsHealthCheck(service, GetHttpsPort(service), cancellationToken);
+                        } else {
+                            await this.WaitForFileProcessorResponse(cancellationToken);
+                        }
+                    } else {
+                        await this.StartContainer2(setupContainer, networks, service, cancellationToken);
+                    }
+
+                    TimeSpan elapsed = DateTimeOffset.UtcNow - startedAt;
+                    this.Trace($"Container [{service}] started in {elapsed.TotalSeconds:N1}s");
+                }
+
+                Func<DockerServices, Func<ContainerBuilder>> setupContainerForService = service => service switch {
+                    DockerServices.SqlServer => this.ConfigureSqlContainer,
+                    DockerServices.KurrentDb => this.SetupKurrentDbContainer,
+                    DockerServices.MessagingService => this.SetupMessagingServiceContainer,
+                    DockerServices.SecurityService => this.SetupSecurityServiceContainer,
+                    DockerServices.CallbackHandler => this.SetupCallbackHandlerContainer,
+                    DockerServices.TestHost => this.SetupTestHostContainer,
+                    DockerServices.TransactionProcessor => this.SetupTransactionProcessorContainer,
+                    DockerServices.FileProcessor => this.SetupFileProcessorContainer,
+                    DockerServices.TransactionProcessorAcl => this.SetupTransactionProcessorAclContainer,
+                    DockerServices.ConfigurationHost => this.SetupConfigHostContainer,
+                    DockerServices.EstateManagementUI => this.SetupEstateManagementUiContainer,
+                    DockerServices.EstateReporting => this.SetupEstateReportingContainer,
+                    DockerServices.SubscriptionService => this.SetupSubscriptionServiceContainer,
+                    _ => throw new InvalidOperationException($"No startup plan exists for docker service [{service}]")
+                };
+
+                DockerServices servicesForStartup = GetServicesForStartup(
+                    this.RequiredDockerServices,
+                    this.SharedSqlServerFixture is not null);
+
+                foreach (IReadOnlyList<DockerServices> startupGroup in this.GetStartupGroups()) {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    List<DockerServices> services = startupGroup
+                        .Where(service => (servicesForStartup & service) == service)
+                        .ToList();
+
+                    await Task.WhenAll(services
+                        .Where(service => !RequiresLocalHttpsHealthCheck(service) && service != DockerServices.FileProcessor)
+                        .Select(service => StartWithTrace(setupContainerForService(service), service)));
+
+                    foreach (DockerServices service in services
+                        .Where(service => RequiresLocalHttpsHealthCheck(service) && service != DockerServices.TransactionProcessorAcl)) {
+                        await StartWithTrace(
+                            setupContainerForService(service),
+                            service);
+                    }
+
+                    if (services.Contains(DockerServices.TransactionProcessorAcl)) {
+                        await StartWithTrace(
+                            setupContainerForService(DockerServices.TransactionProcessorAcl),
+                            DockerServices.TransactionProcessorAcl);
+                    }
+
+                    await Task.WhenAll(services
+                        .Where(service => service == DockerServices.FileProcessor)
+                        .Select(service => StartWithTrace(setupContainerForService(service), service)));
+                }
+
+                await this.LoadEventStoreProjections(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                await this.CreateSubscriptions(cancellationToken);
             }
-            catch {
+            catch (Exception startupException) {
                 this.DumpDockerContainerState();
+                try {
+                    await this.StopContainersForScenarioRun(DockerServices.None).ConfigureAwait(false);
+                } catch (Exception cleanupException) {
+                    this.DisposeIntegrationTestCertificate();
+                    throw new AggregateException(
+                        "Scenario container startup failed and cleanup also failed.",
+                        startupException,
+                        cleanupException);
+                }
+
+                this.DisposeIntegrationTestCertificate();
                 throw;
             }
 
             // Setup the base address resolvers
             String SecurityServiceBaseAddressResolver(String api) => $"https://127.0.0.1:{this.SecurityServicePort}";
-            String TransactionProcessorBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorPort}";
-            String TransactionProcessorAclBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TransactionProcessorAclPort}";
+            String TransactionProcessorBaseAddressResolver(String api) => $"https://127.0.0.1:{this.TransactionProcessorPort}";
+            String TransactionProcessorAclBaseAddressResolver(String api) => $"https://127.0.0.1:{this.TransactionProcessorAclPort}";
             String TestHostServiceBaseAddressResolver(String api) => $"http://127.0.0.1:{this.TestHostServicePort}";
 
             HttpClientHandler clientHandler = new HttpClientHandler {
@@ -199,7 +393,7 @@ namespace TransactionProcessor.IntegrationTests.Common {
             this.TestHostHttpClient.BaseAddress = new Uri($"http://127.0.0.1:{this.TestHostServicePort}");
             this.AgencyBankingClient = new AgencyBankingClient(TestHostServiceBaseAddressResolver, httpClient, Serialise_CamelCase, this.Deserialise_CamelCase);
 
-            this.HttpClient = new HttpClient();
+            this.HttpClient = new HttpClient(clientHandler);
             this.HttpClient.BaseAddress = new Uri(TransactionProcessorAclBaseAddressResolver(string.Empty));
             this.HttpClient.Timeout = TimeSpan.FromMinutes(5);
 
@@ -213,6 +407,76 @@ namespace TransactionProcessor.IntegrationTests.Common {
         }
 
         public String AccessToken;
+
+        private async Task WaitForHttpsHealthCheck(DockerServices service, Int32 port, CancellationToken cancellationToken) {
+            DateTimeOffset deadline = DateTimeOffset.UtcNow.AddMinutes(3);
+            Exception lastException = null;
+
+            while (DateTimeOffset.UtcNow < deadline) {
+                cancellationToken.ThrowIfCancellationRequested();
+                try {
+                    Result<String> result = await this.HealthCheckClient.PerformHealthCheck(
+                        "https",
+                        "127.0.0.1",
+                        port,
+                        cancellationToken);
+
+                    if (result.Value is not Success<String> success) {
+                        String message = result.GetErrors().FirstOrDefault()?.Message ?? "Health check returned no result.";
+                        throw new InvalidOperationException($"HTTPS health check failed for {service} [{message}]");
+                    }
+
+                    using JsonDocument healthResponse = JsonDocument.Parse(success.Value);
+                    String status = healthResponse.RootElement.GetProperty("status").GetString();
+                    if (status == "Healthy") {
+                        return;
+                    }
+
+                        throw new InvalidOperationException($"{service} health status was [{status}]");
+                } catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) {
+                    throw;
+                } catch (Exception exception) {
+                    lastException = exception;
+                }
+
+                TimeSpan remaining = deadline - DateTimeOffset.UtcNow;
+                if (remaining > TimeSpan.Zero) {
+                    await Task.Delay(TimeSpan.FromSeconds(Math.Min(20, remaining.TotalSeconds)), cancellationToken);
+                }
+            }
+
+            throw new InvalidOperationException($"{service} did not become healthy over HTTPS within three minutes.", lastException);
+        }
+
+        private async Task WaitForFileProcessorResponse(CancellationToken cancellationToken) {
+            DateTimeOffset deadline = DateTimeOffset.UtcNow.AddMinutes(3);
+            Exception lastException = null;
+
+            using HttpClient client = new();
+            while (DateTimeOffset.UtcNow < deadline) {
+                cancellationToken.ThrowIfCancellationRequested();
+                try {
+                    using HttpResponseMessage response = await client.GetAsync(
+                        $"http://127.0.0.1:{this.FileProcessorPort}/healthui",
+                        cancellationToken);
+
+                    if ((Int32)response.StatusCode < 500 || (Int32)response.StatusCode == 503) {
+                        return;
+                    }
+
+                    lastException = new HttpRequestException(
+                        $"FileProcessor readiness endpoint returned HTTP {(Int32)response.StatusCode}.");
+                } catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) {
+                    throw;
+                } catch (Exception exception) {
+                    lastException = exception;
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+            }
+
+            throw new InvalidOperationException("FileProcessor did not respond over HTTP within three minutes.", lastException);
+        }
 
         private void DumpDockerContainerState() {
             ProcessStartInfo startInfo = new ProcessStartInfo {
@@ -264,7 +528,7 @@ namespace TransactionProcessor.IntegrationTests.Common {
             if (containerType == ContainerType.TransactionProcessorAcl &&
                 (this.RequiredDockerServices & DockerServices.EstateReporting) == DockerServices.EstateReporting) {
                 additionalVariables["AppSettings:EstateReportingApi"] =
-                    $"http://{this.EstateReportingContainerName}:{DockerPorts.EstateReportingDockerPort}";
+                    $"https://{this.EstateReportingContainerName}:{DockerPorts.EstateReportingDockerPort}";
             }
 
             if (containerType == ContainerType.TransactionProcessorAcl) {

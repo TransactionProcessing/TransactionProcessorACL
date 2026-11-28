@@ -1,6 +1,7 @@
 using HealthMonitoring.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 using TransactionProcessing.Shared.Authorisation;
 using TransactionProcessing.ApiDefaults;
 
@@ -17,6 +18,7 @@ namespace TransactionProcessorACL.Bootstrapper
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Net.Http;
+    using System.Net.Security;
     using System.Reflection;
     using System.Text.Json;
     using System.Threading.Tasks;
@@ -65,13 +67,15 @@ namespace TransactionProcessorACL.Bootstrapper
         /// <returns></returns>
         private HttpClientHandler ApiEndpointHttpHandler(IServiceProvider serviceProvider)
         {
+            IHostEnvironment hostEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
+
             return new HttpClientHandler {
                                              ServerCertificateCustomValidationCallback = (message,
                                                                                           cert,
                                                                                           chain,
                                                                                           errors) =>
                                              {
-                                                 return true;
+                                                 return hostEnvironment.IsEnvironment("IntegrationTest") || errors == SslPolicyErrors.None;
                                              }
                                          };
         }
@@ -119,7 +123,9 @@ namespace TransactionProcessorACL.Bootstrapper
 
         private void ConfigureHealthChecks()
         {
-            this.AddHealthChecks().AddSecurityService(this.ApiEndpointHttpHandler).AddTransactionProcessorService();
+            this.AddHealthChecks()
+                .AddSecurityService(this.ApiEndpointHttpHandler)
+                .AddTransactionProcessorService(this.ApiEndpointHttpHandler);
         }
 
         private void ConfigureJsonOptions()

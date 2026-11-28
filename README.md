@@ -1,5 +1,19 @@
 # TransactionProcessorACL
 
+## HTTPS listener
+
+The service listens on HTTPS port `5003` only. The `TransactionProcessing.CertificateDefaults`
+shared library configures Kestrel to load the CA-issued server certificate from these environment variables:
+
+- `ServiceOptions__KestrelOptions__Path` — path to the mounted `.pfx` file, or full-chain PEM file.
+- `ServiceOptions__KestrelOptions__Password` — PFX password, supplied as a deployment secret.
+- `ServiceOptions__KestrelOptions__KeyPath` — private key path when using PEM.
+
+The certificate must include the service hostname in its subject alternative names, and
+clients must trust its issuing CA. Mount certificate files read-only and restrict access
+to the service identity. Do not commit certificates, private keys, or passwords. The port
+number remains unchanged.
+
 ## Build Status
 
 [![Last Nightly Build Status Badge](https://github.com/TransactionProcessing/TransactionProcessorACL/workflows/Nightly%20Build/badge.svg)](https://github.com/TransactionProcessing/TransactionProcessorACL/workflows/Nightly%20Build/badge.svg)
