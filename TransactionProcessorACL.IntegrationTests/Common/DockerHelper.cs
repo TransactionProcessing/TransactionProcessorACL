@@ -331,7 +331,7 @@ namespace TransactionProcessor.IntegrationTests.Common {
             this.TestHostHttpClient.BaseAddress = new Uri($"http://127.0.0.1:{this.TestHostServicePort}");
             this.AgencyBankingClient = new AgencyBankingClient(TestHostServiceBaseAddressResolver, httpClient, Serialise_CamelCase, this.Deserialise_CamelCase);
 
-            this.HttpClient = new HttpClient();
+            this.HttpClient = new HttpClient(clientHandler);
             this.HttpClient.BaseAddress = new Uri(TransactionProcessorAclBaseAddressResolver(string.Empty));
             this.HttpClient.Timeout = TimeSpan.FromMinutes(5);
 
