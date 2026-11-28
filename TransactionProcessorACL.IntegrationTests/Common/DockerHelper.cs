@@ -325,14 +325,25 @@ namespace TransactionProcessor.IntegrationTests.Common {
                         .ToList();
 
                     await Task.WhenAll(services
-                        .Where(service => !RequiresLocalHttpsHealthCheck(service))
+                        .Where(service => !RequiresLocalHttpsHealthCheck(service) && service != DockerServices.FileProcessor)
                         .Select(service => StartWithTrace(setupContainerForService(service), service)));
 
-                    foreach (DockerServices service in services.Where(RequiresLocalHttpsHealthCheck)) {
+                    foreach (DockerServices service in services
+                        .Where(service => RequiresLocalHttpsHealthCheck(service) && service != DockerServices.TransactionProcessorAcl)) {
                         await StartWithTrace(
                             setupContainerForService(service),
                             service);
                     }
+
+                    if (services.Contains(DockerServices.TransactionProcessorAcl)) {
+                        await StartWithTrace(
+                            setupContainerForService(DockerServices.TransactionProcessorAcl),
+                            DockerServices.TransactionProcessorAcl);
+                    }
+
+                    await Task.WhenAll(services
+                        .Where(service => service == DockerServices.FileProcessor)
+                        .Select(service => StartWithTrace(setupContainerForService(service), service)));
                 }
 
                 await this.LoadEventStoreProjections(cancellationToken);
